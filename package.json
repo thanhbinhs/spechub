@@ -1,0 +1,33 @@
+{
+  "name": "spechub",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@spechub/web",
+    "dev:api": "turbo dev --filter=@spechub/api",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md,css}\"",
+    "db:generate": "turbo db:generate --filter=@spechub/database",
+    "db:migrate": "turbo db:migrate --filter=@spechub/database",
+    "db:seed": "turbo db:seed --filter=@spechub/database",
+    "db:studio": "pnpm --filter @spechub/database studio",
+    "db:reset": "pnpm --filter @spechub/database reset",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "2.3.3",
+    "typescript": "5.7.2",
+    "prettier": "3.4.2",
+    "prettier-plugin-tailwindcss": "0.6.9",
+    "@types/node": "22.10.2"
+  },
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=9.15.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
