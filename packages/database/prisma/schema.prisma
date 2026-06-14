@@ -1,7 +1,14 @@
+// ============================================================
+// SpecHub Prisma Schema v2 — Production-ready
+// ============================================================
+// Đã được optimize từ DBML schema + thêm AI/Commerce/Engagement
+// ============================================================
+
 generator client {
   provider        = "prisma-client-js"
   output          = "../generated/client"
-  previewFeatures = ["postgresqlExtensions"]
+  previewFeatures = ["postgresqlExtensions", "fullTextSearchPostgres"]
+  binaryTargets   = ["native"]
 }
 
 datasource db {
@@ -10,9 +17,37 @@ datasource db {
   extensions = [vector, pg_trgm, unaccent]
 }
 
-// =====================================
-// META & LOOKUPS
-// =====================================
+// ============================================================
+// 0. SHARED / META
+// ============================================================
+
+model languages {
+  id         Int     @id @default(autoincrement())
+  code       String  @unique @db.VarChar(10) // BCP-47: vi, en, en-US
+  name       String  @db.VarChar(60)
+  is_default Boolean @default(false)
+  is_active  Boolean @default(true)
+
+  translations  translations[]
+  wiki_articles wiki_articles[]
+
+  @@map("languages")
+}
+
+model translations {
+  id           String   @id @default(uuid()) @db.Uuid
+  entity_table String   @db.VarChar(80)
+  entity_id    String   @db.VarChar(64)
+  field_key    String   @db.VarChar(60)
+  language_id  Int
+  value_text   String
+
+  language languages @relation(fields: [language_id], references: [id])
+
+  @@unique([entity_table, entity_id, field_key, language_id])
+  @@index([entity_table, entity_id])
+  @@map("translations")
+}
 
 model release_statuses {
   id         Int    @id @default(autoincrement())
@@ -22,110 +57,335 @@ model release_statuses {
 
   device_models   device_models[]
   device_variants device_variants[]
+
+  @@map("release_statuses")
 }
 
 model currencies {
-  code         String @id @db.VarChar(3)
-  name         String @db.VarChar(60)
-  symbol       String @db.VarChar(10)
-  decimal_places Int  @default(2)
+  id             Int     @id @default(autoincrement())
+  code           String  @unique @db.VarChar(3) // ISO 4217: USD, VND
+  name           String  @db.VarChar(60)
+  symbol         String? @db.VarChar(8)
+  decimal_digits Int     @default(2)
+
+  device_variants       device_variants[]
+  variant_price_history variant_price_history[]
+
+  @@map("currencies")
 }
 
-// =====================================
-// ORGANIZATIONS
-// =====================================
+model sources {
+  id           String  @id @default(uuid()) @db.Uuid
+  name         String  @unique @db.VarChar(160)
+  slug         String  @unique @db.VarChar(180)
+  source_type  String  @db.VarChar(40) // official, review, certification...
+  base_url     String?
+  trust_level  Int     @default(3) // 1=low, 5=highest
+  description  String?
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @updatedAt @db.Timestamptz(6)
+
+  citations               citations[]
+  media_assets            media_assets[]
+  variant_price_history   variant_price_history[]
+  variant_certifications  variant_certifications[]
+  device_variant_features device_variant_features[]
+  benchmark_runs          benchmark_runs[]
+  device_variant_benchmarks device_variant_benchmarks[]
+  chipset_benchmarks      chipset_benchmarks[]
+  cpu_benchmarks          cpu_benchmarks[]
+  gpu_benchmarks          gpu_benchmarks[]
+  npu_benchmarks          npu_benchmarks[]
+
+  @@index([slug])
+  @@index([source_type])
+  @@map("sources")
+}
+
+model citations {
+  id            String    @id @default(uuid()) @db.Uuid
+  source_id     String    @db.Uuid
+  url           String?
+  title         String?   @db.VarChar(300)
+  author        String?   @db.VarChar(200)
+  published_at  DateTime? @db.Date
+  retrieved_at  DateTime? @db.Date
+  excerpt       String?
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  source                  sources                   @relation(fields: [source_id], references: [id])
+  device_variant_features device_variant_features[]
+  benchmark_runs          benchmark_runs[]
+  wiki_article_citations  wiki_article_citations[]
+
+  @@index([source_id])
+  @@index([published_at])
+  @@map("citations")
+}
+
+model media_assets {
+  id               String  @id @default(uuid()) @db.Uuid
+  asset_type       String  @db.VarChar(30) // image, video, 3d_model
+  url              String
+  cdn_url          String?
+  mime_type        String? @db.VarChar(80)
+  width_px         Int?
+  height_px        Int?
+  file_size_bytes  BigInt?
+  alt_text         String?
+  caption          String?
+  copyright_holder String? @db.VarChar(200)
+  license          String? @db.VarChar(80)
+  source_id        String? @db.Uuid
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @updatedAt @db.Timestamptz(6)
+
+  source        sources?       @relation(fields: [source_id], references: [id])
+  entity_media  entity_media[]
+
+  @@index([asset_type])
+  @@index([source_id])
+  @@map("media_assets")
+}
+
+model entity_media {
+  id             String  @id @default(uuid()) @db.Uuid
+  entity_table   String  @db.VarChar(80)
+  entity_id      String  @db.VarChar(64)
+  media_asset_id String  @db.Uuid
+  role           String  @db.VarChar(40) // hero, gallery, render_front
+  display_order  Int     @default(0)
+  is_primary     Boolean @default(false)
+
+  media_asset media_assets @relation(fields: [media_asset_id], references: [id])
+
+  @@index([entity_table, entity_id, role, display_order])
+  @@index([media_asset_id])
+  @@map("entity_media")
+}
+
+model tags {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique @db.VarChar(80)
+  slug        String  @unique @db.VarChar(100)
+  tag_group   String? @db.VarChar(40) // feature, audience, era
+  description String?
+
+  entity_tags entity_tags[]
+
+  @@map("tags")
+}
+
+model entity_tags {
+  id           String @id @default(uuid()) @db.Uuid
+  entity_table String @db.VarChar(80)
+  entity_id    String @db.VarChar(64)
+  tag_id       String @db.Uuid
+
+  tag tags @relation(fields: [tag_id], references: [id])
+
+  @@unique([entity_table, entity_id, tag_id])
+  @@index([tag_id])
+  @@map("entity_tags")
+}
+
+model units {
+  id                String   @id @default(uuid()) @db.Uuid
+  symbol            String   @unique @db.VarChar(20)
+  name              String   @db.VarChar(60)
+  quantity_type     String   @db.VarChar(40) // length, mass, time
+  base_unit_id      String?  @db.Uuid
+  conversion_factor Decimal? @db.Decimal(20, 10)
+
+  base_unit  units?  @relation("UnitHierarchy", fields: [base_unit_id], references: [id])
+  derived    units[] @relation("UnitHierarchy")
+
+  feature_definitions feature_definitions[]
+  benchmarks          benchmarks[]
+
+  @@map("units")
+}
+
+// ============================================================
+// A. ORGANIZATION LAYER
+// ============================================================
 
 model organizations {
   id            String    @id @default(uuid()) @db.Uuid
   name          String    @unique @db.VarChar(160)
   slug          String    @unique @db.VarChar(180)
   short_name    String?   @db.VarChar(80)
+  legal_name    String?   @db.VarChar(200)
   country_code  String?   @db.VarChar(2)
   founded_year  Int?
   website_url   String?
   logo_url      String?
+  parent_org_id String?   @db.Uuid
   description   String?
   is_active     Boolean   @default(true)
-  parent_org_id String?   @db.Uuid
   created_at    DateTime  @default(now()) @db.Timestamptz(6)
   updated_at    DateTime  @updatedAt @db.Timestamptz(6)
   deleted_at    DateTime? @db.Timestamptz(6)
 
-  parent_org    organizations?   @relation("OrgHierarchy", fields: [parent_org_id], references: [id])
-  child_orgs    organizations[]  @relation("OrgHierarchy")
+  parent_org organizations?  @relation("OrgHierarchy", fields: [parent_org_id], references: [id])
+  child_orgs organizations[] @relation("OrgHierarchy")
 
-  product_families product_families[]
-  chipsets         chipsets[]
+  organization_role_assignments organization_role_assignments[]
+  product_families              product_families[]
+  technology_families           technology_families[]
+  architectures                 architectures[]
+  process_nodes                 process_nodes[]
+  chipsets                      chipsets[]
+  cpus                          cpus[]
+  gpus                          gpus[]
+  npus                          npus[]
+  modems                        modems[]
+  camera_sensors                camera_sensors[]
+  camera_modules                camera_modules[]
+  display_units                 display_units[]
+  battery_units                 battery_units[]
+  memory_standards              memory_standards[]
+  storage_standards             storage_standards[]
+  wireless_standards            wireless_standards[]
+  port_standards                port_standards[]
+  operating_systems             operating_systems[]
+  os_ui_layers                  os_ui_layers[]
+  hardware_sensors              hardware_sensors[]
+  certifications                certifications[]
+  software_features             software_features[]
+  benchmarks                    benchmarks[]
 
   @@index([slug])
   @@index([country_code])
+  @@index([parent_org_id])
+  @@map("organizations")
 }
 
-// =====================================
-// DEVICE HIERARCHY
-// =====================================
+model organization_roles {
+  id   Int    @id @default(autoincrement())
+  code String @unique @db.VarChar(50)
+  name String @unique @db.VarChar(100)
+
+  assignments organization_role_assignments[]
+
+  @@map("organization_roles")
+}
+
+model organization_role_assignments {
+  id              String    @id @default(uuid()) @db.Uuid
+  organization_id String    @db.Uuid
+  role_id         Int
+  start_year      Int?
+  end_year        Int?
+  notes           String?
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime  @updatedAt @db.Timestamptz(6)
+
+  organization organizations      @relation(fields: [organization_id], references: [id])
+  role         organization_roles @relation(fields: [role_id], references: [id])
+
+  @@unique([organization_id, role_id])
+  @@map("organization_role_assignments")
+}
+
+// ============================================================
+// B. DEVICE HIERARCHY
+// ============================================================
 
 model device_categories {
-  id                 String  @id @default(uuid()) @db.Uuid
-  name               String  @unique @db.VarChar(60)
-  slug               String  @unique @db.VarChar(80)
+  id                 String    @id @default(uuid()) @db.Uuid
+  name               String    @unique @db.VarChar(60)
+  slug               String    @unique @db.VarChar(80)
+  parent_category_id String?   @db.Uuid
   description        String?
   icon_url           String?
-  parent_category_id String? @db.Uuid
-  display_order      Int     @default(0)
-  is_active          Boolean @default(true)
-  created_at         DateTime @default(now()) @db.Timestamptz(6)
+  display_order      Int       @default(0)
+  is_active          Boolean   @default(true)
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at         DateTime? @db.Timestamptz(6)
 
-  parent           device_categories?  @relation("CategoryTree", fields: [parent_category_id], references: [id])
-  children         device_categories[] @relation("CategoryTree")
-  product_families product_families[]
+  parent_category   device_categories?  @relation("CategoryTree", fields: [parent_category_id], references: [id])
+  child_categories  device_categories[] @relation("CategoryTree")
+  product_families  product_families[]
+  feature_definitions feature_definitions[]
+
+  @@index([slug])
+  @@index([parent_category_id])
+  @@map("device_categories")
+}
+
+model regions {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique @db.VarChar(20) // global, us, eu, vn
+  name        String  @unique @db.VarChar(120)
+  description String?
+
+  variant_price_history       variant_price_history[]
+  variant_region_availability variant_region_availability[]
+
+  @@map("regions")
 }
 
 model product_families {
-  id                 String   @id @default(uuid()) @db.Uuid
-  brand_org_id       String   @db.Uuid
-  device_category_id String   @db.Uuid
-  name               String   @db.VarChar(120)
-  slug               String   @unique @db.VarChar(160)
+  id                 String    @id @default(uuid()) @db.Uuid
+  brand_org_id       String    @db.Uuid
+  device_category_id String    @db.Uuid
+  name               String    @db.VarChar(120)
+  slug               String    @unique @db.VarChar(160)
   description        String?
   cover_image_url    String?
   first_release_year Int?
-  is_active          Boolean  @default(true)
-  created_at         DateTime @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime @updatedAt @db.Timestamptz(6)
+  last_release_year  Int?
+  is_active          Boolean   @default(true)
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at         DateTime? @db.Timestamptz(6)
 
-  brand            organizations     @relation(fields: [brand_org_id], references: [id])
-  device_category  device_categories @relation(fields: [device_category_id], references: [id])
-  device_models    device_models[]
+  brand_org       organizations     @relation(fields: [brand_org_id], references: [id])
+  device_category device_categories @relation(fields: [device_category_id], references: [id])
+  device_models   device_models[]
 
   @@unique([brand_org_id, name])
   @@index([slug])
+  @@index([device_category_id])
+  @@map("product_families")
 }
 
 model device_models {
-  id                String    @id @default(uuid()) @db.Uuid
-  product_family_id String    @db.Uuid
-  name              String    @db.VarChar(160)
-  slug              String    @unique @db.VarChar(200)
-  internal_codename String?   @db.VarChar(80)
-  release_status_id Int
-  announcement_date DateTime? @db.Date
-  release_date      DateTime? @db.Date
-  description       String?
-  cover_image_url   String?
-  view_count        Int       @default(0)
-  created_at        DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime  @updatedAt @db.Timestamptz(6)
-  deleted_at        DateTime? @db.Timestamptz(6)
+  id                    String    @id @default(uuid()) @db.Uuid
+  product_family_id     String    @db.Uuid
+  name                  String    @db.VarChar(160)
+  slug                  String    @unique @db.VarChar(200)
+  internal_codename     String?   @db.VarChar(80)
+  release_status_id     Int
+  announcement_date     DateTime? @db.Date
+  release_date          DateTime? @db.Date
+  end_of_sale_date      DateTime? @db.Date
+  end_of_support_date   DateTime? @db.Date
+  generation_label      String?   @db.VarChar(40)
+  description           String?
+  cover_image_url       String?
+  view_count            BigInt    @default(0)
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at            DateTime? @db.Timestamptz(6)
 
   product_family product_families @relation(fields: [product_family_id], references: [id])
   release_status release_statuses @relation(fields: [release_status_id], references: [id])
-  device_variants device_variants[]
-  raw_pages       raw_pages[]
+
+  device_variants     device_variants[]
+  predecessor_lineage model_lineage[]   @relation("Predecessor")
+  successor_lineage   model_lineage[]   @relation("Successor")
+  similarity_a        model_similarity[] @relation("ModelA")
+  similarity_b        model_similarity[] @relation("ModelB")
+  raw_pages           raw_pages[]
 
   @@unique([product_family_id, name])
   @@index([slug])
   @@index([release_date])
+  @@index([announcement_date])
+  @@map("device_models")
 }
 
 model device_variants {
@@ -133,84 +393,1537 @@ model device_variants {
   device_model_id   String    @db.Uuid
   variant_name      String    @db.VarChar(160)
   sku_code          String?   @db.VarChar(100)
+  market_name       String?   @db.VarChar(160)
   color_name        String?   @db.VarChar(80)
+  color_hex         String?   @db.VarChar(7)
   release_status_id Int
   launch_date       DateTime? @db.Date
+  end_of_sale_date  DateTime? @db.Date
   launch_price      Decimal?  @db.Decimal(12, 2)
-  currency_code     String?   @db.VarChar(3)
+  currency_id       Int?
   is_default        Boolean   @default(false)
+  notes             String?
   created_at        DateTime  @default(now()) @db.Timestamptz(6)
   updated_at        DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at        DateTime? @db.Timestamptz(6)
 
-  device_model    device_models    @relation(fields: [device_model_id], references: [id])
-  release_status  release_statuses @relation(fields: [release_status_id], references: [id])
-  affiliate_links affiliate_links[]
+  device_model   device_models    @relation(fields: [device_model_id], references: [id])
+  release_status release_statuses @relation(fields: [release_status_id], references: [id])
+  currency       currencies?      @relation(fields: [currency_id], references: [id])
+
+  variant_physical_specs       variant_physical_specs?
+  variant_io_specs             variant_io_specs?
+  variant_thermal_specs        variant_thermal_specs?
+  variant_price_history        variant_price_history[]
+  variant_chipsets             variant_chipsets[]
+  variant_cpus                 variant_cpus[]
+  variant_gpus                 variant_gpus[]
+  variant_npus                 variant_npus[]
+  variant_modems               variant_modems[]
+  variant_displays             variant_displays[]
+  variant_batteries            variant_batteries[]
+  variant_camera_systems       variant_camera_systems[]
+  variant_camera_modules       variant_camera_modules[]
+  variant_memory_configs       variant_memory_configs[]
+  variant_storage_configs      variant_storage_configs[]
+  variant_ports                variant_ports[]
+  variant_wireless_support     variant_wireless_support[]
+  variant_wifi_bands           variant_wifi_bands[]
+  variant_operating_systems    variant_operating_systems[]
+  variant_hardware_sensors     variant_hardware_sensors[]
+  variant_cellular_band_support variant_cellular_band_support[]
+  variant_certifications       variant_certifications[]
+  variant_region_availability  variant_region_availability[]
+  variant_software_features    variant_software_features[]
+  device_variant_features      device_variant_features[]
+  device_variant_benchmarks    device_variant_benchmarks[]
+  affiliate_links              affiliate_links[]
+  wishlist_items               wishlist_items[]
+  price_alerts                 price_alerts[]
 
   @@unique([device_model_id, variant_name])
+  @@index([sku_code])
+  @@index([launch_date])
+  @@map("device_variants")
 }
 
-// =====================================
-// COMPONENTS (chipsets, displays...)
-// =====================================
+model variant_price_history {
+  id                String   @id @default(uuid()) @db.Uuid
+  device_variant_id String   @db.Uuid
+  region_id         String?  @db.Uuid
+  price_type        String   @db.VarChar(30) // msrp, street, discount
+  price             Decimal  @db.Decimal(12, 2)
+  currency_id       Int
+  effective_date    DateTime @db.Date
+  source_id         String?  @db.Uuid
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
 
-model chipsets {
-  id                  String  @id @default(uuid()) @db.Uuid
-  manufacturer_org_id String  @db.Uuid
-  name                String  @unique @db.VarChar(160)
-  slug                String  @unique @db.VarChar(180)
-  description         String?
-  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  region         regions?        @relation(fields: [region_id], references: [id])
+  currency       currencies      @relation(fields: [currency_id], references: [id])
+  source         sources?        @relation(fields: [source_id], references: [id])
 
-  manufacturer organizations @relation(fields: [manufacturer_org_id], references: [id])
+  @@index([device_variant_id, region_id, price_type, effective_date])
+  @@index([effective_date])
+  @@map("variant_price_history")
+}
+
+model variant_physical_specs {
+  device_variant_id  String   @id @db.Uuid
+  height_mm          Decimal? @db.Decimal(7, 2)
+  width_mm           Decimal? @db.Decimal(7, 2)
+  thickness_mm       Decimal? @db.Decimal(7, 2)
+  thickness_min_mm   Decimal? @db.Decimal(7, 2)
+  thickness_max_mm   Decimal? @db.Decimal(7, 2)
+  weight_g           Decimal? @db.Decimal(7, 2)
+  volume_cm3         Decimal? @db.Decimal(8, 2)
+  frame_material     String?  @db.VarChar(120)
+  back_material      String?  @db.VarChar(120)
+  front_glass        String?  @db.VarChar(120)
+  ingress_protection String?  @db.VarChar(40)
+  notes              String?
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+
+  @@map("variant_physical_specs")
+}
+
+model variant_io_specs {
+  device_variant_id      String   @id @db.Uuid
+  sim_slots              Int?
+  sim_type               String?  @db.VarChar(40)
+  esim_supported         Boolean?
+  esim_count             Int?
+  stereo_speakers        Boolean?
+  speaker_count          Int?
+  audio_brand_tuning     String?  @db.VarChar(80)
+  headphone_jack         Boolean?
+  headphone_jack_size_mm Decimal? @db.Decimal(3, 1)
+  has_microsd_slot       Boolean?
+  microsd_max_capacity_gb Int?
+  has_ir_blaster         Boolean?
+  has_notification_led   Boolean?
+  notes                  String?
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+
+  @@map("variant_io_specs")
+}
+
+model variant_thermal_specs {
+  device_variant_id  String  @id @db.Uuid
+  cooling_type       String? @db.VarChar(80) // vapor_chamber, graphite
+  vc_area_mm2        Int?
+  has_active_cooling Boolean?
+  notes              String?
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+
+  @@map("variant_thermal_specs")
+}
+
+model model_lineage {
+  id                   String  @id @default(uuid()) @db.Uuid
+  predecessor_model_id String  @db.Uuid
+  successor_model_id   String  @db.Uuid
+  relation_type        String  @default("successor") @db.VarChar(30)
+  relation_note        String?
+
+  predecessor device_models @relation("Predecessor", fields: [predecessor_model_id], references: [id])
+  successor   device_models @relation("Successor", fields: [successor_model_id], references: [id])
+
+  @@unique([predecessor_model_id, successor_model_id, relation_type])
+  @@map("model_lineage")
+}
+
+model model_similarity {
+  id                  String    @id @default(uuid()) @db.Uuid
+  model_a_id          String    @db.Uuid
+  model_b_id          String    @db.Uuid
+  similarity_score    Decimal   @db.Decimal(5, 2)
+  chipset_score       Decimal?  @db.Decimal(5, 2)
+  camera_score        Decimal?  @db.Decimal(5, 2)
+  display_score       Decimal?  @db.Decimal(5, 2)
+  battery_score       Decimal?  @db.Decimal(5, 2)
+  memory_storage_score Decimal? @db.Decimal(5, 2)
+  design_score        Decimal?  @db.Decimal(5, 2)
+  software_score      Decimal?  @db.Decimal(5, 2)
+  reason              String?
+  computed_at         DateTime?
+
+  model_a device_models @relation("ModelA", fields: [model_a_id], references: [id])
+  model_b device_models @relation("ModelB", fields: [model_b_id], references: [id])
+
+  @@unique([model_a_id, model_b_id])
+  @@index([similarity_score])
+  @@map("model_similarity")
+}
+
+// ============================================================
+// C. TAXONOMY / STANDARDS
+// ============================================================
+
+model technology_families {
+  id               String  @id @default(uuid()) @db.Uuid
+  name             String  @unique @db.VarChar(120)
+  slug             String  @unique @db.VarChar(140)
+  family_type      String  @db.VarChar(50)
+  parent_family_id String? @db.Uuid
+  vendor_org_id    String? @db.Uuid
+  description      String?
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  parent_family    technology_families?  @relation("FamilyTree", fields: [parent_family_id], references: [id])
+  child_families   technology_families[] @relation("FamilyTree")
+  vendor           organizations?        @relation(fields: [vendor_org_id], references: [id])
+
+  chipsets          chipsets[]
+  cpus              cpus[]
+  gpus              gpus[]
+  npus              npus[]
+  modems            modems[]
+  camera_sensors    camera_sensors[]
+  memory_standards  memory_standards[]
+  storage_standards storage_standards[]
 
   @@index([slug])
+  @@index([family_type])
+  @@map("technology_families")
 }
 
-// =====================================
-// USERS & AUTH
-// =====================================
+model architectures {
+  id                String  @id @default(uuid()) @db.Uuid
+  name              String  @unique @db.VarChar(120)
+  slug              String  @unique @db.VarChar(140)
+  architecture_type String  @db.VarChar(40)
+  vendor_org_id     String? @db.Uuid
+  release_year      Int?
+  description       String?
+
+  vendor organizations? @relation(fields: [vendor_org_id], references: [id])
+
+  cpus cpus[]
+  gpus gpus[]
+  npus npus[]
+
+  @@index([slug])
+  @@index([architecture_type])
+  @@map("architectures")
+}
+
+model process_nodes {
+  id                                 String   @id @default(uuid()) @db.Uuid
+  name                               String   @unique @db.VarChar(80)
+  slug                               String   @unique @db.VarChar(120)
+  marketing_name                     String?  @db.VarChar(50)
+  node_nm                            Decimal? @db.Decimal(4, 1)
+  foundry_org_id                     String   @db.Uuid
+  generation                         String?  @db.VarChar(50)
+  transistor_density_million_per_mm2 Int?
+  power_efficiency_improvement_percent Decimal? @db.Decimal(5, 2)
+  performance_improvement_percent    Decimal? @db.Decimal(5, 2)
+  release_year                       Int?
+  description                        String?
+
+  foundry  organizations @relation(fields: [foundry_org_id], references: [id])
+  chipsets chipsets[]
+
+  @@index([foundry_org_id])
+  @@index([node_nm])
+  @@index([generation])
+  @@index([slug])
+  @@map("process_nodes")
+}
+
+model camera_roles {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique @db.VarChar(40) // main, ultrawide, telephoto
+  name        String  @db.VarChar(60)
+  description String?
+
+  camera_modules camera_modules[]
+
+  @@map("camera_roles")
+}
+
+model display_technologies {
+  id             String  @id @default(uuid()) @db.Uuid
+  name           String  @unique @db.VarChar(80)
+  slug           String  @unique @db.VarChar(100)
+  parent_tech_id String? @db.Uuid
+  description    String?
+
+  parent_tech    display_technologies?  @relation("DisplayTechTree", fields: [parent_tech_id], references: [id])
+  child_techs    display_technologies[] @relation("DisplayTechTree")
+  display_units  display_units[]
+
+  @@map("display_technologies")
+}
+
+model battery_chemistries {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique @db.VarChar(80)
+  slug        String  @unique @db.VarChar(100)
+  description String?
+
+  battery_units battery_units[]
+
+  @@map("battery_chemistries")
+}
+
+model network_generations {
+  id              String  @id @default(uuid()) @db.Uuid
+  name            String  @unique @db.VarChar(30)
+  slug            String  @unique @db.VarChar(50)
+  generation_type String  @db.VarChar(30) // cellular, wifi, bluetooth
+  release_year    Int?
+  description     String?
+
+  wireless_standards wireless_standards[]
+  cellular_bands     cellular_bands[]
+
+  @@map("network_generations")
+}
+
+// ============================================================
+// D. COMPONENTS
+// ============================================================
+
+model chipsets {
+  id                       String    @id @default(uuid()) @db.Uuid
+  manufacturer_org_id      String    @db.Uuid
+  technology_family_id     String?   @db.Uuid
+  process_node_id          String?   @db.Uuid
+  chip_kind                String    @db.VarChar(30) // soc, chipset, pch
+  name                     String    @unique @db.VarChar(160)
+  slug                     String    @unique @db.VarChar(180)
+  model_code               String?   @db.VarChar(100)
+  supports_64bit           Boolean?
+  integrated_5g            Boolean?
+  integrated_wifi          Boolean?
+  max_ram_gb               Int?
+  max_display_resolution   String?   @db.VarChar(40)
+  max_camera_mp            Int?
+  announcement_date        DateTime? @db.Date
+  release_date             DateTime? @db.Date
+  description              String?
+  created_at               DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at               DateTime? @db.Timestamptz(6)
+
+  manufacturer       organizations        @relation(fields: [manufacturer_org_id], references: [id])
+  technology_family  technology_families? @relation(fields: [technology_family_id], references: [id])
+  process_node       process_nodes?       @relation(fields: [process_node_id], references: [id])
+
+  chipset_cpu_links   chipset_cpu_links[]
+  chipset_gpu_links   chipset_gpu_links[]
+  chipset_npu_links   chipset_npu_links[]
+  chipset_modem_links chipset_modem_links[]
+  variant_chipsets    variant_chipsets[]
+  chipset_benchmarks  chipset_benchmarks[]
+
+  @@index([slug])
+  @@index([manufacturer_org_id])
+  @@index([release_date])
+  @@map("chipsets")
+}
+
+model cpus {
+  id                   String  @id @default(uuid()) @db.Uuid
+  manufacturer_org_id  String? @db.Uuid
+  architecture_id      String? @db.Uuid
+  technology_family_id String? @db.Uuid
+  name                 String  @unique @db.VarChar(160)
+  slug                 String  @unique @db.VarChar(180)
+  core_count           Int?
+  thread_count         Int?
+  big_little           Boolean?
+  isa_name             String? @db.VarChar(80)
+  description          String?
+
+  manufacturer      organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  architecture      architectures?       @relation(fields: [architecture_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  cpu_clusters       cpu_clusters[]
+  chipset_cpu_links  chipset_cpu_links[]
+  variant_cpus       variant_cpus[]
+  cpu_benchmarks     cpu_benchmarks[]
+
+  @@index([slug])
+  @@index([architecture_id])
+  @@map("cpus")
+}
+
+model cpu_clusters {
+  id                     String   @id @default(uuid()) @db.Uuid
+  cpu_id                 String   @db.Uuid
+  cluster_name           String?  @db.VarChar(120)
+  core_microarchitecture String?  @db.VarChar(120)
+  core_count             Int
+  clock_ghz              Decimal? @db.Decimal(4, 2)
+  l1_cache_kb            Int?
+  l2_cache_kb            Int?
+  cluster_order          Int?
+
+  cpu cpus @relation(fields: [cpu_id], references: [id])
+
+  @@unique([cpu_id, cluster_order])
+  @@map("cpu_clusters")
+}
+
+model gpus {
+  id                   String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id  String?  @db.Uuid
+  architecture_id      String?  @db.Uuid
+  technology_family_id String?  @db.Uuid
+  name                 String   @unique @db.VarChar(160)
+  slug                 String   @unique @db.VarChar(180)
+  shader_units         Int?
+  compute_units        Int?
+  clock_mhz            Int?
+  fp32_gflops          Decimal? @db.Decimal(10, 2)
+  ray_tracing_support  Boolean?
+  api_support          String?  @db.VarChar(200)
+  description          String?
+
+  manufacturer      organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  architecture      architectures?       @relation(fields: [architecture_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  chipset_gpu_links chipset_gpu_links[]
+  variant_gpus      variant_gpus[]
+  gpu_benchmarks    gpu_benchmarks[]
+
+  @@index([slug])
+  @@map("gpus")
+}
+
+model npus {
+  id                   String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id  String?  @db.Uuid
+  architecture_id      String?  @db.Uuid
+  technology_family_id String?  @db.Uuid
+  name                 String   @unique @db.VarChar(160)
+  slug                 String   @unique @db.VarChar(180)
+  tops                 Decimal? @db.Decimal(8, 2)
+  tops_int4            Decimal? @db.Decimal(8, 2)
+  tops_fp16            Decimal? @db.Decimal(8, 2)
+  description          String?
+
+  manufacturer      organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  architecture      architectures?       @relation(fields: [architecture_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  chipset_npu_links chipset_npu_links[]
+  variant_npus      variant_npus[]
+  npu_benchmarks    npu_benchmarks[]
+
+  @@index([slug])
+  @@map("npus")
+}
+
+model modems {
+  id                   String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id  String?  @db.Uuid
+  technology_family_id String?  @db.Uuid
+  name                 String   @unique @db.VarChar(160)
+  slug                 String   @unique @db.VarChar(180)
+  max_downlink_mbps    Int?
+  max_uplink_mbps      Int?
+  supports_mmwave      Boolean?
+  supports_satellite   Boolean?
+  supported_5g_modes   String?  @db.VarChar(80)
+  description          String?
+
+  manufacturer      organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  chipset_modem_links chipset_modem_links[]
+  variant_modems      variant_modems[]
+
+  @@index([slug])
+  @@map("modems")
+}
+
+model camera_sensors {
+  id                   String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id  String   @db.Uuid
+  technology_family_id String?  @db.Uuid
+  name                 String   @unique @db.VarChar(160)
+  slug                 String   @unique @db.VarChar(180)
+  sensor_format        String?  @db.VarChar(40)
+  optical_format       String?  @db.VarChar(40)
+  resolution_mp        Decimal? @db.Decimal(6, 2)
+  pixel_size_um        Decimal? @db.Decimal(5, 2)
+  sensor_type          String?  @db.VarChar(80)
+  supports_stacked     Boolean?
+  supports_dual_pixel  Boolean?
+  supports_quad_pixel  Boolean?
+  supports_hdr         Boolean?
+  iso_range            String?  @db.VarChar(100)
+  max_video_resolution String?  @db.VarChar(40)
+  max_video_fps        Int?
+  release_year         Int?
+  description          String?
+
+  manufacturer      organizations        @relation(fields: [manufacturer_org_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  camera_module_sensor_links camera_module_sensor_links[]
+
+  @@index([manufacturer_org_id])
+  @@index([technology_family_id])
+  @@index([resolution_mp])
+  @@index([slug])
+  @@map("camera_sensors")
+}
+
+model camera_modules {
+  id                    String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id   String?  @db.Uuid
+  camera_role_id        String   @db.Uuid
+  name                  String?  @db.VarChar(160)
+  slug                  String?  @unique @db.VarChar(180)
+  effective_megapixel   Decimal? @db.Decimal(6, 2)
+  aperture              String?  @db.VarChar(20)
+  focal_length_mm_eq    Decimal? @db.Decimal(5, 1)
+  focal_length_mm_native Decimal? @db.Decimal(5, 2)
+  optical_zoom          Decimal? @db.Decimal(4, 2)
+  digital_zoom_max      Decimal? @db.Decimal(4, 2)
+  has_ois               Boolean?
+  ois_type              String?  @db.VarChar(40)
+  has_af                Boolean?
+  af_system             String?  @db.VarChar(80)
+  field_of_view_deg     Decimal? @db.Decimal(5, 2)
+  video_capabilities    String?
+  has_macro             Boolean?
+  description           String?
+
+  manufacturer organizations? @relation(fields: [manufacturer_org_id], references: [id])
+  camera_role  camera_roles   @relation(fields: [camera_role_id], references: [id])
+
+  camera_module_sensor_links camera_module_sensor_links[]
+  variant_camera_modules     variant_camera_modules[]
+
+  @@index([camera_role_id])
+  @@index([slug])
+  @@map("camera_modules")
+}
+
+model display_units {
+  id                       String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id      String?  @db.Uuid
+  display_technology_id    String   @db.Uuid
+  name                     String?  @db.VarChar(160)
+  slug                     String?  @unique @db.VarChar(180)
+  size_inch                Decimal? @db.Decimal(4, 2)
+  aspect_ratio             String?  @db.VarChar(20)
+  resolution_width         Int?
+  resolution_height        Int?
+  pixel_density_ppi        Int?
+  refresh_rate_hz          Int?
+  refresh_rate_min_hz      Int?
+  touch_sampling_hz        Int?
+  brightness_typical_nits  Int?
+  brightness_hbm_nits      Int?
+  brightness_peak_nits     Int?
+  contrast_ratio           String?  @db.VarChar(40)
+  color_depth_bits         Int?
+  color_gamut              String?  @db.VarChar(80)
+  hdr_formats              String?  @db.VarChar(120)
+  protection_glass         String?  @db.VarChar(120)
+  has_always_on            Boolean?
+  has_dc_dimming           Boolean?
+  pwm_frequency_hz         Int?
+  description              String?
+
+  manufacturer       organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  display_technology display_technologies @relation(fields: [display_technology_id], references: [id])
+
+  variant_displays variant_displays[]
+
+  @@index([display_technology_id])
+  @@index([slug])
+  @@map("display_units")
+}
+
+model battery_units {
+  id                          String   @id @default(uuid()) @db.Uuid
+  manufacturer_org_id         String?  @db.Uuid
+  battery_chemistry_id        String?  @db.Uuid
+  name                        String?  @db.VarChar(160)
+  slug                        String?  @unique @db.VarChar(180)
+  capacity_mah                Int
+  rated_capacity_mah          Int?
+  energy_wh                   Decimal? @db.Decimal(7, 2)
+  voltage_nominal_v           Decimal? @db.Decimal(4, 2)
+  cell_count                  Int?
+  cycle_life                  Int?
+  wired_charging_w            Int?
+  wired_charging_protocol     String?  @db.VarChar(120)
+  wireless_charging_w         Int?
+  wireless_charging_protocol  String?  @db.VarChar(120)
+  reverse_wired_charging_w    Int?
+  reverse_wireless_charging_w Int?
+  removable                   Boolean  @default(false)
+  description                 String?
+
+  manufacturer        organizations?       @relation(fields: [manufacturer_org_id], references: [id])
+  battery_chemistry   battery_chemistries? @relation(fields: [battery_chemistry_id], references: [id])
+
+  variant_batteries variant_batteries[]
+
+  @@index([slug])
+  @@map("battery_units")
+}
+
+model memory_standards {
+  id                     String   @id @default(uuid()) @db.Uuid
+  organization_id        String?  @db.Uuid
+  technology_family_id   String?  @db.Uuid
+  name                   String   @unique @db.VarChar(80)
+  slug                   String   @unique @db.VarChar(100)
+  memory_type            String?  @db.VarChar(40)
+  generation             String?  @db.VarChar(40)
+  max_data_rate_mtps     Int?
+  typical_data_rate_mtps Int?
+  voltage                Decimal? @db.Decimal(4, 2)
+  bandwidth_gbps         Decimal? @db.Decimal(6, 2)
+  channel_width_bits     Int?
+  is_mobile              Boolean? @default(true)
+  release_year           Int?
+  description            String?
+
+  organization      organizations?       @relation(fields: [organization_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  variant_memory_configs variant_memory_configs[]
+
+  @@index([memory_type])
+  @@index([generation])
+  @@index([max_data_rate_mtps])
+  @@index([slug])
+  @@map("memory_standards")
+}
+
+model storage_standards {
+  id                    String  @id @default(uuid()) @db.Uuid
+  organization_id       String? @db.Uuid
+  technology_family_id  String? @db.Uuid
+  name                  String  @unique @db.VarChar(80)
+  slug                  String  @unique @db.VarChar(100)
+  storage_type          String? @db.VarChar(40)
+  generation            String? @db.VarChar(40)
+  sequential_read_mbps  Int?
+  sequential_write_mbps Int?
+  random_read_iops      Int?
+  random_write_iops     Int?
+  release_year          Int?
+  description           String?
+
+  organization      organizations?       @relation(fields: [organization_id], references: [id])
+  technology_family technology_families? @relation(fields: [technology_family_id], references: [id])
+
+  variant_storage_configs variant_storage_configs[]
+
+  @@index([storage_type])
+  @@index([slug])
+  @@map("storage_standards")
+}
+
+model wireless_standards {
+  id                    String  @id @default(uuid()) @db.Uuid
+  organization_id       String? @db.Uuid
+  network_generation_id String? @db.Uuid
+  name                  String  @unique @db.VarChar(100)
+  slug                  String  @unique @db.VarChar(120)
+  wireless_type         String  @db.VarChar(40)
+  max_speed_mbps        Int?
+  description           String?
+
+  organization       organizations?       @relation(fields: [organization_id], references: [id])
+  network_generation network_generations? @relation(fields: [network_generation_id], references: [id])
+
+  variant_wireless_support variant_wireless_support[]
+
+  @@index([wireless_type])
+  @@index([slug])
+  @@map("wireless_standards")
+}
+
+model port_standards {
+  id                String   @id @default(uuid()) @db.Uuid
+  organization_id   String?  @db.Uuid
+  name              String   @unique @db.VarChar(100)
+  slug              String   @unique @db.VarChar(120)
+  port_type         String   @db.VarChar(40)
+  data_speed_gbps   Decimal? @db.Decimal(6, 2)
+  power_delivery_w  Int?
+  alt_modes         String?  @db.VarChar(120)
+  description       String?
+
+  organization  organizations?  @relation(fields: [organization_id], references: [id])
+  variant_ports variant_ports[]
+
+  @@index([slug])
+  @@map("port_standards")
+}
+
+model operating_systems {
+  id             String   @id @default(uuid()) @db.Uuid
+  vendor_org_id  String?  @db.Uuid
+  name           String   @unique @db.VarChar(120)
+  slug           String   @unique @db.VarChar(140)
+  os_family      String   @db.VarChar(60)
+  kernel_type    String?  @db.VarChar(60)
+  is_open_source Boolean?
+  description    String?
+
+  vendor       organizations?  @relation(fields: [vendor_org_id], references: [id])
+  os_versions  os_versions[]
+  os_ui_layers os_ui_layers[]
+
+  @@index([slug])
+  @@map("operating_systems")
+}
+
+model os_versions {
+  id                  String    @id @default(uuid()) @db.Uuid
+  operating_system_id String    @db.Uuid
+  version_name        String    @db.VarChar(40)
+  codename            String?   @db.VarChar(50)
+  release_date        DateTime? @db.Date
+  end_of_support_date DateTime? @db.Date
+  api_level           Int?
+  kernel_version      String?   @db.VarChar(100)
+  is_lts              Boolean?
+  notes               String?
+
+  operating_system     operating_systems      @relation(fields: [operating_system_id], references: [id])
+  os_ui_layer_versions os_ui_layer_versions[]
+  variant_operating_systems variant_operating_systems[]
+
+  @@unique([operating_system_id, version_name])
+  @@index([release_date])
+  @@map("os_versions")
+}
+
+model os_ui_layers {
+  id            String  @id @default(uuid()) @db.Uuid
+  name          String  @db.VarChar(120)
+  slug          String  @unique @db.VarChar(140)
+  vendor_org_id String? @db.Uuid
+  base_os_id    String? @db.Uuid
+  description   String?
+
+  vendor  organizations?     @relation(fields: [vendor_org_id], references: [id])
+  base_os operating_systems? @relation(fields: [base_os_id], references: [id])
+
+  os_ui_layer_versions os_ui_layer_versions[]
+
+  @@unique([name, vendor_org_id])
+  @@index([base_os_id])
+  @@map("os_ui_layers")
+}
+
+model os_ui_layer_versions {
+  id                 String    @id @default(uuid()) @db.Uuid
+  ui_layer_id        String    @db.Uuid
+  version_name       String    @db.VarChar(40)
+  base_os_version_id String?   @db.Uuid
+  release_date       DateTime? @db.Date
+  notes              String?
+
+  ui_layer        os_ui_layers @relation(fields: [ui_layer_id], references: [id])
+  base_os_version os_versions? @relation(fields: [base_os_version_id], references: [id])
+
+  variant_operating_systems variant_operating_systems[]
+
+  @@unique([ui_layer_id, version_name])
+  @@map("os_ui_layer_versions")
+}
+
+model hardware_sensors {
+  id                  String  @id @default(uuid()) @db.Uuid
+  manufacturer_org_id String? @db.Uuid
+  name                String  @unique @db.VarChar(100)
+  slug                String  @unique @db.VarChar(120)
+  sensor_category     String  @db.VarChar(60)
+  description         String?
+
+  manufacturer organizations? @relation(fields: [manufacturer_org_id], references: [id])
+
+  variant_hardware_sensors variant_hardware_sensors[]
+
+  @@index([sensor_category])
+  @@index([slug])
+  @@map("hardware_sensors")
+}
+
+model cellular_bands {
+  id                    String   @id @default(uuid()) @db.Uuid
+  network_generation_id String   @db.Uuid
+  name                  String   @unique @db.VarChar(50)
+  band_type             String?  @db.VarChar(20)
+  frequency_range       String?  @db.VarChar(80)
+  is_mmwave             Boolean? @default(false)
+  description           String?
+
+  network_generation network_generations @relation(fields: [network_generation_id], references: [id])
+
+  variant_cellular_band_support variant_cellular_band_support[]
+
+  @@index([network_generation_id])
+  @@map("cellular_bands")
+}
+
+model wifi_bands {
+  id              String  @id @default(uuid()) @db.Uuid
+  name            String  @unique @db.VarChar(40)
+  frequency_range String? @db.VarChar(80)
+  description     String?
+
+  variant_wifi_bands variant_wifi_bands[]
+
+  @@map("wifi_bands")
+}
+
+model certifications {
+  id                 String  @id @default(uuid()) @db.Uuid
+  name               String  @unique @db.VarChar(120)
+  slug               String  @unique @db.VarChar(140)
+  certification_type String  @db.VarChar(40)
+  authority_org_id   String? @db.Uuid
+  description        String?
+
+  authority              organizations?           @relation(fields: [authority_org_id], references: [id])
+  variant_certifications variant_certifications[]
+
+  @@index([certification_type])
+  @@map("certifications")
+}
+
+// ============================================================
+// E. COMPONENT INTERNAL LINKS
+// ============================================================
+
+model chipset_cpu_links {
+  id         String  @id @default(uuid()) @db.Uuid
+  chipset_id String  @db.Uuid
+  cpu_id     String  @db.Uuid
+  is_primary Boolean @default(true)
+
+  chipset chipsets @relation(fields: [chipset_id], references: [id])
+  cpu     cpus     @relation(fields: [cpu_id], references: [id])
+
+  @@unique([chipset_id, cpu_id])
+  @@map("chipset_cpu_links")
+}
+
+model chipset_gpu_links {
+  id         String  @id @default(uuid()) @db.Uuid
+  chipset_id String  @db.Uuid
+  gpu_id     String  @db.Uuid
+  is_primary Boolean @default(true)
+
+  chipset chipsets @relation(fields: [chipset_id], references: [id])
+  gpu     gpus     @relation(fields: [gpu_id], references: [id])
+
+  @@unique([chipset_id, gpu_id])
+  @@map("chipset_gpu_links")
+}
+
+model chipset_npu_links {
+  id         String  @id @default(uuid()) @db.Uuid
+  chipset_id String  @db.Uuid
+  npu_id     String  @db.Uuid
+  is_primary Boolean @default(true)
+
+  chipset chipsets @relation(fields: [chipset_id], references: [id])
+  npu     npus     @relation(fields: [npu_id], references: [id])
+
+  @@unique([chipset_id, npu_id])
+  @@map("chipset_npu_links")
+}
+
+model chipset_modem_links {
+  id            String  @id @default(uuid()) @db.Uuid
+  chipset_id    String  @db.Uuid
+  modem_id      String  @db.Uuid
+  is_primary    Boolean @default(true)
+  is_integrated Boolean @default(true)
+
+  chipset chipsets @relation(fields: [chipset_id], references: [id])
+  modem   modems   @relation(fields: [modem_id], references: [id])
+
+  @@unique([chipset_id, modem_id])
+  @@map("chipset_modem_links")
+}
+
+model camera_module_sensor_links {
+  id               String  @id @default(uuid()) @db.Uuid
+  camera_module_id String  @db.Uuid
+  camera_sensor_id String  @db.Uuid
+  is_primary       Boolean @default(true)
+
+  camera_module camera_modules @relation(fields: [camera_module_id], references: [id])
+  camera_sensor camera_sensors @relation(fields: [camera_sensor_id], references: [id])
+
+  @@unique([camera_module_id, camera_sensor_id])
+  @@map("camera_module_sensor_links")
+}
+
+// ============================================================
+// F. VARIANT COMPOSITION
+// ============================================================
+
+model variant_chipsets {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  chipset_id        String  @db.Uuid
+  chip_role         String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  chipset        chipsets        @relation(fields: [chipset_id], references: [id])
+
+  @@unique([device_variant_id, chipset_id, chip_role])
+  @@map("variant_chipsets")
+}
+
+model variant_cpus {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  cpu_id            String  @db.Uuid
+  cpu_role          String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  cpu            cpus            @relation(fields: [cpu_id], references: [id])
+
+  @@unique([device_variant_id, cpu_id, cpu_role])
+  @@map("variant_cpus")
+}
+
+model variant_gpus {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  gpu_id            String  @db.Uuid
+  gpu_role          String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  gpu            gpus            @relation(fields: [gpu_id], references: [id])
+
+  @@unique([device_variant_id, gpu_id, gpu_role])
+  @@map("variant_gpus")
+}
+
+model variant_npus {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  npu_id            String  @db.Uuid
+  npu_role          String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  npu            npus            @relation(fields: [npu_id], references: [id])
+
+  @@unique([device_variant_id, npu_id, npu_role])
+  @@map("variant_npus")
+}
+
+model variant_modems {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  modem_id          String  @db.Uuid
+  modem_role        String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  modem          modems          @relation(fields: [modem_id], references: [id])
+
+  @@unique([device_variant_id, modem_id, modem_role])
+  @@map("variant_modems")
+}
+
+model variant_displays {
+  id                String @id @default(uuid()) @db.Uuid
+  device_variant_id String @db.Uuid
+  display_unit_id   String @db.Uuid
+  display_role      String @db.VarChar(40)
+  display_order     Int    @default(1)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  display_unit   display_units   @relation(fields: [display_unit_id], references: [id])
+
+  @@unique([device_variant_id, display_role, display_order])
+  @@map("variant_displays")
+}
+
+model variant_batteries {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  battery_unit_id   String  @db.Uuid
+  battery_role      String  @db.VarChar(40)
+  is_primary        Boolean @default(true)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  battery_unit   battery_units   @relation(fields: [battery_unit_id], references: [id])
+
+  @@unique([device_variant_id, battery_unit_id, battery_role])
+  @@map("variant_batteries")
+}
+
+model variant_camera_systems {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  position          String  @db.VarChar(20)
+  system_name       String? @db.VarChar(120)
+  notes             String?
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+
+  variant_camera_modules variant_camera_modules[]
+
+  @@unique([device_variant_id, position])
+  @@map("variant_camera_systems")
+}
+
+model variant_camera_modules {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  camera_system_id  String? @db.Uuid
+  camera_module_id  String  @db.Uuid
+  position          String  @db.VarChar(20)
+  role              String  @db.VarChar(40)
+  module_order      Int     @default(1)
+  is_primary        Boolean? @default(false)
+  is_active         Boolean? @default(true)
+  usage_type        String? @db.VarChar(40)
+  notes             String?
+
+  device_variant device_variants         @relation(fields: [device_variant_id], references: [id])
+  camera_system  variant_camera_systems? @relation(fields: [camera_system_id], references: [id])
+  camera_module  camera_modules          @relation(fields: [camera_module_id], references: [id])
+
+  @@unique([device_variant_id, position, role, module_order])
+  @@index([device_variant_id])
+  @@index([camera_system_id])
+  @@map("variant_camera_modules")
+}
+
+model variant_memory_configs {
+  id                 String   @id @default(uuid()) @db.Uuid
+  device_variant_id  String   @db.Uuid
+  memory_standard_id String   @db.Uuid
+  capacity_gb        Int
+  speed_mhz          Int?
+  bandwidth_gbps     Decimal? @db.Decimal(6, 2)
+  channel_count      Int?
+  is_primary         Boolean? @default(true)
+  notes              String?
+
+  device_variant  device_variants  @relation(fields: [device_variant_id], references: [id])
+  memory_standard memory_standards @relation(fields: [memory_standard_id], references: [id])
+
+  @@unique([device_variant_id, capacity_gb, memory_standard_id])
+  @@index([device_variant_id])
+  @@index([memory_standard_id])
+  @@map("variant_memory_configs")
+}
+
+model variant_storage_configs {
+  id                  String  @id @default(uuid()) @db.Uuid
+  device_variant_id   String  @db.Uuid
+  storage_standard_id String  @db.Uuid
+  total_capacity_gb   Int
+  module_count        Int?
+  is_expandable       Boolean @default(false)
+  expansion_max_gb    Int?
+
+  device_variant   device_variants   @relation(fields: [device_variant_id], references: [id])
+  storage_standard storage_standards @relation(fields: [storage_standard_id], references: [id])
+
+  @@unique([device_variant_id, storage_standard_id, total_capacity_gb])
+  @@map("variant_storage_configs")
+}
+
+model variant_ports {
+  id                String  @id @default(uuid()) @db.Uuid
+  device_variant_id String  @db.Uuid
+  port_standard_id  String  @db.Uuid
+  port_count        Int     @default(1)
+  notes             String?
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  port_standard  port_standards  @relation(fields: [port_standard_id], references: [id])
+
+  @@unique([device_variant_id, port_standard_id])
+  @@map("variant_ports")
+}
+
+model variant_wireless_support {
+  id                   String  @id @default(uuid()) @db.Uuid
+  device_variant_id    String  @db.Uuid
+  wireless_standard_id String  @db.Uuid
+  notes                String?
+
+  device_variant    device_variants    @relation(fields: [device_variant_id], references: [id])
+  wireless_standard wireless_standards @relation(fields: [wireless_standard_id], references: [id])
+
+  @@unique([device_variant_id, wireless_standard_id])
+  @@map("variant_wireless_support")
+}
+
+model variant_wifi_bands {
+  id                String @id @default(uuid()) @db.Uuid
+  device_variant_id String @db.Uuid
+  wifi_band_id      String @db.Uuid
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  wifi_band      wifi_bands      @relation(fields: [wifi_band_id], references: [id])
+
+  @@unique([device_variant_id, wifi_band_id])
+  @@map("variant_wifi_bands")
+}
+
+model variant_operating_systems {
+  id                       String  @id @default(uuid()) @db.Uuid
+  device_variant_id        String  @db.Uuid
+  os_version_id            String  @db.Uuid
+  ui_layer_version_id      String? @db.Uuid
+  is_default               Boolean @default(true)
+  is_upgradable_to         Boolean @default(false)
+  promised_major_updates   Int?
+  promised_security_years  Int?
+  notes                    String?
+
+  device_variant   device_variants        @relation(fields: [device_variant_id], references: [id])
+  os_version       os_versions            @relation(fields: [os_version_id], references: [id])
+  ui_layer_version os_ui_layer_versions?  @relation(fields: [ui_layer_version_id], references: [id])
+
+  @@unique([device_variant_id, os_version_id, ui_layer_version_id])
+  @@map("variant_operating_systems")
+}
+
+model variant_hardware_sensors {
+  id                 String  @id @default(uuid()) @db.Uuid
+  device_variant_id  String  @db.Uuid
+  hardware_sensor_id String  @db.Uuid
+  notes              String?
+
+  device_variant  device_variants  @relation(fields: [device_variant_id], references: [id])
+  hardware_sensor hardware_sensors @relation(fields: [hardware_sensor_id], references: [id])
+
+  @@unique([device_variant_id, hardware_sensor_id])
+  @@map("variant_hardware_sensors")
+}
+
+model variant_cellular_band_support {
+  id                String @id @default(uuid()) @db.Uuid
+  device_variant_id String @db.Uuid
+  cellular_band_id  String @db.Uuid
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  cellular_band  cellular_bands  @relation(fields: [cellular_band_id], references: [id])
+
+  @@unique([device_variant_id, cellular_band_id])
+  @@map("variant_cellular_band_support")
+}
+
+model variant_certifications {
+  id                 String    @id @default(uuid()) @db.Uuid
+  device_variant_id  String    @db.Uuid
+  certification_id   String    @db.Uuid
+  rating_value       String?   @db.VarChar(40)
+  certificate_number String?   @db.VarChar(120)
+  issued_date        DateTime? @db.Date
+  source_id          String?   @db.Uuid
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  certification  certifications  @relation(fields: [certification_id], references: [id])
+  source         sources?        @relation(fields: [source_id], references: [id])
+
+  @@unique([device_variant_id, certification_id])
+  @@map("variant_certifications")
+}
+
+model variant_region_availability {
+  id                  String    @id @default(uuid()) @db.Uuid
+  device_variant_id   String    @db.Uuid
+  region_id           String    @db.Uuid
+  launch_date         DateTime? @db.Date
+  end_of_sale_date    DateTime? @db.Date
+  availability_status String?   @db.VarChar(30)
+
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+  region         regions         @relation(fields: [region_id], references: [id])
+
+  @@unique([device_variant_id, region_id])
+  @@map("variant_region_availability")
+}
+
+// ============================================================
+// G. SOFTWARE FEATURES
+// ============================================================
+
+model software_features {
+  id               String  @id @default(uuid()) @db.Uuid
+  code             String  @unique @db.VarChar(120)
+  name             String  @db.VarChar(160)
+  feature_category String  @db.VarChar(40)
+  vendor_org_id    String? @db.Uuid
+  description      String?
+
+  vendor organizations? @relation(fields: [vendor_org_id], references: [id])
+
+  variant_software_features variant_software_features[]
+
+  @@index([feature_category])
+  @@map("software_features")
+}
+
+model variant_software_features {
+  id                  String  @id @default(uuid()) @db.Uuid
+  device_variant_id   String  @db.Uuid
+  software_feature_id String  @db.Uuid
+  level_or_tier       String? @db.VarChar(80)
+  notes               String?
+
+  device_variant   device_variants   @relation(fields: [device_variant_id], references: [id])
+  software_feature software_features @relation(fields: [software_feature_id], references: [id])
+
+  @@unique([device_variant_id, software_feature_id])
+  @@map("variant_software_features")
+}
+
+// ============================================================
+// H. EXTRA FEATURES (KV) / BENCHMARKS
+// ============================================================
+
+model feature_definitions {
+  id                 String  @id @default(uuid()) @db.Uuid
+  code               String  @unique @db.VarChar(120)
+  name               String  @db.VarChar(160)
+  value_type         String  @db.VarChar(20)
+  enum_values        String?
+  device_category_id String? @db.Uuid
+  unit_id            String? @db.Uuid
+  feature_group      String? @db.VarChar(60)
+  description        String?
+
+  device_category device_categories? @relation(fields: [device_category_id], references: [id])
+  unit            units?             @relation(fields: [unit_id], references: [id])
+
+  device_variant_features device_variant_features[]
+
+  @@index([feature_group])
+  @@map("feature_definitions")
+}
+
+model device_variant_features {
+  id                    String   @id @default(uuid()) @db.Uuid
+  device_variant_id     String   @db.Uuid
+  feature_definition_id String   @db.Uuid
+  value_text            String?
+  value_number          Decimal? @db.Decimal(20, 6)
+  value_boolean         Boolean?
+  value_date            DateTime? @db.Date
+  source_id             String?  @db.Uuid
+  citation_id           String?  @db.Uuid
+  note                  String?
+
+  device_variant     device_variants     @relation(fields: [device_variant_id], references: [id])
+  feature_definition feature_definitions @relation(fields: [feature_definition_id], references: [id])
+  source             sources?            @relation(fields: [source_id], references: [id])
+  citation           citations?          @relation(fields: [citation_id], references: [id])
+
+  @@unique([device_variant_id, feature_definition_id])
+  @@map("device_variant_features")
+}
+
+model benchmarks {
+  id                String  @id @default(uuid()) @db.Uuid
+  name              String  @db.VarChar(120)
+  slug              String  @unique @db.VarChar(140)
+  benchmark_type    String  @db.VarChar(40)
+  target_type       String  @db.VarChar(30)
+  vendor_org_id     String? @db.Uuid
+  version           String? @db.VarChar(40)
+  higher_is_better  Boolean @default(true)
+  unit_id           String? @db.Uuid
+  description       String?
+
+  vendor organizations? @relation(fields: [vendor_org_id], references: [id])
+  unit   units?         @relation(fields: [unit_id], references: [id])
+
+  benchmark_runs            benchmark_runs[]
+  device_variant_benchmarks device_variant_benchmarks[]
+  chipset_benchmarks        chipset_benchmarks[]
+  cpu_benchmarks            cpu_benchmarks[]
+  gpu_benchmarks            gpu_benchmarks[]
+  npu_benchmarks            npu_benchmarks[]
+
+  @@unique([name, version, target_type])
+  @@map("benchmarks")
+}
+
+model benchmark_runs {
+  id                    String    @id @default(uuid()) @db.Uuid
+  benchmark_id          String    @db.Uuid
+  source_id             String?   @db.Uuid
+  citation_id           String?   @db.Uuid
+  tested_at             DateTime? @db.Date
+  test_environment_note String?
+  ambient_temp_c        Decimal?  @db.Decimal(4, 1)
+  os_version            String?   @db.VarChar(80)
+  app_version           String?   @db.VarChar(80)
+  driver_version        String?   @db.VarChar(80)
+  is_thermal_throttled  Boolean?
+  power_mode            String?   @db.VarChar(40)
+
+  benchmark benchmarks @relation(fields: [benchmark_id], references: [id])
+  source    sources?   @relation(fields: [source_id], references: [id])
+  citation  citations? @relation(fields: [citation_id], references: [id])
+
+  device_variant_benchmarks device_variant_benchmarks[]
+  chipset_benchmarks        chipset_benchmarks[]
+  cpu_benchmarks            cpu_benchmarks[]
+  gpu_benchmarks            gpu_benchmarks[]
+  npu_benchmarks            npu_benchmarks[]
+
+  @@map("benchmark_runs")
+}
+
+model device_variant_benchmarks {
+  id                String    @id @default(uuid()) @db.Uuid
+  benchmark_run_id  String?   @db.Uuid
+  benchmark_id      String    @db.Uuid
+  device_variant_id String    @db.Uuid
+  score             Decimal   @db.Decimal(14, 4)
+  subscore_name     String?   @db.VarChar(80)
+  source_id         String?   @db.Uuid
+  tested_at         DateTime? @db.Date
+
+  benchmark_run  benchmark_runs?  @relation(fields: [benchmark_run_id], references: [id])
+  benchmark      benchmarks       @relation(fields: [benchmark_id], references: [id])
+  device_variant device_variants  @relation(fields: [device_variant_id], references: [id])
+  source         sources?         @relation(fields: [source_id], references: [id])
+
+  @@index([benchmark_id, device_variant_id, subscore_name, tested_at])
+  @@index([device_variant_id])
+  @@map("device_variant_benchmarks")
+}
+
+model chipset_benchmarks {
+  id               String    @id @default(uuid()) @db.Uuid
+  benchmark_run_id String?   @db.Uuid
+  benchmark_id     String    @db.Uuid
+  chipset_id       String    @db.Uuid
+  score            Decimal   @db.Decimal(14, 4)
+  subscore_name    String?   @db.VarChar(80)
+  source_id        String?   @db.Uuid
+  tested_at        DateTime? @db.Date
+
+  benchmark_run benchmark_runs? @relation(fields: [benchmark_run_id], references: [id])
+  benchmark     benchmarks      @relation(fields: [benchmark_id], references: [id])
+  chipset       chipsets        @relation(fields: [chipset_id], references: [id])
+  source        sources?        @relation(fields: [source_id], references: [id])
+
+  @@index([benchmark_id, chipset_id, subscore_name, tested_at])
+  @@map("chipset_benchmarks")
+}
+
+model cpu_benchmarks {
+  id               String    @id @default(uuid()) @db.Uuid
+  benchmark_run_id String?   @db.Uuid
+  benchmark_id     String    @db.Uuid
+  cpu_id           String    @db.Uuid
+  score            Decimal   @db.Decimal(14, 4)
+  subscore_name    String?   @db.VarChar(80)
+  source_id        String?   @db.Uuid
+  tested_at        DateTime? @db.Date
+
+  benchmark_run benchmark_runs? @relation(fields: [benchmark_run_id], references: [id])
+  benchmark     benchmarks      @relation(fields: [benchmark_id], references: [id])
+  cpu           cpus            @relation(fields: [cpu_id], references: [id])
+  source        sources?        @relation(fields: [source_id], references: [id])
+
+  @@index([benchmark_id, cpu_id, subscore_name, tested_at])
+  @@map("cpu_benchmarks")
+}
+
+model gpu_benchmarks {
+  id               String    @id @default(uuid()) @db.Uuid
+  benchmark_run_id String?   @db.Uuid
+  benchmark_id     String    @db.Uuid
+  gpu_id           String    @db.Uuid
+  score            Decimal   @db.Decimal(14, 4)
+  subscore_name    String?   @db.VarChar(80)
+  source_id        String?   @db.Uuid
+  tested_at        DateTime? @db.Date
+
+  benchmark_run benchmark_runs? @relation(fields: [benchmark_run_id], references: [id])
+  benchmark     benchmarks      @relation(fields: [benchmark_id], references: [id])
+  gpu           gpus            @relation(fields: [gpu_id], references: [id])
+  source        sources?        @relation(fields: [source_id], references: [id])
+
+  @@index([benchmark_id, gpu_id, subscore_name, tested_at])
+  @@map("gpu_benchmarks")
+}
+
+model npu_benchmarks {
+  id               String    @id @default(uuid()) @db.Uuid
+  benchmark_run_id String?   @db.Uuid
+  benchmark_id     String    @db.Uuid
+  npu_id           String    @db.Uuid
+  score            Decimal   @db.Decimal(14, 4)
+  subscore_name    String?   @db.VarChar(80)
+  source_id        String?   @db.Uuid
+  tested_at        DateTime? @db.Date
+
+  benchmark_run benchmark_runs? @relation(fields: [benchmark_run_id], references: [id])
+  benchmark     benchmarks      @relation(fields: [benchmark_id], references: [id])
+  npu           npus            @relation(fields: [npu_id], references: [id])
+  source        sources?        @relation(fields: [source_id], references: [id])
+
+  @@index([benchmark_id, npu_id, subscore_name, tested_at])
+  @@map("npu_benchmarks")
+}
+
+// ============================================================
+// I. USERS & WIKI
+// ============================================================
 
 model users {
-  id              String    @id @default(uuid()) @db.Uuid
-  email           String    @unique @db.VarChar(255)
-  email_verified  Boolean   @default(false)
-  password_hash   String?
-  name            String?   @db.VarChar(120)
-  username        String?   @unique @db.VarChar(60)
-  avatar_url      String?
-  role            String    @default("reader") @db.VarChar(20)
-  is_active       Boolean   @default(true)
-  last_login_at   DateTime?
-  created_at      DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime  @updatedAt @db.Timestamptz(6)
-  deleted_at      DateTime?
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique @db.VarChar(200)
+  email_verified_at DateTime?
+  password_hash     String?
+  username          String?   @unique @db.VarChar(60)
+  display_name      String?   @db.VarChar(120)
+  avatar_url        String?
+  role              String    @default("reader") @db.VarChar(30)
+  is_active         Boolean   @default(true)
+  last_login_at     DateTime?
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at        DateTime? @db.Timestamptz(6)
 
-  search_logs   search_logs[]
-  wishlists     wishlists[]
-  price_alerts  price_alerts[]
-  notifications notifications[]
-  subscription  subscriptions?
+  wiki_revisions wiki_revisions[]
+  comments       comments[]
+  search_logs    search_logs[]
+  wishlists      wishlists[]
+  price_alerts   price_alerts[]
+  notifications  notifications[]
+  subscription   subscriptions?
 
   @@index([email])
+  @@index([username])
+  @@map("users")
 }
 
-// =====================================
-// AI & SEARCH
-// =====================================
+model wiki_articles {
+  id                  String    @id @default(uuid()) @db.Uuid
+  entity_table        String    @db.VarChar(80)
+  entity_id           String    @db.VarChar(64)
+  language_id         Int
+  title               String    @db.VarChar(300)
+  slug                String    @db.VarChar(320)
+  summary             String?
+  body_markdown       String?
+  body_html           String?
+  status              String    @default("draft") @db.VarChar(20)
+  current_revision_id String?   @db.Uuid
+  view_count          BigInt    @default(0)
+  published_at        DateTime?
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at          DateTime? @db.Timestamptz(6)
 
+  language languages @relation(fields: [language_id], references: [id])
+
+  revisions wiki_revisions[]
+  citations wiki_article_citations[]
+
+  @@unique([entity_table, entity_id, language_id])
+  @@unique([slug, language_id])
+  @@index([status])
+  @@map("wiki_articles")
+}
+
+model wiki_revisions {
+  id              String    @id @default(uuid()) @db.Uuid
+  article_id      String    @db.Uuid
+  author_user_id  String?   @db.Uuid
+  revision_number Int
+  title           String?   @db.VarChar(300)
+  body_markdown   String?
+  change_summary  String?   @db.VarChar(300)
+  is_published    Boolean   @default(false)
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+
+  article wiki_articles @relation(fields: [article_id], references: [id])
+  author  users?        @relation(fields: [author_user_id], references: [id])
+
+  @@unique([article_id, revision_number])
+  @@map("wiki_revisions")
+}
+
+model wiki_article_citations {
+  id          String  @id @default(uuid()) @db.Uuid
+  article_id  String  @db.Uuid
+  citation_id String  @db.Uuid
+  anchor_key  String? @db.VarChar(60)
+
+  article  wiki_articles @relation(fields: [article_id], references: [id])
+  citation citations     @relation(fields: [citation_id], references: [id])
+
+  @@unique([article_id, citation_id])
+  @@map("wiki_article_citations")
+}
+
+model comments {
+  id                String   @id @default(uuid()) @db.Uuid
+  user_id           String   @db.Uuid
+  entity_table      String   @db.VarChar(80)
+  entity_id         String   @db.VarChar(64)
+  parent_comment_id String?  @db.Uuid
+  body_markdown     String
+  is_hidden         Boolean  @default(false)
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime @updatedAt @db.Timestamptz(6)
+
+  user           users      @relation(fields: [user_id], references: [id])
+  parent_comment comments?  @relation("CommentTree", fields: [parent_comment_id], references: [id])
+  replies        comments[] @relation("CommentTree")
+
+  @@index([entity_table, entity_id])
+  @@index([user_id])
+  @@map("comments")
+}
+
+// ============================================================
+// J. AI / SEARCH
+// ============================================================
+
+/// Embeddings cho RAG search.
+/// Cột `embedding` là pgvector — Prisma chưa support đầy đủ,
+/// dùng raw SQL khi query similarity.
 model embeddings {
   id          String   @id @default(uuid()) @db.Uuid
   entity_type String   @db.VarChar(50)
-  entity_id   String   @db.Uuid
+  entity_id   String   @db.VarChar(64)
   chunk_text  String
   chunk_index Int      @default(0)
-  // pgvector: cần dùng Unsupported và migration thủ công
-  // embedding   Unsupported("vector(1536)")
-  embedding_json Json   // Tạm thời dùng JSON, sau migrate sang vector
+  embedding   Unsupported("vector(1536)")
   model_name  String   @db.VarChar(50)
   created_at  DateTime @default(now())
 
   @@index([entity_type, entity_id])
+  @@map("embeddings")
 }
 
 model ai_query_cache {
@@ -225,6 +1938,7 @@ model ai_query_cache {
   expires_at  DateTime?
 
   @@index([expires_at])
+  @@map("ai_query_cache")
 }
 
 model search_logs {
@@ -233,53 +1947,66 @@ model search_logs {
   query        String
   query_type   String   @db.VarChar(20)
   result_count Int      @default(0)
+  clicked_id   String?  @db.Uuid
+  clicked_type String?  @db.VarChar(50)
   session_id   String?  @db.Uuid
+  ip_address   String?  @db.Inet
+  user_agent   String?
   created_at   DateTime @default(now())
 
   user users? @relation(fields: [user_id], references: [id])
 
   @@index([user_id])
   @@index([created_at])
+  @@map("search_logs")
 }
 
-// =====================================
-// CRAWLER
-// =====================================
+// ============================================================
+// K. CRAWLER
+// ============================================================
 
 model data_sources {
   id              String    @id @default(uuid()) @db.Uuid
   name            String    @unique @db.VarChar(100)
+  slug            String    @unique @db.VarChar(120)
   base_url        String
   reliability     Int       @default(50)
   last_crawled_at DateTime?
   crawl_config    Json
   is_active       Boolean   @default(true)
   created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
 
   raw_pages raw_pages[]
+
+  @@map("data_sources")
 }
 
 model raw_pages {
   id              String    @id @default(uuid()) @db.Uuid
   source_id       String    @db.Uuid
   url             String    @unique
-  raw_html        String?   @db.Text
-  raw_text        String?   @db.Text
+  raw_html        String?
+  raw_text        String?
   parsed_data     Json?
-  status          String    @default("pending")
+  status          String    @default("pending") @db.VarChar(20)
   device_model_id String?   @db.Uuid
+  error_message   String?
+  attempts        Int       @default(0)
   crawled_at      DateTime  @default(now())
   parsed_at       DateTime?
 
-  source       data_sources    @relation(fields: [source_id], references: [id])
-  device_model device_models?  @relation(fields: [device_model_id], references: [id])
+  source       data_sources   @relation(fields: [source_id], references: [id])
+  device_model device_models? @relation(fields: [device_model_id], references: [id])
 
   @@index([status])
+  @@index([source_id])
+  @@map("raw_pages")
 }
 
-// =====================================
-// COMMERCE & AFFILIATE
-// =====================================
+// ============================================================
+// L. COMMERCE & AFFILIATE
+// ============================================================
 
 model affiliate_partners {
   id              String   @id @default(uuid()) @db.Uuid
@@ -289,60 +2016,107 @@ model affiliate_partners {
   logo_url        String?
   commission_rate Decimal  @db.Decimal(5, 2)
   is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
 
   affiliate_links affiliate_links[]
+
+  @@map("affiliate_partners")
 }
 
 model affiliate_links {
-  id                String    @id @default(uuid()) @db.Uuid
-  partner_id        String    @db.Uuid
-  device_variant_id String    @db.Uuid
-  region_code       String    @db.VarChar(2)
+  id                String   @id @default(uuid()) @db.Uuid
+  partner_id        String   @db.Uuid
+  device_variant_id String   @db.Uuid
+  region_code       String   @db.VarChar(2)
   product_url       String
-  current_price     Decimal?  @db.Decimal(12, 2)
-  currency_code     String    @db.VarChar(3)
-  in_stock          Boolean   @default(true)
-  last_checked_at   DateTime  @default(now())
+  current_price     Decimal? @db.Decimal(12, 2)
+  currency_code     String   @db.VarChar(3)
+  in_stock          Boolean  @default(true)
+  last_checked_at   DateTime @default(now())
+  created_at        DateTime @default(now())
 
-  partner        affiliate_partners @relation(fields: [partner_id], references: [id])
-  device_variant device_variants    @relation(fields: [device_variant_id], references: [id])
+  partner          affiliate_partners        @relation(fields: [partner_id], references: [id])
+  device_variant   device_variants           @relation(fields: [device_variant_id], references: [id])
+  price_history    affiliate_price_history[]
+  clicks           affiliate_clicks[]
 
   @@index([device_variant_id, region_code])
+  @@map("affiliate_links")
 }
 
-// =====================================
-// SUBSCRIPTIONS
-// =====================================
+model affiliate_price_history {
+  id                String   @id @default(uuid()) @db.Uuid
+  affiliate_link_id String   @db.Uuid
+  price             Decimal  @db.Decimal(12, 2)
+  currency_code     String   @db.VarChar(3)
+  recorded_at       DateTime @default(now())
+
+  affiliate_link affiliate_links @relation(fields: [affiliate_link_id], references: [id])
+
+  @@index([affiliate_link_id, recorded_at])
+  @@map("affiliate_price_history")
+}
+
+model affiliate_clicks {
+  id                String   @id @default(uuid()) @db.Uuid
+  affiliate_link_id String   @db.Uuid
+  user_id           String?  @db.Uuid
+  session_id        String?  @db.Uuid
+  ip_address        String?  @db.Inet
+  user_agent        String?
+  referrer          String?
+  clicked_at        DateTime @default(now())
+
+  affiliate_link affiliate_links @relation(fields: [affiliate_link_id], references: [id])
+
+  @@index([affiliate_link_id])
+  @@index([clicked_at])
+  @@map("affiliate_clicks")
+}
+
+// ============================================================
+// M. SUBSCRIPTIONS
+// ============================================================
 
 model subscription_plans {
   id            String   @id @default(uuid()) @db.Uuid
   code          String   @unique @db.VarChar(30)
   name          String   @db.VarChar(100)
+  description   String?
   price_monthly Decimal  @db.Decimal(8, 2)
   price_yearly  Decimal  @db.Decimal(8, 2)
   currency_code String   @db.VarChar(3)
   features      Json
   is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
 
   subscriptions subscriptions[]
+
+  @@map("subscription_plans")
 }
 
 model subscriptions {
-  id                  String    @id @default(uuid()) @db.Uuid
-  user_id             String    @unique @db.Uuid
-  plan_id             String    @db.Uuid
-  status              String    @default("active")
-  billing_cycle       String    @db.VarChar(20)
-  current_period_end  DateTime?
-  created_at          DateTime  @default(now())
+  id                   String    @id @default(uuid()) @db.Uuid
+  user_id              String    @unique @db.Uuid
+  plan_id              String    @db.Uuid
+  status               String    @default("active") @db.VarChar(30)
+  billing_cycle        String    @db.VarChar(20)
+  stripe_customer_id   String?   @unique
+  stripe_sub_id        String?   @unique
+  current_period_end   DateTime?
+  cancel_at_period_end Boolean   @default(false)
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
 
   user users              @relation(fields: [user_id], references: [id])
   plan subscription_plans @relation(fields: [plan_id], references: [id])
+
+  @@map("subscriptions")
 }
 
-// =====================================
-// USER ENGAGEMENT
-// =====================================
+// ============================================================
+// N. USER ENGAGEMENT
+// ============================================================
 
 model wishlists {
   id         String   @id @default(uuid()) @db.Uuid
@@ -351,7 +2125,24 @@ model wishlists {
   is_public  Boolean  @default(false)
   created_at DateTime @default(now())
 
-  user users @relation(fields: [user_id], references: [id])
+  user  users            @relation(fields: [user_id], references: [id])
+  items wishlist_items[]
+
+  @@map("wishlists")
+}
+
+model wishlist_items {
+  id                String   @id @default(uuid()) @db.Uuid
+  wishlist_id       String   @db.Uuid
+  device_variant_id String   @db.Uuid
+  notes             String?
+  added_at          DateTime @default(now())
+
+  wishlist       wishlists       @relation(fields: [wishlist_id], references: [id])
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
+
+  @@unique([wishlist_id, device_variant_id])
+  @@map("wishlist_items")
 }
 
 model price_alerts {
@@ -360,13 +2151,16 @@ model price_alerts {
   device_variant_id String    @db.Uuid
   target_price      Decimal   @db.Decimal(12, 2)
   currency_code     String    @db.VarChar(3)
+  region_code       String    @db.VarChar(2)
   is_active         Boolean   @default(true)
   triggered_at      DateTime?
   created_at        DateTime  @default(now())
 
-  user users @relation(fields: [user_id], references: [id])
+  user           users           @relation(fields: [user_id], references: [id])
+  device_variant device_variants @relation(fields: [device_variant_id], references: [id])
 
   @@index([device_variant_id, is_active])
+  @@map("price_alerts")
 }
 
 model notifications {
@@ -382,4 +2176,5 @@ model notifications {
   user users @relation(fields: [user_id], references: [id])
 
   @@index([user_id, read_at])
+  @@map("notifications")
 }
