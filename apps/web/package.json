@@ -1,12 +1,13 @@
 {
-  "name": "web",
+  "name": "@spechub/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/react": "1.0.7",
@@ -17,6 +18,7 @@
     "@radix-ui/react-slot": "1.1.1",
     "@radix-ui/react-tabs": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@spechub/api-client": "workspace:*",
     "@tanstack/react-query": "5.62.10",
     "@tanstack/react-query-devtools": "5.62.10",
     "@tanstack/react-table": "8.20.6",

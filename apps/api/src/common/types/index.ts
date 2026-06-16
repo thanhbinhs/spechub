@@ -2,7 +2,7 @@
  * Re-export commonly used types
  */
 export type { AuthUser } from '../decorators/current-user.decorator'
-export type { UserRole } from '../decorators/roles.decorator'
+export type { UserRole } from '../constants'
 export type { PaginationMeta } from '../dto/pagination.dto'
 export type { ApiResponse } from '../interceptors/transform.interceptor'
 

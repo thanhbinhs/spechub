@@ -1,9 +1,6 @@
 import { SetMetadata } from '@nestjs/common'
+import type { UserRole } from '../constants'
 
-/**
- * Các role có trong hệ thống (match với users.role trong DB)
- */
-export type UserRole = 'reader' | 'contributor' | 'editor' | 'moderator' | 'admin'
 
 export const ROLES_KEY = 'roles'
 

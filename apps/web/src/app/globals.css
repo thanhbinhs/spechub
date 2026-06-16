@@ -3,19 +3,137 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f7f8fa;
+  --foreground: #111827;
+  --card: #ffffff;
+  --line: #dde3ea;
+  --accent: #2563eb;
+  --accent-strong: #0f172a;
+  --green: #0f766e;
+  --amber: #b7791f;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    linear-gradient(180deg, #ffffff 0%, var(--background) 42%, #f4f6f8 100%);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: #dbeafe;
+  color: #0f172a;
+}
+
+input,
+select,
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+::placeholder {
+  color: #94a3b8;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+
+  .page-enter {
+    animation: page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .fade-up {
+    animation: fade-up 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .device-artwork img {
+    animation: product-settle 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.interactive-lift {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+
+.interactive-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+}
+
+.soft-grid {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes product-settle {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

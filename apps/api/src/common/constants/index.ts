@@ -38,6 +38,7 @@ export const CACHE_KEYS = {
 export const USER_ROLES = {
     READER: 'reader',
     CONTRIBUTOR: 'contributor',
+    EDITOR: 'editor',
     MODERATOR: 'moderator',
     ADMIN: 'admin',
 } as const

@@ -8,7 +8,8 @@
     "start:prod": "node dist/main",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "test": "jest"
+    "test": "jest",
+    "search:sync": "ts-node -r tsconfig-paths/register src/scripts/sync-meilisearch.ts"
   },
   "dependencies": {
     "@nestjs/core": "11.0.6",
@@ -27,6 +28,7 @@
     "@fastify/static": "8.0.4",
     "@fastify/cookie": "11.0.2",
     "@fastify/helmet": "13.0.1",
+    "@spechub/ai-core": "workspace:*",
     "@spechub/database": "workspace:*",
     "@spechub/types": "workspace:*",
     "ioredis": "5.4.2",

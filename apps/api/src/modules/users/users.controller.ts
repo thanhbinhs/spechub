@@ -9,18 +9,20 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
-import { ParseUUIDPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { USER_ROLES, type UserRole } from '../../common/constants';
+import { USER_ROLES } from '../../common/constants';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import type { SafeUser } from './interfaces/safe-user.interface';
 
 @ApiTags('users')
@@ -34,11 +36,8 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Lấy profile của user hiện tại' })
-  getMe(@CurrentUser() user: SafeUser): SafeUser {
-    // JWT đã verify trong guard, user gắn vào request.
-    // Không query lại DB ở đây — tin JWT (trade-off: nếu user bị disable
-    // sau khi JWT issued, vẫn pass đến khi token expire).
-    return user;
+  getMe(@CurrentUser('id') userId: string) {
+    return this.usersService.findByIdOrThrow(userId);
   }
 
   @Patch('me')
@@ -62,6 +61,7 @@ export class UsersController {
 
   // ────────── Public profile lookup ──────────
 
+  @Public()
   @Get(':username')
   @ApiOperation({ summary: 'Xem public profile' })
   async getPublicProfile(@Param('username') username: string) {
@@ -95,14 +95,13 @@ export class UsersController {
   }
 
   @Patch(':id/role')
-  @UseGuards(RolesGuard)
   @Roles(USER_ROLES.ADMIN)
   @ApiOperation({ summary: 'Admin: đổi role' })
   updateRole(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body('role') role: UserRole,
+    @Body() dto: UpdateUserRoleDto,
   ) {
-    return this.usersService.updateRole(id, role);
+    return this.usersService.updateRole(id, dto.role);
   }
 
   @Patch(':id/active')

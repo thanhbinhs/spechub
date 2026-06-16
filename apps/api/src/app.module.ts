@@ -1,29 +1,40 @@
-import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
-import { APP_GUARD } from '@nestjs/core'
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { APP_GUARD } from "@nestjs/core";
 
-import { CommonModule } from './common/common.module'
-import { PrismaModule } from './prisma/prisma.module'
-import { RedisModule } from './redis/redis.module'
-import { HealthController } from './health/health.controller'
+import { CommonModule } from "./common/common.module";
+import { PrismaModule } from "./prisma/prisma.module";
+import { RedisModule } from "./redis/redis.module";
+import { HealthController } from "./health/health.controller";
 
-import { AuthModule } from './modules/auth/auth.module'
-import { UsersModule } from './modules/users/users.module'
+import { AuthModule } from "./modules/auth/auth.module";
+import { UsersModule } from "./modules/users/users.module";
+import { OrganizationsModule } from "./modules/organizations/organizations.module";
+import { DeviceCategoriesModule } from "./modules/device-categories/device-categories.module";
+import { ProductFamiliesModule } from "./modules/product-families/product-families.module";
+import { DeviceModelsModule } from "./modules/device-models/device-models.module";
+import { DeviceVariantsModule } from "./modules/device-variants/device-variants.module";
+import { ChipsetsModule } from "./modules/chipsets/chipsets.module";
+import { DisplayUnitsModule } from "./modules/display-units/display-units.module";
+import { BatteryUnitsModule } from "./modules/battery-units/battery-units.module";
+import { CameraModulesModule } from "./modules/camera-modules/camera-modules.module";
+import { SearchModule } from "./modules/search/search.module";
+import { AiModule } from "./modules/ai/ai.module";
 
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
-import { RolesGuard } from './common/guards/roles.guard'
+import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
+import { RolesGuard } from "./common/guards/roles.guard";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [".env.local", ".env"],
       cache: true,
     }),
     ThrottlerModule.forRoot([
-      { name: 'short', ttl: 1000, limit: 10 },
-      { name: 'long', ttl: 60_000, limit: 100 },
+      { name: "short", ttl: 1000, limit: 10 },
+      { name: "long", ttl: 60_000, limit: 100 },
     ]),
 
     // Core modules
@@ -34,6 +45,17 @@ import { RolesGuard } from './common/guards/roles.guard'
     // Feature modules
     UsersModule,
     AuthModule,
+    OrganizationsModule,
+    DeviceCategoriesModule,
+    ProductFamiliesModule,
+    DeviceModelsModule,
+    DeviceVariantsModule,
+    ChipsetsModule,
+    DisplayUnitsModule,
+    BatteryUnitsModule,
+    CameraModulesModule,
+    SearchModule,
+    AiModule,
   ],
   controllers: [HealthController],
   providers: [
