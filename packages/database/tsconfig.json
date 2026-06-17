@@ -1,0 +1,14 @@
+{
+    "extends":"@spechub/config/typescript/base",
+    "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "noEmit": true,
+    "ignoreDeprecations": "5.0"
+  },
+  "include": ["src/**/*", "prisma/**/*.ts"],
+  "exclude": ["node_modules", "dist", "generated"]
+}

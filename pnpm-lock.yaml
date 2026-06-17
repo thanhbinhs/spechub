@@ -241,6 +241,12 @@ importers:
       '@spechub/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@spechub/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@spechub/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@tanstack/react-query':
         specifier: 5.62.10
         version: 5.62.10(react@19.2.6)
@@ -337,6 +343,9 @@ importers:
         specifier: 2.4.3
         version: 2.4.3
     devDependencies:
+      '@spechub/config':
+        specifier: workspace:*
+        version: link:../config
       '@types/bcryptjs':
         specifier: 2.4.6
         version: 2.4.6

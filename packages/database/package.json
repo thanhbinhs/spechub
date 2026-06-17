@@ -26,6 +26,7 @@
     "bcryptjs": "2.4.3"
   },
   "devDependencies": {
+    "@spechub/config": "workspace:*",
     "@types/bcryptjs": "2.4.6",
     "@types/node": "^22.10.2",
     "prisma": "6.1.0",

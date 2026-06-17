@@ -10,10 +10,12 @@ import {
   useState,
 } from "react";
 import type { AuthResponse, AuthTokens, AuthUser } from "@spechub/api-client";
+import {
+  clearAuthTokens,
+  persistAuthTokens,
+  readAuthTokens,
+} from "@spechub/auth";
 import { api } from "@/lib/api";
-
-const ACCESS_TOKEN_KEY = "spechub_access_token";
-const REFRESH_TOKEN_KEY = "spechub_refresh_token";
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -40,36 +42,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const persistAuth = useCallback((response: AuthResponse) => {
-    localStorage.setItem(ACCESS_TOKEN_KEY, response.tokens.access_token);
-    localStorage.setItem(REFRESH_TOKEN_KEY, response.tokens.refresh_token);
+    persistAuthTokens(localStorage, response.tokens);
     setTokens(response.tokens);
     setUser(response.user);
   }, []);
 
   const signOut = useCallback(() => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    clearAuthTokens(localStorage);
     setTokens(null);
     setUser(null);
   }, []);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    const storedTokens = readAuthTokens(localStorage);
 
-    if (!accessToken || !refreshToken) {
+    if (!storedTokens) {
       setIsLoading(false);
       return;
     }
 
-    setTokens({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_in: 0,
-    });
+    setTokens(storedTokens);
 
     api
-      .getMe(accessToken)
+      .getMe(storedTokens.access_token)
       .then(setUser)
       .catch(signOut)
       .finally(() => setIsLoading(false));

@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SpecHub Web
 
-## Getting Started
+Next.js frontend for the SpecHub MVP. The app provides the public product surface for catalog browsing, device detail, comparison, search, AI Q&A, authentication, and the basic user dashboard.
 
-First, run the development server:
+## Current MVP Surface
+
+| Route | Purpose |
+|---|---|
+| `/` | Homepage with catalog summary, fast prompts, categories, and featured records. |
+| `/devices` | Device model listing with filters and pagination. |
+| `/devices/[slug]` | Device detail page with variants and specs. |
+| `/compare` | Side-by-side comparison for 2-4 device variants. |
+| `/search` | Keyword search backed by the API search endpoint. |
+| `/ai` | Catalog-grounded AI question interface. |
+| `/login` | JWT login flow through the API. |
+| `/register` | Account creation flow through the API. |
+| `/dashboard` | Basic authenticated account dashboard. |
+
+## Run Locally
+
+From the repository root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm db:generate
+pnpm dev:api
+pnpm dev:web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Web runs at `http://localhost:3000`. The API is expected at `http://localhost:4000/api/v1`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The web client currently reads:
 
-## Learn More
+```bash
+NEXT_PUBLIC_SPECHUB_API_URL="http://localhost:4000/api/v1"
+```
 
-To learn more about Next.js, take a look at the following resources:
+The root `.env.example` is synchronized with this name. Do not use the older `NEXT_PUBLIC_API_URL` name for the web client.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Files
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| File | Purpose |
+|---|---|
+| `src/app/layout.tsx` | Root layout, fonts, query/auth provider shell. |
+| `src/components/app-shell.tsx` | Global navigation and responsive shell. |
+| `src/components/query-provider.tsx` | TanStack Query provider and auth provider wrapper. |
+| `src/components/auth-provider.tsx` | Local JWT token persistence and auth actions. |
+| `src/lib/api.ts` | Configured `@spechub/api-client` instance and query keys. |
+| `src/lib/format.ts` | Local formatting helpers used by catalog UI. |
 
-## Deploy on Vercel
+## Health Checks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm --filter @spechub/web type-check
+pnpm --filter @spechub/web lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The root `pnpm type-check` is expected to pass after Phase 1.5 stabilization. See `spechub-v2-master-guide.md` for the post-MVP audit and roadmap.
