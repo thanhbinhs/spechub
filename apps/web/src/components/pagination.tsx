@@ -13,27 +13,30 @@ export function Pagination({ meta, basePath, params = {} }: PaginationProps) {
   if (meta.totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <nav
+      className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-surface p-4 text-sm shadow-sm sm:flex-row sm:items-center sm:justify-between"
+      aria-label="Phân trang"
+    >
       <div className="text-slate-500">
-        Page <span className="font-medium text-slate-900">{meta.page}</span> of{" "}
+        Trang <span className="font-medium text-slate-900">{meta.page}</span> /{" "}
         <span className="font-medium text-slate-900">{meta.totalPages}</span>
       </div>
       <div className="flex items-center gap-2">
         <PageLink
           disabled={!meta.hasPrev}
           href={hrefFor(basePath, params, meta.page - 1)}
-          label="Previous"
+          label="Trước"
           icon={<ChevronLeft size={16} />}
         />
         <PageLink
           disabled={!meta.hasNext}
           href={hrefFor(basePath, params, meta.page + 1)}
-          label="Next"
+          label="Tiếp"
           icon={<ChevronRight size={16} />}
           iconAfter
         />
       </div>
-    </div>
+    </nav>
   );
 }
 

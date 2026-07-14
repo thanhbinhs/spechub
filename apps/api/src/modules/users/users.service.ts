@@ -182,7 +182,7 @@ export class UsersService {
     if (!isValid) return null;
 
     // Strip password_hash trước khi return
-    const { password_hash, ...safe } = user;
+    const { password_hash: _password_hash, ...safe } = user;
     return safe;
   }
 
@@ -289,7 +289,8 @@ export class UsersService {
    * Admin only — đổi role.
    */
   async updateRole(id: string, role: UserRole): Promise<SafeUser> {
-    await this.findByIdOrThrow(id);
+    const user = await this.findByIdOrThrow(id);
+    await this.ensureActiveAdminIsNotLast(user, role !== USER_ROLES.ADMIN);
     return this.prisma.users.update({
       where: { id },
       data: { role },
@@ -301,7 +302,8 @@ export class UsersService {
    * Admin only — disable account (giữ data, chặn login).
    */
   async setActive(id: string, isActive: boolean): Promise<SafeUser> {
-    await this.findByIdOrThrow(id);
+    const user = await this.findByIdOrThrow(id);
+    await this.ensureActiveAdminIsNotLast(user, !isActive);
     return this.prisma.users.update({
       where: { id },
       data: { is_active: isActive },
@@ -314,7 +316,8 @@ export class UsersService {
    * Không xóa cứng (giữ FK history cho comments, wiki_revisions...).
    */
   async softDelete(id: string): Promise<void> {
-    await this.findByIdOrThrow(id);
+    const user = await this.findByIdOrThrow(id);
+    await this.ensureActiveAdminIsNotLast(user, true);
     await this.prisma.users.update({
       where: { id },
       data: { deleted_at: new Date(), is_active: false },
@@ -330,5 +333,30 @@ export class UsersService {
       where: { id },
       data: { email_verified_at: new Date() },
     });
+  }
+
+  private async ensureActiveAdminIsNotLast(
+    user: SafeUser,
+    removesAdminAccess: boolean,
+  ) {
+    if (
+      user.role !== USER_ROLES.ADMIN ||
+      !user.is_active ||
+      !removesAdminAccess
+    ) {
+      return;
+    }
+
+    const activeAdminCount = await this.prisma.users.count({
+      where: {
+        role: USER_ROLES.ADMIN,
+        is_active: true,
+        deleted_at: null,
+      },
+    });
+
+    if (activeAdminCount <= 1) {
+      throw new ConflictException("Không thể vô hiệu hóa admin đang hoạt động cuối cùng");
+    }
   }
 }

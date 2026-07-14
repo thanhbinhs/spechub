@@ -5,7 +5,9 @@ import {
   ArrowRight,
   Bell,
   BrainCircuit,
+  CreditCard,
   GitCompareArrows,
+  Heart,
   LogOut,
   Search,
   ShieldCheck,
@@ -13,6 +15,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { EngagementDashboard } from "@/components/engagement-dashboard";
 import { LoadingPanel } from "@/components/loading-panel";
 import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/components/auth-provider";
@@ -20,48 +23,66 @@ import { useAuth } from "@/components/auth-provider";
 const quickActions = [
   {
     href: "/devices",
-    label: "Browse catalog",
-    description: "Scan dense model records and jump into research detail.",
+    label: "Xem danh mục",
+    description: "Xem các bản ghi mẫu máy và đi đến trang tra cứu chi tiết.",
     icon: Smartphone,
   },
   {
     href: "/compare",
-    label: "Build comparison",
-    description: "Select variants and review differences side by side.",
+    label: "Tạo so sánh",
+    description: "Chọn phiên bản và xem các khác biệt song song.",
     icon: GitCompareArrows,
   },
   {
     href: "/ai",
-    label: "Ask AI",
-    description: "Question the indexed catalog with citations.",
+    label: "Hỏi AI",
+    description: "Đặt câu hỏi về danh mục đã lập chỉ mục, kèm trích dẫn.",
     icon: BrainCircuit,
   },
   {
     href: "/search",
-    label: "Search",
-    description: "Run keyword search across devices and seeded specs.",
+    label: "Tìm kiếm",
+    description: "Tìm theo từ khóa trên thiết bị và thông số có sẵn.",
     icon: Search,
+  },
+  {
+    href: "/wishlist",
+    label: "Thiết bị đã lưu",
+    description: "Xem lại các phiên bản đã lưu trong danh sách yêu thích.",
+    icon: Heart,
+  },
+  {
+    href: "/alerts",
+    label: "Cảnh báo giá",
+    description: "Theo dõi mức giá mục tiêu cho các phiên bản có thể mua.",
+    icon: Bell,
+  },
+  {
+    href: "/billing",
+    label: "Thanh toán",
+    description: "Xem gói hiện tại và các giới hạn tính năng.",
+    icon: CreditCard,
   },
 ];
 
 export default function DashboardPage() {
   const { user, tokens, isLoading, signOut } = useAuth();
 
-  if (isLoading) return <LoadingPanel label="Loading account" />;
+  if (isLoading) return <LoadingPanel label="Đang tải tài khoản" />;
 
   if (!user) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <EmptyState
           icon={<UserRound size={20} />}
-          title="Sign in to open the dashboard"
-          description="The dashboard anchors the MVP account flow and connects catalog, compare, and AI research."
+          title="Đăng nhập để mở trang tổng quan"
+          description="Trang tổng quan kết nối danh mục, so sánh và nghiên cứu AI trong luồng tài khoản."
           action={
             <Link
               href="/login"
               className="inline-flex h-10 items-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"
             >
-              Sign in
+              Đăng nhập
               <ArrowRight size={16} />
             </Link>
           }
@@ -70,19 +91,33 @@ export default function DashboardPage() {
     );
   }
 
+  const roleAwareActions = [
+    ...quickActions,
+    ...(user.role === "admin" || user.role === "editor"
+      ? [
+          {
+            href: "/admin",
+            label: "Không gian quản trị",
+            description: "Quản lý danh mục, đối tác bán lẻ và hàng đợi duyệt.",
+            icon: ShieldCheck,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
-        eyebrow="Dashboard"
-        title={`Welcome, ${user.display_name ?? user.username ?? user.email}`}
-        description="A compact workspace for account state, quick navigation, and the next MVP hooks for saved research."
+        eyebrow="Tổng quan"
+        title={`Chào mừng, ${user.display_name ?? user.username ?? user.email}`}
+        description="Không gian gọn gàng để xem trạng thái tài khoản, điều hướng nhanh và truy cập nghiên cứu đã lưu."
         action={
           <button
             onClick={signOut}
             className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
           >
             <LogOut size={16} />
-            Sign out
+            Đăng xuất
           </button>
         }
       />
@@ -95,27 +130,29 @@ export default function DashboardPage() {
             </div>
             <div className="min-w-0">
               <h2 className="truncate text-base font-semibold text-slate-950">
-                {user.display_name ?? user.username ?? "SpecHub user"}
+                {user.display_name ?? user.username ?? "Người dùng SpecHub"}
               </h2>
               <p className="truncate text-sm text-slate-500">{user.email}</p>
             </div>
           </div>
 
           <div className="space-y-3">
-            <AccountRow label="Role" value={user.role} />
+            <AccountRow label="Vai trò" value={roleLabel(user.role)} />
             <AccountRow
-              label="Username"
-              value={user.username ?? "Not configured"}
+              label="Tên người dùng"
+              value={user.username ?? "Chưa thiết lập"}
             />
             <AccountRow
-              label="Session"
-              value={tokens?.access_token ? "Active" : "Missing token"}
+              label="Phiên đăng nhập"
+              value={
+                tokens?.access_token ? "Đang hoạt động" : "Thiếu mã truy cập"
+              }
             />
           </div>
         </aside>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {quickActions.map((item) => {
+          {roleAwareActions.map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -144,28 +181,30 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      <EngagementDashboard />
+
       <section className="grid gap-5 md:grid-cols-2">
         <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
             <ShieldCheck size={17} />
-            MVP auth status
+            Trạng thái xác thực
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            Login, registration, token persistence, and `/auth/me` hydration are
-            connected. This is ready for saved lists and role-aware admin tools
-            in a later phase.
+            Đăng nhập, đăng ký, lưu mã truy cập và tải `/auth/me` đã được kết
+            nối. Quản trị viên và biên tập viên có thể mở không gian vận hành
+            trực tiếp từ đây.
           </p>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950">
             <Bell size={17} />
-            Coming next
+            Tương tác người dùng
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            Wishlist, alerts, and saved comparisons have placeholder ownership
-            in the dashboard flow, but are intentionally not blocking the MVP
-            frontend.
+            Danh sách yêu thích, cảnh báo giá, thông báo trong ứng dụng, liên
+            kết mua hàng và thông tin gói đăng ký đã kết nối với API có xác
+            thực.
           </p>
         </div>
       </section>
@@ -182,4 +221,15 @@ function AccountRow({ label, value }: { label: string; value: string }) {
       </span>
     </div>
   );
+}
+
+function roleLabel(role: string) {
+  const labels: Record<string, string> = {
+    reader: "Người xem",
+    contributor: "Cộng tác viên",
+    editor: "Biên tập viên",
+    moderator: "Kiểm duyệt viên",
+    admin: "Quản trị viên",
+  };
+  return labels[role] ?? role;
 }

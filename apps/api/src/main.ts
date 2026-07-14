@@ -20,6 +20,7 @@ async function bootstrap() {
       logger: false,
       trustProxy: true,
     }),
+    { rawBody: true },
   )
 
   const config = app.get(ConfigService)
@@ -56,6 +57,13 @@ async function bootstrap() {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+  })
+
+  const fastify = app.getHttpAdapter().getInstance()
+  fastify.addHook('onRequest', (request, reply, done) => {
+    reply.header('x-request-id', request.id)
+    done()
   })
 
   if (config.get<string>('NODE_ENV') !== 'production') {
@@ -64,6 +72,10 @@ async function bootstrap() {
       .setDescription('Smart device wiki & research platform')
       .setVersion('1.0')
       .addBearerAuth()
+      .addApiKey(
+        { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        'x-api-key',
+      )
       .addTag('auth', 'Authentication')
       .addTag('devices', 'Device catalog')
       .addTag('search', 'Search & AI research')

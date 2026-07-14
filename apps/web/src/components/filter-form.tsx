@@ -24,21 +24,21 @@ export function FilterForm({
   const chips = [
     q
       ? {
-          label: "Query",
+          label: "Từ khóa",
           value: q,
           href: filterHref(action, { brandSlug, categorySlug }),
         }
       : null,
     brandSlug
       ? {
-          label: "Brand",
+          label: "Hãng",
           value: brand?.short_name ?? brand?.name ?? brandSlug,
           href: filterHref(action, { q, categorySlug }),
         }
       : null,
     categorySlug
       ? {
-          label: "Category",
+          label: "Danh mục",
           value: category?.name ?? categorySlug,
           href: filterHref(action, { q, brandSlug }),
         }
@@ -48,60 +48,82 @@ export function FilterForm({
   );
 
   return (
-    <div className="rounded-lg border border-slate-200/80 bg-white shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-surface shadow-sm">
       <form
         action={action}
-        className="grid gap-3 p-3 lg:grid-cols-[minmax(220px,1fr)_180px_180px_auto]"
+        className="grid gap-3 p-4 sm:p-5 xl:grid-cols-[minmax(240px,1fr)_190px_190px_auto] xl:items-end"
+        aria-label="Lọc kết quả danh mục"
       >
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-            size={18}
-          />
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Search model, brand, chipset..."
-            className="h-11 w-full rounded-md border border-slate-300 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-blue-500"
-          />
+        <div>
+          <label
+            htmlFor="catalog-query"
+            className="mb-1.5 block text-xs font-semibold text-slate-600"
+          >
+            Tìm kiếm
+          </label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              size={18}
+            />
+            <input
+              name="q"
+              id="catalog-query"
+              defaultValue={q}
+              placeholder="Mẫu máy, hãng hoặc chipset..."
+              className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            />
+          </div>
         </div>
-        <select
-          name="brand_slug"
-          defaultValue={brandSlug ?? ""}
-          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500"
-        >
-          <option value="">All brands</option>
-          {brands.map((brand) => (
-            <option key={brand.id} value={brand.slug}>
-              {brand.short_name ?? brand.name}
-            </option>
-          ))}
-        </select>
-        <select
-          name="category_slug"
-          defaultValue={categorySlug ?? ""}
-          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500"
-        >
-          <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700">
+        <label className="block" htmlFor="catalog-brand">
+          <span className="mb-1.5 block text-xs font-semibold text-slate-600">
+            Thương hiệu
+          </span>
+          <select
+            name="brand_slug"
+            id="catalog-brand"
+            defaultValue={brandSlug ?? ""}
+            className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          >
+            <option value="">Tất cả thương hiệu</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.slug}>
+                {brand.short_name ?? brand.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block" htmlFor="catalog-category">
+          <span className="mb-1.5 block text-xs font-semibold text-slate-600">
+            Danh mục
+          </span>
+          <select
+            name="category_slug"
+            id="catalog-category"
+            defaultValue={categorySlug ?? ""}
+            className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          >
+            <option value="">Tất cả danh mục</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.slug}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
           <SlidersHorizontal size={17} />
-          Apply
+          Áp dụng
         </button>
       </form>
 
       {chips.length ? (
-        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-2">
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-4 py-3 sm:px-5">
           {chips.map((chip) => (
             <Link
               key={`${chip.label}-${chip.value}`}
               href={chip.href}
-              className="inline-flex max-w-full items-center gap-2 rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-blue-100"
+              className="inline-flex max-w-full items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-blue-100"
             >
               <span className="text-slate-500">{chip.label}</span>
               <span className="truncate">{chip.value}</span>
@@ -112,7 +134,7 @@ export function FilterForm({
             href={action}
             className="inline-flex rounded-md px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:text-slate-950"
           >
-            Reset
+            Đặt lại
           </Link>
         </div>
       ) : null}

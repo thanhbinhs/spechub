@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from "@nestjs/common";
@@ -14,11 +15,16 @@ import { Roles } from "../../common/decorators/roles.decorator";
 import { AiService } from "./ai.service";
 import { AskAiDto } from "./dto/ask-ai.dto";
 import { QueryAiSearchDto } from "./dto/query-ai-search.dto";
+import { ResearchHardwareDto } from "./dto/research-hardware.dto";
+import { HardwareResearchService } from "./hardware-research.service";
 
 @ApiTags("ai")
 @Controller("ai")
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    private readonly aiService: AiService,
+    private readonly hardwareResearchService: HardwareResearchService,
+  ) {}
 
   @Public()
   @Post("ask")
@@ -44,6 +50,21 @@ export class AiController {
   }
 
   @Public()
+  @Post("research/hardware/:kind/:slug")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      "Evaluate device-level module effectiveness from comparable benchmarks",
+  })
+  researchHardware(
+    @Param("kind") kind: string,
+    @Param("slug") slug: string,
+    @Body() dto: ResearchHardwareDto,
+  ) {
+    return this.hardwareResearchService.research(kind, slug, dto);
+  }
+
+  @Public()
   @Get("embeddings/stats")
   @ApiOperation({ summary: "AI embedding index stats" })
   getEmbeddingStats() {
@@ -57,5 +78,16 @@ export class AiController {
   @ApiOperation({ summary: "Index device models into pgvector embeddings" })
   indexDeviceModels() {
     return this.aiService.indexDeviceModels();
+  }
+
+  @Post("embeddings/index-raw-pages")
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({
+    summary: "Index reviewed raw pages into pgvector embeddings",
+  })
+  indexRawPages() {
+    return this.aiService.indexRawPages();
   }
 }

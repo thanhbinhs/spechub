@@ -1,13 +1,14 @@
-import { Test } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { Test } from "@nestjs/testing";
+import { AuthController } from "./auth.controller";
+import { AuthService } from "./auth.service";
 
-describe('AuthController', () => {
+describe("AuthController", () => {
   let controller: AuthController;
   const authService = {
     register: jest.fn(),
     login: jest.fn(),
     refreshToken: jest.fn(),
+    logout: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -21,11 +22,11 @@ describe('AuthController', () => {
     controller = moduleRef.get(AuthController);
   });
 
-  it('registers a user through AuthService', async () => {
+  it("registers a user through AuthService", async () => {
     const dto = {
-      email: 'user@spechub.io',
-      password: 'Password123',
-      username: 'user',
+      email: "user@spechub.io",
+      password: "Password123",
+      username: "user",
     };
     const response = { user: { email: dto.email }, tokens: {} };
     authService.register.mockResolvedValue(response);
@@ -34,8 +35,8 @@ describe('AuthController', () => {
     expect(authService.register).toHaveBeenCalledWith(dto);
   });
 
-  it('logs in with the user attached by LocalStrategy', async () => {
-    const user = { id: 'user-1', email: 'admin@spechub.io', role: 'admin' };
+  it("logs in with the user attached by LocalStrategy", async () => {
+    const user = { id: "user-1", email: "admin@spechub.io", role: "admin" };
     const response = { user, tokens: {} };
     authService.login.mockResolvedValue(response);
 
@@ -43,27 +44,46 @@ describe('AuthController', () => {
     expect(authService.login).toHaveBeenCalledWith(user);
   });
 
-  it('refreshes tokens through AuthService', async () => {
+  it("refreshes tokens through AuthService", async () => {
     const tokens = {
-      access_token: 'access-token',
-      refresh_token: 'refresh-token',
+      access_token: "access-token",
+      refresh_token: "refresh-token",
       expires_in: 604800,
     };
     authService.refreshToken.mockResolvedValue(tokens);
 
     await expect(
-      controller.refresh({ refresh_token: 'old-refresh-token' }),
+      controller.refresh({ refresh_token: "old-refresh-token" }),
     ).resolves.toBe(tokens);
-    expect(authService.refreshToken).toHaveBeenCalledWith('old-refresh-token');
+    expect(authService.refreshToken).toHaveBeenCalledWith("old-refresh-token");
   });
 
-  it('returns the current authenticated user', async () => {
-    const user = { id: 'user-1', email: 'admin@spechub.io', role: 'admin' };
+  it("returns the current authenticated user", async () => {
+    const user = {
+      id: "user-1",
+      email: "admin@spechub.io",
+      role: "admin",
+      session_id: "session-1",
+    };
 
-    await expect(controller.getMe(user)).resolves.toBe(user);
+    await expect(controller.getMe(user)).resolves.toEqual({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
   });
 
-  it('logs out without server-side state for now', async () => {
-    await expect(controller.logout()).resolves.toBeNull();
+  it("revokes the current server-side session on logout", async () => {
+    authService.logout.mockResolvedValue(undefined);
+
+    await expect(
+      controller.logout({
+        id: "user-1",
+        email: "admin@spechub.io",
+        role: "admin",
+        session_id: "session-1",
+      }),
+    ).resolves.toBeUndefined();
+    expect(authService.logout).toHaveBeenCalledWith("session-1");
   });
 });

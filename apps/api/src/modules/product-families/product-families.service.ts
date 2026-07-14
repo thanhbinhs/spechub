@@ -5,7 +5,9 @@ import {
   type PaginationMeta,
 } from '../../common/dto/pagination.dto'
 import { PrismaService } from '../../prisma/prisma.service'
+import { CreateProductFamilyDto } from './dto/create-product-family.dto'
 import { QueryProductFamiliesDto } from './dto/query-product-families.dto'
+import { UpdateProductFamilyDto } from './dto/update-product-family.dto'
 
 const PRODUCT_FAMILY_SELECT = {
   id: true,
@@ -104,6 +106,42 @@ export class ProductFamiliesService {
     }
 
     return family
+  }
+
+  async create(dto: CreateProductFamilyDto): Promise<ProductFamilyItem> {
+    return this.prisma.product_families.create({
+      data: {
+        ...dto,
+        is_active: dto.is_active ?? true,
+      },
+      select: PRODUCT_FAMILY_SELECT,
+    })
+  }
+
+  async update(
+    id: string,
+    dto: UpdateProductFamilyDto,
+  ): Promise<ProductFamilyItem> {
+    await this.findById(id)
+
+    return this.prisma.product_families.update({
+      where: { id },
+      data: dto,
+      select: PRODUCT_FAMILY_SELECT,
+    })
+  }
+
+  async remove(id: string): Promise<ProductFamilyItem> {
+    await this.findById(id)
+
+    return this.prisma.product_families.update({
+      where: { id },
+      data: {
+        deleted_at: new Date(),
+        is_active: false,
+      },
+      select: PRODUCT_FAMILY_SELECT,
+    })
   }
 
   private buildWhere(

@@ -1819,6 +1819,8 @@ model users {
   price_alerts   price_alerts[]
   notifications  notifications[]
   subscription   subscriptions?
+  billing_audit_logs billing_audit_logs[]
+  api_keys       api_keys[]
 
   @@index([email])
   @@index([username])
@@ -2079,16 +2081,18 @@ model affiliate_clicks {
 // ============================================================
 
 model subscription_plans {
-  id            String   @id @default(uuid()) @db.Uuid
-  code          String   @unique @db.VarChar(30)
-  name          String   @db.VarChar(100)
-  description   String?
-  price_monthly Decimal  @db.Decimal(8, 2)
-  price_yearly  Decimal  @db.Decimal(8, 2)
-  currency_code String   @db.VarChar(3)
-  features      Json
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
+  id                      String   @id @default(uuid()) @db.Uuid
+  code                    String   @unique @db.VarChar(30)
+  name                    String   @db.VarChar(100)
+  description             String?
+  price_monthly           Decimal  @db.Decimal(8, 2)
+  price_yearly            Decimal  @db.Decimal(8, 2)
+  currency_code           String   @db.VarChar(3)
+  stripe_price_monthly_id String?  @unique @db.VarChar(120)
+  stripe_price_yearly_id  String?  @unique @db.VarChar(120)
+  features                Json
+  is_active               Boolean  @default(true)
+  created_at              DateTime @default(now())
 
   subscriptions subscriptions[]
 
@@ -2099,19 +2103,62 @@ model subscriptions {
   id                   String    @id @default(uuid()) @db.Uuid
   user_id              String    @unique @db.Uuid
   plan_id              String    @db.Uuid
+  provider             String    @default("manual") @db.VarChar(30)
   status               String    @default("active") @db.VarChar(30)
   billing_cycle        String    @db.VarChar(20)
   stripe_customer_id   String?   @unique
   stripe_sub_id        String?   @unique
   current_period_end   DateTime?
   cancel_at_period_end Boolean   @default(false)
+  cancelled_at         DateTime?
+  ended_at             DateTime?
+  last_payment_at      DateTime?
+  last_payment_error   String?
   created_at           DateTime  @default(now())
   updated_at           DateTime  @updatedAt
 
-  user users              @relation(fields: [user_id], references: [id])
-  plan subscription_plans @relation(fields: [plan_id], references: [id])
+  user               users               @relation(fields: [user_id], references: [id])
+  plan               subscription_plans  @relation(fields: [plan_id], references: [id])
+  billing_audit_logs billing_audit_logs[]
 
   @@map("subscriptions")
+}
+
+model billing_audit_logs {
+  id              String    @id @default(uuid()) @db.Uuid
+  subscription_id String?   @db.Uuid
+  user_id         String?   @db.Uuid
+  provider        String    @db.VarChar(30)
+  action          String    @db.VarChar(80)
+  status          String    @db.VarChar(30)
+  external_event_id String? @db.VarChar(120)
+  details         Json?
+  error_message   String?
+  created_at      DateTime  @default(now())
+
+  subscription subscriptions? @relation(fields: [subscription_id], references: [id], onDelete: SetNull)
+  user         users?         @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, created_at])
+  @@index([subscription_id, created_at])
+  @@index([external_event_id])
+  @@map("billing_audit_logs")
+}
+
+model billing_webhook_events {
+  id                String    @id @default(uuid()) @db.Uuid
+  provider          String    @db.VarChar(30)
+  external_event_id String    @db.VarChar(120)
+  event_type        String    @db.VarChar(100)
+  payload_hash      String    @db.Char(64)
+  status            String    @default("received") @db.VarChar(30)
+  error_message     String?
+  received_at       DateTime  @default(now())
+  processed_at      DateTime?
+
+  @@unique([provider, external_event_id])
+  @@index([status, received_at])
+  @@map("billing_webhook_events")
 }
 
 // ============================================================
@@ -2174,7 +2221,72 @@ model notifications {
   created_at DateTime  @default(now())
 
   user users @relation(fields: [user_id], references: [id])
+  deliveries notification_deliveries[]
 
   @@index([user_id, read_at])
   @@map("notifications")
+}
+
+model notification_deliveries {
+  id                  String    @id @default(uuid()) @db.Uuid
+  notification_id     String    @db.Uuid
+  channel             String    @db.VarChar(20)
+  recipient           String    @db.VarChar(320)
+  status              String    @default("pending") @db.VarChar(20)
+  attempts            Int       @default(0)
+  provider_message_id String?   @db.VarChar(200)
+  last_error          String?
+  next_attempt_at     DateTime? @db.Timestamptz(6)
+  sent_at             DateTime? @db.Timestamptz(6)
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime  @updatedAt @db.Timestamptz(6)
+
+  notification notifications @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+
+  @@unique([notification_id, channel])
+  @@index([status, next_attempt_at])
+  @@map("notification_deliveries")
+}
+
+// ============================================================
+// M. B2B API ACCESS
+// ============================================================
+
+model api_keys {
+  id                    String    @id @default(uuid()) @db.Uuid
+  user_id               String    @db.Uuid
+  name                  String    @db.VarChar(100)
+  key_prefix            String    @unique @db.VarChar(32)
+  key_hash              String    @unique @db.Char(64)
+  scopes                Json
+  rate_limit_per_minute Int       @default(60)
+  monthly_quota         Int?
+  is_active             Boolean   @default(true)
+  last_used_at          DateTime? @db.Timestamptz(6)
+  expires_at            DateTime? @db.Timestamptz(6)
+  revoked_at            DateTime? @db.Timestamptz(6)
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @updatedAt @db.Timestamptz(6)
+
+  user  users           @relation(fields: [user_id], references: [id])
+  usage api_key_usage[]
+
+  @@index([user_id, is_active])
+  @@index([expires_at])
+  @@map("api_keys")
+}
+
+model api_key_usage {
+  id            String    @id @default(uuid()) @db.Uuid
+  api_key_id    String    @db.Uuid
+  bucket_start  DateTime  @db.Timestamptz(6)
+  request_count Int       @default(0)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @db.Timestamptz(6)
+
+  api_key api_keys @relation(fields: [api_key_id], references: [id], onDelete: Cascade)
+
+  @@unique([api_key_id, bucket_start])
+  @@index([bucket_start])
+  @@map("api_key_usage")
 }

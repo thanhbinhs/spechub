@@ -11,7 +11,7 @@ export function Surface({
   return (
     <section
       className={clsx(
-        "rounded-lg border border-slate-200/80 bg-white shadow-sm",
+        "rounded-xl border border-slate-200/80 bg-surface shadow-sm",
         className,
       )}
     >
@@ -30,12 +30,14 @@ export function SurfaceHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-slate-200/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 border-b border-slate-200/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <div className="min-w-0">
-        <h2 className="truncate text-sm font-semibold text-slate-950">
+        <h2 className="text-base font-semibold tracking-tight text-slate-950">
           {title}
         </h2>
-        {meta ? <p className="mt-1 text-xs text-slate-500">{meta}</p> : null}
+        {meta ? (
+          <p className="mt-1 text-sm leading-5 text-slate-500">{meta}</p>
+        ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>

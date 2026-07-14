@@ -8,11 +8,12 @@
  *   { sub, email, role, iat, exp } được trả về
  */
 export interface JwtPayload {
-  sub: string      // user.id (subject - chuẩn JWT)
-  email: string    // user.email
-  role: string     // user.role
-  iat?: number     // issued at (tự động bởi jwt)
-  exp?: number     // expires at (tự động bởi jwt)
+  sub: string; // user.id (subject - chuẩn JWT)
+  email: string; // user.email
+  role: string; // user.role
+  session_id: string; // Redis-backed session used for server-side revocation
+  iat?: number; // issued at (tự động bởi jwt)
+  exp?: number; // expires at (tự động bởi jwt)
 }
 
 /**
@@ -20,8 +21,9 @@ export interface JwtPayload {
  * Chỉ chứa sub để giảm risk nếu bị leak
  */
 export interface RefreshTokenPayload {
-  sub: string
-  type: 'refresh'
-  iat?: number
-  exp?: number
+  sub: string;
+  type: "refresh";
+  session_id: string;
+  iat?: number;
+  exp?: number;
 }

@@ -19,7 +19,7 @@ export function primaryVariant(
 }
 
 export function formatDate(value?: string | null) {
-  return formatSharedDate(value, { fallback: "TBD", locale: "en" });
+  return formatSharedDate(value, { fallback: "Chưa xác định", locale: "vi" });
 }
 
 export function formatPrice(
@@ -29,9 +29,12 @@ export function formatPrice(
   return formatCurrency(value, {
     currency: currency?.code ?? "USD",
     maximumFractionDigits: currency?.decimal_digits ?? 0,
+    fallback: "Chưa có",
+    locale: "vi",
   });
 }
 
-export function specText(value: unknown, fallback = "N/A") {
+export function specText(value: unknown, fallback = "Chưa có") {
+  if (typeof value === "boolean") return value ? "Có" : "Không";
   return toDisplayText(value, fallback);
 }

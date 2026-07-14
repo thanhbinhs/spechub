@@ -9,7 +9,6 @@ import {
   GitCompareArrows,
   MonitorSmartphone,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
 import type { DeviceModelSummary } from "@spechub/api-client";
 import { CommandBar } from "@/components/command-bar";
@@ -22,57 +21,48 @@ import { primaryVariant } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 const researchPrompts = [
-  "Best chipset under current catalog",
-  "Compare iPhone 16 Pro and Galaxy S25 Ultra",
-  "Which device has the largest battery?",
+  "Chipset nào tốt nhất trong danh mục hiện tại?",
+  "So sánh iPhone 16 Pro và Galaxy S25 Ultra",
+  "Thiết bị nào có pin lớn nhất?",
 ];
 
 export default async function Home() {
-  const [models, categoryResult, chipsets, variants, stats] =
-    await Promise.all([
-      api.listDeviceModels({ pageSize: 6 }),
-      api.getDeviceCategoryTree(),
-      api.listChipsets({ pageSize: 5 }),
-      api.listDeviceVariants({ pageSize: 6, default_only: true }),
-      api.getAiEmbeddingStats().catch(() => null),
-    ]);
+  const [models, categoryResult, chipsets, variants] = await Promise.all([
+    api.listDeviceModels({ pageSize: 6 }),
+    api.getDeviceCategoryTree(),
+    api.listChipsets({ pageSize: 5 }),
+    api.listDeviceVariants({ pageSize: 6, default_only: true }),
+  ]);
   const categories = categoryTreeData(categoryResult);
   const compareIds = variants.data
     .slice(0, 2)
     .map((variant) => variant.id)
     .join(",");
   const spotlight =
-    models.data.find((model) => /iphone|galaxy|pixel|xiaomi/i.test(model.name)) ??
-    models.data[0];
+    models.data.find((model) =>
+      /iphone|galaxy|pixel|xiaomi/i.test(model.name),
+    ) ?? models.data[0];
   const spotlightBrand = modelBrand(spotlight);
   const spotlightVariant = primaryVariant(spotlight);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="fade-up relative isolate overflow-hidden rounded-lg border border-slate-800 bg-slate-950 text-white shadow-[0_24px_90px_rgba(15,23,42,0.22)]">
+      <section className="fade-up brand-gradient relative isolate overflow-hidden rounded-xl border border-brand-700/30 text-white shadow-lg">
         <div className="absolute inset-0 soft-grid opacity-20" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,transparent_0%,rgba(37,99,235,0.20)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-brand-900/25" />
         <div className="relative grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_430px] lg:p-8">
           <div className="flex min-w-0 flex-col justify-between gap-8 py-2">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase text-blue-100">
-                  <Sparkles size={14} />
-                  Live catalog workspace
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
-                  {models.meta.total} models
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
-                  {stats?.data.total_chunks ?? 0} AI chunks
+                <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
+                  {models.meta.total} mẫu máy
                 </span>
               </div>
-              <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-                Find the right device without drowning in specs.
-              </h1>
+
               <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-                Search the catalog, compare real variants, and ask grounded AI
-                questions from one focused research surface.
+                Tìm kiếm, so sánh và tra cứu thông số kỹ thuật của các thiết bị
+                điện tử phổ biến. Sử dụng AI để nhận câu trả lời có trích dẫn từ
+                cơ sở dữ liệu của chúng tôi.
               </p>
               <div className="mt-7 max-w-3xl">
                 <CommandBar className="border-white/20 bg-white/95 shadow-2xl shadow-slate-950/20" />
@@ -83,20 +73,20 @@ export default async function Home() {
               <HeroAction
                 href="/devices"
                 icon={<Smartphone size={18} />}
-                label="Browse catalog"
-                meta={`${models.meta.total} records`}
+                label="Tất cả thiết bị"
+                meta={`${models.meta.total} mẫu máy`}
               />
               <HeroAction
                 href={compareIds ? `/compare?ids=${compareIds}` : "/compare"}
                 icon={<GitCompareArrows size={18} />}
-                label="Compare"
-                meta="Side-by-side board"
+                label="So sánh"
+                meta="Chọn 2 thiết bị để so sánh"
               />
               <HeroAction
                 href="/ai"
                 icon={<BrainCircuit size={18} />}
-                label="Ask AI"
-                meta="Cited answers"
+                label="Hỏi AI"
+                meta="Nhận câu trả lời"
               />
             </div>
           </div>
@@ -109,10 +99,8 @@ export default async function Home() {
               accent={spotlightVariant?.color_hex}
               className="h-full border-white/30 bg-white/95"
             />
-            <div className="absolute inset-x-5 bottom-5 rounded-lg border border-white/70 bg-white/85 p-4 text-slate-950 shadow-xl backdrop-blur">
-              <div className="text-xs font-semibold uppercase text-blue-700">
-                Spotlight
-              </div>
+            <div className="absolute inset-x-5 bottom-5 rounded-lg border border-white/70 bg-white/90 p-4 text-slate-950 shadow-md backdrop-blur">
+              <div className="text-xs font-semibold text-blue-700">Nổi bật</div>
               <div className="mt-1 truncate text-lg font-semibold">
                 {spotlight?.name ?? "SpecHub catalog"}
               </div>
@@ -127,23 +115,23 @@ export default async function Home() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Signal
           icon={<Cpu size={18} />}
-          label="Performance"
-          value="Chipset, RAM ceiling, process node"
+          label="Hiệu năng"
+          value="Chipset, RAM tối đa, tiến trình"
         />
         <Signal
           icon={<MonitorSmartphone size={18} />}
-          label="Display"
-          value="Resolution, refresh rate, peak nits"
+          label="Màn hình"
+          value="Độ phân giải, tần số quét, độ sáng đỉnh"
         />
         <Signal
           icon={<BatteryCharging size={18} />}
-          label="Battery"
-          value="Capacity and charging speed"
+          label="Pin"
+          value="Dung lượng và tốc độ sạc"
         />
         <Signal
           icon={<Database size={18} />}
-          label="Evidence"
-          value="Chunks, citations, related records"
+          label="Nguồn dữ liệu"
+          value="Đoạn dữ liệu, trích dẫn, bản ghi liên quan"
         />
       </section>
 
@@ -151,18 +139,18 @@ export default async function Home() {
         <div className="min-w-0">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-semibold uppercase text-blue-700">
-                Latest records
+              <div className="text-xs font-semibold text-blue-700">
+                Bản ghi mới nhất
               </div>
               <h2 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
-                Devices ready to explore
+                Thiết bị sẵn sàng để tra cứu
               </h2>
             </div>
             <Link
               href="/devices"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
             >
-              All devices
+              Tất cả thiết bị
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -175,7 +163,7 @@ export default async function Home() {
 
         <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
           <Surface>
-            <SurfaceHeader title="Fast prompts" meta="Ask with context" />
+            <SurfaceHeader title="Gợi ý nhanh" meta="Hỏi theo ngữ cảnh" />
             <div className="space-y-2 p-3">
               {researchPrompts.map((prompt) => (
                 <Link
@@ -194,7 +182,7 @@ export default async function Home() {
           </Surface>
 
           <Surface>
-            <SurfaceHeader title="Browse categories" meta="Start narrow" />
+            <SurfaceHeader title="Duyệt danh mục" meta="Bắt đầu cụ thể" />
             <div className="flex flex-wrap gap-2 p-3">
               {categories.map((category) => (
                 <Link
@@ -209,7 +197,7 @@ export default async function Home() {
           </Surface>
 
           <Surface>
-            <SurfaceHeader title="Chipset trail" meta="Popular components" />
+            <SurfaceHeader title="Chipset nổi bật" meta="Linh kiện phổ biến" />
             <div className="space-y-2 p-3">
               {chipsets.data.map((chipset) => (
                 <Link
@@ -300,5 +288,5 @@ function modelBrand(model?: DeviceModelSummary) {
 }
 
 function modelCategory(model?: DeviceModelSummary) {
-  return model?.product_family?.device_category?.name ?? "Device";
+  return model?.product_family?.device_category?.name ?? "Thiết bị";
 }

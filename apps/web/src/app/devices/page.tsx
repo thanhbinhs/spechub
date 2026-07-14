@@ -37,15 +37,15 @@ export default async function DevicesPage({
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
-        eyebrow="Catalog"
-        title="Devices"
-        description={`${models.meta.total} models across brands, categories, variants, and component records.`}
+        eyebrow="Danh mục"
+        title="Thiết bị"
+        description={`${models.meta.total} mẫu máy thuộc các hãng, danh mục, phiên bản và linh kiện.`}
         action={
           <Link
             href="/compare"
             className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"
           >
-            Start compare
+            Bắt đầu so sánh
           </Link>
         }
       />
@@ -62,25 +62,28 @@ export default async function DevicesPage({
       {models.data.length ? (
         <>
           <div className="grid gap-3 md:grid-cols-3">
-            <SummaryTile label="Total" value={`${models.meta.total} models`} />
             <SummaryTile
-              label="Page"
+              label="Tổng số"
+              value={`${models.meta.total} mẫu máy`}
+            />
+            <SummaryTile
+              label="Trang"
               value={`${models.meta.page}/${models.meta.totalPages}`}
             />
             <SummaryTile
-              label="Filters"
+              label="Bộ lọc"
               value={
                 [q, brandSlug, categorySlug].filter(Boolean).length
-                  ? "Active"
-                  : "None"
+                  ? "Đang áp dụng"
+                  : "Không có"
               }
             />
           </div>
 
           <Surface>
             <SurfaceHeader
-              title="Catalog records"
-              meta={`${models.data.length} visible`}
+              title="Bản ghi danh mục"
+              meta={`${models.data.length} đang hiển thị`}
               action={
                 q ? (
                   <Link
@@ -88,14 +91,14 @@ export default async function DevicesPage({
                     className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
                   >
                     <BrainCircuit size={15} />
-                    Ask AI
+                    Hỏi AI
                   </Link>
                 ) : (
                   <Link
                     href="/compare"
                     className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
                   >
-                    Compare
+                    So sánh
                     <ArrowRight size={15} />
                   </Link>
                 )
@@ -116,14 +119,14 @@ export default async function DevicesPage({
       ) : (
         <EmptyState
           icon={<SearchX size={20} />}
-          title="No devices matched"
-          description="Try a broader keyword or clear one of the filters."
+          title="Không tìm thấy thiết bị phù hợp"
+          description="Hãy thử từ khóa rộng hơn hoặc xóa một trong các bộ lọc."
           action={
             <Link
               href="/devices"
               className="inline-flex h-10 items-center rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 transition hover:border-blue-300"
             >
-              Reset filters
+              Đặt lại bộ lọc
             </Link>
           }
         />

@@ -1,5 +1,5 @@
 import { IsBoolean, IsIn, IsOptional, IsString } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { PaginationQueryDto } from "@/common/dto/pagination.dto";
 import { ALL_USER_ROLES } from "@/common/constants";
 import { UserRole } from "@/common/types";

@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  DATABASE_URL: postgresql://spechub:spechub@localhost:5432/spechub_ci
+  REDIS_URL: redis://localhost:6379
+  JWT_SECRET: ci-jwt-secret-with-at-least-32-characters
+  AUTH_SECRET: ci-auth-secret-with-at-least-32-characters
+  NEXT_PUBLIC_SPECHUB_API_URL: http://localhost:4000/api/v1
+  PRICE_ALERTS_SCHEDULE_ENABLED: "false"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.11.0
+          cache: pnpm
+
+      - name: Activate pnpm
+        run: corepack prepare pnpm@9.15.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Validate Prisma schema
+        run: pnpm db:validate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm type-check
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build

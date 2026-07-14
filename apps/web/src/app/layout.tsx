@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import { AppShell } from "@/components/app-shell";
 import { QueryProvider } from "@/components/query-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "SpecHub",
-  description: "Device specs, variants, comparison, and search.",
+  description: "Thông số thiết bị, các phiên bản, so sánh và tìm kiếm.",
+  applicationName: "SpecHub",
+  appleWebApp: {
+    capable: true,
+    title: "SpecHub",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fffdfd",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -25,10 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="vi">
+      <body>
         <QueryProvider>
           <AppShell>{children}</AppShell>
         </QueryProvider>

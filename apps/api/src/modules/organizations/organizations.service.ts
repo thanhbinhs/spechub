@@ -5,7 +5,9 @@ import {
   type PaginationMeta,
 } from '../../common/dto/pagination.dto'
 import { PrismaService } from '../../prisma/prisma.service'
+import { CreateOrganizationDto } from './dto/create-organization.dto'
 import { QueryOrganizationsDto } from './dto/query-organization.dto'
+import { UpdateOrganizationDto } from './dto/update-organization.dto'
 
 const ORGANIZATION_SELECT = {
   id: true,
@@ -89,6 +91,39 @@ export class OrganizationsService {
     }
 
     return organization
+  }
+
+  async create(dto: CreateOrganizationDto): Promise<OrganizationListItem> {
+    return this.prisma.organizations.create({
+      data: dto,
+      select: ORGANIZATION_SELECT,
+    })
+  }
+
+  async update(
+    id: string,
+    dto: UpdateOrganizationDto,
+  ): Promise<OrganizationListItem> {
+    await this.findById(id)
+
+    return this.prisma.organizations.update({
+      where: { id },
+      data: dto,
+      select: ORGANIZATION_SELECT,
+    })
+  }
+
+  async remove(id: string): Promise<OrganizationListItem> {
+    await this.findById(id)
+
+    return this.prisma.organizations.update({
+      where: { id },
+      data: {
+        deleted_at: new Date(),
+        is_active: false,
+      },
+      select: ORGANIZATION_SELECT,
+    })
   }
 
   private buildWhere(query: QueryOrganizationsDto): Prisma.organizationsWhereInput {

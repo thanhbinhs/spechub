@@ -120,6 +120,9 @@ describe("AiService", () => {
       findMany: jest.fn(),
       count: jest.fn(),
     },
+    raw_pages: {
+      findMany: jest.fn(),
+    },
     ai_query_cache: {
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -173,5 +176,23 @@ describe("AiService", () => {
       }),
     );
     expect(prisma.ai_query_cache.upsert).toHaveBeenCalled();
+  });
+
+  it("indexes only raw pages that have been approved", async () => {
+    prisma.raw_pages.findMany.mockResolvedValue([]);
+    prisma.$transaction.mockImplementation(async (callback) =>
+      callback({
+        $executeRawUnsafe: jest.fn(),
+        ai_query_cache: { deleteMany: jest.fn() },
+      }),
+    );
+
+    await service.indexRawPages();
+
+    expect(prisma.raw_pages.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: "approved" }),
+      }),
+    );
   });
 });

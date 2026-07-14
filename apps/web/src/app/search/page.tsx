@@ -37,16 +37,16 @@ export default async function SearchPage({
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
-        eyebrow="Search"
-        title={q ? `Results for "${q}"` : "Search"}
-        description={`${results.meta.total} results from ${results.meta.source ?? "database"} search.`}
+        eyebrow="Tìm kiếm"
+        title={q ? `Kết quả cho "${q}"` : "Tìm kiếm"}
+        description={`${results.meta.total} kết quả từ nguồn ${results.meta.source ?? "cơ sở dữ liệu"}.`}
         action={
           q ? (
             <Link
               href={`/ai?q=${encodeURIComponent(q)}`}
               className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"
             >
-              Ask AI
+              Hỏi AI
             </Link>
           ) : null
         }
@@ -65,8 +65,8 @@ export default async function SearchPage({
         <>
           <Surface>
             <SurfaceHeader
-              title="Matched records"
-              meta={`${results.data.length} visible · ${results.meta.source ?? "database"}`}
+              title="Bản ghi phù hợp"
+              meta={`${results.data.length} đang hiển thị · ${results.meta.source ?? "cơ sở dữ liệu"}`}
               action={
                 q ? (
                   <Link
@@ -74,7 +74,7 @@ export default async function SearchPage({
                     className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
                   >
                     <BrainCircuit size={15} />
-                    Ask AI
+                    Hỏi AI
                   </Link>
                 ) : null
               }
@@ -94,15 +94,15 @@ export default async function SearchPage({
       ) : (
         <EmptyState
           icon={<SearchX size={20} />}
-          title="No results matched"
-          description="Try a broader keyword or ask AI to inspect the current catalog."
+          title="Không tìm thấy kết quả phù hợp"
+          description="Hãy thử từ khóa rộng hơn hoặc nhờ AI kiểm tra danh mục hiện tại."
           action={
             q ? (
               <Link
                 href={`/ai?q=${encodeURIComponent(q)}`}
                 className="inline-flex h-10 items-center rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 transition hover:border-slate-400"
               >
-                Ask AI instead
+                Hỏi AI thay thế
               </Link>
             ) : null
           }

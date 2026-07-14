@@ -16,9 +16,9 @@ import { api } from "@/lib/api";
 export const dynamic = "force-dynamic";
 
 const examples = [
-  "Compare Galaxy S25 Ultra and iPhone 16 Pro",
-  "Which catalog record has the largest battery?",
-  "List devices using Snapdragon",
+  "So sánh Galaxy S25 Ultra và iPhone 16 Pro",
+  "Bản ghi nào trong danh mục có pin lớn nhất?",
+  "Liệt kê các thiết bị dùng Snapdragon",
 ];
 
 export default async function AiPage({
@@ -43,15 +43,15 @@ export default async function AiPage({
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8">
       <PageHeader
         eyebrow="AI"
-        title="Catalog research"
-        description="Answers are grounded in indexed SpecHub records and citations."
+        title="Tra cứu danh mục"
+        description="Câu trả lời dựa trên các bản ghi SpecHub đã lập chỉ mục và có trích dẫn."
         action={
           <Link
             href="/compare"
             className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
           >
             <GitCompareArrows size={16} />
-            Compare
+            So sánh
           </Link>
         }
       />
@@ -62,11 +62,11 @@ export default async function AiPage({
         </Surface>
 
         <Surface>
-          <SurfaceHeader title="Index" meta={stats?.meta.embedding_model} />
+          <SurfaceHeader title="Chỉ mục" meta={stats?.meta.embedding_model} />
           <div className="grid grid-cols-2 gap-3 p-4">
-            <Metric label="Models" value={`${indexedModels}/${totalModels}`} />
+            <Metric label="Mẫu máy" value={`${indexedModels}/${totalModels}`} />
             <Metric
-              label="Chunks"
+              label="Đoạn dữ liệu"
               value={String(stats?.data.total_chunks ?? 0)}
             />
           </div>
@@ -78,12 +78,12 @@ export default async function AiPage({
           <div className="space-y-5">
             <Surface>
               <SurfaceHeader
-                title="Answer"
-                meta={`${sourceLabel(source)} · ${citationCount} citations`}
+                title="Câu trả lời"
+                meta={`${sourceLabel(source)} · ${citationCount} trích dẫn`}
                 action={
                   <span className="inline-flex items-center gap-1 rounded-md bg-[#fff7e6] px-2 py-1 text-xs font-medium text-amber-700">
                     <AlertTriangle size={13} />
-                    Catalog-only
+                    Chỉ dùng danh mục
                   </span>
                 }
               />
@@ -97,14 +97,14 @@ export default async function AiPage({
             {catalogMatches?.data.length ? (
               <Surface>
                 <SurfaceHeader
-                  title="Related catalog records"
-                  meta={`${catalogMatches.meta.total} matches`}
+                  title="Bản ghi danh mục liên quan"
+                  meta={`${catalogMatches.meta.total} kết quả`}
                   action={
                     <Link
                       href={`/search?q=${encodeURIComponent(q)}`}
                       className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
                     >
-                      View all
+                      Xem tất cả
                       <ArrowRight size={15} />
                     </Link>
                   }
@@ -116,7 +116,7 @@ export default async function AiPage({
 
           <aside className="space-y-5 lg:sticky lg:top-32 lg:self-start">
             <Surface>
-              <SurfaceHeader title="Evidence" meta="Citations" />
+              <SurfaceHeader title="Nguồn dữ liệu" meta="Trích dẫn" />
               <div className="space-y-3 p-4">
                 {answer.data.citations.map((citation) => (
                   <div
@@ -137,13 +137,26 @@ export default async function AiPage({
                       {citation.excerpt}
                     </p>
                     {citation.slug ? (
-                      <Link
-                        href={`/devices/${citation.slug}`}
-                        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-800 hover:text-slate-950"
-                      >
-                        Open device
-                        <ArrowRight size={14} />
-                      </Link>
+                      citation.entity_type === "raw_page" &&
+                      safeExternalUrl(citation.slug) ? (
+                        <a
+                          href={citation.slug}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-800 hover:text-slate-950"
+                        >
+                          Mở nguồn
+                          <ArrowRight size={14} />
+                        </a>
+                      ) : citation.entity_type === "device_model" ? (
+                        <Link
+                          href={`/devices/${citation.slug}`}
+                          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-slate-800 hover:text-slate-950"
+                        >
+                          Mở thiết bị
+                          <ArrowRight size={14} />
+                        </Link>
+                      ) : null
                     ) : null}
                   </div>
                 ))}
@@ -152,7 +165,10 @@ export default async function AiPage({
 
             {semanticMatches?.data.length ? (
               <Surface>
-                <SurfaceHeader title="Retrieved chunks" meta="Semantic match" />
+                <SurfaceHeader
+                  title="Đoạn dữ liệu tìm thấy"
+                  meta="Khớp ngữ nghĩa"
+                />
                 <div className="space-y-3 p-4">
                   {semanticMatches.data.map((match) => (
                     <div
@@ -182,7 +198,7 @@ export default async function AiPage({
       ) : (
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
           <Surface>
-            <SurfaceHeader title="Prompts" meta="Starting points" />
+            <SurfaceHeader title="Gợi ý câu hỏi" meta="Điểm bắt đầu" />
             <div className="grid gap-3 p-4 md:grid-cols-3">
               {examples.map((example) => (
                 <Link
@@ -202,8 +218,8 @@ export default async function AiPage({
 
           <EmptyState
             icon={<BrainCircuit size={20} />}
-            title="No prompt yet"
-            description="Start with a chipset, battery, display, or buying question."
+            title="Chưa có câu hỏi"
+            description="Bắt đầu với câu hỏi về chipset, pin, màn hình hoặc nhu cầu mua sắm."
           />
         </section>
       )}
@@ -224,9 +240,18 @@ function Metric({ label, value }: { label: string; value: string }) {
 }
 
 function sourceLabel(source: string) {
-  if (source === "vector") return "Vector RAG";
-  if (source === "cache") return "Cached";
-  return "Catalog fallback";
+  if (source === "vector") return "Tra cứu Vector RAG";
+  if (source === "cache") return "Bộ nhớ đệm";
+  return "Dự phòng từ danh mục";
+}
+
+function safeExternalUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 function stringParam(value: string | string[] | undefined) {

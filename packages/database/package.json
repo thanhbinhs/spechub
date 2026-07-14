@@ -11,14 +11,15 @@
     }
   },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "studio": "prisma studio",
-    "reset": "prisma migrate reset --force",
+    "db:generate": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js generate",
+    "db:validate": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js validate",
+    "db:migrate": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate dev",
+    "db:migrate:deploy": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate deploy",
+    "db:reset": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate reset",
+    "db:studio": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js studio",
+    "db:seed": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed.ts",
+    "studio": "pnpm db:studio",
+    "reset": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate reset --force",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

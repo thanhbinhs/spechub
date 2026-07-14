@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma } from '@spechub/database'
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@spechub/database";
 import {
   createPaginationMeta,
   type PaginationMeta,
-} from '../../common/dto/pagination.dto'
-import { PrismaService } from '../../prisma/prisma.service'
-import { QueryDeviceModelsDto } from './dto/query-device-models.dto'
+} from "../../common/dto/pagination.dto";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateDeviceModelDto } from "./dto/create-device-model.dto";
+import { QueryDeviceModelsDto } from "./dto/query-device-models.dto";
+import { UpdateDeviceModelDto } from "./dto/update-device-model.dto";
+import { DEVICE_VARIANT_COMPONENT_SELECT } from "../device-variants/device-variant-component-select";
 
 const VARIANT_SUMMARY_SELECT = {
   id: true,
@@ -32,7 +35,7 @@ const VARIANT_SUMMARY_SELECT = {
       name: true,
     },
   },
-} satisfies Prisma.device_variantsSelect
+} satisfies Prisma.device_variantsSelect;
 
 const DEVICE_MODEL_LIST_SELECT = {
   id: true,
@@ -85,9 +88,9 @@ const DEVICE_MODEL_LIST_SELECT = {
     },
     select: VARIANT_SUMMARY_SELECT,
     orderBy: [
-      { is_default: 'desc' as const },
-      { launch_date: 'asc' as const },
-      { variant_name: 'asc' as const },
+      { is_default: "desc" as const },
+      { launch_date: "asc" as const },
+      { variant_name: "asc" as const },
     ],
     take: 1,
   },
@@ -96,7 +99,7 @@ const DEVICE_MODEL_LIST_SELECT = {
       device_variants: true,
     },
   },
-} satisfies Prisma.device_modelsSelect
+} satisfies Prisma.device_modelsSelect;
 
 const DEVICE_MODEL_DETAIL_SELECT = {
   ...DEVICE_MODEL_LIST_SELECT,
@@ -106,95 +109,44 @@ const DEVICE_MODEL_DETAIL_SELECT = {
     },
     select: {
       ...VARIANT_SUMMARY_SELECT,
-      variant_physical_specs: true,
-      variant_chipsets: {
-        select: {
-          chip_role: true,
-          is_primary: true,
-          chipset: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              model_code: true,
-              chip_kind: true,
-              manufacturer: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                  short_name: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      variant_displays: {
-        select: {
-          display_role: true,
-          display_order: true,
-          display_unit: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              size_inch: true,
-              resolution_width: true,
-              resolution_height: true,
-              refresh_rate_hz: true,
-              brightness_peak_nits: true,
-            },
-          },
-        },
-        orderBy: [{ display_order: 'asc' as const }],
-      },
-      variant_batteries: {
-        select: {
-          battery_role: true,
-          is_primary: true,
-          battery_unit: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              capacity_mah: true,
-              wired_charging_w: true,
-              wireless_charging_w: true,
-            },
-          },
-        },
-      },
+      ...DEVICE_VARIANT_COMPONENT_SELECT,
     },
     orderBy: [
-      { is_default: 'desc' as const },
-      { launch_date: 'asc' as const },
-      { variant_name: 'asc' as const },
+      { is_default: "desc" as const },
+      { launch_date: "asc" as const },
+      { variant_name: "asc" as const },
     ],
   },
-} satisfies Prisma.device_modelsSelect
+} satisfies Prisma.device_modelsSelect;
 
 export type DeviceModelListItem = Prisma.device_modelsGetPayload<{
-  select: typeof DEVICE_MODEL_LIST_SELECT
-}>
+  select: typeof DEVICE_MODEL_LIST_SELECT;
+}>;
 
 export type DeviceModelDetail = Prisma.device_modelsGetPayload<{
-  select: typeof DEVICE_MODEL_DETAIL_SELECT
-}>
+  select: typeof DEVICE_MODEL_DETAIL_SELECT;
+}>;
 
 export type DeviceModelListResult = {
-  data: DeviceModelListItem[]
-  meta: PaginationMeta
-}
+  data: DeviceModelListItem[];
+  meta: PaginationMeta;
+};
 
 @Injectable()
 export class DeviceModelsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async listReleaseStatuses() {
+    return this.prisma.release_statuses.findMany({
+      select: { id: true, code: true, name: true },
+      orderBy: { sort_order: "asc" },
+    });
+  }
+
   async findMany(query: QueryDeviceModelsDto): Promise<DeviceModelListResult> {
-    const page = query.page ?? 1
-    const pageSize = query.pageSize ?? 20
-    const where = this.buildWhere(query)
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const where = this.buildWhere(query);
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.device_models.findMany({
@@ -205,12 +157,12 @@ export class DeviceModelsService {
         orderBy: this.buildOrderBy(query),
       }),
       this.prisma.device_models.count({ where }),
-    ])
+    ]);
 
     return {
       data: items,
       meta: createPaginationMeta(total, page, pageSize),
-    }
+    };
   }
 
   async findBySlug(slug: string): Promise<DeviceModelDetail> {
@@ -220,13 +172,13 @@ export class DeviceModelsService {
         deleted_at: null,
       },
       select: DEVICE_MODEL_DETAIL_SELECT,
-    })
+    });
 
     if (!model) {
-      throw new NotFoundException(`Device model ${slug} not found`)
+      throw new NotFoundException(`Device model ${slug} not found`);
     }
 
-    return model
+    return model;
   }
 
   async findById(id: string): Promise<DeviceModelDetail> {
@@ -236,17 +188,53 @@ export class DeviceModelsService {
         deleted_at: null,
       },
       select: DEVICE_MODEL_DETAIL_SELECT,
-    })
+    });
 
     if (!model) {
-      throw new NotFoundException(`Device model ${id} not found`)
+      throw new NotFoundException(`Device model ${id} not found`);
     }
 
-    return model
+    return model;
   }
 
-  private buildWhere(query: QueryDeviceModelsDto): Prisma.device_modelsWhereInput {
-    const q = query.q?.trim()
+  async create(dto: CreateDeviceModelDto): Promise<DeviceModelDetail> {
+    const model = await this.prisma.device_models.create({
+      data: dto,
+      select: DEVICE_MODEL_DETAIL_SELECT,
+    });
+
+    return model;
+  }
+
+  async update(
+    id: string,
+    dto: UpdateDeviceModelDto,
+  ): Promise<DeviceModelDetail> {
+    await this.findById(id);
+
+    return this.prisma.device_models.update({
+      where: { id },
+      data: dto,
+      select: DEVICE_MODEL_DETAIL_SELECT,
+    });
+  }
+
+  async remove(id: string): Promise<DeviceModelDetail> {
+    await this.findById(id);
+
+    return this.prisma.device_models.update({
+      where: { id },
+      data: {
+        deleted_at: new Date(),
+      },
+      select: DEVICE_MODEL_DETAIL_SELECT,
+    });
+  }
+
+  private buildWhere(
+    query: QueryDeviceModelsDto,
+  ): Prisma.device_modelsWhereInput {
+    const q = query.q?.trim();
 
     return {
       deleted_at: null,
@@ -278,33 +266,35 @@ export class DeviceModelsService {
       }),
       ...(q && {
         OR: [
-          { name: { contains: q, mode: 'insensitive' } },
-          { slug: { contains: q, mode: 'insensitive' } },
-          { internal_codename: { contains: q, mode: 'insensitive' } },
-          { description: { contains: q, mode: 'insensitive' } },
+          { name: { contains: q, mode: "insensitive" } },
+          { slug: { contains: q, mode: "insensitive" } },
+          { internal_codename: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
         ],
       }),
-    }
+    };
   }
 
   private buildOrderBy(
     query: QueryDeviceModelsDto,
   ): Prisma.device_modelsOrderByWithRelationInput[] {
     const allowedSortFields = new Set([
-      'name',
-      'slug',
-      'announcement_date',
-      'release_date',
-      'created_at',
-      'updated_at',
-    ])
+      "name",
+      "slug",
+      "announcement_date",
+      "release_date",
+      "created_at",
+      "updated_at",
+    ]);
     const explicitSortBy =
-      query.sortBy && allowedSortFields.has(query.sortBy) ? query.sortBy : undefined
+      query.sortBy && allowedSortFields.has(query.sortBy)
+        ? query.sortBy
+        : undefined;
 
     if (explicitSortBy) {
-      return [{ [explicitSortBy]: query.sortOrder ?? 'desc' }]
+      return [{ [explicitSortBy]: query.sortOrder ?? "desc" }];
     }
 
-    return [{ release_date: 'desc' }, { name: 'asc' }]
+    return [{ release_date: "desc" }, { name: "asc" }];
   }
 }

@@ -2,7 +2,12 @@ export const EMBEDDING_DIMENSIONS = 1536;
 export const LOCAL_EMBEDDING_MODEL = "local-hash-embedding-v1";
 export const LOCAL_RAG_MODEL = "local-rag-v1";
 
-export type RagEntityType = "device_model" | "device_variant" | "raw_page";
+export type RagEntityType =
+  | "device_model"
+  | "device_variant"
+  | "hardware_module"
+  | "product_family"
+  | "raw_page";
 
 export type RagChunk = {
   entityType: RagEntityType;

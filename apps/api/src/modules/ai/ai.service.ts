@@ -3,9 +3,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import {
   AiCitation,
   chunkText,
-  createLocalEmbedding,
-  LOCAL_EMBEDDING_MODEL,
-  LOCAL_RAG_MODEL,
   makeExcerpt,
   RagChunk,
   tokenize,
@@ -14,6 +11,7 @@ import {
 } from "@spechub/ai-core";
 import { Prisma } from "@spechub/database";
 import { PrismaService } from "../../prisma/prisma.service";
+import { AiProviderService } from "./ai-provider.service";
 import { AskAiDto } from "./dto/ask-ai.dto";
 import { QueryAiSearchDto } from "./dto/query-ai-search.dto";
 
@@ -164,8 +162,37 @@ const AI_DEVICE_MODEL_SELECT = {
   },
 } satisfies Prisma.device_modelsSelect;
 
+const AI_RAW_PAGE_SELECT = {
+  id: true,
+  url: true,
+  raw_text: true,
+  parsed_data: true,
+  status: true,
+  crawled_at: true,
+  parsed_at: true,
+  source: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      reliability: true,
+    },
+  },
+  device_model: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  },
+} satisfies Prisma.raw_pagesSelect;
+
 type AiDeviceModel = Prisma.device_modelsGetPayload<{
   select: typeof AI_DEVICE_MODEL_SELECT;
+}>;
+
+type AiRawPage = Prisma.raw_pagesGetPayload<{
+  select: typeof AI_RAW_PAGE_SELECT;
 }>;
 
 type RetrievedChunkRow = {
@@ -195,8 +222,13 @@ type RetrievalSource = "vector" | "catalog_fallback" | "cache";
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
+  private readonly prisma: PrismaService;
+  private readonly aiProvider: AiProviderService;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(prisma: PrismaService, aiProvider?: AiProviderService) {
+    this.prisma = prisma;
+    this.aiProvider = aiProvider ?? new AiProviderService();
+  }
 
   async ask(dto: AskAiDto) {
     const question = dto.question.trim();
@@ -208,13 +240,24 @@ export class AiService {
 
     const { chunks, source } = await this.retrieveChunks(question, topK);
     const citations = chunks.map((chunk) => this.toCitation(chunk, question));
-    const answer = this.composeAnswer(question, chunks);
+    const generated = await this.aiProvider
+      .generateAnswer({ question, chunks, citations })
+      .catch((error) => {
+        this.logger.warn(`AI provider answer skipped: ${String(error)}`);
+        return null;
+      });
+    const answer = generated?.answer ?? this.composeAnswer(question, chunks);
+    const modelName = generated?.modelName ?? this.aiProvider.ragModelName;
 
-    await this.writeCache(queryHash, question, answer, citations).catch(
-      (error) => {
-        this.logger.warn(`AI cache write skipped: ${String(error)}`);
-      },
-    );
+    await this.writeCache(
+      queryHash,
+      question,
+      answer,
+      citations,
+      modelName,
+    ).catch((error) => {
+      this.logger.warn(`AI cache write skipped: ${String(error)}`);
+    });
 
     return {
       data: {
@@ -223,12 +266,13 @@ export class AiService {
         citations,
         contexts: chunks,
         cached: false,
-        model_name: LOCAL_RAG_MODEL,
+        model_name: modelName,
       },
       meta: {
         source,
         top_k: topK,
-        embedding_model: LOCAL_EMBEDDING_MODEL,
+        embedding_model: this.aiProvider.embeddingModelName,
+        rag_provider: generated?.provider ?? "local",
       },
     };
   }
@@ -247,7 +291,7 @@ export class AiService {
         query: q,
         top_k: topK,
         source,
-        embedding_model: LOCAL_EMBEDDING_MODEL,
+        embedding_model: this.aiProvider.embeddingModelName,
       },
     };
   }
@@ -274,12 +318,13 @@ export class AiService {
         })),
       },
       meta: {
-        embedding_model: LOCAL_EMBEDDING_MODEL,
+        embedding_model: this.aiProvider.embeddingModelName,
       },
     };
   }
 
   async indexDeviceModels() {
+    const embeddingModel = this.aiProvider.embeddingModelName;
     const models = await this.prisma.device_models.findMany({
       where: {
         deleted_at: null,
@@ -288,34 +333,32 @@ export class AiService {
       orderBy: [{ release_date: "desc" }, { name: "asc" }],
     });
     const chunks = models.flatMap((model) => this.buildModelChunks(model));
+    const embeddedChunks = await this.embedChunks(chunks);
 
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(
         "DELETE FROM embeddings WHERE entity_type = $1 AND model_name = $2",
         "device_model",
-        LOCAL_EMBEDDING_MODEL,
+        embeddingModel,
       );
       await tx.ai_query_cache.deleteMany({
         where: {
-          model_name: LOCAL_RAG_MODEL,
+          model_name: this.aiProvider.ragModelName,
         },
       });
 
-      for (const chunk of chunks) {
-        const embedding = vectorToPgVector(
-          createLocalEmbedding(chunk.chunkText),
-        );
+      for (const embeddedChunk of embeddedChunks) {
         await tx.$executeRawUnsafe(
           `INSERT INTO embeddings
             (id, entity_type, entity_id, chunk_text, chunk_index, embedding, model_name)
            VALUES ($1::uuid, $2, $3, $4, $5, $6::vector, $7)`,
           randomUUID(),
-          chunk.entityType,
-          chunk.entityId,
-          chunk.chunkText,
-          chunk.chunkIndex,
-          embedding,
-          LOCAL_EMBEDDING_MODEL,
+          embeddedChunk.chunk.entityType,
+          embeddedChunk.chunk.entityId,
+          embeddedChunk.chunk.chunkText,
+          embeddedChunk.chunk.chunkIndex,
+          embeddedChunk.embedding,
+          embeddedChunk.modelName,
         );
       }
     });
@@ -324,10 +367,66 @@ export class AiService {
       data: {
         indexed_models: models.length,
         indexed_chunks: chunks.length,
-        model_name: LOCAL_EMBEDDING_MODEL,
+        model_name: embeddingModel,
       },
       meta: {
         entity_type: "device_model",
+      },
+    };
+  }
+
+  async indexRawPages() {
+    const embeddingModel = this.aiProvider.embeddingModelName;
+    const pages = await this.prisma.raw_pages.findMany({
+      where: {
+        status: "approved",
+        OR: [
+          { raw_text: { not: null } },
+          { parsed_data: { not: Prisma.JsonNull } },
+        ],
+      },
+      select: AI_RAW_PAGE_SELECT,
+      orderBy: [{ parsed_at: "desc" }, { crawled_at: "desc" }],
+    });
+    const chunks = pages.flatMap((page) => this.buildRawPageChunks(page));
+    const embeddedChunks = await this.embedChunks(chunks);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        "DELETE FROM embeddings WHERE entity_type = $1 AND model_name = $2",
+        "raw_page",
+        embeddingModel,
+      );
+      await tx.ai_query_cache.deleteMany({
+        where: {
+          model_name: this.aiProvider.ragModelName,
+        },
+      });
+
+      for (const embeddedChunk of embeddedChunks) {
+        await tx.$executeRawUnsafe(
+          `INSERT INTO embeddings
+            (id, entity_type, entity_id, chunk_text, chunk_index, embedding, model_name)
+           VALUES ($1::uuid, $2, $3, $4, $5, $6::vector, $7)`,
+          randomUUID(),
+          embeddedChunk.chunk.entityType,
+          embeddedChunk.chunk.entityId,
+          embeddedChunk.chunk.chunkText,
+          embeddedChunk.chunk.chunkIndex,
+          embeddedChunk.embedding,
+          embeddedChunk.modelName,
+        );
+      }
+    });
+
+    return {
+      data: {
+        indexed_raw_pages: pages.length,
+        indexed_chunks: chunks.length,
+        model_name: embeddingModel,
+      },
+      meta: {
+        entity_type: "raw_page",
       },
     };
   }
@@ -354,11 +453,31 @@ export class AiService {
     };
   }
 
+  private async embedChunks(chunks: RagChunk[]) {
+    const embeddedChunks: Array<{
+      chunk: RagChunk;
+      embedding: string;
+      modelName: string;
+    }> = [];
+
+    for (const chunk of chunks) {
+      const embeddingResult = await this.aiProvider.embedText(chunk.chunkText);
+      embeddedChunks.push({
+        chunk,
+        embedding: vectorToPgVector(embeddingResult.vector),
+        modelName: embeddingResult.modelName,
+      });
+    }
+
+    return embeddedChunks;
+  }
+
   private async retrieveVectorChunks(
     query: string,
     topK: number,
   ): Promise<RagChunk[]> {
-    const embedding = vectorToPgVector(createLocalEmbedding(query));
+    const embeddingResult = await this.aiProvider.embedText(query);
+    const embedding = vectorToPgVector(embeddingResult.vector);
     const rows = await this.prisma.$queryRawUnsafe<RetrievedChunkRow[]>(
       `SELECT
           e.id,
@@ -368,22 +487,25 @@ export class AiService {
           e.chunk_index,
           e.model_name,
           1 - (e.embedding <=> $1::vector) AS score,
-          dm.name AS title,
-          dm.slug AS slug
+          COALESCE(dm.name, rp.url) AS title,
+          COALESCE(dm.slug, rp.url) AS slug
         FROM embeddings e
         LEFT JOIN device_models dm
           ON e.entity_type = 'device_model'
           AND e.entity_id = dm.id::text
+        LEFT JOIN raw_pages rp
+          ON e.entity_type = 'raw_page'
+          AND e.entity_id = rp.id::text
         WHERE e.model_name = $2
         ORDER BY e.embedding <=> $1::vector
         LIMIT $3`,
       embedding,
-      LOCAL_EMBEDDING_MODEL,
+      embeddingResult.modelName,
       topK,
     );
 
     return rows.map((row) => ({
-      entityType: "device_model",
+      entityType: row.entity_type === "raw_page" ? "raw_page" : "device_model",
       entityId: row.entity_id,
       chunkText: row.chunk_text,
       chunkIndex: row.chunk_index,
@@ -543,6 +665,31 @@ export class AiService {
     );
   }
 
+  private buildRawPageChunks(page: AiRawPage): RagChunk[] {
+    const lines = [
+      `Source: ${page.source.name}`,
+      `URL: ${page.url}`,
+      page.device_model ? `Device model: ${page.device_model.name}` : null,
+      `Status: ${page.status}`,
+      page.raw_text,
+      page.parsed_data ? JSON.stringify(page.parsed_data) : null,
+    ].filter(Boolean);
+    const title = page.device_model
+      ? `${page.device_model.name} source page`
+      : page.url;
+
+    return chunkText(lines.join("\n\n"), { maxChars: 1_600 }).map(
+      (text, index) => ({
+        entityType: "raw_page",
+        entityId: page.id,
+        chunkText: text,
+        chunkIndex: index,
+        title,
+        slug: page.url,
+      }),
+    );
+  }
+
   private composeAnswer(question: string, chunks: RagChunk[]): string {
     if (!chunks.length) {
       return `I could not find matching catalog data for "${question}" in the current SpecHub index.`;
@@ -610,7 +757,7 @@ export class AiService {
        FROM embeddings
        WHERE entity_type = $1 AND model_name = $2`,
         "device_model",
-        LOCAL_EMBEDDING_MODEL,
+        this.aiProvider.embeddingModelName,
       )
       .catch(() => [{ count: 0 }]);
 
@@ -623,7 +770,7 @@ export class AiService {
         `SELECT COUNT(*) AS count
        FROM embeddings
        WHERE model_name = $1`,
-        LOCAL_EMBEDDING_MODEL,
+        this.aiProvider.embeddingModelName,
       )
       .catch(() => [{ count: 0 }]);
 
@@ -656,7 +803,7 @@ export class AiService {
       },
       meta: {
         source: "cache" as RetrievalSource,
-        embedding_model: LOCAL_EMBEDDING_MODEL,
+        embedding_model: this.aiProvider.embeddingModelName,
       },
     };
   }
@@ -666,6 +813,7 @@ export class AiService {
     question: string,
     answer: string,
     citations: AiCitation[],
+    modelName: string,
   ) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000);
 
@@ -674,7 +822,7 @@ export class AiService {
       update: {
         answer_text: answer,
         citations: citations as unknown as Prisma.InputJsonValue,
-        model_name: LOCAL_RAG_MODEL,
+        model_name: modelName,
         expires_at: expiresAt,
       },
       create: {
@@ -682,7 +830,7 @@ export class AiService {
         query_text: question,
         answer_text: answer,
         citations: citations as unknown as Prisma.InputJsonValue,
-        model_name: LOCAL_RAG_MODEL,
+        model_name: modelName,
         expires_at: expiresAt,
       },
     });
@@ -690,7 +838,9 @@ export class AiService {
 
   private hashQuery(question: string, topK: number): string {
     return createHash("sha256")
-      .update(`${LOCAL_RAG_MODEL}:${topK}:${question.toLowerCase()}`)
+      .update(
+        `${this.aiProvider.ragModelName}:${topK}:${question.toLowerCase()}`,
+      )
       .digest("hex");
   }
 

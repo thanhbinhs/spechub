@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { FastifyRequest } from 'fastify'
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { FastifyRequest } from "fastify";
 
 /**
  * Interface mô tả shape của user trong JWT payload.
@@ -7,10 +7,12 @@ import { FastifyRequest } from 'fastify'
  * vào request.user
  */
 export interface AuthUser {
-  id: string
-  email: string
-  role: string
-  username?: string
+  id: string;
+  email: string;
+  role: string;
+  username?: string;
+  display_name?: string;
+  session_id: string;
 }
 
 /**
@@ -29,15 +31,20 @@ export interface AuthUser {
  *   }
  */
 export const CurrentUser = createParamDecorator(
-  (data: keyof AuthUser | undefined, ctx: ExecutionContext): AuthUser | string | undefined => {
-    const request = ctx.switchToHttp().getRequest<FastifyRequest & { user?: AuthUser }>()
-    const user = request.user
+  (
+    data: keyof AuthUser | undefined,
+    ctx: ExecutionContext,
+  ): AuthUser | string | undefined => {
+    const request = ctx
+      .switchToHttp()
+      .getRequest<FastifyRequest & { user?: AuthUser }>();
+    const user = request.user;
 
     if (!user) {
-      return undefined
+      return undefined;
     }
 
     // Nếu có truyền key cụ thể, chỉ trả về field đó
-    return data ? user[data] : user
+    return data ? user[data] : user;
   },
-)
+);

@@ -9,6 +9,8 @@ import {
   Cpu,
   DollarSign,
   GitCompareArrows,
+  HardDrive,
+  MemoryStick,
   MonitorSmartphone,
   Search,
   ShieldCheck,
@@ -49,11 +51,11 @@ export default async function ComparePage({
     compared.length >= 2
       ? await api
           .askAi({
-            question: `Compare ${compared
+            question: `So sánh ${compared
               .map((variant) => variantTitle(variant))
               .join(
-                " vs ",
-              )}. Focus on chipset, display, battery, price, durability, and buying tradeoffs.`,
+                " với ",
+              )}. Tập trung vào chipset, màn hình, pin, giá, độ bền và các đánh đổi khi mua.`,
             top_k: 5,
           })
           .catch(() => null)
@@ -62,15 +64,15 @@ export default async function ComparePage({
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <PageHeader
-        eyebrow="Compare"
-        title="Build a side-by-side research board."
-        description="Search variants, select two to four records, then inspect the specs and AI tradeoff summary in the same workspace."
+        eyebrow="So sánh"
+        title="Tạo bảng tra cứu song song."
+        description="Tìm các phiên bản, chọn từ hai đến bốn bản ghi rồi xem thông số và tóm tắt đánh đổi từ AI trong cùng một không gian."
         action={
           <Link
             href="/devices"
             className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
           >
-            Browse devices
+            Xem thiết bị
             <ArrowRight size={16} />
           </Link>
         }
@@ -81,10 +83,10 @@ export default async function ComparePage({
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-950">
-                Variant picker
+                Chọn phiên bản
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                {selectedIds.length}/4 selected
+                Đã chọn {selectedIds.length}/4
               </p>
             </div>
             <GitCompareArrows size={18} className="text-blue-600" />
@@ -102,12 +104,12 @@ export default async function ComparePage({
               <input
                 name="q"
                 defaultValue={q}
-                placeholder="Search variants..."
+                placeholder="Tìm phiên bản..."
                 className="h-10 w-full rounded-md border border-slate-300 bg-white pl-9 pr-3 text-sm outline-none transition focus:border-blue-500"
               />
             </div>
             <button className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-3 text-sm font-medium text-white transition hover:bg-blue-700">
-              Go
+              Tìm
             </button>
           </form>
 
@@ -124,7 +126,7 @@ export default async function ComparePage({
                     className="inline-flex max-w-full items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-medium text-slate-700"
                   >
                     <span className="truncate">
-                      {selected?.variant_name ?? "Selected"}
+                      {selected?.variant_name ?? "Đã chọn"}
                     </span>
                     <X size={13} />
                   </Link>
@@ -134,7 +136,7 @@ export default async function ComparePage({
                 href={q ? `/compare?q=${encodeURIComponent(q)}` : "/compare"}
                 className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-950"
               >
-                Clear
+                Xóa
               </Link>
             </div>
           ) : null}
@@ -186,8 +188,8 @@ export default async function ComparePage({
           {selectedIds.length < 2 ? (
             <EmptyState
               icon={<GitCompareArrows size={20} />}
-              title="Select at least two variants"
-              description="Use the picker to build a comparison board. The MVP supports up to four variants at once."
+              title="Chọn ít nhất hai phiên bản"
+              description="Dùng bộ chọn để tạo bảng so sánh. Phiên bản hiện tại hỗ trợ tối đa bốn phiên bản cùng lúc."
             />
           ) : (
             <>
@@ -197,7 +199,7 @@ export default async function ComparePage({
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
                       <BrainCircuit size={17} />
-                      AI tradeoff summary
+                      Tóm tắt đánh đổi từ AI
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs font-medium text-amber-700">
                       <AlertTriangle size={13} />
@@ -226,10 +228,10 @@ function CompareDigest({ variants }: { variants: DeviceVariantDetail[] }) {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-base font-semibold text-slate-950">
-            Comparison digest
+            Tóm tắt so sánh
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            {variants.length} selected variants
+            Đã chọn {variants.length} phiên bản
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -294,7 +296,7 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
           style={{ gridTemplateColumns: columns }}
         >
           <div className="bg-slate-50 p-4 text-sm font-semibold text-slate-600">
-            Device
+            Thiết bị
           </div>
           {variants.map((variant) => {
             const brand =
@@ -320,7 +322,7 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
         </div>
         <CompareRow
           icon={<Smartphone size={15} />}
-          label="Price"
+          label="Giá"
           values={variants.map((variant) =>
             formatPrice(variant.launch_price, variant.currency),
           )}
@@ -330,22 +332,75 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
           icon={<Cpu size={15} />}
           label="Chipset"
           values={variants.map(
-            (variant) => variant.variant_chipsets?.[0]?.chipset.name ?? "N/A",
+            (variant) =>
+              variant.variant_chipsets?.[0]?.chipset.name ?? "Chưa có",
           )}
           columns={columns}
         />
         <CompareRow
           icon={<Cpu size={15} />}
-          label="RAM ceiling"
+          label="RAM tối đa"
           values={variants.map((variant) => {
             const maxRam = variant.variant_chipsets?.[0]?.chipset.max_ram_gb;
-            return maxRam ? `${maxRam} GB` : "N/A";
+            return maxRam ? `${maxRam} GB` : "Chưa có";
           })}
           columns={columns}
         />
         <CompareRow
+          icon={<Cpu size={15} />}
+          label="CPU"
+          values={variants.map(
+            (variant) =>
+              variant.variant_cpus?.map(({ cpu }) => cpu.name).join(", ") ||
+              "Chưa có",
+          )}
+          columns={columns}
+        />
+        <CompareRow
+          icon={<MemoryStick size={15} />}
+          label="RAM được trang bị"
+          values={variants.map((variant) =>
+            variant.variant_memory_configs?.length
+              ? variant.variant_memory_configs
+                  .map(
+                    (memory) =>
+                      `${memory.capacity_gb} GB ${memory.memory_standard.name}`,
+                  )
+                  .join(", ")
+              : "Chưa có",
+          )}
+          columns={columns}
+        />
+        <CompareRow
+          icon={<HardDrive size={15} />}
+          label="Bộ nhớ trong"
+          values={variants.map((variant) =>
+            variant.variant_storage_configs?.length
+              ? variant.variant_storage_configs
+                  .map(
+                    (storage) =>
+                      `${storage.total_capacity_gb} GB ${storage.storage_standard.name}`,
+                  )
+                  .join(", ")
+              : "Chưa có",
+          )}
+          columns={columns}
+        />
+        <CompareRow
+          icon={<BrainCircuit size={15} />}
+          label="GPU / NPU"
+          values={variants.map(
+            (variant) =>
+              [
+                ...(variant.variant_gpus ?? []).map(({ gpu }) => gpu.name),
+                ...(variant.variant_npus ?? []).map(({ npu }) => npu.name),
+              ].join(", ") || "Chưa có",
+          )}
+          columns={columns}
+        />
+        <CompareRow
           icon={<MonitorSmartphone size={15} />}
-          label="Display"
+          label="Màn hình"
           values={variants.map((variant) => {
             const display = variant.variant_displays?.[0]?.display_unit;
             return display
@@ -354,27 +409,27 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
                 }Hz, ${display.resolution_width ?? "?"} x ${
                   display.resolution_height ?? "?"
                 }`
-              : "N/A";
+              : "Chưa có";
           })}
           columns={columns}
         />
         <CompareRow
           icon={<BatteryCharging size={15} />}
-          label="Battery"
+          label="Pin"
           values={variants.map((variant) => {
             const battery = variant.variant_batteries?.[0]?.battery_unit;
             return battery
               ? `${battery.capacity_mah} mAh, ${specText(
                   battery.wired_charging_w,
                   "?",
-                )}W wired`
-              : "N/A";
+                )}W sạc có dây`
+              : "Chưa có";
           })}
           columns={columns}
         />
         <CompareRow
           icon={<Weight size={15} />}
-          label="Weight"
+          label="Khối lượng"
           values={variants.map(
             (variant) =>
               `${specText(variant.variant_physical_specs?.weight_g)} g`,
@@ -383,7 +438,7 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
         />
         <CompareRow
           icon={<ShieldCheck size={15} />}
-          label="Ingress"
+          label="Kháng bụi nước"
           values={variants.map((variant) =>
             specText(variant.variant_physical_specs?.ingress_protection),
           )}
@@ -442,7 +497,7 @@ function currentHref(selectedIds: string[], q: string) {
 }
 
 function variantTitle(variant?: DeviceVariantDetail) {
-  if (!variant) return "N/A";
+  if (!variant) return "Chưa có";
   return [variant.device_model?.name, variant.variant_name]
     .filter(Boolean)
     .join(" ");
@@ -491,32 +546,32 @@ function buildHighlights(variants: DeviceVariantDetail[]) {
   return [
     {
       icon: <DollarSign size={16} />,
-      label: "Lowest price",
+      label: "Giá thấp nhất",
       winner: variantTitle(lowestPrice.variant),
       value: lowestPrice.value
         ? formatPrice(
             lowestPrice.variant?.launch_price,
             lowestPrice.variant?.currency,
           )
-        : "N/A",
+        : "Chưa có",
     },
     {
       icon: <BatteryCharging size={16} />,
-      label: "Battery",
+      label: "Pin",
       winner: variantTitle(bestBattery.variant),
-      value: bestBattery.value ? `${bestBattery.value} mAh` : "N/A",
+      value: bestBattery.value ? `${bestBattery.value} mAh` : "Chưa có",
     },
     {
       icon: <Weight size={16} />,
-      label: "Lightest",
+      label: "Nhẹ nhất",
       winner: variantTitle(lightest.variant),
-      value: lightest.value ? `${lightest.value} g` : "N/A",
+      value: lightest.value ? `${lightest.value} g` : "Chưa có",
     },
     {
       icon: <Cpu size={16} />,
-      label: "RAM headroom",
+      label: "RAM tối đa",
       winner: variantTitle(ram.variant ?? display.variant),
-      value: ram.value ? `${ram.value} GB` : `${display.value ?? "N/A"} Hz`,
+      value: ram.value ? `${ram.value} GB` : `${display.value ?? "Chưa có"} Hz`,
     },
   ];
 }

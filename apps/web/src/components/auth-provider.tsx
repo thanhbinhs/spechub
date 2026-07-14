@@ -47,10 +47,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user);
   }, []);
 
-  const signOut = useCallback(() => {
+  const clearSession = useCallback(() => {
     clearAuthTokens(localStorage);
     setTokens(null);
     setUser(null);
+  }, []);
+
+  const signOut = useCallback(() => {
+    const storedTokens = readAuthTokens(localStorage);
+    clearSession();
+
+    if (storedTokens?.access_token) {
+      void api.logout(storedTokens.access_token).catch(() => undefined);
+    }
+  }, [clearSession]);
+
+  const refreshSession = useCallback(async (refreshToken: string) => {
+    const refreshedTokens = await api.refreshAuthTokens(refreshToken);
+    persistAuthTokens(localStorage, refreshedTokens);
+    setTokens(refreshedTokens);
+    return refreshedTokens;
   }, []);
 
   useEffect(() => {
@@ -61,14 +77,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setTokens(storedTokens);
+    async function restoreSession() {
+      try {
+        let currentTokens = storedTokens!;
 
-    api
-      .getMe(storedTokens.access_token)
-      .then(setUser)
-      .catch(signOut)
-      .finally(() => setIsLoading(false));
-  }, [signOut]);
+        if (currentTokens.expires_in <= 30) {
+          currentTokens = await refreshSession(currentTokens.refresh_token);
+        }
+
+        try {
+          setUser(await api.getMe(currentTokens.access_token));
+        } catch {
+          currentTokens = await refreshSession(currentTokens.refresh_token);
+          setUser(await api.getMe(currentTokens.access_token));
+        }
+
+        setTokens(currentTokens);
+      } catch {
+        clearSession();
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void restoreSession();
+  }, [clearSession, refreshSession]);
+
+  useEffect(() => {
+    if (!tokens || !user || tokens.expires_in <= 0) return;
+
+    const refreshDelay = Math.max((tokens.expires_in - 60) * 1_000, 1_000);
+    const timer = window.setTimeout(() => {
+      void refreshSession(tokens.refresh_token)
+        .then((refreshedTokens) => api.getMe(refreshedTokens.access_token))
+        .then(setUser)
+        .catch(clearSession);
+    }, refreshDelay);
+
+    return () => window.clearTimeout(timer);
+  }, [clearSession, refreshSession, tokens, user]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

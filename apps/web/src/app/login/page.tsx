@@ -15,11 +15,13 @@ export default function LoginPage() {
     mutationFn: (payload: { email: string; password: string }) =>
       signIn(payload),
     onSuccess: (response) => {
-      setMessage(`Signed in as ${response.user.email}`);
+      setMessage(`Đã đăng nhập với ${response.user.email}`);
       router.push("/dashboard");
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "Sign in failed");
+      setMessage(
+        error instanceof Error ? error.message : "Đăng nhập không thành công",
+      );
     },
   });
 
@@ -36,19 +38,20 @@ export default function LoginPage() {
     <div className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-8">
       <section className="flex items-center">
         <div className="max-w-2xl">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase text-blue-700">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
             <ShieldCheck size={14} />
-            Auth workspace
+            Không gian xác thực
           </div>
           <h1 className="text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">
-            Sign in to keep the research console connected.
+            Đăng nhập để kết nối không gian tra cứu.
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
-            The MVP keeps auth lightweight: sign in, inspect your account state,
-            then move between catalog, compare, and AI without losing context.
+            Phiên bản hiện tại giữ quy trình xác thực gọn nhẹ: đăng nhập, kiểm
+            tra trạng thái tài khoản rồi chuyển giữa danh mục, so sánh và AI mà
+            không mất ngữ cảnh.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {["Catalog", "Compare", "AI"].map((item) => (
+            {["Danh mục", "So sánh", "AI"].map((item) => (
               <div
                 key={item}
                 className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
@@ -57,7 +60,7 @@ export default function LoginPage() {
                   {item}
                 </div>
                 <div className="mt-1 text-xs leading-5 text-slate-500">
-                  Account-aware navigation for the MVP flow.
+                  Điều hướng theo trạng thái tài khoản.
                 </div>
               </div>
             ))}
@@ -67,15 +70,15 @@ export default function LoginPage() {
 
       <form
         onSubmit={submit}
-        className="self-center rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+        className="self-center rounded-xl border border-slate-200 bg-white p-5 shadow-md sm:p-6"
       >
         <div className="mb-5 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-md bg-slate-950 text-white">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-slate-950 text-white">
             <LogIn size={18} />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">Sign in</h2>
-            <div className="text-sm text-slate-500">SpecHub account</div>
+            <h2 className="text-xl font-semibold text-slate-950">Đăng nhập</h2>
+            <div className="text-sm text-slate-500">Tài khoản SpecHub</div>
           </div>
         </div>
         <div className="space-y-3">
@@ -87,32 +90,35 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              defaultValue="admin@spechub.io"
-              className="h-11 w-full rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500"
+              autoComplete="email"
+              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700">
-              Password
+              Mật khẩu
             </span>
             <input
               name="password"
               type="password"
               required
-              defaultValue="admin123"
-              className="h-11 w-full rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500"
+              autoComplete="current-password"
+              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
           </label>
         </div>
         <button
           disabled={mutation.isPending}
-          className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
+          className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
         >
-          {mutation.isPending ? "Signing in" : "Sign in"}
+          {mutation.isPending ? "Đang đăng nhập" : "Đăng nhập"}
           <ArrowRight size={16} />
         </button>
         {message ? (
-          <div className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-600">
+          <div
+            className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600"
+            role="status"
+          >
             {message}
           </div>
         ) : null}
@@ -120,7 +126,7 @@ export default function LoginPage() {
           href="/register"
           className="mt-4 block text-center text-sm font-medium text-slate-700 hover:text-slate-950"
         >
-          Create account
+          Tạo tài khoản
         </Link>
       </form>
     </div>

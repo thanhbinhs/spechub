@@ -5,7 +5,9 @@ import {
   type PaginationMeta,
 } from '../../common/dto/pagination.dto'
 import { PrismaService } from '../../prisma/prisma.service'
+import { CreateDeviceCategoryDto } from './dto/create-device-category.dto'
 import { QueryDeviceCategoriesDto } from './dto/query-device-categories.dto'
+import { UpdateDeviceCategoryDto } from './dto/update-device-category.dto'
 
 const DEVICE_CATEGORY_SELECT = {
   id: true,
@@ -112,6 +114,43 @@ export class DeviceCategoriesService {
     }
 
     return category
+  }
+
+  async create(dto: CreateDeviceCategoryDto): Promise<DeviceCategoryItem> {
+    return this.prisma.device_categories.create({
+      data: {
+        ...dto,
+        display_order: dto.display_order ?? 0,
+        is_active: dto.is_active ?? true,
+      },
+      select: DEVICE_CATEGORY_SELECT,
+    })
+  }
+
+  async update(
+    id: string,
+    dto: UpdateDeviceCategoryDto,
+  ): Promise<DeviceCategoryItem> {
+    await this.findById(id)
+
+    return this.prisma.device_categories.update({
+      where: { id },
+      data: dto,
+      select: DEVICE_CATEGORY_SELECT,
+    })
+  }
+
+  async remove(id: string): Promise<DeviceCategoryItem> {
+    await this.findById(id)
+
+    return this.prisma.device_categories.update({
+      where: { id },
+      data: {
+        deleted_at: new Date(),
+        is_active: false,
+      },
+      select: DEVICE_CATEGORY_SELECT,
+    })
   }
 
   private buildWhere(
