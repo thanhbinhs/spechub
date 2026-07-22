@@ -1,7 +1,10 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsIn, IsOptional, IsString, MaxLength } from "class-validator";
 import { PaginationQueryDto } from "../../../common/dto/pagination.dto";
-import { WIKI_ARTICLE_STATUSES, type WikiArticleStatus } from "./wiki-article-status";
+import {
+  WIKI_ARTICLE_STATUSES,
+  type WikiArticleStatus,
+} from "./wiki-article-status";
 
 export class QueryWikiArticlesDto extends PaginationQueryDto {
   @ApiPropertyOptional({ example: "vi" })
@@ -32,4 +35,22 @@ export class QueryWikiArticlesDto extends PaginationQueryDto {
   @IsString()
   @MaxLength(120)
   q?: string;
+
+  @ApiPropertyOptional({
+    enum: ["guide", "introduction", "review", "comparison", "tutorial"],
+  })
+  @IsOptional()
+  @IsIn(["guide", "introduction", "review", "comparison", "tutorial"])
+  article_type?: string;
+
+  @ApiPropertyOptional({ example: "camera" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  tag?: string;
+
+  @ApiPropertyOptional({ enum: ["newest", "updated", "popular", "oldest"] })
+  @IsOptional()
+  @IsIn(["newest", "updated", "popular", "oldest"])
+  sort?: "newest" | "updated" | "popular" | "oldest";
 }

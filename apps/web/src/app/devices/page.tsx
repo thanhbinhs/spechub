@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
 import { api, categoryTreeData } from "@/lib/api";
-import { DeviceList } from "@/components/device-list";
+import { DeviceCard } from "@/components/device-card";
 import { EmptyState } from "@/components/empty-state";
 import { FilterForm } from "@/components/filter-form";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
-import { Surface, SurfaceHeader } from "@/components/surface";
 
 export const dynamic = "force-dynamic";
 
@@ -61,51 +60,19 @@ export default async function DevicesPage({
 
       {models.data.length ? (
         <>
-          <div className="grid gap-3 md:grid-cols-3">
-            <SummaryTile
-              label="Tổng số"
-              value={`${models.meta.total} mẫu máy`}
-            />
-            <SummaryTile
-              label="Trang"
-              value={`${models.meta.page}/${models.meta.totalPages}`}
-            />
-            <SummaryTile
-              label="Bộ lọc"
-              value={
-                [q, brandSlug, categorySlug].filter(Boolean).length
-                  ? "Đang áp dụng"
-                  : "Không có"
-              }
-            />
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3 text-sm">
+            <span className="text-slate-500">
+              Hiển thị {models.data.length} trong {models.meta.total} thiết bị
+            </span>
+            <span className="font-medium text-slate-700">
+              Trang {models.meta.page}/{models.meta.totalPages}
+            </span>
           </div>
-
-          <Surface>
-            <SurfaceHeader
-              title="Bản ghi danh mục"
-              meta={`${models.data.length} đang hiển thị`}
-              action={
-                q ? (
-                  <Link
-                    href={`/ai?q=${encodeURIComponent(q)}`}
-                    className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
-                  >
-                    <BrainCircuit size={15} />
-                    Hỏi AI
-                  </Link>
-                ) : (
-                  <Link
-                    href="/compare"
-                    className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
-                  >
-                    So sánh
-                    <ArrowRight size={15} />
-                  </Link>
-                )
-              }
-            />
-            <DeviceList models={models.data} />
-          </Surface>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {models.data.map((model) => (
+              <DeviceCard key={model.id} model={model} />
+            ))}
+          </div>
           <Pagination
             basePath="/devices"
             meta={models.meta}
@@ -131,17 +98,6 @@ export default async function DevicesPage({
           }
         />
       )}
-    </div>
-  );
-}
-
-function SummaryTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="interactive-lift rounded-lg border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-      <div className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-        {label}
-      </div>
-      <div className="mt-1 text-sm font-semibold text-slate-950">{value}</div>
     </div>
   );
 }

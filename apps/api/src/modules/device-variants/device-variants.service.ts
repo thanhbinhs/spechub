@@ -168,8 +168,30 @@ export class DeviceVariantsService {
     });
   }
 
+  async listBenchmarks() {
+    return this.prisma.benchmarks.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        benchmark_type: true,
+        target_type: true,
+        version: true,
+        higher_is_better: true,
+        unit: { select: { name: true, symbol: true } },
+      },
+      orderBy: [{ benchmark_type: "asc" }, { name: "asc" }],
+    });
+  }
+
   async create(dto: CreateDeviceVariantDto): Promise<DeviceVariantDetail> {
-    const { physical_specs, io_specs, thermal_specs, ...variantData } = dto;
+    const {
+      physical_specs,
+      io_specs,
+      thermal_specs,
+      performance_results,
+      ...variantData
+    } = dto;
 
     if (dto.is_default) {
       await this.prisma.device_variants.updateMany({
@@ -192,6 +214,13 @@ export class DeviceVariantsService {
         ...(thermal_specs && {
           variant_thermal_specs: { create: thermal_specs },
         }),
+        ...(performance_results?.length && {
+          device_variant_benchmarks: {
+            create: performance_results.map((result) =>
+              this.performanceResultCreate(result),
+            ),
+          },
+        }),
       },
       select: DEVICE_VARIANT_DETAIL_SELECT,
     });
@@ -202,7 +231,13 @@ export class DeviceVariantsService {
     dto: UpdateDeviceVariantDto,
   ): Promise<DeviceVariantDetail> {
     const current = await this.findById(id);
-    const { physical_specs, io_specs, thermal_specs, ...variantData } = dto;
+    const {
+      physical_specs,
+      io_specs,
+      thermal_specs,
+      performance_results,
+      ...variantData
+    } = dto;
     const deviceModelId = dto.device_model_id ?? current.device_model_id;
 
     if (dto.is_default) {
@@ -216,7 +251,13 @@ export class DeviceVariantsService {
       });
     }
 
-    return this.prisma.device_variants.update({
+    const obsoleteRunIds =
+      performance_results === undefined
+        ? []
+        : (current.device_variant_benchmarks ?? [])
+            .map((result) => result.benchmark_run?.id)
+            .filter((runId): runId is string => Boolean(runId));
+    const updated = await this.prisma.device_variants.update({
       where: { id },
       data: {
         ...variantData,
@@ -233,9 +274,32 @@ export class DeviceVariantsService {
             upsert: { create: thermal_specs, update: thermal_specs },
           },
         }),
+        ...(performance_results !== undefined && {
+          device_variant_benchmarks: {
+            deleteMany: {},
+            ...(performance_results.length && {
+              create: performance_results.map((result) =>
+                this.performanceResultCreate(result),
+              ),
+            }),
+          },
+        }),
       },
       select: DEVICE_VARIANT_DETAIL_SELECT,
     });
+    if (obsoleteRunIds.length) {
+      await this.prisma.benchmark_runs.deleteMany({
+        where: {
+          id: { in: obsoleteRunIds },
+          device_variant_benchmarks: { none: {} },
+          chipset_benchmarks: { none: {} },
+          cpu_benchmarks: { none: {} },
+          gpu_benchmarks: { none: {} },
+          npu_benchmarks: { none: {} },
+        },
+      });
+    }
+    return updated;
   }
 
   async remove(id: string): Promise<DeviceVariantDetail> {
@@ -308,6 +372,55 @@ export class DeviceVariantsService {
             },
           },
         ],
+      }),
+    };
+  }
+
+  private performanceResultCreate(
+    result: NonNullable<CreateDeviceVariantDto["performance_results"]>[number],
+  ) {
+    const {
+      benchmark_id,
+      score,
+      subscore_name,
+      source_id,
+      tested_at,
+      test_environment_note,
+      ambient_temp_c,
+      os_version,
+      app_version,
+      power_mode,
+      is_thermal_throttled,
+    } = result;
+    const hasRunContext = [
+      test_environment_note,
+      ambient_temp_c,
+      os_version,
+      app_version,
+      power_mode,
+      is_thermal_throttled,
+    ].some((value) => value !== undefined && value !== null && value !== "");
+
+    return {
+      benchmark_id,
+      score,
+      subscore_name,
+      source_id,
+      tested_at,
+      ...(hasRunContext && {
+        benchmark_run: {
+          create: {
+            benchmark_id,
+            source_id,
+            tested_at,
+            test_environment_note,
+            ambient_temp_c,
+            os_version,
+            app_version,
+            power_mode,
+            is_thermal_throttled,
+          },
+        },
       }),
     };
   }

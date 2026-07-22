@@ -13,6 +13,7 @@ import { CreateWikiArticleDto } from "./dto/create-wiki-article.dto";
 import { QueryWikiArticlesDto } from "./dto/query-wiki-articles.dto";
 import { SubmitWikiRevisionDto } from "./dto/submit-wiki-revision.dto";
 import { UpdateWikiArticleDto } from "./dto/update-wiki-article.dto";
+import type { AuthUser } from "../../common/decorators/current-user.decorator";
 
 const WIKI_ARTICLE_SELECT = {
   id: true,
@@ -34,6 +35,18 @@ const WIKI_ARTICLE_SELECT = {
       name: true,
     },
   },
+  author: {
+    select: {
+      id: true,
+      username: true,
+      display_name: true,
+      avatar_url: true,
+    },
+  },
+  article_type: true,
+  tags: true,
+  cover_image_url: true,
+  reading_time_minutes: true,
   citations: {
     orderBy: { citation: { published_at: "desc" } },
     select: {
@@ -106,6 +119,10 @@ type ArticleWriteData = {
   slug?: string;
   summary?: string | null;
   body_markdown?: string | null;
+  article_type?: string;
+  tags?: string[];
+  cover_image_url?: string | null;
+  reading_time_minutes?: number;
   status?: string;
   published_at?: Date | null;
 };
@@ -155,8 +172,13 @@ export class WikiService {
 
   async create(
     dto: CreateWikiArticleDto,
-    authorUserId: string,
+    actor: Pick<AuthUser, "id" | "role"> | string,
   ): Promise<{ data: WikiArticleItem }> {
+    const authorUserId = typeof actor === "string" ? actor : actor.id;
+    const isTrusted =
+      typeof actor === "string" || ["admin", "editor"].includes(actor.role);
+    if (!isTrusted) this.validateCommunityArticle(dto);
+    const requestedStatus = isTrusted ? (dto.status ?? "draft") : "in_review";
     const language = await this.resolveLanguage(dto.language_code);
     const citationLinks = await this.validateCitationLinks(dto.citations);
 
@@ -168,10 +190,15 @@ export class WikiService {
           language_id: language.id,
           title: dto.title,
           slug: dto.slug,
+          author_user_id: authorUserId,
+          article_type: dto.article_type ?? "guide",
+          tags: this.normalizeTags(dto.tags),
+          cover_image_url: dto.cover_image_url,
           summary: dto.summary,
           body_markdown: dto.body_markdown,
-          status: dto.status ?? "draft",
-          published_at: dto.status === "published" ? new Date() : null,
+          reading_time_minutes: this.readingTime(dto.body_markdown),
+          status: requestedStatus,
+          published_at: requestedStatus === "published" ? new Date() : null,
         },
         select: { id: true },
       });
@@ -184,7 +211,7 @@ export class WikiService {
           title: dto.title,
           body_markdown: dto.body_markdown,
           change_summary: dto.change_summary ?? "Initial article",
-          is_published: dto.status === "published",
+          is_published: requestedStatus === "published",
         },
         select: { id: true },
       });
@@ -227,17 +254,30 @@ export class WikiService {
       const nextRevisionNumber = (latestRevision?.revision_number ?? 0) + 1;
       const requestedStatus = dto.status ?? existing.status;
       const writeData: ArticleWriteData = {
-        ...(dto.entity_table !== undefined && { entity_table: dto.entity_table }),
+        ...(dto.entity_table !== undefined && {
+          entity_table: dto.entity_table,
+        }),
         ...(dto.entity_id !== undefined && { entity_id: dto.entity_id }),
         ...(language ? { language_id: language.id } : {}),
         ...(dto.title !== undefined && { title: dto.title }),
         ...(dto.slug !== undefined && { slug: dto.slug }),
-        ...(dto.summary !== undefined && { summary: dto.summary }),
-        ...(dto.body_markdown !== undefined && { body_markdown: dto.body_markdown }),
-        ...(dto.status !== undefined && { status: dto.status }),
-        ...(requestedStatus === "published" && !existing.published_at && {
-          published_at: new Date(),
+        ...(dto.article_type !== undefined && {
+          article_type: dto.article_type,
         }),
+        ...(dto.tags !== undefined && { tags: this.normalizeTags(dto.tags) }),
+        ...(dto.cover_image_url !== undefined && {
+          cover_image_url: dto.cover_image_url,
+        }),
+        ...(dto.summary !== undefined && { summary: dto.summary }),
+        ...(dto.body_markdown !== undefined && {
+          body_markdown: dto.body_markdown,
+          reading_time_minutes: this.readingTime(dto.body_markdown),
+        }),
+        ...(dto.status !== undefined && { status: dto.status }),
+        ...(requestedStatus === "published" &&
+          !existing.published_at && {
+            published_at: new Date(),
+          }),
       };
 
       const revision = await tx.wiki_revisions.create({
@@ -279,7 +319,9 @@ export class WikiService {
   ): Promise<{ data: WikiRevisionItem }> {
     const article = await this.findArticle(articleId);
     if (dto.title === undefined && dto.body_markdown === undefined) {
-      throw new BadRequestException("A title or body_markdown change is required");
+      throw new BadRequestException(
+        "A title or body_markdown change is required",
+      );
     }
 
     const revision = await this.prisma.$transaction(async (tx) => {
@@ -306,7 +348,9 @@ export class WikiService {
     return { data: revision };
   }
 
-  async listRevisions(articleId: string): Promise<{ data: WikiRevisionItem[] }> {
+  async listRevisions(
+    articleId: string,
+  ): Promise<{ data: WikiRevisionItem[] }> {
     await this.findArticle(articleId);
     const revisions = await this.prisma.wiki_revisions.findMany({
       where: { article_id: articleId },
@@ -383,9 +427,15 @@ export class WikiService {
     const q = query.q?.trim();
     const where: Prisma.wiki_articlesWhereInput = {
       deleted_at: null,
-      ...(publishedOnly ? { status: "published" } : query.status ? { status: query.status } : {}),
+      ...(publishedOnly
+        ? { status: "published" }
+        : query.status
+          ? { status: query.status }
+          : {}),
       ...(query.entity_table && { entity_table: query.entity_table }),
       ...(query.entity_id && { entity_id: query.entity_id }),
+      ...(query.article_type && { article_type: query.article_type }),
+      ...(query.tag && { tags: { has: query.tag.trim().toLowerCase() } }),
       ...(language && { language_id: language.id }),
       ...(q && {
         OR: [
@@ -402,9 +452,7 @@ export class WikiService {
         select: WIKI_ARTICLE_SELECT,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: publishedOnly
-          ? [{ published_at: "desc" }, { updated_at: "desc" }]
-          : [{ updated_at: "desc" }],
+        orderBy: this.articleOrder(query.sort, publishedOnly),
       }),
       this.prisma.wiki_articles.count({ where }),
     ]);
@@ -454,7 +502,9 @@ export class WikiService {
   private async validateCitationLinks(
     citations: CreateWikiArticleDto["citations"] = [],
   ) {
-    const distinctIds = [...new Set(citations.map((citation) => citation.citation_id))];
+    const distinctIds = [
+      ...new Set(citations.map((citation) => citation.citation_id)),
+    ];
     if (distinctIds.length !== citations.length) {
       throw new BadRequestException("A citation can only be attached once");
     }
@@ -472,5 +522,46 @@ export class WikiService {
       citation_id: citation.citation_id,
       anchor_key: citation.anchor_key,
     }));
+  }
+
+  private validateCommunityArticle(dto: CreateWikiArticleDto) {
+    if ((dto.summary?.trim().length ?? 0) < 40) {
+      throw new BadRequestException(
+        "Community articles require a summary of at least 40 characters",
+      );
+    }
+    if ((dto.body_markdown?.trim().length ?? 0) < 300) {
+      throw new BadRequestException(
+        "Community articles require at least 300 characters of content",
+      );
+    }
+    if ((dto.change_summary?.trim().length ?? 0) < 10) {
+      throw new BadRequestException(
+        "Explain the purpose of the article in at least 10 characters",
+      );
+    }
+  }
+
+  private normalizeTags(tags: string[] = []) {
+    return Array.from(
+      new Set(tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean)),
+    ).slice(0, 8);
+  }
+
+  private readingTime(markdown?: string | null) {
+    const words = markdown?.trim().split(/\s+/).filter(Boolean).length ?? 0;
+    return Math.max(1, Math.ceil(words / 220));
+  }
+
+  private articleOrder(
+    sort: QueryWikiArticlesDto["sort"],
+    publishedOnly: boolean,
+  ) {
+    if (sort === "popular") return [{ view_count: "desc" as const }];
+    if (sort === "updated") return [{ updated_at: "desc" as const }];
+    if (sort === "oldest") return [{ published_at: "asc" as const }];
+    return publishedOnly
+      ? [{ published_at: "desc" as const }, { updated_at: "desc" as const }]
+      : [{ updated_at: "desc" as const }];
   }
 }

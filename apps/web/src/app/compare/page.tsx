@@ -280,7 +280,14 @@ function DigestCard({
       <div className="truncate text-sm font-semibold text-slate-950">
         {winner}
       </div>
-      <div className="mt-1 text-sm text-slate-600">{value}</div>
+      <div className="mt-1 flex items-center justify-between gap-2 text-sm text-slate-600">
+        <span>{value}</span>
+        {winner !== "Chưa có" ? (
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-700">
+            Tốt hơn
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -335,6 +342,17 @@ function CompareTable({ variants }: { variants: DeviceVariantDetail[] }) {
             (variant) =>
               variant.variant_chipsets?.[0]?.chipset.name ?? "Chưa có",
           )}
+          columns={columns}
+        />
+        <CompareRow
+          icon={<BrainCircuit size={15} />}
+          label="Điểm hiệu năng tương đối"
+          values={variants.map((variant) => {
+            const score = performanceIndex(variant, variants);
+            return score === undefined
+              ? "Chưa đủ benchmark chung"
+              : `${score}/100 · chỉ số trong nhóm đang so sánh`;
+          })}
           columns={columns}
         />
         <CompareRow
@@ -532,14 +550,9 @@ function buildHighlights(variants: DeviceVariantDetail[]) {
     (variant) => numberValue(variant.variant_physical_specs?.weight_g),
     "min",
   );
-  const display = pickVariant(
+  const performance = pickVariant(
     variants,
-    (variant) => variant.variant_displays?.[0]?.display_unit.refresh_rate_hz,
-    "max",
-  );
-  const ram = pickVariant(
-    variants,
-    (variant) => variant.variant_chipsets?.[0]?.chipset.max_ram_gb,
+    (variant) => performanceIndex(variant, variants),
     "max",
   );
 
@@ -568,12 +581,62 @@ function buildHighlights(variants: DeviceVariantDetail[]) {
       value: lightest.value ? `${lightest.value} g` : "Chưa có",
     },
     {
-      icon: <Cpu size={16} />,
-      label: "RAM tối đa",
-      winner: variantTitle(ram.variant ?? display.variant),
-      value: ram.value ? `${ram.value} GB` : `${display.value ?? "Chưa có"} Hz`,
+      icon: <BrainCircuit size={16} />,
+      label: "Hiệu năng đo được",
+      winner: variantTitle(performance.variant),
+      value: performance.value
+        ? `${performance.value}/100 tương đối`
+        : "Chưa đủ benchmark chung",
     },
   ];
+}
+
+function performanceIndex(
+  variant: DeviceVariantDetail,
+  variants: DeviceVariantDetail[],
+) {
+  const records = variant.device_variant_benchmarks ?? [];
+  const relativeScores: number[] = [];
+
+  for (const record of records) {
+    const peers = variants.flatMap((candidate) =>
+      (candidate.device_variant_benchmarks ?? [])
+        .filter(
+          (peer) =>
+            peer.benchmark.id === record.benchmark.id &&
+            (peer.subscore_name ?? "") === (record.subscore_name ?? ""),
+        )
+        .map((peer) => Number(peer.score)),
+    );
+    const validPeers = peers.filter(Number.isFinite);
+    if (validPeers.length < 2) continue;
+    const ownScore = Number(record.score);
+    if (!Number.isFinite(ownScore)) continue;
+    const best = record.benchmark.higher_is_better
+      ? Math.max(...validPeers)
+      : Math.min(...validPeers);
+    if (ownScore <= 0 || best <= 0) continue;
+    relativeScores.push(
+      Math.max(
+        0,
+        Math.min(
+          100,
+          (record.benchmark.higher_is_better
+            ? ownScore / best
+            : best / ownScore) * 100,
+        ),
+      ),
+    );
+  }
+
+  if (!relativeScores.length) return undefined;
+  return (
+    Math.round(
+      (relativeScores.reduce((sum, score) => sum + score, 0) /
+        relativeScores.length) *
+        10,
+    ) / 10
+  );
 }
 
 function pickVariant(

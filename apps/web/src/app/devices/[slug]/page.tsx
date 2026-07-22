@@ -1,14 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  AlertTriangle,
   ArrowRight,
   BatteryCharging,
   BrainCircuit,
   Calendar,
   ChevronRight,
   Cpu,
-  FileText,
   GitCompareArrows,
   Monitor,
   Scale,
@@ -17,7 +15,8 @@ import { api } from "@/lib/api";
 import { DeviceArtwork } from "@/components/device-artwork";
 import { DeviceEngagementPanel } from "@/components/device-engagement-panel";
 import { DeviceSpecModules } from "@/components/device-spec-modules";
-import { Surface, SurfaceHeader } from "@/components/surface";
+import { MarketplaceOffers } from "@/components/marketplace-offers";
+import { Surface } from "@/components/surface";
 import { formatDate, formatPrice, specText } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +28,6 @@ export default async function DeviceDetailPage({
 }) {
   const { slug } = await params;
   const { data: model } = await api.getDeviceModel(slug);
-  const aiBrief = await api
-    .askAi({
-      question: `Tóm tắt ${model.name} với chipset, màn hình, pin, giá ra mắt và nhóm người mua phù hợp nhất.`,
-      top_k: 3,
-    })
-    .catch(() => null);
   const variants = model.device_variants ?? [];
   const defaultVariant =
     variants.find((variant) => variant.is_default) ?? variants[0];
@@ -145,6 +138,7 @@ export default async function DeviceDetailPage({
         <div className="flex min-w-max gap-1">
           <SectionLink href="#overview">Tổng quan</SectionLink>
           <SectionLink href="#hardware-modules">Mô-đun phần cứng</SectionLink>
+          <SectionLink href="#marketplace-prices">Giá tại sàn</SectionLink>
           <SectionLink href="#variants">Phiên bản</SectionLink>
         </div>
       </nav>
@@ -230,49 +224,12 @@ export default async function DeviceDetailPage({
 
         <div className="space-y-5">
           <DeviceEngagementPanel variants={variants} />
-          <Surface className="overflow-hidden border-blue-100 bg-blue-50/50">
-            <SurfaceHeader
-              title="Tóm tắt tra cứu"
-              meta={aiBrief ? sourceLabel(aiBrief.meta.source) : "Chưa có"}
-              action={
-                <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs font-medium text-amber-700">
-                  <AlertTriangle size={13} />
-                  Chỉ dùng danh mục
-                </span>
-              }
-            />
-            <div className="whitespace-pre-wrap p-5 text-sm leading-7 text-slate-700">
-              {aiBrief?.data.answer ??
-                "Chưa thể tạo tóm tắt AI cho bản ghi này."}
-            </div>
-            {aiBrief?.data.citations?.length ? (
-              <div className="border-t border-blue-100 p-5 pt-4">
-                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
-                  <FileText size={14} />
-                  Trích dẫn
-                </div>
-                <div className="space-y-2">
-                  {aiBrief.data.citations.slice(0, 3).map((citation) => (
-                    <div
-                      key={`${citation.entity_id}-${citation.excerpt}`}
-                      className="rounded-md border border-blue-100 bg-white p-3"
-                    >
-                      <div className="text-sm font-medium text-slate-950">
-                        {citation.title ?? citation.entity_id}
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
-                        {citation.excerpt}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </Surface>
         </div>
       </section>
 
       <DeviceSpecModules variant={defaultVariant} />
+
+      <MarketplaceOffers modelSlug={model.slug} variants={variants} />
 
       <div id="variants" className="scroll-mt-28">
         <Surface>
@@ -436,10 +393,4 @@ function SectionLink({
       {children}
     </a>
   );
-}
-
-function sourceLabel(source: string) {
-  if (source === "vector") return "Tra cứu Vector RAG";
-  if (source === "cache") return "Bộ nhớ đệm";
-  return "Dự phòng từ danh mục";
 }

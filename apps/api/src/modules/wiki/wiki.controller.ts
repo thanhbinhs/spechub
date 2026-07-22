@@ -13,7 +13,10 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { USER_ROLES } from "../../common/constants";
-import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import {
+  CurrentUser,
+  type AuthUser,
+} from "../../common/decorators/current-user.decorator";
 import { Public } from "../../common/decorators/public.decorator";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CreateWikiArticleDto } from "./dto/create-wiki-article.dto";
@@ -53,14 +56,12 @@ export class WikiController {
   }
 
   @Post("articles")
-  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Create a wiki article and initial revision" })
-  create(
-    @Body() dto: CreateWikiArticleDto,
-    @CurrentUser("id") userId: string,
-  ) {
-    return this.wikiService.create(dto, userId);
+  @ApiOperation({
+    summary: "Create a wiki article; community submissions enter review",
+  })
+  create(@Body() dto: CreateWikiArticleDto, @CurrentUser() user: AuthUser) {
+    return this.wikiService.create(dto, user);
   }
 
   @Patch("articles/:id")
@@ -76,12 +77,6 @@ export class WikiController {
   }
 
   @Post("articles/:id/revisions")
-  @Roles(
-    USER_ROLES.ADMIN,
-    USER_ROLES.EDITOR,
-    USER_ROLES.MODERATOR,
-    USER_ROLES.CONTRIBUTOR,
-  )
   @ApiBearerAuth()
   @ApiOperation({ summary: "Submit a proposed wiki revision" })
   submitRevision(

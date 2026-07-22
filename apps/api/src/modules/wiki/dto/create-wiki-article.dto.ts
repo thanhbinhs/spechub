@@ -1,10 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+  ArrayMaxSize,
   IsArray,
   IsIn,
   IsOptional,
   IsString,
+  IsUrl,
+  Matches,
+  MinLength,
   MaxLength,
   ValidateNested,
 } from "class-validator";
@@ -33,20 +37,47 @@ export class CreateWikiArticleDto {
 
   @ApiProperty({ example: "Apple iPhone 16 Pro" })
   @IsString()
+  @MinLength(10)
   @MaxLength(300)
   title!: string;
 
   @ApiProperty({ example: "apple-iphone-16-pro" })
   @IsString()
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: "slug must contain lowercase letters, numbers and hyphens only",
+  })
   @MaxLength(320)
   slug!: string;
+
+  @ApiPropertyOptional({
+    enum: ["guide", "introduction", "review", "comparison", "tutorial"],
+    default: "guide",
+  })
+  @IsOptional()
+  @IsIn(["guide", "introduction", "review", "comparison", "tutorial"])
+  article_type?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ["smartphone", "camera"] })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(8)
+  @IsString({ each: true })
+  @MaxLength(40, { each: true })
+  tags?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  cover_image_url?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   summary?: string;
 
-  @ApiPropertyOptional({ description: "Markdown only; HTML is rendered by the client" })
+  @ApiPropertyOptional({
+    description: "Markdown only; HTML is rendered by the client",
+  })
   @IsOptional()
   @IsString()
   body_markdown?: string;

@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@spechub/database";
-import { CreateAffiliateLinkDto, QueryAffiliateLinksDto } from "./dto/create-affiliate-link.dto";
+import {
+  CreateAffiliateLinkDto,
+  QueryAffiliateLinksDto,
+} from "./dto/create-affiliate-link.dto";
 import { CreateAffiliatePartnerDto } from "./dto/create-affiliate-partner.dto";
 import { TrackAffiliateClickDto } from "./dto/track-affiliate-click.dto";
 import { UpdateAffiliateLinkDto } from "./dto/update-affiliate-link.dto";
 import { UpdateAffiliatePartnerDto } from "./dto/update-affiliate-partner.dto";
 import { PrismaService } from "../../prisma/prisma.service";
+import { MarketplacePriceService } from "./marketplace-price.service";
 
 const AFFILIATE_PARTNER_SELECT = {
   id: true,
@@ -72,7 +76,10 @@ export type AffiliateLinkItem = Prisma.affiliate_linksGetPayload<{
 
 @Injectable()
 export class AffiliateService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly marketplacePrices: MarketplacePriceService,
+  ) {}
 
   async listPartners(): Promise<{ data: AffiliatePartnerItem[] }> {
     const partners = await this.prisma.affiliate_partners.findMany({
@@ -108,11 +115,21 @@ export class AffiliateService {
     });
   }
 
-  async listLinks(query: QueryAffiliateLinksDto): Promise<{ data: AffiliateLinkItem[] }> {
+  async listLinks(
+    query: QueryAffiliateLinksDto,
+  ): Promise<{ data: AffiliateLinkItem[] }> {
     const links = await this.prisma.affiliate_links.findMany({
       where: {
         ...(query.device_variant_id && {
           device_variant_id: query.device_variant_id,
+        }),
+        ...(query.device_model_slug && {
+          device_variant: {
+            device_model: {
+              slug: query.device_model_slug,
+              deleted_at: null,
+            },
+          },
         }),
         ...(query.region_code && {
           region_code: query.region_code.toUpperCase(),
@@ -239,6 +256,44 @@ export class AffiliateService {
       data: {
         affiliate_link_id: id,
         redirect_url: link.product_url,
+      },
+    };
+  }
+
+  async syncLink(
+    id: string,
+  ): Promise<AffiliateLinkItem & { sync_source: string }> {
+    const link = await this.findLink(id);
+    const offer = await this.marketplacePrices.fetchOffer({
+      partnerSlug: link.partner.slug,
+      partnerBaseUrl: link.partner.base_url,
+      productUrl: link.product_url,
+    });
+    const updated = await this.updateLink(id, {
+      current_price: offer.price,
+      currency_code: offer.currency,
+      in_stock: offer.inStock,
+      ...(offer.productUrl ? { product_url: offer.productUrl } : {}),
+    });
+    return { ...updated, sync_source: offer.source };
+  }
+
+  async syncAllLinks() {
+    const links = await this.prisma.affiliate_links.findMany({
+      where: { partner: { is_active: true } },
+      select: { id: true },
+      orderBy: { last_checked_at: "asc" },
+      take: 100,
+    });
+    const results = await Promise.allSettled(
+      links.map((link) => this.syncLink(link.id)),
+    );
+    return {
+      data: {
+        checked: results.length,
+        updated: results.filter((result) => result.status === "fulfilled")
+          .length,
+        failed: results.filter((result) => result.status === "rejected").length,
       },
     };
   }

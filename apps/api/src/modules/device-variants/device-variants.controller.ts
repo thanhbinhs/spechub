@@ -48,6 +48,13 @@ export class DeviceVariantsController {
   }
 
   @Public()
+  @Get("benchmarks")
+  @ApiOperation({ summary: "List benchmark definitions for performance input" })
+  listBenchmarks() {
+    return this.deviceVariantsService.listBenchmarks();
+  }
+
+  @Public()
   @Get("compare")
   @ApiOperation({ summary: "Compare 2 to 4 device variants" })
   @ApiResponse({ status: 200, type: DeviceVariantResponseDto, isArray: true })

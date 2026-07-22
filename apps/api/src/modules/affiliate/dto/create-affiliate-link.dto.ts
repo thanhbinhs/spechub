@@ -53,6 +53,12 @@ export class QueryAffiliateLinksDto {
   @IsUUID("4")
   device_variant_id?: string;
 
+  @ApiPropertyOptional({ example: "apple-iphone-16-pro" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  device_model_slug?: string;
+
   @ApiPropertyOptional({ example: "US" })
   @IsOptional()
   @IsString()

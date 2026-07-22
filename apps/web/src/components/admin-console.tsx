@@ -18,6 +18,7 @@ import {
   Flag,
   FileText,
   Globe2,
+  Gauge,
   Layers3,
   ListChecks,
   Link2,
@@ -26,6 +27,9 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Plus,
+  RefreshCw,
+  Trash2,
   Users,
   X,
 } from "lucide-react";
@@ -74,6 +78,18 @@ type DeviceModelForm = {
 };
 
 type EditableDeviceModel = DeviceModelForm & { id: string };
+
+type PerformanceResultForm = {
+  benchmark_id: string;
+  score: string;
+  subscore_name: string;
+  tested_at: string;
+  app_version: string;
+  power_mode: string;
+  ambient_temp_c: string;
+  test_environment_note: string;
+  is_thermal_throttled: boolean;
+};
 
 const catalogWorkspaceSteps: Array<{
   id: CatalogWorkspace;
@@ -1345,6 +1361,10 @@ function CatalogPanel({
     queryKey: ["currencies"],
     queryFn: () => api.listCurrencies(),
   });
+  const benchmarks = useQuery({
+    queryKey: ["benchmarks"],
+    queryFn: () => api.listBenchmarks(),
+  });
 
   useEffect(() => {
     if (!editingVariantDetail.data) return;
@@ -1712,7 +1732,8 @@ function CatalogPanel({
               createVariant.error ??
               models.error ??
               releaseStatuses.error ??
-              currencies.error
+              currencies.error ??
+              benchmarks.error
             }
           />
           <form
@@ -2188,6 +2209,16 @@ function CatalogPanel({
                 }
               />
             </details>
+            <PerformanceResultsEditor
+              benchmarks={benchmarks.data ?? []}
+              results={variantForm.performance_results}
+              onChange={(performance_results) =>
+                setVariantForm((current) => ({
+                  ...current,
+                  performance_results,
+                }))
+              }
+            />
             <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
@@ -3412,10 +3443,10 @@ function AffiliatesPanel({ accessToken }: { accessToken: string }) {
   const [linkForm, setLinkForm] = useState({
     partner_id: "",
     device_variant_id: "",
-    region_code: "US",
+    region_code: "VN",
     product_url: "",
     current_price: "",
-    currency_code: "USD",
+    currency_code: "VND",
   });
   const partners = useQuery({
     queryKey: ["admin", "affiliate-partners"],
@@ -3469,10 +3500,10 @@ function AffiliatesPanel({ accessToken }: { accessToken: string }) {
       setLinkForm({
         partner_id: "",
         device_variant_id: "",
-        region_code: "US",
+        region_code: "VN",
         product_url: "",
         current_price: "",
-        currency_code: "USD",
+        currency_code: "VND",
       });
       void queryClient.invalidateQueries({
         queryKey: ["admin", "affiliate-links"],
@@ -3489,6 +3520,13 @@ function AffiliatesPanel({ accessToken }: { accessToken: string }) {
       in_stock?: boolean;
       current_price?: number;
     }) => api.updateAffiliateLink(id, { in_stock, current_price }, accessToken),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "affiliate-links"],
+      }),
+  });
+  const syncPrices = useMutation({
+    mutationFn: () => api.syncAllAffiliateLinks(accessToken),
     onSuccess: () =>
       void queryClient.invalidateQueries({
         queryKey: ["admin", "affiliate-links"],
@@ -3708,9 +3746,30 @@ function AffiliatesPanel({ accessToken }: { accessToken: string }) {
         </Panel>
         <Panel
           title="Liên kết mua hàng"
-          description="Cập nhật tình trạng còn hàng hoặc giá thay đổi; mỗi thay đổi giá đều được lưu vào lịch sử."
+          description="Đồng bộ giá qua API đối tác hoặc metadata Product/Offer; mỗi thay đổi đều được lưu vào lịch sử."
         >
-          <PanelError error={links.error ?? updateLink.error} />
+          <PanelError
+            error={links.error ?? updateLink.error ?? syncPrices.error}
+          />
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-100 bg-blue-50/50 p-3">
+            <p className="text-xs leading-5 text-slate-600">
+              {syncPrices.data
+                ? `${syncPrices.data.data.updated}/${syncPrices.data.data.checked} liên kết đã cập nhật; ${syncPrices.data.data.failed} lỗi.`
+                : "Làm mới tối đa 100 liên kết cũ nhất trong một lượt."}
+            </p>
+            <button
+              type="button"
+              onClick={() => syncPrices.mutate()}
+              disabled={syncPrices.isPending || !links.data?.length}
+              className="inline-flex h-9 items-center gap-2 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white disabled:opacity-50"
+            >
+              <RefreshCw
+                size={14}
+                className={syncPrices.isPending ? "animate-spin" : ""}
+              />
+              Đồng bộ giá
+            </button>
+          </div>
           <div className="divide-y divide-slate-100">
             {links.data?.map((link) => (
               <div
@@ -5708,6 +5767,25 @@ function variantFormFromDetail(
     vc_area_mm2: recordValue(thermal, "vc_area_mm2"),
     has_active_cooling: recordBooleanValue(thermal, "has_active_cooling"),
     thermal_notes: recordValue(thermal, "notes"),
+    performance_results: (variant.device_variant_benchmarks ?? []).map(
+      (result) => ({
+        benchmark_id: result.benchmark.id,
+        score: String(result.score),
+        subscore_name: result.subscore_name ?? "",
+        tested_at: dateInputValue(result.tested_at),
+        app_version: result.benchmark_run?.app_version ?? "",
+        power_mode: result.benchmark_run?.power_mode ?? "",
+        ambient_temp_c:
+          result.benchmark_run?.ambient_temp_c == null
+            ? ""
+            : String(result.benchmark_run.ambient_temp_c),
+        test_environment_note:
+          result.benchmark_run?.test_environment_note ?? "",
+        is_thermal_throttled: Boolean(
+          result.benchmark_run?.is_thermal_throttled,
+        ),
+      }),
+    ),
   };
 }
 
@@ -5776,6 +5854,7 @@ function createInitialVariantForm() {
     vc_area_mm2: "",
     has_active_cooling: "",
     thermal_notes: "",
+    performance_results: [] as PerformanceResultForm[],
   };
 }
 
@@ -5834,6 +5913,185 @@ function buildVariantPayload(
       has_active_cooling: optionalBoolean(form.has_active_cooling),
       notes: optionalText(form.thermal_notes),
     }),
+    performance_results: form.performance_results
+      .filter((result) => result.benchmark_id && result.score !== "")
+      .map((result) => ({
+        benchmark_id: result.benchmark_id,
+        score: Number(result.score),
+        subscore_name: optionalText(result.subscore_name),
+        tested_at: optionalText(result.tested_at),
+        app_version: optionalText(result.app_version),
+        power_mode: optionalText(result.power_mode),
+        ambient_temp_c: optionalNumber(result.ambient_temp_c),
+        test_environment_note: optionalText(result.test_environment_note),
+        is_thermal_throttled: result.is_thermal_throttled,
+      })),
+  };
+}
+
+function PerformanceResultsEditor({
+  benchmarks,
+  results,
+  onChange,
+}: {
+  benchmarks: Array<{
+    id: string;
+    name: string;
+    version?: string | null;
+    benchmark_type: string;
+    unit?: { symbol: string } | null;
+  }>;
+  results: PerformanceResultForm[];
+  onChange: (results: PerformanceResultForm[]) => void;
+}) {
+  function update(index: number, patch: Partial<PerformanceResultForm>) {
+    onChange(
+      results.map((result, currentIndex) =>
+        currentIndex === index ? { ...result, ...patch } : result,
+      ),
+    );
+  }
+
+  return (
+    <section className="rounded-xl border border-violet-200 bg-violet-50/40 p-4 sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+            <Gauge size={17} className="text-violet-700" />
+            Hiệu năng thực tế
+          </div>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+            Nhập kết quả benchmark cùng điều kiện đo. SpecHub chỉ tạo điểm và
+            thứ hạng giữa các thiết bị có phép đo tương thích.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange([...results, createEmptyPerformanceResult()])}
+          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:border-violet-400"
+        >
+          <Plus size={15} />
+          Thêm phép đo
+        </button>
+      </div>
+
+      {results.length ? (
+        <div className="mt-4 space-y-3">
+          {results.map((result, index) => (
+            <div
+              key={`${index}-${result.benchmark_id}`}
+              className="rounded-lg border border-violet-100 bg-white p-4"
+            >
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <SelectInput
+                  label="Bộ benchmark"
+                  value={result.benchmark_id}
+                  onChange={(benchmark_id) => update(index, { benchmark_id })}
+                  required
+                >
+                  <option value="">Chọn benchmark</option>
+                  {benchmarks.map((benchmark) => (
+                    <option key={benchmark.id} value={benchmark.id}>
+                      {benchmark.name}
+                      {benchmark.version ? ` ${benchmark.version}` : ""}
+                    </option>
+                  ))}
+                </SelectInput>
+                <TextInput
+                  label="Điểm đo"
+                  type="number"
+                  step="0.0001"
+                  value={result.score}
+                  onChange={(score) => update(index, { score })}
+                  required
+                />
+                <TextInput
+                  label="Hạng mục / subscore"
+                  placeholder="overall, GPU, single-core..."
+                  value={result.subscore_name}
+                  onChange={(subscore_name) => update(index, { subscore_name })}
+                />
+                <TextInput
+                  label="Ngày đo"
+                  type="date"
+                  value={result.tested_at}
+                  onChange={(tested_at) => update(index, { tested_at })}
+                />
+                <TextInput
+                  label="Phiên bản ứng dụng"
+                  placeholder="10.2.1"
+                  value={result.app_version}
+                  onChange={(app_version) => update(index, { app_version })}
+                />
+                <TextInput
+                  label="Chế độ nguồn"
+                  placeholder="balanced / performance"
+                  value={result.power_mode}
+                  onChange={(power_mode) => update(index, { power_mode })}
+                />
+                <TextInput
+                  label="Nhiệt độ môi trường (°C)"
+                  type="number"
+                  step="0.1"
+                  value={result.ambient_temp_c}
+                  onChange={(ambient_temp_c) =>
+                    update(index, { ambient_temp_c })
+                  }
+                />
+                <CheckboxInput
+                  label="Có ghi nhận thermal throttling"
+                  checked={result.is_thermal_throttled}
+                  onChange={(is_thermal_throttled) =>
+                    update(index, { is_thermal_throttled })
+                  }
+                />
+              </div>
+              <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                <TextAreaInput
+                  label="Mô tả giao thức và môi trường đo"
+                  rows={2}
+                  value={result.test_environment_note}
+                  onChange={(test_environment_note) =>
+                    update(index, { test_environment_note })
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange(
+                      results.filter((_, itemIndex) => itemIndex !== index),
+                    )
+                  }
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-red-200 px-3 text-sm font-medium text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 size={15} />
+                  Xóa phép đo
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 rounded-lg border border-dashed border-violet-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+          Chưa có phép đo. Có thể lưu thiết bị trước và bổ sung khi đã có nguồn
+          benchmark đáng tin cậy.
+        </div>
+      )}
+    </section>
+  );
+}
+
+function createEmptyPerformanceResult(): PerformanceResultForm {
+  return {
+    benchmark_id: "",
+    score: "",
+    subscore_name: "",
+    tested_at: "",
+    app_version: "",
+    power_mode: "",
+    ambient_temp_c: "",
+    test_environment_note: "",
+    is_thermal_throttled: false,
   };
 }
 

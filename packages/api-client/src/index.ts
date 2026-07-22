@@ -569,6 +569,7 @@ export type DeviceVariantDetail = DeviceVariantSummary & {
   variant_physical_specs?: Record<string, unknown> | null;
   variant_io_specs?: Record<string, unknown> | null;
   variant_thermal_specs?: Record<string, unknown> | null;
+  device_variant_benchmarks?: VariantPerformanceResult[];
   variant_chipsets?: Array<{
     chip_role: string;
     is_primary: boolean;
@@ -666,6 +667,35 @@ export type DeviceVariantDetail = DeviceVariantSummary & {
       };
     }>;
   }>;
+};
+
+export type BenchmarkDefinition = {
+  id: string;
+  name: string;
+  slug: string;
+  benchmark_type: string;
+  target_type: string;
+  version?: string | null;
+  higher_is_better: boolean;
+  unit?: { name: string; symbol: string } | null;
+};
+
+export type VariantPerformanceResult = {
+  id: string;
+  score: string | number;
+  subscore_name?: string | null;
+  tested_at?: string | null;
+  source_id?: string | null;
+  benchmark: Omit<BenchmarkDefinition, "target_type">;
+  benchmark_run?: {
+    id: string;
+    test_environment_note?: string | null;
+    ambient_temp_c?: string | number | null;
+    os_version?: string | null;
+    app_version?: string | null;
+    power_mode?: string | null;
+    is_thermal_throttled?: boolean | null;
+  } | null;
 };
 
 export type DeviceModelDetail = Omit<DeviceModelSummary, "device_variants"> & {
@@ -875,6 +905,20 @@ export type VariantThermalSpecsInput = {
   notes?: string;
 };
 
+export type VariantPerformanceResultInput = {
+  benchmark_id: string;
+  score: number;
+  subscore_name?: string;
+  source_id?: string;
+  tested_at?: string;
+  test_environment_note?: string;
+  ambient_temp_c?: number;
+  os_version?: string;
+  app_version?: string;
+  power_mode?: string;
+  is_thermal_throttled?: boolean;
+};
+
 export type CreateDeviceVariantInput = {
   device_model_id: string;
   variant_name: string;
@@ -892,6 +936,7 @@ export type CreateDeviceVariantInput = {
   physical_specs?: VariantPhysicalSpecsInput;
   io_specs?: VariantIoSpecsInput;
   thermal_specs?: VariantThermalSpecsInput;
+  performance_results?: VariantPerformanceResultInput[];
 };
 
 export type UpdateDeviceVariantInput = Partial<CreateDeviceVariantInput>;
@@ -1028,11 +1073,15 @@ export type WikiArticle = {
   entity_id: string;
   title: string;
   slug: string;
+  article_type: "guide" | "introduction" | "review" | "comparison" | "tutorial";
+  tags: string[];
+  cover_image_url?: string | null;
   summary?: string | null;
   body_markdown?: string | null;
   status: WikiArticleStatus;
   current_revision_id?: string | null;
   view_count: string | number;
+  reading_time_minutes: number;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -1040,6 +1089,12 @@ export type WikiArticle = {
     code: string;
     name: string;
   };
+  author?: {
+    id: string;
+    username?: string | null;
+    display_name?: string | null;
+    avatar_url?: string | null;
+  } | null;
   citations: WikiCitationLink[];
   _count?: {
     revisions?: number;
@@ -1073,6 +1128,9 @@ export type CreateWikiArticleInput = {
   language_code?: string;
   title: string;
   slug: string;
+  article_type?: WikiArticle["article_type"];
+  tags?: string[];
+  cover_image_url?: string;
   summary?: string;
   body_markdown?: string;
   status?: WikiArticleStatus;
@@ -1172,6 +1230,7 @@ export type AffiliateLink = {
   created_at: string;
   partner?: AffiliatePartner;
   device_variant?: DeviceVariantSummary;
+  sync_source?: "partner_api" | "json_ld";
 };
 
 export type CreateAffiliatePartnerInput = {
@@ -1545,6 +1604,13 @@ export class SpecHubApiClient {
       "/device-variants/currencies",
     );
     return this.unwrapData(response);
+  }
+
+  async listBenchmarks(): Promise<BenchmarkDefinition[]> {
+    const response = await this.get<
+      EntityResult<BenchmarkDefinition[]> | BenchmarkDefinition[]
+    >("/device-variants/benchmarks");
+    return Array.isArray(response) ? response : response.data;
   }
 
   getDeviceVariant(id: string) {
@@ -2048,6 +2114,20 @@ export class SpecHubApiClient {
 
   listAffiliateLinks(params?: ListParams) {
     return this.get<EntityResult<AffiliateLink[]>>("/affiliate/links", params);
+  }
+
+  syncAffiliateLink(id: string, accessToken: string) {
+    return this.post<AffiliateLink>(
+      `/affiliate/links/${id}/sync`,
+      {},
+      this.withAuth(accessToken),
+    );
+  }
+
+  syncAllAffiliateLinks(accessToken: string) {
+    return this.post<
+      EntityResult<{ checked: number; updated: number; failed: number }>
+    >("/affiliate/links/sync", {}, this.withAuth(accessToken));
   }
 
   createAffiliateLink(payload: CreateAffiliateLinkInput, accessToken: string) {

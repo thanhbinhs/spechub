@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, ChevronRight } from "lucide-react";
+import { ChevronRight, Cpu } from "lucide-react";
 import type { DeviceModelSummary } from "@spechub/api-client";
 import { DeviceArtwork } from "@/components/device-artwork";
 import { formatDate, formatPrice, primaryVariant } from "@/lib/format";
@@ -15,52 +15,49 @@ export function DeviceCard({ model }: { model: DeviceModelSummary }) {
   return (
     <Link
       href={`/devices/${model.slug}`}
-      className="interactive-lift group flex min-h-[390px] flex-col overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-sm"
+      className="group grid min-h-[210px] overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-blue-300 sm:grid-cols-[150px_minmax(0,1fr)]"
     >
       <DeviceArtwork
+        compact
         brand={brand}
         name={model.name}
         category={category}
         accent={variant?.color_hex}
       />
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
         <div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-              {brand}
-            </span>
-            <span className="text-xs text-slate-500">{category}</span>
+          <div className="mb-2 text-xs font-semibold text-blue-700">
+            {brand} ·{" "}
+            <span className="font-normal text-slate-500">{category}</span>
           </div>
-          <h3 className="line-clamp-2 text-lg font-semibold text-slate-950">
+          <h3 className="line-clamp-2 text-base font-semibold text-slate-950">
             {model.name}
           </h3>
           {model.description ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+            <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
               {model.description}
             </p>
           ) : null}
         </div>
 
-        <div className="mt-auto grid gap-2 text-sm text-slate-600">
-          <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-2">
-              <Calendar size={15} />
-              Ra mắt
-            </span>
-            <span className="font-medium text-slate-900">
+        <div className="mt-auto grid grid-cols-2 gap-2 text-xs text-slate-500">
+          <div>
+            <span className="block">Ra mắt</span>
+            <strong className="mt-0.5 block font-medium text-slate-900">
               {formatDate(model.release_date)}
-            </span>
+            </strong>
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <span>Từ</span>
-            <span className="font-medium text-slate-900">
+          <div>
+            <span className="block">Giá ra mắt</span>
+            <strong className="mt-0.5 block truncate font-medium text-slate-900">
               {formatPrice(variant?.launch_price, variant?.currency)}
-            </span>
+            </strong>
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-sm font-medium text-slate-700">
-          <span>
+        <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs font-medium text-slate-600">
+          <span className="inline-flex items-center gap-1.5">
+            <Cpu size={13} />
             {model._count?.device_variants ??
               model.device_variants?.length ??
               0}{" "}

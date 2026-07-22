@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsHexColor,
@@ -13,6 +14,68 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
+
+export class VariantPerformanceResultDto {
+  @ApiProperty()
+  @IsUUID("4")
+  benchmark_id!: string;
+
+  @ApiProperty({ example: 1845120 })
+  @Type(() => Number)
+  @IsNumber()
+  score!: number;
+
+  @ApiPropertyOptional({ example: "overall" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  subscore_name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID("4")
+  source_id?: string;
+
+  @ApiPropertyOptional({ example: "2026-07-20" })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  tested_at?: Date;
+
+  @ApiPropertyOptional({ example: "Bài đo trung bình 3 lần, máy nguội" })
+  @IsOptional()
+  @IsString()
+  test_environment_note?: string;
+
+  @ApiPropertyOptional({ example: 25 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  ambient_temp_c?: number;
+
+  @ApiPropertyOptional({ example: "Android 16" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  os_version?: string;
+
+  @ApiPropertyOptional({ example: "10.2.1" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  app_version?: string;
+
+  @ApiPropertyOptional({ example: "performance" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  power_mode?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  is_thermal_throttled?: boolean;
+}
 
 export class VariantPhysicalSpecsDto {
   @IsOptional()
@@ -260,4 +323,15 @@ export class CreateDeviceVariantDto {
   @ValidateNested()
   @Type(() => VariantThermalSpecsDto)
   thermal_specs?: VariantThermalSpecsDto;
+
+  @ApiPropertyOptional({
+    type: [VariantPerformanceResultDto],
+    description:
+      "Kết quả benchmark cấp thiết bị dùng để xếp hạng các máy dùng chung mô-đun.",
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VariantPerformanceResultDto)
+  performance_results?: VariantPerformanceResultDto[];
 }

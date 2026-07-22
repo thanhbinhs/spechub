@@ -3,12 +3,20 @@
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock3,
+  ExternalLink,
+  Eye,
+  PenLine,
+} from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { LoadingPanel } from "@/components/loading-panel";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { MarkdownContent } from "@/components/markdown-content";
 
 export default function WikiArticlePage() {
   const params = useParams<{ slug: string }>();
@@ -53,18 +61,52 @@ export default function WikiArticlePage() {
         <ArrowLeft size={16} />
         Tất cả bài viết
       </Link>
-      <div className="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
         <PageHeader
           eyebrow={`${value.language.name} · ${value._count?.revisions ?? 0} phiên bản`}
           title={value.title}
           description={value.summary ?? "Bài viết kiến thức từ SpecHub Wiki."}
         />
-        <p className="mt-5 text-sm text-slate-500">
-          Xuất bản {formatDate(value.published_at)}
-        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-4 border-y border-slate-100 py-3 text-xs text-slate-500">
+          <span>Xuất bản {formatDate(value.published_at)}</span>
+          <span className="inline-flex items-center gap-1">
+            <Clock3 size={13} /> {value.reading_time_minutes} phút đọc
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Eye size={13} /> {Number(value.view_count).toLocaleString("vi")}{" "}
+            lượt xem
+          </span>
+          {value.author ? (
+            <span>
+              Tác giả{" "}
+              {value.author.display_name ??
+                value.author.username ??
+                "Thành viên SpecHub"}
+            </span>
+          ) : null}
+          <Link
+            href={`/wiki/${value.slug}/edit?language=${encodeURIComponent(value.language.code)}`}
+            className="ml-auto inline-flex items-center gap-1.5 font-semibold text-blue-700"
+          >
+            <PenLine size={13} /> Đề xuất chỉnh sửa
+          </Link>
+        </div>
+        {value.tags.length ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {value.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/wiki?tag=${encodeURIComponent(tag)}`}
+                className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        ) : null}
         {value.body_markdown ? (
-          <div className="mt-8 whitespace-pre-wrap break-words text-[15px] leading-7 text-slate-700">
-            {value.body_markdown}
+          <div className="mt-6 break-words text-[15px]">
+            <MarkdownContent markdown={value.body_markdown} />
           </div>
         ) : (
           <p className="mt-8 text-sm text-slate-500">
@@ -74,17 +116,24 @@ export default function WikiArticlePage() {
 
         {value.citations.length ? (
           <section className="mt-10 border-t border-slate-200 pt-6">
-            <h2 className="text-base font-semibold text-slate-950">Nguồn tham khảo</h2>
+            <h2 className="text-base font-semibold text-slate-950">
+              Nguồn tham khảo
+            </h2>
             <ol className="mt-4 space-y-3">
               {value.citations.map(({ citation, anchor_key }) => (
-                <li key={citation.id} className="text-sm leading-6 text-slate-600">
+                <li
+                  key={citation.id}
+                  className="text-sm leading-6 text-slate-600"
+                >
                   <span className="font-medium text-slate-800">
                     {citation.source?.name ?? "Nguồn"}
                   </span>
                   {citation.title ? ` — ${citation.title}` : ""}
                   {citation.excerpt ? `: ${citation.excerpt}` : ""}
                   {anchor_key ? (
-                    <span className="ml-1 text-xs text-slate-400">#{anchor_key}</span>
+                    <span className="ml-1 text-xs text-slate-400">
+                      #{anchor_key}
+                    </span>
                   ) : null}
                   {citation.url ? (
                     <a

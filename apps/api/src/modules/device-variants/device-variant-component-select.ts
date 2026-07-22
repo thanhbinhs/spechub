@@ -4,6 +4,38 @@ export const DEVICE_VARIANT_COMPONENT_SELECT = {
   variant_physical_specs: true,
   variant_io_specs: true,
   variant_thermal_specs: true,
+  device_variant_benchmarks: {
+    select: {
+      id: true,
+      score: true,
+      subscore_name: true,
+      tested_at: true,
+      source_id: true,
+      benchmark: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          benchmark_type: true,
+          version: true,
+          higher_is_better: true,
+          unit: { select: { name: true, symbol: true } },
+        },
+      },
+      benchmark_run: {
+        select: {
+          id: true,
+          test_environment_note: true,
+          ambient_temp_c: true,
+          os_version: true,
+          app_version: true,
+          power_mode: true,
+          is_thermal_throttled: true,
+        },
+      },
+    },
+    orderBy: [{ benchmark: { name: "asc" as const } }],
+  },
   variant_chipsets: {
     select: {
       chip_role: true,

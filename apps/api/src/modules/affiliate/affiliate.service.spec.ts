@@ -41,7 +41,12 @@ describe("AffiliateService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new AffiliateService(prisma as any);
+    service = new AffiliateService(
+      prisma as any,
+      {
+        fetchOffer: jest.fn(),
+      } as any,
+    );
   });
 
   it("records price history when an affiliate link price changes", async () => {

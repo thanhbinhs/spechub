@@ -1813,6 +1813,7 @@ model users {
   deleted_at        DateTime? @db.Timestamptz(6)
 
   wiki_revisions wiki_revisions[]
+  wiki_articles  wiki_articles[]
   comments       comments[]
   search_logs    search_logs[]
   wishlists      wishlists[]
@@ -1832,20 +1833,26 @@ model wiki_articles {
   entity_table        String    @db.VarChar(80)
   entity_id           String    @db.VarChar(64)
   language_id         Int
+  author_user_id      String?   @db.Uuid
   title               String    @db.VarChar(300)
   slug                String    @db.VarChar(320)
+  article_type        String    @default("guide") @db.VarChar(40)
+  tags                String[]
+  cover_image_url     String?
   summary             String?
   body_markdown       String?
   body_html           String?
   status              String    @default("draft") @db.VarChar(20)
   current_revision_id String?   @db.Uuid
   view_count          BigInt    @default(0)
+  reading_time_minutes Int      @default(1)
   published_at        DateTime?
   created_at          DateTime  @default(now()) @db.Timestamptz(6)
   updated_at          DateTime  @updatedAt @db.Timestamptz(6)
   deleted_at          DateTime? @db.Timestamptz(6)
 
   language languages @relation(fields: [language_id], references: [id])
+  author   users?    @relation(fields: [author_user_id], references: [id])
 
   revisions wiki_revisions[]
   citations wiki_article_citations[]
@@ -1853,6 +1860,9 @@ model wiki_articles {
   @@unique([entity_table, entity_id, language_id])
   @@unique([slug, language_id])
   @@index([status])
+  @@index([author_user_id])
+  @@index([article_type, status])
+  @@index([tags], type: Gin)
   @@map("wiki_articles")
 }
 

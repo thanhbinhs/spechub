@@ -68,6 +68,24 @@ export class AffiliateController {
     return this.affiliateService.listLinks(query);
   }
 
+  @Post("links/sync")
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({ summary: "Refresh prices for active marketplace links" })
+  syncAllLinks() {
+    return this.affiliateService.syncAllLinks();
+  }
+
+  @Post("links/:id/sync")
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({
+    summary: "Refresh one marketplace price from API or JSON-LD",
+  })
+  syncLink(@Param("id", ParseUUIDPipe) id: string) {
+    return this.affiliateService.syncLink(id);
+  }
+
   @Public()
   @Get("links/:id")
   @ApiOperation({ summary: "Get affiliate buy link" })
