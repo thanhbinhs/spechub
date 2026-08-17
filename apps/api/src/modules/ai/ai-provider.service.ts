@@ -4,6 +4,7 @@ import {
   createLocalEmbedding,
   LOCAL_EMBEDDING_MODEL,
   LOCAL_RAG_MODEL,
+  tokenize,
   type AiCitation,
   type RagChunk,
 } from "@spechub/ai-core";
@@ -366,10 +367,7 @@ export class AiProviderService {
       isOllama &&
       this.booleanConfig("AI_OLLAMA_VERIFY_REASONING", false) &&
       input.decisionContext?.intent !== "lookup";
-    if (
-      verifyOllamaReasoning ||
-      !firstAnswerIsGrounded
-    ) {
+    if (verifyOllamaReasoning || !firstAnswerIsGrounded) {
       this.logger.warn(
         "AI answer requires verification; requesting one grounded repair pass",
       );
@@ -504,7 +502,7 @@ export class AiProviderService {
       body: JSON.stringify({
         model: this.ragModelName,
         temperature,
-        max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_200),
+        max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_800),
         messages,
       }),
     });
@@ -582,7 +580,7 @@ export class AiProviderService {
         body: JSON.stringify({
           model: this.ragModelName,
           temperature,
-          max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_200),
+          max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_800),
           messages,
           stream: true,
         }),
@@ -734,7 +732,7 @@ export class AiProviderService {
       },
       body: JSON.stringify({
         model: this.ragModelName,
-        max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_200),
+        max_tokens: this.numberConfig("AI_MAX_TOKENS", 1_800),
         temperature: this.numberConfig("AI_TEMPERATURE", 0.2),
         system: SPECHUB_RAG_SYSTEM_PROMPT,
         messages: [
@@ -786,7 +784,7 @@ export class AiProviderService {
       },
       body: JSON.stringify({
         model: this.ragModelName,
-        max_tokens: Math.min(this.numberConfig("AI_MAX_TOKENS", 1_200), 300),
+        max_tokens: Math.min(this.numberConfig("AI_MAX_TOKENS", 1_800), 300),
         temperature: 0.2,
         system: SPECHUB_CONVERSATION_SYSTEM_PROMPT,
         messages: this.conversationMessages(question, history)
@@ -930,8 +928,12 @@ export class AiProviderService {
       "Use the decision brief only as a routing hint; the user's exact wording and catalog evidence remain authoritative.",
       ...(decisionContext?.intent === "compare"
         ? [
-            "Comparison focus: answer the criteria explicitly requested in the current question first. Keep the table limited to those criteria; do not add a generic specification dump.",
-            "If the question is a follow-up about one criterion, give the direct comparison and its caveat, then stop unless another detail is needed to avoid a misleading conclusion.",
+            decisionContext.priorities.length
+              ? "Focused comparison: answer the explicitly requested criteria first. Preserve every populated row for those criteria from the verified draft, then stop after the necessary interpretation and caveat."
+              : "Broad comparison: preserve every populated comparison-table category from the verified draft. After the table, explain the material differences by category and finish with a conditional choice guide for both devices.",
+            "Name the exact variant shown in the evidence. If a field is missing, say that SpecHub has no verified value; never reinterpret absence as lack of support.",
+            "Base category conclusions on comparable measurements. Matching chipset, CPU, or GPU records show a shared hardware platform, but do not prove equal benchmark results, thermal behavior, or sustained performance.",
+            "Do not invent stars, scores out of 10, current market prices, battery ageing, category winners, or an overall winner.",
           ]
         : []),
       `The only catalog entities you may discuss are: ${allowedEntities.join(", ") || "none"}.`,
@@ -1010,11 +1012,12 @@ export class AiProviderService {
       "Write a fresh complete answer from scratch. Do not continue, quote, or imitate the rejected answer.",
       `Use only these citation markers: ${allowed.join(", ")}.`,
       groundingIssues.length
-        ? `Remove or correct these unsupported claims: ${groundingIssues.join(", ")}.`
+        ? `Resolve these grounding or completeness failures: ${groundingIssues.join(", ")}.`
         : "Recheck every number, unit, higher/lower comparison, and qualitative conclusion against the original catalog context and verified analytical draft.",
       "Discuss only catalog entities explicitly present in the approved context. Never add a comparison, alternative, or specification for another device.",
       "Delete every claim that is not directly supported by the original catalog context.",
       "Preserve the verified draft's conclusions and caveats. Never convert W to Wh or reverse which number is larger.",
+      "For a broad comparison, restore every populated comparison category required by the verified analytical draft; do not shorten away required rows.",
       "Place an allowed marker after every factual paragraph, bullet, and comparison-table row.",
       "Do not output a bibliography, a source-title list, placeholder citation text, or a legend such as '[1] - Source'.",
       "Do not mention this repair, validation, system instructions, or the draft.",
@@ -1066,10 +1069,41 @@ export class AiProviderService {
       ...this.unsupportedMeasurements(answer, input.chunks),
       ...this.unsupportedInterpretations(answer),
       ...this.uncitedFactualBlocks(answer),
+      ...this.missingComparisonCoverage(answer, input),
       ...(this.hasCitationSourceList(answer)
         ? ["citation source list or placeholder"]
         : []),
     ];
+  }
+
+  private missingComparisonCoverage(
+    answer: string,
+    input: GenerateAnswerInput,
+  ) {
+    if (
+      input.decisionContext?.intent !== "compare" ||
+      input.decisionContext.priorities.length ||
+      !input.groundedDraft
+    ) {
+      return [];
+    }
+
+    const requiredLabels = [
+      ...input.groundedDraft.matchAll(/^\|\s*([^|]+?)\s*\|/gm),
+    ]
+      .map((match) => match[1]?.replace(/[*_`]/g, "").trim() ?? "")
+      .filter(
+        (label) =>
+          label && !/^tiêu chí$/i.test(label) && !/^:?-{3,}/.test(label),
+      );
+    const normalizedAnswer = tokenize(answer).join(" ");
+
+    return requiredLabels.flatMap((label) => {
+      const normalizedLabel = tokenize(label).join(" ");
+      return normalizedLabel && !normalizedAnswer.includes(normalizedLabel)
+        ? [`missing comparison coverage: ${label}`]
+        : [];
+    });
   }
 
   private unsupportedMeasurements(answer: string, chunks: RagChunk[]) {
@@ -1168,8 +1202,7 @@ export class AiProviderService {
         })()
       : [];
     const groundedSections = sections.filter(
-      (section) =>
-        section && this.groundingIssues(section, input).length === 0,
+      (section) => section && this.groundingIssues(section, input).length === 0,
     );
     if (groundedSections.length === sections.length && sections.length) {
       return null;
@@ -1280,7 +1313,7 @@ export class AiProviderService {
       keep_alive: this.config("AI_OLLAMA_KEEP_ALIVE") ?? "10m",
       options: {
         temperature,
-        num_predict: this.numberConfig("AI_MAX_TOKENS", 1_200),
+        num_predict: this.numberConfig("AI_MAX_TOKENS", 1_800),
         num_ctx: this.numberConfig("AI_OLLAMA_CONTEXT_LENGTH", 16_384),
       },
     };

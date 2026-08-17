@@ -411,12 +411,16 @@ describe("AiService", () => {
 
     expect(result.meta.intent).toBe("compare");
     expect(result.data.answer).toContain("## So sánh nhanh");
+    expect(result.data.answer).toContain("| Phiên bản đối chiếu |");
+    expect(result.data.answer).toContain("| Ra mắt |");
     expect(result.data.answer).toContain("| Benchmark |");
     expect(result.data.answer).toContain("Geekbench 6 CPU");
     expect(result.data.answer).toContain("cùng benchmark");
     expect(result.data.answer).not.toContain("configuration modules");
     expect(result.data.answer).not.toMatch(/\bcores\b|\bthreads\b/);
     expect(result.data.answer).toContain("[1]");
+    expect(result.data.answer).toContain("## Nên chọn máy nào?");
+    expect(result.data.answer).toMatch(/\| Chipset \|.*\[1\].*\[2\]/);
     expect(result.data.citations.map((citation) => citation.title)).toEqual([
       "Apple iPhone 16 Pro",
       "Samsung Galaxy S25 Ultra",
@@ -424,6 +428,69 @@ describe("AiService", () => {
     expect(result.data.citations[0]?.excerpt).toContain("Phiên bản:");
     expect(result.data.citations[0]?.excerpt).toContain("Benchmark:");
     expect(result.data.follow_up_questions).toHaveLength(3);
+  });
+
+  it("analyzes the iQOO-style trade-offs without inventing an overall score", () => {
+    const chunks = [
+      {
+        entityType: "device_model" as const,
+        entityId: "neo-9",
+        chunkIndex: 0,
+        title: "Vivo iQOO Neo 9",
+        chunkText: [
+          "Device: iQOO Neo 9",
+          "Released: 2023-12-30",
+          "Variant: Snapdragon 8 Gen 2",
+          "Default variant: no",
+          "Chipset: Chính: Snapdragon 8 Gen 2 của Qualcomm",
+          "GPU: Adreno 740",
+          "Memory: 16GB LPDDR5X",
+          "Storage: 512GB UFS 4.0",
+          "Display: Chính: 6.78 inch, AMOLED, 2800x1260, 144Hz, LTPO",
+          "Battery: Chính: 5160 mAh, 120W có dây",
+          "Camera: Sau: Chính: Sony IMX920 (50MP, OIS), Góc siêu rộng: 8MP; Trước: 16MP",
+          "Thermal: vapor_chamber, buồng hơi 6043 mm²",
+          "Physical: 190 g, 7.99 mm",
+        ].join("\n"),
+        score: 0.95,
+      },
+      {
+        entityType: "device_model" as const,
+        entityId: "iqoo-11s",
+        chunkIndex: 0,
+        title: "Vivo iQOO 11S",
+        chunkText: [
+          "Device: iQOO 11S",
+          "Released: 2023-07-04",
+          "Variant: 16GB / 512GB",
+          "Default variant: yes",
+          "Chipset: Chính: Snapdragon 8 Gen 2 của Qualcomm",
+          "GPU: Adreno 740",
+          "Memory: 16GB LPDDR5X",
+          "Storage: 512GB UFS 4.0",
+          "Display: Chính: 6.78 inch, Samsung E6 AMOLED, 3200x1440, 144Hz, LTPO",
+          "Battery: Chính: 4700 mAh, 200W có dây",
+          "Camera: Sau: Chính: Sony IMX866 (50MP, OIS), Góc siêu rộng: 8MP, Chụp xa: 13MP (2x quang học); Trước: 16MP",
+          "Physical: 206.5 g, 8.4 mm",
+        ].join("\n"),
+        score: 0.95,
+      },
+    ];
+
+    const answer = (service as any).composeAnswer(
+      "So sánh Vivo iQOO Neo 9 bản Snapdragon 8 Gen 2 và Vivo iQOO 11S",
+      chunks,
+      { intent: "compare", priorities: [], useCases: [] },
+    );
+
+    expect(answer).toContain("nền tảng phần cứng tương đồng");
+    expect(answer).toContain("không đủ để khẳng định hiệu năng thực tế");
+    expect(answer).toContain("3200x1440 so với 2800x1260");
+    expect(answer).toContain("5.160 mAh so với 4.700 mAh");
+    expect(answer).toContain("200 W so với 120 W");
+    expect(answer).toContain("mô-đun chụp xa hoặc tiềm vọng");
+    expect(answer).toContain("## Nên chọn máy nào?");
+    expect(answer).not.toMatch(/⭐|\b\d+(?:[.,]\d+)?\/10\b/);
   });
 
   it("keeps every selected device's retrieved evidence together for a comparison", () => {
@@ -474,6 +541,68 @@ describe("AiService", () => {
     expect(focused[1]?.chunkText).toContain("5000 mAh");
     expect(focused[0]?.chunkText).toContain("Device: iPhone 16 Pro");
     expect(focused[1]?.chunkText).toContain("Device: Galaxy S25 Ultra");
+  });
+
+  it("selects the explicitly requested hardware variant instead of the default variant", () => {
+    const chunks = [
+      {
+        entityType: "device_model" as const,
+        entityId: "neo-9",
+        chunkIndex: 0,
+        title: "Vivo iQOO Neo 9",
+        chunkText:
+          "Device: iQOO Neo 9\nReleased: 2023-12-30\nDescription: Gaming phone",
+        score: 0.9,
+      },
+      {
+        entityType: "device_model" as const,
+        entityId: "neo-9",
+        chunkIndex: 1,
+        title: "Vivo iQOO Neo 9",
+        chunkText:
+          "Variant: Dimensity\nDefault variant: yes\nChipset: MediaTek Dimensity 9300",
+        score: 0.8,
+      },
+      {
+        entityType: "device_model" as const,
+        entityId: "neo-9",
+        chunkIndex: 2,
+        title: "Vivo iQOO Neo 9",
+        chunkText:
+          "Variant: Snapdragon\nDefault variant: no\nChipset: Qualcomm Snapdragon 8 Gen 2\nBattery: 5160 mAh, 120W có dây",
+        score: 0.85,
+      },
+      {
+        entityType: "device_model" as const,
+        entityId: "iqoo-11s",
+        chunkIndex: 0,
+        title: "Vivo iQOO 11S",
+        chunkText: "Device: iQOO 11S\nReleased: 2023-07-04",
+        score: 0.9,
+      },
+      {
+        entityType: "device_model" as const,
+        entityId: "iqoo-11s",
+        chunkIndex: 1,
+        title: "Vivo iQOO 11S",
+        chunkText:
+          "Variant: 256GB\nDefault variant: yes\nChipset: Qualcomm Snapdragon 8 Gen 2",
+        score: 0.9,
+      },
+    ];
+
+    const focused = (service as any).focusChunks(
+      "So sánh iQOO Neo 9 bản Snapdragon 8 Gen 2 và iQOO 11S",
+      { intent: "compare", priorities: [], useCases: [] },
+      chunks,
+      6,
+    );
+
+    expect(focused).toHaveLength(2);
+    expect(focused[0]?.chunkText).toContain("Variant: Snapdragon");
+    expect(focused[0]?.chunkText).toContain("5160 mAh");
+    expect(focused[0]?.chunkText).not.toContain("Variant: Dimensity");
+    expect(focused[0]?.chunkText).toContain("Released: 2023-12-30");
   });
 
   it("filters deleted, unapproved, and unpublished records from vector retrieval", async () => {
@@ -1113,8 +1242,7 @@ describe("AiService", () => {
     expect(
       events.some(
         (event) =>
-          event.type === "status" &&
-          event.message === "Trợ lý đang trả lời...",
+          event.type === "status" && event.message === "Trợ lý đang trả lời...",
       ),
     ).toBe(true);
     expect(
@@ -1228,7 +1356,7 @@ describe("AiService", () => {
           signal: AbortSignal,
         ) => {
           await callbacks.onDelta("Câu trả lời đang dở dang");
-        abortController.abort(new Error("user stopped the answer"));
+          abortController.abort(new Error("user stopped the answer"));
           signal.throwIfAborted();
           return null;
         },
@@ -1347,8 +1475,7 @@ describe("AiService", () => {
     expect(
       events.some(
         (event) =>
-          event.type === "status" &&
-          event.message === "Trợ lý đang trả lời...",
+          event.type === "status" && event.message === "Trợ lý đang trả lời...",
       ),
     ).toBe(true);
   });

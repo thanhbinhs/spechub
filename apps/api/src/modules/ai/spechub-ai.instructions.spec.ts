@@ -44,5 +44,12 @@ describe("SpecHub AI instructions", () => {
     expect(SPECHUB_RAG_SYSTEM_PROMPT).toContain(
       "Never introduce, recommend, or compare a device",
     );
+    expect(SPECHUB_RAG_SYSTEM_PROMPT).toContain(
+      "cover every material populated category",
+    );
+    expect(SPECHUB_RAG_SYSTEM_PROMPT).toContain("Do not invent star ratings");
+    expect(SPECHUB_RAG_SYSTEM_PROMPT).toContain(
+      "does not prove the device lacks the feature",
+    );
   });
 });

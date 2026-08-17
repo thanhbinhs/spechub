@@ -128,6 +128,111 @@ describe("AiProviderService", () => {
     ]);
   });
 
+  it("repairs a broad comparison that omits populated verified categories", async () => {
+    const values: Record<string, string> = {
+      AI_PROVIDER: "openai",
+      OPENAI_API_KEY: "test-key",
+      AI_OPENAI_MODEL: "test-model",
+    };
+    const config = {
+      get: jest.fn((key: string) => values[key]),
+    } as unknown as ConfigService;
+    const correctedAnswer = [
+      "## So sánh",
+      "",
+      "| Tiêu chí | Device A | Device B |",
+      "|---|---|---|",
+      "| Phiên bản đối chiếu | 256GB [1] | 256GB [2] |",
+      "| Chipset | Chip A [1] | Chip B [2] |",
+      "| Pin | 5000 mAh [1] | 4700 mAh [2] |",
+      "",
+      "## Kết luận",
+      "",
+      "Lựa chọn phụ thuộc vào ưu tiên của người dùng [1][2].",
+    ].join("\n");
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn().mockResolvedValue(
+          JSON.stringify({
+            choices: [
+              { message: { content: "Chỉ so sánh pin: 5000 mAh [1]." } },
+            ],
+          }),
+        ),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn().mockResolvedValue(
+          JSON.stringify({
+            choices: [{ message: { content: correctedAnswer } }],
+          }),
+        ),
+      } as unknown as Response);
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const service = new AiProviderService(config);
+    const result = await service.generateAnswer({
+      question: "So sánh Device A và Device B",
+      decisionContext: {
+        intent: "compare",
+        priorities: [],
+        useCases: [],
+      },
+      groundedDraft: [
+        "| Tiêu chí | Device A | Device B |",
+        "|---|---|---|",
+        "| Phiên bản đối chiếu | 256GB [1] | 256GB [2] |",
+        "| Chipset | Chip A [1] | Chip B [2] |",
+        "| Pin | 5000 mAh [1] | 4700 mAh [2] |",
+      ].join("\n"),
+      chunks: [
+        {
+          entityType: "device_model",
+          entityId: "device-a",
+          chunkIndex: 0,
+          chunkText: "Variant: 256GB\nChipset: Chip A\nBattery: 5000 mAh",
+          title: "Device A",
+        },
+        {
+          entityType: "device_model",
+          entityId: "device-b",
+          chunkIndex: 0,
+          chunkText: "Variant: 256GB\nChipset: Chip B\nBattery: 4700 mAh",
+          title: "Device B",
+        },
+      ],
+      citations: [
+        {
+          entity_type: "device_model",
+          entity_id: "device-a",
+          excerpt: "Device A",
+          title: "Device A",
+        },
+        {
+          entity_type: "device_model",
+          entity_id: "device-b",
+          excerpt: "Device B",
+          title: "Device B",
+        },
+      ],
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result?.answer).toBe(correctedAnswer);
+    const [, repairRequest] = fetchMock.mock.calls[1] as [string, RequestInit];
+    const repairBody = JSON.parse(String(repairRequest.body)) as {
+      messages: Array<{ content: string }>;
+    };
+    expect(repairBody.messages[1]?.content).toContain(
+      "missing comparison coverage: Chipset",
+    );
+    expect(repairBody.messages[1]?.content).toContain(
+      "restore every populated comparison category",
+    );
+  });
+
   it("lets an Ollama endpoint override a stale local provider value", async () => {
     const values: Record<string, string> = {
       AI_PROVIDER: "local",
@@ -427,14 +532,14 @@ describe("AiProviderService", () => {
       "",
       "[1]: [Citation 1]",
     ].join("\n");
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        text: jest.fn().mockResolvedValue(
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      text: jest
+        .fn()
+        .mockResolvedValue(
           JSON.stringify({ message: { content: attemptedAnswer } }),
         ),
-      } as unknown as Response) as unknown as typeof fetch;
+    } as unknown as Response) as unknown as typeof fetch;
 
     const service = new AiProviderService(config);
     const result = await service.generateAnswer({
@@ -633,7 +738,9 @@ describe("AiProviderService", () => {
     };
     global.fetch = jest
       .fn()
-      .mockResolvedValueOnce(streamResponse(attemptedAnswer)) as unknown as typeof fetch;
+      .mockResolvedValueOnce(
+        streamResponse(attemptedAnswer),
+      ) as unknown as typeof fetch;
     const onDelta = jest.fn();
     const onReset = jest.fn();
 

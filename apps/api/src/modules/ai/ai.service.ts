@@ -24,6 +24,7 @@ const AI_DEVICE_MODEL_SELECT = {
   id: true,
   name: true,
   slug: true,
+  summary: true,
   description: true,
   announcement_date: true,
   release_date: true,
@@ -81,11 +82,21 @@ const AI_DEVICE_MODEL_SELECT = {
           height_mm: true,
           width_mm: true,
           thickness_mm: true,
+          thickness_min_mm: true,
+          thickness_max_mm: true,
           weight_g: true,
           frame_material: true,
           back_material: true,
           front_glass: true,
           ingress_protection: true,
+        },
+      },
+      variant_thermal_specs: {
+        select: {
+          cooling_type: true,
+          vc_area_mm2: true,
+          has_active_cooling: true,
+          notes: true,
         },
       },
       variant_chipsets: {
@@ -125,9 +136,20 @@ const AI_DEVICE_MODEL_SELECT = {
               size_inch: true,
               resolution_width: true,
               resolution_height: true,
+              pixel_density_ppi: true,
               refresh_rate_hz: true,
+              refresh_rate_min_hz: true,
+              ltpo_version: true,
+              touch_sampling_hz: true,
+              brightness_typical_nits: true,
+              brightness_hbm_nits: true,
               brightness_peak_nits: true,
+              color_depth_bits: true,
+              color_gamut: true,
               hdr_formats: true,
+              protection_glass: true,
+              has_dc_dimming: true,
+              pwm_frequency_hz: true,
               display_technology: {
                 select: {
                   name: true,
@@ -149,9 +171,15 @@ const AI_DEVICE_MODEL_SELECT = {
               name: true,
               slug: true,
               capacity_mah: true,
+              rated_capacity_mah: true,
               energy_wh: true,
+              cell_count: true,
               wired_charging_w: true,
+              wired_charging_protocol: true,
               wireless_charging_w: true,
+              wireless_charging_protocol: true,
+              reverse_wired_charging_w: true,
+              reverse_wireless_charging_w: true,
               removable: true,
             },
           },
@@ -244,6 +272,8 @@ const AI_DEVICE_MODEL_SELECT = {
       variant_camera_systems: {
         select: {
           position: true,
+          system_name: true,
+          notes: true,
           variant_camera_modules: {
             select: {
               is_primary: true,
@@ -253,14 +283,72 @@ const AI_DEVICE_MODEL_SELECT = {
                   name: true,
                   effective_megapixel: true,
                   aperture: true,
+                  focal_length_mm_eq: true,
                   optical_zoom: true,
+                  digital_zoom_max: true,
                   has_ois: true,
+                  has_eis: true,
+                  has_af: true,
+                  af_system: true,
+                  field_of_view_deg: true,
+                  video_capabilities: true,
+                  has_macro: true,
+                  camera_module_sensor_links: {
+                    select: {
+                      is_primary: true,
+                      camera_sensor: {
+                        select: {
+                          name: true,
+                          resolution_mp: true,
+                          sensor_type: true,
+                          optical_format: true,
+                          pixel_size_um: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
             orderBy: [{ module_order: "asc" as const }],
           },
         },
+      },
+      variant_software_features: {
+        select: {
+          level_or_tier: true,
+          notes: true,
+          software_feature: {
+            select: {
+              name: true,
+              feature_category: true,
+            },
+          },
+        },
+        orderBy: [{ software_feature: { name: "asc" as const } }],
+      },
+      device_variant_features: {
+        select: {
+          value_text: true,
+          value_number: true,
+          value_boolean: true,
+          value_date: true,
+          note: true,
+          feature_definition: {
+            select: {
+              code: true,
+              name: true,
+              value_type: true,
+              feature_group: true,
+              unit: {
+                select: {
+                  symbol: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: [{ feature_definition: { name: "asc" as const } }],
       },
       variant_operating_systems: {
         select: {
@@ -483,7 +571,7 @@ type CatalogEntity = {
   text: string;
 };
 
-const AI_ANSWER_VERSION = "knowledge-agent-v22-grounded-provider-cache";
+const AI_ANSWER_VERSION = "knowledge-agent-v23-complete-comparisons";
 const DEVICE_QUERY_TOKEN_ALIASES: Record<string, readonly string[]> = {
   prm: ["pro", "max"],
   promax: ["pro", "max"],
@@ -1125,11 +1213,16 @@ export class AiService {
       analysis.intent === "ranking" ||
       analysis.intent === "recommendation"
     ) {
+      const catalogChunks = await this.retrieveCatalogFallback(query, topK * 3);
       return {
-        chunks: this.diversifyChunks(
-          await this.retrieveCatalogFallback(query, topK * 3),
-          topK,
-        ),
+        // Comparison retrieval deliberately keeps the identity and the best
+        // matching variant chunk for both selected models. Diversifying here
+        // used to collapse the result to one partial chunk per model, which
+        // made a broad answer silently lose fields near the end of a variant.
+        chunks:
+          analysis.intent === "compare"
+            ? catalogChunks
+            : this.diversifyChunks(catalogChunks, topK),
         source: "catalog_fallback" as RetrievalSource,
       };
     }
@@ -1378,10 +1471,18 @@ export class AiService {
       }),
     );
 
-    return this.diversifyChunks(
-      modelChunks.sort((left, right) => (right.score ?? 0) - (left.score ?? 0)),
-      topK,
+    const sortedChunks = modelChunks.sort(
+      (left, right) => (right.score ?? 0) - (left.score ?? 0),
     );
+    if (analysis.intent === "compare") {
+      // Keep every name-matched candidate until selectComparisonEntities can
+      // resolve each side of "A vs B" independently. Preselecting the first
+      // two models here breaks families with overlapping names (for example
+      // Pro, Pro Max, Plus, and the base model).
+      return sortedChunks;
+    }
+
+    return this.diversifyChunks(sortedChunks, topK);
   }
 
   private buildCatalogWhere(term: string): Prisma.device_modelsWhereInput[] {
@@ -1540,6 +1641,11 @@ export class AiService {
     this.addLine(identityLines, "Released", model.release_date);
     this.addLine(
       identityLines,
+      "Summary",
+      this.localizeDescription(model.summary),
+    );
+    this.addLine(
+      identityLines,
       "Description",
       this.localizeDescription(model.description),
     );
@@ -1572,6 +1678,12 @@ export class AiService {
         this.addLine(lines, "Display", this.formatDisplays(variant));
         this.addLine(lines, "Battery", this.formatBatteries(variant));
         this.addLine(lines, "Camera", this.formatCameras(variant));
+        this.addLine(
+          lines,
+          "Thermal",
+          this.formatThermalSpecs(variant.variant_thermal_specs),
+        );
+        this.addLine(lines, "Features", this.formatFeatures(variant));
         this.addLine(lines, "Software", this.formatSoftware(variant));
         this.addLine(
           lines,
@@ -1582,18 +1694,18 @@ export class AiService {
         return lines.join("\n");
       }),
     ].filter(Boolean);
-    let chunkIndex = 0;
-
-    return sections.flatMap((section) =>
-      chunkText(section, { maxChars: 1_800 }).map((text) => ({
-        entityType: "device_model" as const,
-        entityId: model.id,
-        chunkText: text,
-        chunkIndex: chunkIndex++,
-        title,
-        slug: model.slug,
-      })),
-    );
+    // One chunk maps to one model-level or variant-level record. Splitting a
+    // variant by character count can strand camera, software, or physical
+    // fields in a fragment that no longer carries the Variant label, making
+    // exact-variant comparison incomplete.
+    return sections.map((section, chunkIndex) => ({
+      entityType: "device_model" as const,
+      entityId: model.id,
+      chunkText: section,
+      chunkIndex,
+      title,
+      slug: model.slug,
+    }));
   }
 
   private buildRawPageChunks(page: AiRawPage): RagChunk[] {
@@ -2672,22 +2784,51 @@ export class AiService {
             candidate.entityType === "device_model" &&
             candidate.entityId === entity.entityId,
         )
-        .sort((left, right) => left.chunkIndex - right.chunkIndex)
-        .slice(0, Math.max(2, Math.ceil(topK / 2)));
-      const first = entityChunks[0];
+        .sort((left, right) => left.chunkIndex - right.chunkIndex);
+      const identityChunk = entityChunks.find(
+        (candidate) => !/^Variant:\s+/im.test(candidate.chunkText),
+      );
+      const variantChunks = entityChunks
+        .filter((candidate) => /^Variant:\s+/im.test(candidate.chunkText))
+        .sort(
+          (left, right) =>
+            this.comparisonVariantRelevance(right, question) -
+              this.comparisonVariantRelevance(left, question) ||
+            left.chunkIndex - right.chunkIndex,
+        );
+      const selectedChunks = [identityChunk, variantChunks[0]].filter(
+        (candidate): candidate is RagChunk => Boolean(candidate),
+      );
+      const first = selectedChunks[0] ?? entityChunks[0];
       if (!first) return [];
 
       return [
         {
           ...first,
           chunkIndex: 0,
-          chunkText: entityChunks.map((chunk) => chunk.chunkText).join("\n"),
+          chunkText: (selectedChunks.length ? selectedChunks : [first])
+            .map((chunk) => chunk.chunkText)
+            .join("\n"),
           score: Math.max(
-            ...entityChunks.map((chunk) => Number(chunk.score ?? 0)),
+            ...(selectedChunks.length ? selectedChunks : [first]).map((chunk) =>
+              Number(chunk.score ?? 0),
+            ),
           ),
         },
       ];
     });
+  }
+
+  private comparisonVariantRelevance(chunk: RagChunk, question: string) {
+    const queryTerms = new Set(this.meaningfulQueryTerms(question));
+    const contentTokens = new Set(tokenize(chunk.chunkText));
+    const matchedTerms = [...queryTerms].filter((term) =>
+      contentTokens.has(term),
+    ).length;
+    const defaultBoost = /^Default variant:\s+yes$/im.test(chunk.chunkText)
+      ? 0.25
+      : 0;
+    return matchedTerms + defaultBoost + Number(chunk.score ?? 0);
   }
 
   private focusExplicitLookupChunks(
@@ -2814,39 +2955,80 @@ export class AiService {
   ) {
     const [left, right] = entities;
     if (!left || !right) return "";
-    const criteria = [
-      ["Giá ra mắt", ["price"], "Launch price"],
-      ["Chipset", ["performance"], "Chipset"],
-      ["CPU", ["performance"], "CPU"],
-      ["GPU / NPU", ["performance"], "GPU", "NPU"],
-      ["RAM", ["performance"], "Memory"],
-      ["Lưu trữ", ["storage"], "Storage"],
-      ["Benchmark", ["performance"], "Benchmarks"],
-      ["Màn hình", ["display"], "Display"],
-      ["Pin", ["battery"], "Battery"],
-      ["Camera", ["camera"], "Camera"],
-      ["Phần mềm", ["software"], "Software"],
-      ["Kích thước / khối lượng", ["portability"], "Physical"],
-    ] as const;
+    const criteria: Array<{
+      label: string;
+      priorities: DecisionPriority[];
+      fields: string[];
+      keepWhenFocused?: boolean;
+    }> = [
+      {
+        label: "Phiên bản đối chiếu",
+        priorities: [],
+        fields: ["Variant", "Market"],
+        keepWhenFocused: true,
+      },
+      { label: "Ra mắt", priorities: [], fields: ["Released", "Launch date"] },
+      { label: "Giá ra mắt", priorities: ["price"], fields: ["Launch price"] },
+      { label: "Chipset", priorities: ["performance"], fields: ["Chipset"] },
+      { label: "CPU", priorities: ["performance"], fields: ["CPU"] },
+      {
+        label: "GPU / NPU",
+        priorities: ["performance"],
+        fields: ["GPU", "NPU"],
+      },
+      { label: "RAM", priorities: ["performance"], fields: ["Memory"] },
+      { label: "Lưu trữ", priorities: ["storage"], fields: ["Storage"] },
+      {
+        label: "Benchmark",
+        priorities: ["performance"],
+        fields: ["Benchmarks"],
+      },
+      { label: "Màn hình", priorities: ["display"], fields: ["Display"] },
+      { label: "Pin", priorities: ["battery"], fields: ["Battery"] },
+      { label: "Camera", priorities: ["camera"], fields: ["Camera"] },
+      {
+        label: "Tản nhiệt",
+        priorities: ["performance"],
+        fields: ["Thermal"],
+      },
+      {
+        label: "Tính năng nổi bật",
+        priorities: ["performance", "camera", "display", "software"],
+        fields: ["Features"],
+      },
+      { label: "Phần mềm", priorities: ["software"], fields: ["Software"] },
+      {
+        label: "Kích thước / khối lượng",
+        priorities: ["portability"],
+        fields: ["Physical"],
+      },
+    ];
     const relevantCriteria = analysis.priorities.length
-      ? criteria.filter(([, priorities]) =>
-          priorities.some((priority) =>
-            analysis.priorities.includes(priority as DecisionPriority),
-          ),
+      ? criteria.filter(
+          (criterion) =>
+            criterion.keepWhenFocused ||
+            criterion.priorities.some((priority) =>
+              analysis.priorities.includes(priority),
+            ),
         )
       : criteria;
-    const rows = relevantCriteria.flatMap(([label, , ...fields]) => {
-      const leftValue = fields
+    const rows = relevantCriteria.flatMap((criterion) => {
+      const leftValue = criterion.fields
         .map((field) => this.extractField(left.text, field))
         .filter(Boolean)
         .join("; ");
-      const rightValue = fields
+      const rightValue = criterion.fields
         .map((field) => this.extractField(right.text, field))
         .filter(Boolean)
         .join("; ");
       return leftValue || rightValue
         ? [
-            `| ${label} | ${this.markdownCell(leftValue)} | ${this.markdownCell(rightValue)} |`,
+            {
+              label: criterion.label,
+              leftValue,
+              rightValue,
+              markdown: `| ${criterion.label} | ${this.markdownCell(leftValue, 320)} [${left.citation}] | ${this.markdownCell(rightValue, 320)} [${right.citation}] |`,
+            },
           ]
         : [];
     });
@@ -2855,17 +3037,22 @@ export class AiService {
       right,
       analysis.priorities,
     );
+    const hasIncompleteRows = rows.some(
+      (row) => !row.leftValue || !row.rightValue,
+    );
 
     return [
       "## So sánh nhanh",
       "",
-      `Đối chiếu **${left.title}** [${left.citation}] và **${right.title}** [${right.citation}] từ dữ liệu cấu hình hiện có:`,
+      analysis.priorities.length
+        ? `Mình đang đối chiếu đúng tiêu chí bạn hỏi giữa **${left.title}** [${left.citation}] và **${right.title}** [${right.citation}]; kết luận chỉ dựa trên các trường có thể so sánh trực tiếp.`
+        : `Không có thiết bị thắng tuyệt đối chỉ từ cấu hình: **${left.title}** [${left.citation}] và **${right.title}** [${right.citation}] cần được chọn theo từng ưu tiên. Bảng dưới đây dùng đúng phiên bản và dữ liệu SpecHub đã truy xuất.`,
       "",
       `| Tiêu chí | ${this.markdownCell(left.title)} | ${this.markdownCell(right.title)} |`,
       "|---|---|---|",
-      ...rows,
+      ...rows.map((row) => row.markdown),
       "",
-      "## Điểm đáng chú ý",
+      "## Phân tích theo hạng mục",
       "",
       ...(highlights.length
         ? highlights.map((highlight) => `- ${highlight}`)
@@ -2874,6 +3061,12 @@ export class AiService {
           ]),
       "",
       "> Hiệu năng chỉ được kết luận khi hai thiết bị có cùng benchmark, cùng phiên bản và cùng hạng mục. Điểm cấu hình nội bộ không được dùng thay kết quả đo.",
+      ...(hasIncompleteRows
+        ? [
+            "",
+            "> Ô “Chưa có” nghĩa là SpecHub chưa có giá trị đã xác minh cho phiên bản đó; không có nghĩa thiết bị chắc chắn không hỗ trợ tính năng.",
+          ]
+        : []),
       "",
       this.comparisonVerdict(left, right, analysis, highlights),
     ].join("\n");
@@ -3124,12 +3317,89 @@ export class AiService {
           "display",
           "price",
           "portability",
+          "camera",
+          "storage",
+          "software",
         ] satisfies DecisionPriority[]);
 
-    return considered.flatMap((priority) => {
+    const highlights = considered.flatMap((priority) => {
       const comparison = this.comparePriority(left, right, priority);
-      return comparison ? [comparison.text] : [];
+      const additional =
+        priority === "performance"
+          ? this.sharedPlatformHighlight(left, right)
+          : priority === "battery"
+            ? this.chargingPowerHighlight(left, right)
+            : priority === "camera"
+              ? this.cameraHardwareHighlight(left, right)
+              : null;
+      return [comparison?.text, additional].filter((item): item is string =>
+        Boolean(item),
+      );
     });
+
+    return [...new Set(highlights)].slice(0, priorities.length ? 6 : 10);
+  }
+
+  private sharedPlatformHighlight(left: CatalogEntity, right: CatalogEntity) {
+    const sharedFields = ["Chipset", "CPU", "GPU"].flatMap((field) => {
+      const leftValue = this.extractField(left.text, field);
+      const rightValue = this.extractField(right.text, field);
+      if (
+        !leftValue ||
+        !rightValue ||
+        tokenize(leftValue).join(" ") !== tokenize(rightValue).join(" ")
+      ) {
+        return [];
+      }
+      return [field];
+    });
+    if (!sharedFields.length) return null;
+
+    return `Hai thiết bị có cùng bản ghi ${sharedFields.join(" / ")} [${left.citation}][${right.citation}]. Đây là bằng chứng về nền tảng phần cứng tương đồng, không đủ để khẳng định hiệu năng thực tế hoặc khả năng duy trì hiệu năng bằng nhau.`;
+  }
+
+  private chargingPowerHighlight(left: CatalogEntity, right: CatalogEntity) {
+    const leftPower = this.wiredChargingPower(left);
+    const rightPower = this.wiredChargingPower(right);
+    if (
+      leftPower === undefined ||
+      rightPower === undefined ||
+      leftPower === rightPower
+    ) {
+      return null;
+    }
+    const winner = leftPower > rightPower ? left : right;
+    const winnerPower = Math.max(leftPower, rightPower);
+    const loserPower = Math.min(leftPower, rightPower);
+    return `**${winner.title}** có công suất sạc có dây công bố cao hơn (${this.formatNumber(winnerPower)} W so với ${this.formatNumber(loserPower)} W) [${left.citation}][${right.citation}]. Công suất không tự chứng minh thời gian sạc đầy nếu chưa có phép đo cùng điều kiện.`;
+  }
+
+  private cameraHardwareHighlight(left: CatalogEntity, right: CatalogEntity) {
+    const leftZoom = this.maximumFieldMeasurement(
+      left,
+      "Camera",
+      /([\d.,]+)x\s+quang học/gi,
+    );
+    const rightZoom = this.maximumFieldMeasurement(
+      right,
+      "Camera",
+      /([\d.,]+)x\s+quang học/gi,
+    );
+    if (
+      leftZoom !== undefined &&
+      rightZoom !== undefined &&
+      leftZoom !== rightZoom
+    ) {
+      const winner = leftZoom > rightZoom ? left : right;
+      return `**${winner.title}** có mức zoom quang học công bố cao hơn (${this.formatNumber(Math.max(leftZoom, rightZoom))}x so với ${this.formatNumber(Math.min(leftZoom, rightZoom))}x) [${left.citation}][${right.citation}]. Đây là khác biệt phần cứng, không phải kết luận về chất lượng ảnh tổng thể.`;
+    }
+
+    const leftHasTelephoto = this.hasTelephotoRecord(left);
+    const rightHasTelephoto = this.hasTelephotoRecord(right);
+    if (leftHasTelephoto === rightHasTelephoto) return null;
+    const equipped = leftHasTelephoto ? left : right;
+    const other = equipped === left ? right : left;
+    return `**${equipped.title}** có mô-đun chụp xa hoặc tiềm vọng trong cấu hình [${equipped.citation}], còn dữ liệu hiện tại của **${other.title}** không có bản ghi tương ứng [${other.citation}]. Điều này chưa đủ để kết luận chất lượng ảnh tổng thể.`;
   }
 
   private comparePriority(
@@ -3155,6 +3425,25 @@ export class AiService {
         winner,
         text: `**${winner.title}** có điểm **${sharedBenchmark.label}** cao hơn (${this.formatNumber(winnerValue)} so với ${this.formatNumber(loserValue)}${difference ? `, khoảng ${difference}%` : ""}) [${winner.citation}][${loser.citation}]. Đây là lợi thế trong đúng phép đo này, không đại diện cho mọi tác vụ.`,
       };
+    }
+
+    if (priority === "display") {
+      const leftResolution = this.entityDisplayResolution(left);
+      const rightResolution = this.entityDisplayResolution(right);
+      if (
+        leftResolution &&
+        rightResolution &&
+        leftResolution.pixels !== rightResolution.pixels
+      ) {
+        const leftWins = leftResolution.pixels > rightResolution.pixels;
+        const winner = leftWins ? left : right;
+        const winnerResolution = leftWins ? leftResolution : rightResolution;
+        const loserResolution = leftWins ? rightResolution : leftResolution;
+        return {
+          winner,
+          text: `**${winner.title}** có độ phân giải màn hình cao hơn (${winnerResolution.label} so với ${loserResolution.label}) [${left.citation}][${right.citation}]. Độ phân giải là một thông số hiển thị, không tự quyết định chất lượng màn hình tổng thể.`,
+        };
+      }
     }
 
     const metric =
@@ -3242,12 +3531,19 @@ export class AiService {
     highlights: string[],
   ) {
     if (!analysis.priorities.length) {
+      const choiceGuide = this.comparisonChoiceGuide(left, right);
       return [
-        "## Kết luận",
+        "## Nên chọn máy nào?",
+        "",
+        ...(choiceGuide.length
+          ? choiceGuide.map((line) => `- ${line}`)
+          : [
+              "Dữ liệu hiện có phù hợp để đối chiếu cấu hình, nhưng chưa đủ phép đo chung để đưa ra lựa chọn có cơ sở.",
+            ]),
         "",
         highlights.length
-          ? `Chưa có một thiết bị thắng tuyệt đối: **${left.title}** và **${right.title}** mạnh ở các mặt khác nhau. Hãy chọn theo tiêu chí quan trọng nhất với bạn.`
-          : "Dữ liệu hiện có phù hợp để đối chiếu cấu hình, nhưng chưa đủ để đưa ra người thắng có cơ sở.",
+          ? `Không có người thắng tuyệt đối: lựa chọn cuối cùng phụ thuộc vào tiêu chí bạn coi trọng và giá bán thực tế của đúng phiên bản [${left.citation}][${right.citation}].`
+          : `SpecHub chưa có đủ dữ liệu đối xứng để xác định lựa chọn phù hợp hơn [${left.citation}][${right.citation}].`,
       ].join("\n");
     }
     return [
@@ -3256,6 +3552,36 @@ export class AiService {
       this.provisionalRecommendation(left, right, analysis.priorities) ??
         "Các tiêu chí bạn nêu chưa tạo ra lợi thế đủ rõ trong dữ liệu hiện có.",
     ].join("\n");
+  }
+
+  private comparisonChoiceGuide(left: CatalogEntity, right: CatalogEntity) {
+    const priorities: DecisionPriority[] = [
+      "performance",
+      "battery",
+      "display",
+      "camera",
+      "price",
+      "portability",
+      "storage",
+      "software",
+    ];
+    const strengths = new Map<string, string[]>();
+    for (const priority of priorities) {
+      const decision = this.comparePriority(left, right, priority);
+      if (!decision) continue;
+      const labels = strengths.get(decision.winner.entityId) ?? [];
+      labels.push(this.priorityLabel(priority));
+      strengths.set(decision.winner.entityId, labels);
+    }
+
+    return [left, right].flatMap((entity) => {
+      const labels = strengths.get(entity.entityId);
+      return labels?.length
+        ? [
+            `**Chọn ${entity.title}** nếu bạn ưu tiên ${labels.join(", ")} theo các số liệu có thể đối chiếu trực tiếp [${entity.citation}].`,
+          ]
+        : [];
+    });
   }
 
   private provisionalRecommendation(
@@ -3486,6 +3812,45 @@ export class AiService {
     return price?.match(/\b([A-Z]{3})\b/)?.[1] ?? null;
   }
 
+  private wiredChargingPower(entity: CatalogEntity) {
+    const battery = this.extractField(entity.text, "Battery");
+    return this.optionalNumber(
+      battery?.match(/([\d.,]+)W\s+có dây/i)?.[1]?.replace(",", "."),
+    );
+  }
+
+  private entityDisplayResolution(entity: CatalogEntity) {
+    const display = this.extractField(entity.text, "Display");
+    const match = display?.match(/(\d{3,5})x(\d{3,5})/i);
+    const width = this.optionalNumber(match?.[1]);
+    const height = this.optionalNumber(match?.[2]);
+    if (width === undefined || height === undefined) return null;
+    return {
+      label: `${width}x${height}`,
+      pixels: width * height,
+    };
+  }
+
+  private maximumFieldMeasurement(
+    entity: CatalogEntity,
+    field: string,
+    pattern: RegExp,
+  ) {
+    const value = this.extractField(entity.text, field);
+    if (!value) return undefined;
+    const matches = [...value.matchAll(pattern)]
+      .map((match) => this.optionalNumber(match[1]?.replace(",", ".")))
+      .filter((item): item is number => item !== undefined);
+    return matches.length ? Math.max(...matches) : undefined;
+  }
+
+  private hasTelephotoRecord(entity: CatalogEntity) {
+    const camera = this.extractField(entity.text, "Camera");
+    return Boolean(
+      camera && /\b(chụp xa|tiềm vọng|telephoto|periscope)\b/i.test(camera),
+    );
+  }
+
   private entityMetricValue(entity: CatalogEntity, metric: RankingMetric) {
     const value = this.extractField(entity.text, this.rankingField(metric));
     if (!value) return undefined;
@@ -3525,8 +3890,8 @@ export class AiService {
     return "Khối lượng";
   }
 
-  private markdownCell(value?: string | null) {
-    return value ? trimText(value, 180).replace(/\|/g, "\\|") : "Chưa có";
+  private markdownCell(value?: string | null, maxLength = 180) {
+    return value ? trimText(value, maxLength).replace(/\|/g, "\\|") : "Chưa có";
   }
 
   private answerConfidence(
@@ -3548,13 +3913,68 @@ export class AiService {
       analysis.intent === "compare"
         ? Math.min(1, uniqueEntities / 2)
         : Math.min(1, uniqueEntities / 3);
+    const comparisonCoverage =
+      analysis.intent === "compare"
+        ? this.comparisonEvidenceCoverage(analysis, chunks)
+        : 1;
     const score = Math.round(
-      Math.min(0.96, 0.4 + averageScore * 0.35 + evidenceFit * 0.25) * 100,
+      Math.min(
+        0.96,
+        0.32 +
+          averageScore * 0.28 +
+          evidenceFit * 0.2 +
+          comparisonCoverage * 0.2,
+      ) * 100,
     );
     return {
       score,
       label: score >= 80 ? "high" : score >= 58 ? "medium" : "low",
     };
+  }
+
+  private comparisonEvidenceCoverage(
+    analysis: QuestionAnalysis,
+    chunks: RagChunk[],
+  ) {
+    const entities = this.catalogEntities(chunks).slice(0, 2);
+    if (entities.length < 2) return 0;
+    const priorityFields: Record<DecisionPriority, string[]> = {
+      performance: ["Chipset", "CPU", "GPU", "Memory", "Benchmarks"],
+      battery: ["Battery"],
+      camera: ["Camera"],
+      display: ["Display"],
+      price: ["Launch price"],
+      portability: ["Physical"],
+      software: ["Software"],
+      storage: ["Storage"],
+    };
+    const fields = analysis.priorities.length
+      ? [
+          ...new Set(
+            analysis.priorities.flatMap((item) => priorityFields[item]),
+          ),
+        ]
+      : [
+          "Variant",
+          "Chipset",
+          "CPU",
+          "GPU",
+          "Memory",
+          "Storage",
+          "Display",
+          "Battery",
+          "Camera",
+          "Software",
+          "Physical",
+        ];
+    if (!fields.length) return 0;
+    const populated = entities.reduce(
+      (count, entity) =>
+        count +
+        fields.filter((field) => this.extractField(entity.text, field)).length,
+      0,
+    );
+    return populated / (entities.length * fields.length);
   }
 
   private followUpQuestions(
@@ -3778,11 +4198,13 @@ export class AiService {
     });
   }
 
-  private shouldCacheAnswer(_generated: {
-    answer: string;
-    modelName: string;
-    provider: "local" | "ollama" | "openai" | "anthropic";
-  } | null) {
+  private shouldCacheAnswer(
+    _generated: {
+      answer: string;
+      modelName: string;
+      provider: "local" | "ollama" | "openai" | "anthropic";
+    } | null,
+  ) {
     // Model-backed answers are intentionally never cached. Besides keeping a
     // newly updated catalog from being shadowed by a seven-day answer, this
     // guarantees that an Ollama-configured request actually reaches Ollama
@@ -3925,15 +4347,37 @@ export class AiService {
         display.resolution_width && display.resolution_height
           ? `${display.resolution_width}x${display.resolution_height}`
           : null;
+      const refreshRange =
+        display.refresh_rate_min_hz && display.refresh_rate_hz
+          ? `${display.refresh_rate_min_hz}-${display.refresh_rate_hz}Hz`
+          : display.refresh_rate_hz
+            ? `${display.refresh_rate_hz}Hz`
+            : null;
       const details = [
         size ? `${size} inch` : null,
         display.display_technology.name,
         resolution,
-        display.refresh_rate_hz ? `${display.refresh_rate_hz}Hz` : null,
+        display.pixel_density_ppi ? `${display.pixel_density_ppi} ppi` : null,
+        refreshRange,
+        display.ltpo_version ? `LTPO ${display.ltpo_version}` : null,
+        display.touch_sampling_hz
+          ? `cảm ứng ${display.touch_sampling_hz}Hz`
+          : null,
+        display.brightness_typical_nits
+          ? `${display.brightness_typical_nits} nit điển hình`
+          : null,
+        display.brightness_hbm_nits
+          ? `${display.brightness_hbm_nits} nit HBM`
+          : null,
         display.brightness_peak_nits
           ? `${display.brightness_peak_nits} nit tối đa`
           : null,
+        display.color_depth_bits ? `${display.color_depth_bits}-bit màu` : null,
+        display.color_gamut,
         display.hdr_formats,
+        display.protection_glass,
+        display.has_dc_dimming ? "DC dimming" : null,
+        display.pwm_frequency_hz ? `PWM ${display.pwm_frequency_hz}Hz` : null,
       ].filter(Boolean);
 
       return `${this.localizeRole(link.display_role)}: ${details.join(", ")}`;
@@ -3949,10 +4393,22 @@ export class AiService {
       const battery = link.battery_unit;
       const details = [
         `${battery.capacity_mah} mAh`,
+        battery.rated_capacity_mah
+          ? `${battery.rated_capacity_mah} mAh định mức`
+          : null,
         battery.energy_wh ? `${this.textValue(battery.energy_wh)} Wh` : null,
+        battery.cell_count ? `${battery.cell_count} cell` : null,
         battery.wired_charging_w ? `${battery.wired_charging_w}W có dây` : null,
+        battery.wired_charging_protocol,
         battery.wireless_charging_w
           ? `${battery.wireless_charging_w}W không dây`
+          : null,
+        battery.wireless_charging_protocol,
+        battery.reverse_wired_charging_w
+          ? `${battery.reverse_wired_charging_w}W sạc ngược có dây`
+          : null,
+        battery.reverse_wireless_charging_w
+          ? `${battery.reverse_wireless_charging_w}W sạc ngược không dây`
           : null,
         battery.removable ? "có thể tháo rời" : null,
       ].filter(Boolean);
@@ -3969,6 +4425,21 @@ export class AiService {
     const systems = variant.variant_camera_systems.map((system) => {
       const modules = system.variant_camera_modules.map((link) => {
         const camera = link.camera_module;
+        const sensors = (camera.camera_module_sensor_links ?? [])
+          .map(({ camera_sensor: sensor }) => {
+            const sensorDetails = [
+              sensor.resolution_mp
+                ? `${this.textValue(sensor.resolution_mp)}MP`
+                : null,
+              sensor.sensor_type,
+              sensor.optical_format,
+              sensor.pixel_size_um
+                ? `${this.textValue(sensor.pixel_size_um)}µm`
+                : null,
+            ].filter(Boolean);
+            return `${sensor.name}${sensorDetails.length ? ` (${sensorDetails.join(", ")})` : ""}`;
+          })
+          .join(" + ");
         const details = [
           camera.effective_megapixel
             ? `${this.textValue(camera.effective_megapixel)}MP`
@@ -3978,18 +4449,93 @@ export class AiService {
               ? camera.aperture
               : `f/${camera.aperture}`
             : null,
+          camera.focal_length_mm_eq
+            ? `${this.textValue(camera.focal_length_mm_eq)}mm quy đổi`
+            : null,
           camera.optical_zoom
             ? `${this.textValue(camera.optical_zoom)}x quang học`
             : null,
+          camera.digital_zoom_max
+            ? `${this.textValue(camera.digital_zoom_max)}x kỹ thuật số`
+            : null,
           camera.has_ois ? "OIS" : null,
+          camera.has_eis ? "EIS" : null,
+          camera.has_af
+            ? camera.af_system
+              ? `AF ${camera.af_system}`
+              : "AF"
+            : null,
+          camera.field_of_view_deg
+            ? `${this.textValue(camera.field_of_view_deg)}°`
+            : null,
+          camera.has_macro ? "macro" : null,
+          camera.video_capabilities,
+          sensors ? `cảm biến ${sensors}` : null,
         ].filter(Boolean);
         return `${this.localizeRole(link.role)}: ${this.localizeModuleName(
           camera.name,
         )}${details.length ? ` (${details.join(", ")})` : ""}`;
       });
-      return `${this.localizeRole(system.position)}: ${modules.join(", ")}`;
+      const systemLabel = [
+        this.localizeRole(system.position),
+        system.system_name,
+      ]
+        .filter(Boolean)
+        .join(" — ");
+      return `${systemLabel}: ${modules.join(", ")}${system.notes ? ` (${system.notes})` : ""}`;
     });
     return systems.length ? systems.join("; ") : null;
+  }
+
+  private formatThermalSpecs(
+    thermal:
+      | AiDeviceModel["device_variants"][number]["variant_thermal_specs"]
+      | null
+      | undefined,
+  ): string | null {
+    if (!thermal) return null;
+    const details = [
+      thermal.cooling_type,
+      thermal.vc_area_mm2 ? `buồng hơi ${thermal.vc_area_mm2} mm²` : null,
+      thermal.has_active_cooling ? "tản nhiệt chủ động" : null,
+      thermal.notes,
+    ].filter(Boolean);
+    return details.length ? details.join(", ") : null;
+  }
+
+  private formatFeatures(
+    variant: AiDeviceModel["device_variants"][number],
+  ): string | null {
+    const softwareFeatures = (variant.variant_software_features ?? []).map(
+      (link) =>
+        [link.software_feature.name, link.level_or_tier, link.notes]
+          .filter(Boolean)
+          .join(" — "),
+    );
+    const variantFeatures = (variant.device_variant_features ?? []).map(
+      (link) => {
+        const definition = link.feature_definition;
+        const rawValue =
+          link.value_text ??
+          link.value_number ??
+          link.value_boolean ??
+          link.value_date;
+        const value = this.textValue(rawValue);
+        const renderedValue =
+          value === "true" ? "có" : value === "false" ? "không" : value;
+        const detail = [
+          renderedValue && definition.unit?.symbol
+            ? `${renderedValue} ${definition.unit.symbol}`
+            : renderedValue,
+          link.note,
+        ]
+          .filter(Boolean)
+          .join(" — ");
+        return detail ? `${definition.name}: ${detail}` : definition.name;
+      },
+    );
+    const features = [...softwareFeatures, ...variantFeatures].filter(Boolean);
+    return features.length ? features.join("; ") : null;
   }
 
   private formatSoftware(
@@ -4063,11 +4609,15 @@ export class AiService {
   ): string | null {
     if (!physical) return null;
 
+    const thickness =
+      physical.thickness_min_mm && physical.thickness_max_mm
+        ? `${this.textValue(physical.thickness_min_mm)}-${this.textValue(physical.thickness_max_mm)}`
+        : this.textValue(physical.thickness_mm);
     const dimensions =
-      physical.height_mm && physical.width_mm && physical.thickness_mm
+      physical.height_mm && physical.width_mm && thickness
         ? `${this.textValue(physical.height_mm)} x ${this.textValue(
             physical.width_mm,
-          )} x ${this.textValue(physical.thickness_mm)} mm`
+          )} x ${thickness} mm`
         : null;
     const details = [
       dimensions,
@@ -4110,6 +4660,7 @@ export class AiService {
       ["Status", "Trạng thái"],
       ["Announced", "Công bố"],
       ["Released", "Phát hành"],
+      ["Summary", "Tóm tắt"],
       ["Description", "Mô tả"],
       ["Market", "Thị trường"],
       ["Color", "Màu sắc"],
@@ -4118,6 +4669,8 @@ export class AiService {
       ["Display", "Màn hình"],
       ["Battery", "Pin"],
       ["Camera", "Máy ảnh"],
+      ["Thermal", "Tản nhiệt"],
+      ["Features", "Tính năng"],
       ["Software", "Phần mềm"],
       ["Physical", "Kích thước và vật liệu"],
       ["Source", "Nguồn"],
