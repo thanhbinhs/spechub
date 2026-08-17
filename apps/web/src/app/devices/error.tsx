@@ -11,7 +11,7 @@ export default function DevicesError({
   reset: () => void;
 }) {
   return (
-    <div className="mx-auto flex min-h-[65vh] w-full max-w-2xl items-center px-4 py-10 sm:px-6">
+    <div className="app-page mx-auto flex min-h-[65vh] w-full max-w-2xl items-center px-4 py-10 sm:px-6">
       <section className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 bg-slate-50/70 p-6">
           <span className="grid h-12 w-12 place-items-center rounded-xl bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200">
@@ -30,10 +30,10 @@ export default function DevicesError({
           {process.env.NODE_ENV === "development" ? (
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Phát triển local
+                Phát triển cục bộ
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Chạy API từ thư mục gốc dự án trong một terminal riêng:
+                Chạy API từ thư mục gốc dự án trong một cửa sổ lệnh riêng:
               </p>
               <code className="mt-2 block rounded-md bg-slate-950 px-3 py-2 text-sm text-slate-100">
                 pnpm dev:api

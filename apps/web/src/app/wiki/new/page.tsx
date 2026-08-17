@@ -4,7 +4,7 @@ import { WikiEditor } from "@/components/wiki-editor";
 
 export default function NewWikiArticlePage() {
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <Link
         href="/wiki"
         className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700"
@@ -13,9 +13,7 @@ export default function NewWikiArticlePage() {
         Quay lại Wiki
       </Link>
       <div className="mb-6 mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
-          Đóng góp cộng đồng
-        </p>
+        <p className="app-section-label">Đóng góp cộng đồng</p>
         <h1 className="mt-1 text-2xl font-semibold text-slate-950 sm:text-3xl">
           Tạo bài viết mới
         </h1>

@@ -14,10 +14,10 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="grid min-h-64 place-items-center rounded-xl border border-dashed border-slate-300 bg-surface-muted/60 p-8 text-center">
+    <div className="grid min-h-52 place-items-center rounded-xl border border-dashed border-slate-300 bg-gradient-to-br from-white to-surface-soft p-6 text-center sm:p-8">
       <div className="max-w-sm">
         {icon ? (
-          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-white text-blue-700 shadow-sm ring-1 ring-slate-200">
+          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
             {icon}
           </div>
         ) : null}

@@ -1,0 +1,171 @@
+{
+  "input": "/Users/macm1/Project/spechub/.codex-work/graduation-report/output/Bao_cao_do_an_tot_nghiep_Spechub_hoan_thien.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 75863,
+    "Courier New": 490
+  },
+  "direct_run_formatting_runs": 1972,
+  "direct_paragraph_formatting_paragraphs": 1797,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 2,
+      "text": "TR\u01af\u1edcNG \u0110\u1ea0I H\u1eccC PHENIKAA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 3,
+      "text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 4,
+      "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+      "style": "Normal"
+    },
+    {
+      "para_index": 5,
+      "text": "X\u00c2Y D\u1ef0NG N\u1ec0N T\u1ea2NG SPECHUB \u2013\nTRA C\u1ee8U, SO S\u00c1NH V\u00c0 NGHI\u00caN C\u1ee8U\nTHI\u1ebeT B\u1eca TH\u00d4NG MINH",
+      "style": "Normal"
+    },
+    {
+      "para_index": 6,
+      "text": "H\u00c0 N\u1ed8I \u2013 2026",
+      "style": "Normal"
+    },
+    {
+      "para_index": 9,
+      "text": "TR\u01af\u1edcNG \u0110\u1ea0I H\u1eccC PHENIKAA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 10,
+      "text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 11,
+      "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+      "style": "Normal"
+    },
+    {
+      "para_index": 12,
+      "text": "X\u00c2Y D\u1ef0NG N\u1ec0N T\u1ea2NG SPECHUB \u2013\nTRA C\u1ee8U, SO S\u00c1NH V\u00c0 NGHI\u00caN C\u1ee8U\nTHI\u1ebeT B\u1eca TH\u00d4NG MINH",
+      "style": "Normal"
+    },
+    {
+      "para_index": 13,
+      "text": "H\u00c0 N\u1ed8I \u2013 2026",
+      "style": "Normal"
+    },
+    {
+      "para_index": 32,
+      "text": "T\u00d3M T\u1eaeT\ti",
+      "style": "Normal"
+    },
+    {
+      "para_index": 33,
+      "text": "L\u1edcI CAM \u0110OAN\tii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 34,
+      "text": "L\u1edcI C\u1ea2M \u01a0N\tiii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 35,
+      "text": "DANH M\u1ee4C H\u00ccNH \u1ea2NH\tvi",
+      "style": "Normal"
+    },
+    {
+      "para_index": 36,
+      "text": "DANH M\u1ee4C B\u1ea2NG BI\u1ec2U\tviii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 37,
+      "text": "DANH M\u1ee4C T\u1eea VI\u1ebeT T\u1eaeT\tx",
+      "style": "Normal"
+    },
+    {
+      "para_index": 38,
+      "text": "M\u1ede \u0110\u1ea6U\t1",
+      "style": "Normal"
+    },
+    {
+      "para_index": 45,
+      "text": "CH\u01af\u01a0NG 1. T\u1ed4NG QUAN V\u1ec0 \u0110\u1ec0 T\u00c0I\t3",
+      "style": "Normal"
+    },
+    {
+      "para_index": 54,
+      "text": "CH\u01af\u01a0NG 2. C\u01a0 S\u1ede L\u00dd THUY\u1ebeT V\u00c0 C\u00d4NG NGH\u1ec6\t9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 67,
+      "text": "CH\u01af\u01a0NG 3. PH\u00c2N T\u00cdCH V\u00c0 THI\u1ebeT K\u1ebe H\u1ec6 TH\u1ed0NG\t18",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "text": "TR\u01af\u1edcNG \u0110\u1ea0I H\u1eccC PHENIKAA",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "text": "X\u00c2Y D\u1ef0NG N\u1ec0N T\u1ea2NG SPECHUB \u2013\nTRA C\u1ee8U, SO S\u00c1NH V\u00c0 NGHI\u00caN C\u1ee8U\nTHI\u1ebeT B\u1eca TH\u00d4NG MINH",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 2,
+        "run_text": "TR\u01af\u1edcNG \u0110\u1ea0I H\u1eccC PHENIKAA",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "run_text": "KHOA C\u00d4NG NGH\u1ec6 TH\u00d4NG TIN",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "run_text": "X\u00c2Y D\u1ef0NG N\u1ec0N T\u1ea2NG SPECHUB \u2013\nTRA C\u1ee8U, SO S\u00c1NH V\u00c0 NGHI\u00caN C\u1ee8U\nTHI\u1ebeT B\u1eca TH\u00d4NG MINH",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "H\u00c0 N\u1ed8I \u2013 2026",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

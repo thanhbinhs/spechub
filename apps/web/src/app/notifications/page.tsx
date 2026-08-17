@@ -35,20 +35,13 @@ export default function NotificationsPage() {
 
   if (isLoading) return <LoadingPanel label="Đang tải thông báo" />;
   if (!user) {
-    return (
-      <AuthRequired
-        title="Đăng nhập để xem thông báo"
-        description="Thông báo được tạo từ cảnh báo giá và các sự kiện đăng ký gói dịch vụ."
-      />
-    );
+    return <AuthRequired title="Đăng nhập để xem thông báo" />;
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <PageHeader
-        eyebrow="Thông báo"
-        title="Trung tâm thông báo"
-        description="Thông báo trong ứng dụng về cảnh báo giá và sự kiện tài khoản."
+        title="Thông báo"
         action={
           <button
             onClick={() => markAll.mutate()}
@@ -60,7 +53,7 @@ export default function NotificationsPage() {
         }
       />
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="app-panel overflow-hidden">
         {notifications.isLoading ? (
           <LoadingPanel label="Đang tải thông báo" />
         ) : null}
@@ -102,11 +95,7 @@ export default function NotificationsPage() {
           </div>
         ) : !notifications.isLoading ? (
           <div className="p-5">
-            <EmptyState
-              icon={<Bell size={20} />}
-              title="Chưa có thông báo"
-              description="Các cảnh báo giá được kích hoạt sẽ xuất hiện ở đây."
-            />
+            <EmptyState icon={<Bell size={20} />} title="Chưa có thông báo" />
           </div>
         ) : null}
       </section>
@@ -114,19 +103,12 @@ export default function NotificationsPage() {
   );
 }
 
-function AuthRequired({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function AuthRequired({ title }: { title: string }) {
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <EmptyState
         icon={<UserRound size={20} />}
         title={title}
-        description={description}
         action={
           <Link
             href="/login"

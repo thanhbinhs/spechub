@@ -8,6 +8,7 @@ import {
 } from "../../common/dto/pagination.dto";
 import { PrismaService } from "../../prisma/prisma.service";
 import { QuerySearchDto } from "./dto/query-search.dto";
+import { DEVICE_SCORECARD_SELECT } from "../device-variants/device-variant-component-select";
 
 const SEARCH_MODEL_SELECT = {
   id: true,
@@ -55,12 +56,28 @@ const SEARCH_MODEL_SELECT = {
       color_name: true,
       color_hex: true,
       launch_price: true,
+      is_default: true,
       currency: {
         select: {
           code: true,
           symbol: true,
           decimal_digits: true,
         },
+      },
+      variant_module_scores: {
+        select: {
+          module_kind: true,
+          module_id: true,
+          score: true,
+          score_source: true,
+          score_version: true,
+        },
+        orderBy: [{ module_kind: "asc" as const }],
+      },
+      variant_scorecards: {
+        select: DEVICE_SCORECARD_SELECT,
+        orderBy: [{ calculated_at: "desc" as const }],
+        take: 1,
       },
     },
     orderBy: [
@@ -251,6 +268,51 @@ export class SearchService {
             product_family: {
               brand_org: {
                 name: { contains: q, mode: "insensitive" },
+              },
+            },
+          },
+          {
+            device_variants: {
+              some: {
+                deleted_at: null,
+                OR: [
+                  {
+                    variant_chipsets: {
+                      some: {
+                        chipset: {
+                          deleted_at: null,
+                          OR: [
+                            { name: { contains: q, mode: "insensitive" } },
+                            {
+                              model_code: {
+                                contains: q,
+                                mode: "insensitive",
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    variant_cpus: {
+                      some: {
+                        cpu: {
+                          name: { contains: q, mode: "insensitive" },
+                        },
+                      },
+                    },
+                  },
+                  {
+                    variant_gpus: {
+                      some: {
+                        gpu: {
+                          name: { contains: q, mode: "insensitive" },
+                        },
+                      },
+                    },
+                  },
+                ],
               },
             },
           },

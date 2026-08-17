@@ -54,22 +54,22 @@ export class HardwareCatalogController {
     return this.hardwareCatalogService.listOperatingSystems(query);
   }
 
-  @Get("wireless-standards")
-  @ApiOperation({ summary: "List wireless standards" })
-  listWirelessStandards(@Query() query: HardwareCatalogQueryDto) {
-    return this.hardwareCatalogService.listWirelessStandards(query);
+  @Get("operating-system-versions")
+  @ApiOperation({ summary: "List concrete operating system versions" })
+  listOperatingSystemVersions(@Query() query: HardwareCatalogQueryDto) {
+    return this.hardwareCatalogService.listOperatingSystemVersions(query);
   }
 
-  @Get("port-standards")
-  @ApiOperation({ summary: "List port standards" })
-  listPortStandards(@Query() query: HardwareCatalogQueryDto) {
-    return this.hardwareCatalogService.listPortStandards(query);
+  @Get("os-ui-layers")
+  @ApiOperation({ summary: "List operating system UI layers" })
+  listOsUiLayers(@Query() query: HardwareCatalogQueryDto) {
+    return this.hardwareCatalogService.listOsUiLayers(query);
   }
 
-  @Get("sensors")
-  @ApiOperation({ summary: "List hardware sensor modules" })
-  listSensors(@Query() query: HardwareCatalogQueryDto) {
-    return this.hardwareCatalogService.listSensors(query);
+  @Get("os-ui-layer-versions")
+  @ApiOperation({ summary: "List operating system UI layer versions" })
+  listOsUiLayerVersions(@Query() query: HardwareCatalogQueryDto) {
+    return this.hardwareCatalogService.listOsUiLayerVersions(query);
   }
 
   @Get(":kind/:slug")

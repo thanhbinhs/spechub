@@ -1,2451 +1,1213 @@
-# 📘 SpecHub — Project Architecture & Documentation
+# ĐẶC TẢ KỸ THUẬT TỔNG THỂ NỀN TẢNG SPECHUB
 
-> **Tài liệu thiết kế chi tiết** toàn bộ dự án SpecHub.
-> Tập trung sâu vào **cấu trúc dự án**, **chi tiết từng file**, **mối quan hệ giữa các thành phần**.
+## Thông tin tài liệu
 
-**Version:** 3.5
-**Status:** Phase 5 hardening complete in local code: Wiki, crawler intake, B2B API access, email outbox and observability
-**Audience:** Developers, technical reviewers, future maintainers
+| Thuộc tính | Giá trị |
+| --- | --- |
+| Tên hệ thống | Spechub |
+| Loại tài liệu | Đặc tả yêu cầu, kiến trúc, dữ liệu và vận hành |
+| Phiên bản tài liệu | 3.0 |
+| Ngày rà soát | 05/08/2026 |
+| Phạm vi rà soát | Toàn bộ mã nguồn trong monorepo `spechub` ở trạng thái hiện tại |
+| Nguồn sự thật | Mã nguồn, `package.json`, cấu hình Turborepo, các bộ điều khiển NestJS, tuyến Next.js, lược đồ và migration Prisma, kiểm thử tự động |
+| Trạng thái | Đã đối chiếu bằng phân tích tĩnh, biên dịch, kiểm tra kiểu, kiểm tra quy tắc mã và kiểm thử tự động |
 
----
+## Lịch sử thay đổi
 
-## 📑 Mục lục
+| Phiên bản | Ngày | Nội dung |
+| --- | --- | --- |
+| 3.0 | 05/08/2026 | Viết lại toàn bộ tài liệu theo trạng thái mã nguồn hiện hành; bổ sung Catalog Studio, hệ thống điểm, API B2B, Wiki, AI/RAG, thương mại, tác vụ nền và kết quả kiểm chứng |
 
-1. [Giới thiệu dự án](#1-giới-thiệu-dự-án)
-   - [MVP review sau audit](#15-mvp-review-sau-audit-2026-06-16)
-2. [Môi trường dự án](#2-môi-trường-dự-án)
-3. [Cấu trúc dự án tổng thể](#3-cấu-trúc-dự-án-tổng-thể)
-4. [Chi tiết từng thư mục và file](#4-chi-tiết-từng-thư-mục-và-file)
-   - 4.1 [Apps](#41-apps---deployable-applications)
-     - [apps/api](#411-appsapi---backend-nestjs)
-     - [apps/web](#412-appsweb---frontend-nextjs)
-     - [Admin dashboard surface](#413-admin-dashboard)
-     - [apps/ai-service prototype](#414-appsai-service---ai-microservice-prototype)
-     - [Data ingestion / crawler workflow](#415-data-ingestion--crawler-workflow)
-     - [apps/worker](#416-appsworker---background-jobs)
-   - 4.2 [Packages](#42-packages---shared-libraries)
-   - 4.3 [Infra & Docs](#43-infra--docs)
-   - 4.4 [Root files](#44-root-configuration-files)
-5. [Sơ đồ quan hệ giữa các thành phần](#5-sơ-đồ-quan-hệ-giữa-các-thành-phần)
-6. [Database schema relationships](#6-database-schema-relationships)
-7. [Module dependencies](#7-module-dependencies)
-8. [Roadmap sau MVP](#8-roadmap-sau-mvp)
-9. [Naming conventions](#9-naming-conventions)
-10. [Quick reference](#10-quick-reference)
+## Mục lục
 
----
-
-## 1. Giới thiệu dự án
-
-### 1.1 SpecHub là gì?
-
-**SpecHub** là một platform thông tin và research về thiết bị thông minh thế hệ mới. Khác với các website spec truyền thống chỉ hiển thị thông số kỹ thuật, SpecHub kết hợp:
-
-- **🧠 AI Research Engine** — Trả lời câu hỏi natural language về thiết bị, có dẫn nguồn
-- **🤖 Auto Data Ingestion** — Crawler tự động + LLM extractor, không cần nhập thủ công
-- **🛒 E-commerce hybrid** — Affiliate + subscription + B2B API
-- **📚 Wiki collaborative** — Cộng đồng đóng góp, có versioning + citations
-- **📱 Multi-platform** — Web (Next.js), Mobile (Expo), Admin dashboard
-
-### 1.2 Vấn đề SpecHub giải quyết
-
-| Vấn đề hiện tại                              | Giải pháp SpecHub                        |
-| -------------------------------------------- | ---------------------------------------- |
-| GSMArena chỉ liệt kê spec, không có ngữ cảnh | AI trả lời câu hỏi cụ thể với dẫn nguồn  |
-| Data nhập thủ công, cập nhật chậm            | Crawler + LLM extractor tự động          |
-| Không có so sánh thông minh                  | AI phân tích pros/cons giữa các thiết bị |
-| Không có price tracking                      | Affiliate + price history + alerts       |
-| Không có API cho B2B                         | RESTful + GraphQL API có rate limit      |
-
-### 1.3 Đối tượng người dùng
-
-| Persona                    | Use case                                    |
-| -------------------------- | ------------------------------------------- |
-| **Người mua hàng cá nhân** | So sánh thiết bị, theo dõi giá, đọc reviews |
-| **Reviewers & creators**   | Research data, dẫn nguồn, embed widget      |
-| **Retailers**              | Lấy spec data qua B2B API                   |
-| **Developers**             | Embed compare widget, dùng API              |
-| **Power users**            | Tìm hiểu sâu (chipset, sensor, benchmark)   |
-
-### 1.4 Tính năng chính
-
-#### Phase 1 — MVP Core
-
-- ✅ Catalog: Browse devices theo brand/category
-- ✅ Detail pages: Full spec, gallery, variants
-- ✅ Compare: So sánh 2-4 thiết bị
-- ✅ Search: Keyword + filter, database fallback + Meilisearch optional
-- ✅ Authentication: short-lived JWT + web auto-refresh + Redis-backed revocable sessions
-
-#### Phase 2 — AI & Data
-
-- ✅ RAG search engine với citations/context chunks
-- ✅ Provider layer cho local/OpenAI/Anthropic answer synthesis
-- ✅ Embedding pipeline cho catalog + reviewed raw pages
-- ✅ Data ingestion/review API cho crawler sources/raw pages
-- ✅ Citation source/citation workflow API
-- ✅ Wiki articles, revisions, moderation/publish workflow và citation links
-- 🔄 Extractor chuyên sâu theo từng website vẫn là bước production hardening
-
-#### Phase 3 — Commerce & Engagement
-
-- ✅ Affiliate links + click tracking
-- ✅ Price history + scheduled worker + manual alert checks
-- ✅ Wishlist + favorites
-- ✅ In-app notifications
-- ✅ Subscription plans + manual assignment MVP
-- ✅ Resend email uses a durable outbox; browser push remains an external-provider workstream
-
-#### Phase 4 — Operations & Scale
-
-- ✅ Role-aware `/admin` workspace in `apps/web`: users, catalog, affiliates, subscriptions, audit logs, sources and moderation queue
-- ✅ Stripe Checkout via REST API, raw-body signature verification, idempotent webhook event ledger and billing audit log
-- ✅ Separate `apps/worker` process for atomic scheduled price-alert checks, sharing `@spechub/alerts-core` with the API
-- ✅ Installable PWA shell, offline fallback and mobile safe-area navigation
-- ✅ B2B API keys: one-time secret, hashed persistence, `catalog:read` scope, rate limit và quota theo tháng
-- ✅ Liveness/readiness/metrics, `X-Request-ID` and structured request logs
-- ⏳ VNPay, browser push delivery and a hosted error/analytics provider remain external-provider activation work
-
-### 1.5 MVP review sau audit 2026-06-16
-
-#### Kết luận nhanh
-
-SpecHub hiện có hình dạng sản phẩm end-to-end ở local: monorepo Turborepo, API NestJS, web Next.js, Prisma/PostgreSQL, catalog phủ đủ nhóm thiết bị, search/compare/auth, AI hỏi đáp, commerce/engagement, Wiki, admin operations, PWA shell, worker price-alert/crawler/email, B2B catalog API và probes vận hành. Phần còn lại là provider activation hoặc chuyên môn theo nguồn: browser push, VNPay, hosted error/product analytics và extractor schema chuyên sâu cho từng website crawl.
-
-Điểm cần chỉnh lớn nhất không nằm ở code chạy được, mà nằm ở **độ lệch giữa tài liệu mục tiêu và repo hiện tại**. Tài liệu cũ mô tả cả admin/crawler/workers/docs/infra như đã có, trong khi repo MVP thực tế mới có `apps/api`, `apps/web`, `apps/ai-service` và các shared packages. Vì vậy từ bản 3.1 này, tài liệu phân biệt rõ:
-
-- **Active MVP surface:** đang tồn tại và có runtime/code thực tế.
-- **Scaffolded surface:** có file/folder nhưng chưa có logic, chưa được register.
-- **Planned surface:** thuộc roadmap, chưa có trong repo.
-
-#### Ưu điểm
-
-| Nhóm         | Đánh giá                                                                                                                                     |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monorepo     | `apps/*` và `packages/*` rõ ràng, phù hợp để scale web/api/worker sau MVP.                                                                   |
-| Backend      | NestJS module structure sạch, có global guards, validation pipe, Swagger, throttling, Prisma/Redis modules.                                  |
-| Domain model | Prisma schema chi tiết, có device hierarchy, component composition, AI/search/commerce/engagement tables.                                    |
-| MVP features | API đã có auth, users, organizations, categories, product families, device models, variants, chipsets, display/battery/camera, search và AI. |
-| Frontend     | Web app đã có homepage, catalog, detail, compare, search, AI, login/register/dashboard và API client shared.                                 |
-| Testing      | `pnpm --filter @spechub/api test` pass: 21 suites, 76 tests trong `@spechub/api`.                                                            |
-| AI MVP       | Có local embedding/RAG fallback trong `@spechub/ai-core` + `apps/api/src/modules/ai`, không phụ thuộc provider trả phí để demo.              |
-
-#### Nhược điểm / nợ kỹ thuật
-
-| Mức độ | Vấn đề                                                                                                                                                    | Tác động                                           | Khuyến nghị                                                                               |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Done   | `packages/database/tsconfig.json` đã được bổ sung, lỗi `@spechub/config/typescript/base` và type-check database đã hết.                                   | Health check toàn monorepo ổn định hơn.            | Duy trì shared TypeScript config cho package mới.                                         |
-| Done   | `.env.example`, `turbo.json`, API và web đã dùng chung nhóm env `MEILI_*`, `FRONTEND_URL`, `ADMIN_URL`, `NEXT_PUBLIC_SPECHUB_API_URL`.                    | Người setup mới có template env nhất quán hơn.     | Duy trì quy tắc: thêm env mới thì cập nhật `.env.example`, `turbo.json` và docs cùng lúc. |
-| Done   | `apps/api/src/modules/affiliate`, `alerts`, `notifications`, `subscriptions`, `wishlists` đã active trong `AppModule` và có service/controller/test thật. | Commerce/engagement không còn là skeleton giả.     | Tiếp tục giữ nguyên tắc: chỉ register module khi có logic/test thật.                      |
-| Done   | `wiki` đã active: article public, revision history, contributor proposal, editor publish, soft archive và citation links.                                | Knowledge base có workflow/versioning thật.        | Duy trì review trước publish và không render HTML không tin cậy.                          |
-| Medium | `@spechub/config` đã có đủ file export cho TypeScript, ESLint và Tailwind base config.                                                                    | Cần bắt đầu dùng nhất quán ở app/package mới.      | Khi tạo package mới, ưu tiên extend/import shared config thay vì copy config local.       |
-| Low    | `@spechub/ui` và `@spechub/analytics` đã có typed exports tối thiểu nhưng chưa có consumer production.                                                    | Shared layer vẫn còn mỏng ở UI/analytics.          | Chỉ mở rộng khi có app thứ hai hoặc tracking provider thật.                               |
-| Medium | `apps/ai-service` hiện là CLI/prototype tạo local embedding, chưa phải NestJS microservice như tài liệu mục tiêu.                                         | Kiến trúc AI-service chưa deploy độc lập.          | Giữ AI trong API cho đến khi cần scale; khi tách thì tạo contract HTTP/queue rõ ràng.     |
-| Low    | `apps/web/README.md` trước audit vẫn là README mặc định của Next.js.                                                                                      | Người mới không biết cách chạy web trong monorepo. | Đã cập nhật README web trong cùng đợt review này.                                         |
-
-#### Đề xuất cấu trúc sau MVP
-
-1. Giữ monorepo hiện tại, nhưng gắn nhãn rõ module/package theo trạng thái: `active`, `scaffolded`, `planned`.
-2. Chưa tạo thêm `apps/crawler` hoặc tách `apps/admin` riêng cho đến khi requirements/deployment diverge; `/admin` và `apps/worker` hiện đã có logic thật trong repo.
-3. Ưu tiên hoàn thiện shared packages đang được dùng thật: `@spechub/api-client`, `@spechub/types`, `@spechub/ai-core`, `@spechub/database`.
-4. Với package chưa có logic (`ui`, `auth`, `utils`, `analytics`), chọn một trong hai hướng: triển khai ngay các helper/component dùng chung hoặc xóa khỏi MVP scope.
-5. Tách tài liệu chi tiết hơn ở phase tiếp theo: giữ root `README.md` cho onboarding ngắn, chuyển ADR/runbook/API docs sang `docs/*`, và giữ file này làm master guide.
-
-#### Kết quả kiểm tra sau Phase 3
-
-```bash
-pnpm --filter @spechub/api test
-# Pass: @spechub/api, 21 test suites, 76 tests
-
-pnpm type-check
-# Pass toàn repo sau khi bổ sung shared tsconfig/database config
-```
+1. Giới thiệu
+2. Phạm vi và thuật ngữ
+3. Bên liên quan và tác nhân
+4. Yêu cầu chức năng
+5. Yêu cầu phi chức năng
+6. Kiến trúc tổng thể
+7. Tổ chức mã nguồn
+8. Đặc tả ứng dụng web
+9. Đặc tả API
+10. Đặc tả dữ liệu
+11. Các quy trình nghiệp vụ trọng yếu
+12. Trí tuệ nhân tạo và truy xuất tăng cường
+13. Bảo mật và kiểm soát truy cập
+14. Tác vụ nền và tích hợp ngoài
+15. Cấu hình và môi trường vận hành
+16. Kiểm thử, chất lượng và tiêu chí nghiệm thu
+17. Giới hạn hiện tại và định hướng phát triển
+18. Hướng dẫn vận hành và xử lý sự cố
+19. Phụ lục kiểm kê
 
 ---
 
-## 2. Môi trường dự án
+## 1. Giới thiệu
 
-### 2.1 Yêu cầu hệ thống
+### 1.1. Bối cảnh
 
-| Component   | Yêu cầu tối thiểu        | Khuyến nghị        |
-| ----------- | ------------------------ | ------------------ |
-| **OS**      | macOS 13+                | macOS 14+ (Sonoma) |
-| **RAM**     | 8GB                      | 16GB+              |
-| **Storage** | 20GB trống               | 50GB+ SSD          |
-| **CPU**     | Intel hoặc Apple Silicon | Apple Silicon M1+  |
+Thông tin về thiết bị thông minh thường phân tán giữa trang của nhà sản xuất, nhà bán lẻ, cơ sở dữ liệu đánh giá chuẩn và các bài phân tích kỹ thuật. Cùng một thiết bị có thể có nhiều tên thương mại, biến thể bộ nhớ, khu vực phát hành và cấu hình phần cứng. Dữ liệu từ các nguồn khác nhau cũng có thể sử dụng đơn vị, thuật ngữ hoặc mức chi tiết không đồng nhất.
 
-### 2.2 Tools cần cài
+Spechub được xây dựng như một nền tảng tri thức thiết bị có cấu trúc. Hệ thống kết hợp danh mục thiết bị, linh kiện, nguồn tham chiếu, nội dung Wiki, công cụ so sánh, hệ thống điểm, trợ lý AI có căn cứ dữ liệu, chức năng theo dõi giá và API dành cho đối tác.
 
-| Tool            | Version       | Lý do                              |
-| --------------- | ------------- | ---------------------------------- |
-| **Xcode CLI**   | latest        | Compile native modules             |
-| **Homebrew**    | 4.x           | Package manager macOS              |
-| **Node.js**     | `22.11.0` LTS | Stable đến 2026-10, không dùng v24 |
-| **pnpm**        | `9.15.0`      | Monorepo, tiết kiệm disk           |
-| **PostgreSQL**  | `16.x`        | Primary DB + pgvector extension    |
-| **Redis**       | `7.x`         | Cache + queue + pub/sub            |
-| **Meilisearch** | `1.11+`       | Search engine (optional cho MVP)   |
-| **VS Code**     | latest        | IDE recommended                    |
-| **Git**         | 2.40+         | Version control                    |
+### 1.2. Mục tiêu tổng quát
 
-### 2.3 Production tech stack
+Mục tiêu của hệ thống là cung cấp một nguồn dữ liệu thống nhất, có khả năng truy nguyên và có thể khai thác qua giao diện web hoặc API để hỗ trợ tra cứu, so sánh, nghiên cứu và ra quyết định về thiết bị thông minh.
 
-#### Runtime & Framework
+### 1.3. Mục tiêu cụ thể
 
-```yaml
-Runtime: Node.js 22 LTS
-Backend Framework: NestJS 11.0.6 + Fastify 5.2.0
-Frontend Framework: Next.js 15.1.3 + React 19
-Mobile: Expo 52 (planned)
-```
+- Chuẩn hóa quan hệ giữa tổ chức, dòng sản phẩm, mẫu thiết bị, biến thể và thành phần phần cứng.
+- Cung cấp tìm kiếm, lọc, xem chi tiết, so sánh và khuyến nghị theo nhu cầu.
+- Quản lý nguồn, trích dẫn, nội dung biên tập và lịch sử phiên bản.
+- Cung cấp trợ lý AI dựa trên dữ liệu danh mục và các nguồn đã được duyệt.
+- Hỗ trợ danh sách yêu thích, lịch sử giá, cảnh báo giá và thông báo.
+- Hỗ trợ tiếp thị liên kết, gói thuê bao, thanh toán và khóa API B2B.
+- Cung cấp quy trình biên tập Catalog Studio có bản nháp, kiểm tra dữ liệu, lịch sử và xuất bản có kiểm soát.
+- Bảo đảm khả năng kiểm thử, quan sát hệ thống và vận hành độc lập các tác vụ nền.
 
-#### Database & Storage
+### 1.4. Phạm vi hiện thực
 
-```yaml
-Primary DB: PostgreSQL 16
-  Extensions:
-    - pgvector (AI embeddings)
-    - pg_trgm (fuzzy search)
-    - unaccent (Vietnamese search)
-ORM: Prisma 6.1.0
-Cache: Redis 7
-Search: Meilisearch 1.11+
-Storage: Cloudflare R2 / AWS S3
-```
+Phạm vi mã nguồn được rà soát gồm:
 
-#### AI & ML
+- 4 ứng dụng có thể triển khai: web, API, tiến trình nền và dịch vụ chẩn đoán AI.
+- 11 gói dùng chung trong monorepo.
+- 22 tuyến giao diện Next.js.
+- 30 bộ điều khiển NestJS, trong đó 29 bộ điều khiển có hàm xử lý HTTP.
+- 186 điểm cuối API: 91 GET, 57 POST, 24 PATCH, 13 DELETE và 1 PUT.
+- 139 mô hình Prisma trong lược đồ PostgreSQL.
+- 36 bộ kiểm thử với 189 ca kiểm thử trong ứng dụng API và 4 ca kiểm thử trong gói cơ sở dữ liệu.
 
-```yaml
-LLM SDK: Vercel AI SDK 4.0
-LLM Providers:
-  - Anthropic Claude (primary)
-  - OpenAI GPT-4 (fallback)
-  - Google Gemini (experimental)
-Embeddings: Voyage AI (free tier)
-Reranker: Cohere (optional)
-```
+### 1.5. Ngoài phạm vi hiện tại
 
-#### Development Tools
-
-```yaml
-Package Manager: pnpm 9.15.0
-Monorepo: Turborepo 2.3
-TypeScript: 5.7.2 strict mode
-Linter: ESLint 9
-Formatter: Prettier 3.4
-Testing: Jest 29 + Vitest
-```
-
-#### External Services (Production)
-
-```yaml
-Hosting:
-  - Web: Vercel (free tier)
-  - API: Railway / Fly.io ($10-30/mo)
-  - DB: Neon / Supabase
-  - Redis: Upstash
-  - CDN: Cloudflare
-
-Monitoring:
-  - Errors: Sentry
-  - Uptime: Better Stack
-  - Analytics: PostHog
-  - Logs: Better Stack Logtail
-
-Email & Payments:
-  - Transactional: Resend
-  - Payments: Stripe + VNPay
-```
-
-### 2.4 Environment variables
-
-```bash
-# === DATABASE ===
-DATABASE_URL="postgresql://spechub:password@localhost:5432/spechub_dev"
-
-# === REDIS ===
-REDIS_URL="redis://localhost:6379"
-
-# === SEARCH ===
-MEILI_ENABLED="false"
-MEILI_HOST="http://localhost:7700"
-MEILI_API_KEY=""
-MEILI_DEVICE_MODELS_INDEX="device_models"
-
-# === AI/LLM ===
-ANTHROPIC_API_KEY="sk-ant-..."
-OPENAI_API_KEY="sk-..."
-VOYAGE_API_KEY="..."
-
-# === AUTH ===
-AUTH_SECRET="generate-with-openssl-rand-base64-32"
-JWT_SECRET="min-32-chars-secret"
-JWT_EXPIRES_IN="7d"
-JWT_REFRESH_EXPIRES_IN="30d"
-
-# === STORAGE ===
-S3_ACCESS_KEY=""
-S3_SECRET_KEY=""
-S3_BUCKET="spechub-prod"
-S3_REGION="auto"
-S3_ENDPOINT="..."
-
-# === EMAIL ===
-RESEND_API_KEY="re_..."
-EMAIL_FROM="noreply@spechub.io"
-
-# === PAYMENTS ===
-STRIPE_SECRET_KEY="sk_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-
-# === WORKERS / SCHEDULES ===
-PRICE_ALERTS_SCHEDULE_ENABLED="false"
-
-# === URLs ===
-FRONTEND_URL="http://localhost:3000"
-ADMIN_URL="http://localhost:3001"
-NEXT_PUBLIC_SPECHUB_API_URL="http://localhost:4000/api/v1"
-NEXT_PUBLIC_WEB_URL="http://localhost:3000"
-
-# === MONITORING ===
-SENTRY_DSN=""
-POSTHOG_KEY=""
-```
+- Cam kết hiệu năng ở quy mô lớn khi chưa có kết quả kiểm thử tải chuẩn hóa.
+- Cam kết độ phủ toàn bộ thiết bị trên thị trường.
+- Triển khai đa vùng, tự động chuyển vùng và diễn tập khôi phục thảm họa.
+- Kết luận định lượng về độ chính xác của AI khi chưa có bộ dữ liệu đánh giá chuẩn.
+- Thay thế tư vấn chuyên môn hoặc nguồn chính thức của nhà sản xuất.
 
 ---
 
-## 3. Cấu trúc dự án tổng thể
+## 2. Phạm vi và thuật ngữ
 
-### 3.1 Sơ đồ thư mục cấp 1
+### 2.1. Ranh giới hệ thống
 
+Spechub tiếp nhận dữ liệu từ nguồn được cấu hình, lưu dữ liệu thô vào vùng chờ duyệt, chuẩn hóa dữ liệu thành danh mục công khai, lập chỉ mục phục vụ tìm kiếm và AI, sau đó cung cấp dữ liệu qua web hoặc API. Hệ thống không cho phép tiến trình thu thập ghi trực tiếp vào danh mục công khai.
+
+### 2.2. Thuật ngữ
+
+| Thuật ngữ | Giải thích |
+| --- | --- |
+| Mẫu thiết bị | Sản phẩm ở cấp tên thương mại, thuộc một dòng sản phẩm và loại thiết bị |
+| Biến thể | Cấu hình cụ thể của mẫu thiết bị theo bộ nhớ, lưu trữ, khu vực hoặc mã hàng |
+| Mô-đun phần cứng | Thành phần tái sử dụng như chipset, CPU, GPU, màn hình, camera hoặc pin |
+| Catalog Studio | Công cụ quản trị dữ liệu theo bản nháp, kiểm tra và xuất bản |
+| Nguồn | Trang hoặc tài liệu gốc dùng để kiểm chứng thông tin |
+| Trích dẫn | Liên kết giữa một nguồn và một thực thể/nội dung cụ thể |
+| RAG | Cơ chế truy xuất dữ liệu liên quan trước khi sinh câu trả lời AI |
+| Hồ sơ điểm | Bộ trọng số và quy tắc chuẩn hóa dùng để tính điểm theo loại thiết bị |
+| Bảng điểm | Kết quả điểm của một biến thể theo một phiên bản hồ sơ điểm |
+| Người dùng ẩn danh | Khách chưa đăng nhập; dữ liệu nghiên cứu cục bộ chỉ lưu trên thiết bị |
+| Tiến trình nền | Ứng dụng độc lập thực thi tác vụ định kỳ hoặc tác vụ có thời gian xử lý dài |
+
+### 2.3. Nguyên tắc dữ liệu
+
+1. Dữ liệu dùng để lọc, so sánh hoặc tính điểm phải được lưu ở trường hoặc quan hệ có cấu trúc.
+2. Không sử dụng nội dung tiếp thị làm nguồn duy nhất cho thông số kỹ thuật.
+3. Trường chưa xác minh để trống; không điền số 0 hoặc giá trị ước đoán.
+4. Bài viết dài, tóm tắt thẻ và thông số kỹ thuật là ba lớp dữ liệu độc lập.
+5. Dữ liệu công khai phải đi qua quy trình kiểm tra hoặc xuất bản phù hợp.
+6. Tệp nhị phân nằm trong kho lưu trữ; cơ sở dữ liệu chỉ lưu khóa đối tượng và siêu dữ liệu.
+7. Kết quả điểm phải gắn với phiên bản hồ sơ để có thể tái lập.
+
+---
+
+## 3. Bên liên quan và tác nhân
+
+| Tác nhân | Mục tiêu | Quyền chính |
+| --- | --- | --- |
+| Khách truy cập | Tra cứu, đọc, so sánh và nhận khuyến nghị | Truy cập dữ liệu công khai; lưu vùng nghiên cứu trên trình duyệt |
+| Người dùng | Cá nhân hóa và theo dõi thiết bị | Hồ sơ, danh sách yêu thích, cảnh báo giá, thông báo, gói thuê bao, khóa API nếu đủ quyền lợi |
+| Biên tập viên | Cập nhật danh mục và nội dung | Tạo/sửa dữ liệu, bản nháp, nguồn và trích dẫn trong phạm vi được cấp |
+| Kiểm duyệt viên | Kiểm tra nội dung cộng đồng | Duyệt phiên bản Wiki và một số thay đổi được ủy quyền |
+| Quản trị viên | Quản trị toàn hệ thống | Người dùng, vai trò, catalog, hồ sơ điểm, gói dịch vụ, nhật ký, tích hợp và vận hành |
+| Đối tác B2B | Khai thác dữ liệu qua API | Truy cập theo khóa, phạm vi quyền, giới hạn tần suất và hạn mức |
+| Tiến trình nền | Thực hiện công việc định kỳ | Kiểm tra cảnh báo, thu thập nguồn và gửi thư thông báo |
+| Nhà cung cấp ngoài | Cung cấp khả năng chuyên biệt | Mô hình AI, thanh toán, thư điện tử, tìm kiếm, kho lưu trữ hoặc dữ liệu giá |
+
+---
+
+## 4. Yêu cầu chức năng
+
+### 4.1. Nhóm tài khoản và phiên đăng nhập
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-AUTH-01 | Đăng ký tài khoản bằng thư điện tử và mật khẩu | Dữ liệu được kiểm tra; mật khẩu được băm; tài khoản được tạo duy nhất |
+| FR-AUTH-02 | Đăng nhập | Trả mã truy cập ngắn hạn và tạo phiên làm mới có thể thu hồi |
+| FR-AUTH-03 | Làm mới phiên | Chỉ làm mới khi phiên còn hiệu lực trong Redis |
+| FR-AUTH-04 | Đăng xuất | Thu hồi phiên hiện hành ở phía máy chủ |
+| FR-AUTH-05 | Xem và cập nhật hồ sơ | Chỉ chủ tài khoản được cập nhật hồ sơ của mình |
+| FR-AUTH-06 | Đổi mật khẩu | Kiểm tra mật khẩu hiện tại và thu hồi phiên nếu chính sách yêu cầu |
+| FR-AUTH-07 | Quản trị người dùng | Quản trị viên có thể xem danh sách, đổi vai trò, khóa hoặc xóa theo quy tắc nghiệp vụ |
+
+### 4.2. Nhóm danh mục thiết bị
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-CAT-01 | Quản lý loại thiết bị | Có cấu trúc cây, slug duy nhất và thao tác quản trị được phân quyền |
+| FR-CAT-02 | Quản lý tổ chức/nhãn hiệu | Có tên, slug, mô tả và thông tin đã xác minh |
+| FR-CAT-03 | Quản lý dòng sản phẩm | Thuộc đúng tổ chức và loại thiết bị |
+| FR-CAT-04 | Quản lý mẫu thiết bị | Có tóm tắt, nội dung biên tập, trạng thái phát hành, alias và media |
+| FR-CAT-05 | Quản lý biến thể | Liên kết đúng mẫu thiết bị, mã hàng, giá và cấu hình phần cứng |
+| FR-CAT-06 | Xem chi tiết mẫu thiết bị | Hiển thị biến thể, mô-đun, điểm, benchmark, media, nguồn và dữ liệu thương mại khả dụng |
+| FR-CAT-07 | Tra cứu phần cứng | Cho phép liệt kê và xem chi tiết chipset, CPU, GPU, NPU, modem, màn hình, camera, pin, bộ nhớ, lưu trữ và phần mềm |
+| FR-CAT-08 | Quản lý quan hệ phần cứng | Một thành phần dùng chung chỉ có một bản ghi gốc và được liên kết qua bảng nối |
+| FR-CAT-09 | Quản lý media | Tải trực tiếp tới kho lưu trữ bằng URL ký ngắn hạn; cơ sở dữ liệu lưu trạng thái và siêu dữ liệu |
+
+### 4.3. Nhóm tìm kiếm, so sánh và vùng nghiên cứu
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-EXP-01 | Tìm kiếm toàn văn | Tìm theo tên, slug, alias và dữ liệu liên quan; hỗ trợ công cụ tìm kiếm tùy chọn |
+| FR-EXP-02 | Lọc và phân trang | Bộ lọc được phản ánh trên URL và kết quả có phân trang ổn định |
+| FR-EXP-03 | So sánh thiết bị | Hiển thị nhiều thiết bị trên cùng hệ thuộc tính và phân biệt dữ liệu thiếu với giá trị bằng không |
+| FR-EXP-04 | Vùng nghiên cứu ẩn danh | Lưu khay so sánh, thiết bị gần đây và truy vấn gần đây trên thiết bị của khách |
+| FR-EXP-05 | Chia sẻ so sánh | Tạo URL có thể tái lập danh sách thiết bị được chọn |
+| FR-EXP-06 | Khuyến nghị theo nhu cầu | Chuyển nhu cầu, ngân sách và ưu tiên thành danh sách gợi ý có giải thích |
+
+### 4.4. Nhóm AI và tri thức
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-AI-01 | Hỏi đáp theo danh mục | Câu trả lời chỉ sử dụng ngữ cảnh được truy xuất và công bố giới hạn |
+| FR-AI-02 | Trả lời theo luồng | Gửi sự kiện trạng thái, ngữ cảnh, nội dung và kết quả cuối qua NDJSON |
+| FR-AI-03 | Trích dẫn | Mọi khẳng định định lượng quan trọng phải có trích dẫn hợp lệ hoặc bị loại khỏi kết quả |
+| FR-AI-04 | Tìm kiếm ngữ nghĩa | Lập chỉ mục véc-tơ cho phạm vi dữ liệu được duyệt |
+| FR-AI-05 | Nghiên cứu phần cứng | Tổng hợp dữ liệu của một mô-đun phần cứng và các thiết bị liên quan |
+| FR-AI-06 | Xây dựng lại kho tri thức | Quản trị viên/biên tập viên có thể lập chỉ mục lại phạm vi đã phê duyệt |
+| FR-AI-07 | Phương án cục bộ | Hệ thống có thể hoạt động với bộ sinh câu trả lời và embedding cục bộ khi không cấu hình nhà cung cấp ngoài |
+
+### 4.5. Nhóm Wiki, nguồn và kiểm duyệt
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-WIKI-01 | Đọc bài Wiki công khai | Chỉ bài đã xuất bản được hiển thị cho khách |
+| FR-WIKI-02 | Tạo và sửa bài | Thay đổi tạo phiên bản mới, không ghi đè lịch sử |
+| FR-WIKI-03 | Duyệt phiên bản | Người có quyền có thể xuất bản hoặc từ chối với lý do |
+| FR-WIKI-04 | Quản lý trích dẫn | Nguồn và trích dẫn được lưu độc lập, có thể liên kết với nội dung |
+| FR-WIKI-05 | Quản lý bình luận | Bình luận gắn với bài/người dùng và tuân theo trạng thái kiểm duyệt |
+| FR-WIKI-06 | Thu thập dữ liệu | Nguồn được cấu hình; trang thô luôn vào trạng thái chờ duyệt |
+| FR-WIKI-07 | Hàng đợi kiểm duyệt | Biên tập viên xem, đánh giá và chuyển trạng thái trang thô trước khi sử dụng |
+
+### 4.6. Nhóm Catalog Studio và hệ thống điểm
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-STUDIO-01 | Tạo bản nháp | Bản nháp lưu dữ liệu từng bước và số phiên bản |
+| FR-STUDIO-02 | Lưu tự động có kiểm soát xung đột | Yêu cầu cập nhật phải gửi đúng revision; bản cũ bị từ chối |
+| FR-STUDIO-03 | Khôi phục lịch sử | Có thể xem và khôi phục phiên bản bản nháp trước đó |
+| FR-STUDIO-04 | Kiểm tra trước xuất bản | Trả danh sách lỗi trường, quan hệ, nguồn và độ phủ bắt buộc |
+| FR-STUDIO-05 | Xuất bản giao dịch | Tạo/cập nhật các thực thể liên quan trong một giao dịch dữ liệu |
+| FR-STUDIO-06 | Quản lý hồ sơ điểm | Hồ sơ gồm mô-đun, trọng số, chỉ số, hướng tốt/xấu và quy tắc chuẩn hóa |
+| FR-STUDIO-07 | Xuất bản hồ sơ điểm | Phiên bản đã xuất bản là bất biến; trọng số phải hợp lệ |
+| FR-STUDIO-08 | Tính bảng điểm | Kết quả lưu phiên bản hồ sơ, điểm mô-đun, điểm tổng và đầu vào đo được |
+
+### 4.7. Nhóm cá nhân hóa và thương mại
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-ENG-01 | Danh sách yêu thích | Người dùng tạo nhiều danh sách và quản lý thiết bị trong từng danh sách |
+| FR-ENG-02 | Đồng bộ vùng nghiên cứu | Người dùng đăng nhập có thể nhập dữ liệu cục bộ theo quy tắc không tạo bản ghi trùng |
+| FR-ENG-03 | Cảnh báo giá | Theo dõi biến thể, ngưỡng, tiền tệ và trạng thái kích hoạt |
+| FR-ENG-04 | Thông báo trong ứng dụng | Hiển thị danh sách, số chưa đọc, đánh dấu một hoặc toàn bộ là đã đọc |
+| FR-ENG-05 | Gửi thư thông báo | Ghi hàng đợi bền vững; tiến trình nền thử lại có kiểm soát |
+| FR-COM-01 | Quản lý đối tác liên kết | Lưu đối tác, thị trường, trạng thái và cấu hình cần thiết |
+| FR-COM-02 | Quản lý liên kết mua hàng | Kiểm tra liên kết, giá, tiền tệ, tồn kho và thời điểm đồng bộ |
+| FR-COM-03 | Theo dõi lượt nhấp | Ghi nhận sự kiện phục vụ thống kê mà không làm gián đoạn điều hướng |
+| FR-COM-04 | Lịch sử giá | Lưu thay đổi giá theo thời gian để đánh giá cảnh báo và xu hướng |
+| FR-BILL-01 | Gói thuê bao | Hiển thị gói công khai và cho quản trị viên quản lý gói |
+| FR-BILL-02 | Thanh toán | Tạo phiên thanh toán khi Stripe được cấu hình |
+| FR-BILL-03 | Webhook | Xác minh chữ ký, chống xử lý lặp và ghi nhật ký bền vững |
+| FR-BILL-04 | Quản lý thuê bao | Người dùng xem, hủy, tiếp tục hoặc thử lại thanh toán theo trạng thái |
+
+### 4.8. Nhóm API B2B và vận hành
+
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+| --- | --- | --- |
+| FR-B2B-01 | Tạo khóa API | Chỉ trả bí mật một lần; cơ sở dữ liệu chỉ lưu mã băm |
+| FR-B2B-02 | Luân chuyển và thu hồi | Khóa cũ mất hiệu lực khi bị thu hồi/luân chuyển |
+| FR-B2B-03 | Phạm vi và hạn mức | Kiểm tra scope, giới hạn mỗi phút và hạn mức tháng |
+| FR-B2B-04 | Thống kê sử dụng | Ghi nhận số lần gọi và kết quả theo khóa |
+| FR-OPS-01 | Kiểm tra trạng thái tiến trình | Điểm cuối `health/live` phản ánh tiến trình API |
+| FR-OPS-02 | Kiểm tra mức sẵn sàng | Điểm cuối `health/ready` kiểm tra PostgreSQL và Redis |
+| FR-OPS-03 | Chỉ số giám sát | Chỉ cung cấp khi có mã truy cập giám sát hợp lệ |
+| FR-OPS-04 | Mã định danh yêu cầu | Mỗi phản hồi có `X-Request-ID` để đối chiếu nhật ký |
+| FR-OPS-05 | Bảng điều khiển quản trị | Tổng hợp số liệu vận hành và dữ liệu quản trị theo quyền |
+
+---
+
+## 5. Yêu cầu phi chức năng
+
+### 5.1. An toàn thông tin
+
+- NFR-SEC-01: API từ chối thuộc tính DTO không được khai báo.
+- NFR-SEC-02: Các điểm cuối được bảo vệ mặc định bằng JWT; truy cập công khai phải được khai báo rõ.
+- NFR-SEC-03: Quyền đặc thù được kiểm tra bằng vai trò và kiểm tra nghiệp vụ ở lớp dịch vụ.
+- NFR-SEC-04: Mật khẩu được băm; khóa API chỉ lưu mã băm; bí mật không được ghi vào mã nguồn hoặc báo cáo.
+- NFR-SEC-05: CORS chỉ chấp nhận các nguồn giao diện đã cấu hình; Helmet được bật.
+- NFR-SEC-06: Webhook thanh toán phải xác minh chữ ký và cửa sổ thời gian.
+- NFR-SEC-07: Bộ thu thập phải chặn địa chỉ nội bộ, chuyển hướng khác nguồn, URL có thông tin đăng nhập, nội dung quá lớn và loại nội dung không cho phép.
+
+### 5.2. Tính đúng và toàn vẹn dữ liệu
+
+- NFR-DATA-01: Sử dụng khóa chính, khóa ngoại, chỉ mục và ràng buộc duy nhất phù hợp.
+- NFR-DATA-02: Migration chỉ được áp dụng sau khi rà soát; không đặt lại cơ sở dữ liệu có dữ liệu cần giữ.
+- NFR-DATA-03: Bản nháp sử dụng revision để phát hiện ghi đè đồng thời.
+- NFR-DATA-04: Webhook, gửi thư và tác vụ nền phải có tính lũy đẳng hoặc cơ chế chống xử lý lặp.
+- NFR-DATA-05: Trạng thái công khai, bản nháp và dữ liệu thô phải tách biệt.
+
+### 5.3. Hiệu năng và khả năng mở rộng
+
+- NFR-PERF-01: Danh sách lớn phải phân trang và sử dụng chỉ mục theo trường tìm kiếm/lọc.
+- NFR-PERF-02: Truy vấn so sánh phải tải dữ liệu theo lô, tránh truy vấn lặp theo từng phần tử.
+- NFR-PERF-03: Tác vụ dài hoặc định kỳ chạy ngoài luồng yêu cầu người dùng.
+- NFR-PERF-04: Có thể sử dụng Redis cho phiên và bộ nhớ đệm; Meilisearch là lựa chọn bổ sung cho tìm kiếm.
+- NFR-PERF-05: Chưa công bố ngưỡng độ trễ cho đến khi có kiểm thử tải tái lập.
+
+### 5.4. Khả dụng và khả năng phục hồi
+
+- NFR-AVL-01: Tách trạng thái tiến trình và mức sẵn sàng phụ thuộc.
+- NFR-AVL-02: Khi nhà cung cấp AI không sẵn sàng, hệ thống phải dùng phương án cục bộ hoặc trả lỗi có kiểm soát.
+- NFR-AVL-03: Khi gửi thư ngoài ứng dụng bị tắt, thông báo trong ứng dụng vẫn được lưu.
+- NFR-AVL-04: Tiến trình nền không được chạy chồng cùng một công việc trong cùng tiến trình.
+- NFR-AVL-05: Quy trình triển khai phải có sao lưu, khôi phục và phương án quay lui.
+
+### 5.5. Khả năng bảo trì
+
+- NFR-MNT-01: Mã nguồn tổ chức theo ứng dụng triển khai và gói dùng chung.
+- NFR-MNT-02: API phân mô-đun theo miền nghiệp vụ.
+- NFR-MNT-03: Tên tệp TypeScript sử dụng `kebab-case`; kiểu/lớp sử dụng `PascalCase`; biến/hàm sử dụng `camelCase`.
+- NFR-MNT-04: Thay đổi phải vượt qua kiểm tra quy tắc mã, kiểu dữ liệu, kiểm thử và biên dịch.
+- NFR-MNT-05: Đặc tả và báo cáo phải cập nhật khi số tuyến, điểm cuối hoặc mô hình dữ liệu thay đổi đáng kể.
+
+### 5.6. Trải nghiệm và khả năng tiếp cận
+
+- NFR-UX-01: Giao diện phải hoạt động trên màn hình máy tính và thiết bị di động.
+- NFR-UX-02: Trạng thái tải, rỗng, lỗi và ngoại tuyến phải được phân biệt.
+- NFR-UX-03: Điều khiển phải có nhãn; hình có mô tả thay thế; tương phản đủ để đọc.
+- NFR-UX-04: Dữ liệu thiếu không được hiển thị như giá trị bằng không.
+- NFR-UX-05: Kết quả AI và điểm số phải có giải thích, nguồn hoặc thông tin phương pháp.
+
+---
+
+## 6. Kiến trúc tổng thể
+
+### 6.1. Kiểu kiến trúc
+
+Spechub sử dụng monorepo và kiến trúc nguyên khối mô-đun cho API, kết hợp các tiến trình triển khai độc lập. API tập trung quy tắc nghiệp vụ; web tập trung trình bày; tiến trình nền đảm nhiệm công việc định kỳ; các gói dùng chung cung cấp kiểu dữ liệu, truy cập dữ liệu, thuật toán AI và chấm điểm.
+
+```mermaid
+flowchart TB
+    U[Trình duyệt/PWA] --> W[Next.js Web]
+    W -->|HTTPS /api/v1| A[NestJS + Fastify API]
+    P[Đối tác B2B] -->|X-API-Key| A
+    A --> DB[(PostgreSQL + pgvector)]
+    A --> R[(Redis)]
+    A -. tùy chọn .-> M[Meilisearch]
+    A -. tùy chọn .-> L[LLM/Embedding]
+    A -. tùy chọn .-> S[Storage]
+    A -. tùy chọn .-> T[Stripe]
+    J[Tiến trình nền] --> DB
+    J -. tùy chọn .-> E[Resend/Nguồn dữ liệu]
 ```
+
+### 6.2. Luồng yêu cầu HTTP
+
+1. Fastify tiếp nhận yêu cầu và gắn mã định danh.
+2. Helmet, CORS và bộ phân tích nội dung áp dụng cấu hình nền.
+3. Throttler kiểm tra tần suất.
+4. JWT guard bảo vệ mặc định, trừ điểm cuối khai báo công khai.
+5. Roles guard kiểm tra vai trò nếu điểm cuối yêu cầu.
+6. ValidationPipe chuyển đổi và kiểm tra DTO, từ chối thuộc tính lạ.
+7. Bộ điều khiển chuyển yêu cầu tới lớp dịch vụ.
+8. Lớp dịch vụ kiểm tra quyền sở hữu/trạng thái và truy cập Prisma, Redis hoặc dịch vụ ngoài.
+9. Bộ lọc lỗi toàn cục chuẩn hóa phản hồi và giữ mã định danh yêu cầu.
+
+### 6.3. Phụ thuộc triển khai
+
+| Thành phần | Bắt buộc | Vai trò |
+| --- | --- | --- |
+| PostgreSQL | Có | Dữ liệu quan hệ, chỉ mục mở rộng và véc-tơ |
+| Redis | Có đối với luồng đã xác thực | Phiên có thể thu hồi và dữ liệu tạm |
+| Meilisearch | Không | Tăng cường tìm kiếm danh mục |
+| Ollama/OpenAI/Anthropic | Không | Sinh câu trả lời AI theo cấu hình |
+| Kho lưu trữ S3 tương thích | Không trong phát triển | Media Catalog Studio; có phương án lưu cục bộ |
+| Stripe | Không | Thanh toán thuê bao |
+| Resend | Không | Gửi thư thông báo |
+| Dịch vụ giá thương mại | Không | Cầu nối tới API giá chính thức |
+
+---
+
+## 7. Tổ chức mã nguồn
+
+### 7.1. Cấu trúc cấp cao
+
+```text
 spechub/
-│
-├── 📂 apps/                    # Deployable/prototype applications hiện có
-│   ├── api/                    # Active - NestJS/Fastify main API
-│   ├── web/                    # Active - Next.js public web app
-│   ├── worker/                 # Active - scheduled price-alert worker
-│   └── ai-service/             # Prototype - CLI/local embedding service
-│
-├── 📂 packages/                # Shared libraries hiện có
-│   ├── database/               # Active - Prisma schema, migrations, generated client
-│   ├── api-client/             # Active - TypeScript API SDK dùng bởi web
-│   ├── ai-core/                # Active - local embedding/RAG helper
-│   ├── types/                  # Minimal - shared base types
-│   ├── config/                 # Partial - shared TypeScript configs
-│   ├── ui/                     # Placeholder - chưa có component thật
-│   ├── auth/                   # Placeholder - chưa có helper thật
-│   ├── utils/                  # Placeholder - chưa có utility thật
-│   └── analytics/              # Placeholder - chưa có tracking thật
-│
-└── 📄 Root config files
-    ├── package.json            # Root package
-    ├── pnpm-workspace.yaml     # Workspace config
-    ├── turbo.json              # Turborepo tasks
-    ├── .gitignore
-    ├── .npmrc
-    ├── .env.example
-    ├── pnpm-lock.yaml
-    └── spechub-v2-master-guide.md
-```
-
-**Planned còn lại:** `apps/crawler` riêng chỉ cần khi throughput crawl tăng, `infra/`, `docs/`, `.vscode/`, browser push, VNPay và hosted error/analytics. `/admin`, `.github/workflows/` và `apps/worker` đã là current architecture với logic thật.
-
-### 3.2 Quy ước phân chia
-
-| Folder       | Quy ước                                                               |
-| ------------ | --------------------------------------------------------------------- |
-| `apps/*`     | Deployable — có thể run, deploy độc lập                               |
-| `packages/*` | Library — chỉ là code, không deploy                                   |
-| `infra/*`    | Planned — infrastructure as code khi bắt đầu deploy production        |
-| `docs/*`     | Planned — ADR, API docs, runbooks khi tài liệu tách khỏi master guide |
-
-### 3.3 Workspace dependencies
-
-```yaml
-# pnpm-workspace.yaml
-packages:
-  - "apps/*"
-  - "packages/*"
-```
-
-Mỗi app/package có `package.json` riêng. Để dùng nhau:
-
-```json
-{
-  "dependencies": {
-    "@spechub/database": "workspace:*",
-    "@spechub/types": "workspace:*"
-  }
-}
-```
-
----
-
-## 4. Chi tiết từng thư mục và file
-
-### 4.1 Apps - Deployable applications
-
-#### 4.1.1 apps/api - Backend NestJS
-
-**Vai trò:** Main API gateway, xử lý authentication, CRUD, business logic.
-
-**Trạng thái hiện tại:** `AppModule` register auth/users/catalog/component/search/ai, data/citations, Wiki, commerce/engagement, B2B API keys/catalog và operational modules. Wiki không còn là scaffold; crawler intake chạy ở `apps/worker` và chỉ đưa raw page vào review queue.
-
-**Cấu trúc chi tiết:**
-
-```
-apps/api/
-├── 📂 src/
-│   │
-│   ├── 📂 common/                              # Shared utilities (Global)
-│   │   ├── 📂 decorators/
-│   │   │   ├── current-user.decorator.ts       # @CurrentUser() - Lấy user từ request
-│   │   │   ├── public.decorator.ts             # @Public() - Bypass JWT auth
-│   │   │   └── roles.decorator.ts              # @Roles('admin') - Role check
-│   │   ├── 📂 guards/
-│   │   │   ├── jwt-auth.guard.ts               # Verify JWT token
-│   │   │   └── roles.guard.ts                  # Check user role
-│   │   ├── 📂 interceptors/
-│   │   │   ├── transform.interceptor.ts        # Wrap response {data, meta}
-│   │   │   └── logging.interceptor.ts          # Log requests
-│   │   ├── 📂 filters/
-│   │   │   └── global-exception.filter.ts      # Catch & format errors
-│   │   ├── 📂 pipes/
-│   │   │   └── parse-uuid.pipe.ts              # Validate UUID params
-│   │   ├── 📂 dto/
-│   │   │   ├── pagination.dto.ts               # page, pageSize, sort
-│   │   │   ├── api-response.dto.ts             # Standard response shape
-│   │   │   └── id-param.dto.ts                 # Validate :id UUID
-│   │   ├── 📂 constants/
-│   │   │   └── index.ts                        # CACHE_TTL, PAGINATION, JWT_CONFIG
-│   │   ├── 📂 types/
-│   │   │   └── index.ts                        # AuthUser, UserRole, etc.
-│   │   └── common.module.ts                    # Global module export
-│   │
-│   ├── 📂 prisma/                              # Database service
-│   │   ├── prisma.service.ts                   # PrismaClient wrapper
-│   │   └── prisma.module.ts                    # Global PrismaModule
-│   │
-│   ├── 📂 redis/                               # Cache service
-│   │   ├── redis.service.ts                    # ioredis wrapper
-│   │   └── redis.module.ts                     # Global RedisModule
-│   │
-│   ├── 📂 health/                              # Health check
-│   │   └── health.controller.ts                # GET /health
-│   │
-│   ├── 📂 modules/                             # Feature modules (1 folder/module)
-│   │   │
-│   │   ├── 📂 auth/                            # Authentication
-│   │   │   ├── 📂 dto/
-│   │   │   │   ├── register.dto.ts             # POST /register body
-│   │   │   │   ├── login.dto.ts                # POST /login body
-│   │   │   │   ├── refresh-token.dto.ts        # POST /refresh body
-│   │   │   │   └── auth-response.dto.ts        # Swagger response
-│   │   │   ├── 📂 strategies/
-│   │   │   │   ├── jwt.strategy.ts             # Passport JWT verify
-│   │   │   │   └── local.strategy.ts           # Passport email/password
-│   │   │   ├── 📂 interfaces/
-│   │   │   │   └── jwt-payload.interface.ts    # Type-safe JWT
-│   │   │   ├── auth.controller.ts              # 5 endpoints (register, login, refresh, me, logout)
-│   │   │   ├── auth.service.ts                 # Business logic
-│   │   │   └── auth.module.ts                  # Module wiring
-│   │   │
-│   │   ├── 📂 users/                           # User management
-│   │   │   ├── users.service.ts                # CRUD users + bcrypt hash
-│   │   │   └── users.module.ts                 # Export UsersService
-│   │   │
-│   │   ├── 📂 organizations/                   # Brands, manufacturers
-│   │   │   ├── 📂 dto/
-│   │   │   │   ├── create-organization.dto.ts
-│   │   │   │   ├── update-organization.dto.ts
-│   │   │   │   ├── query-organizations.dto.ts
-│   │   │   │   └── organization-response.dto.ts
-│   │   │   ├── organizations.controller.ts     # 7 endpoints
-│   │   │   ├── organizations.service.ts        # Business logic
-│   │   │   └── organizations.module.ts
-│   │   │
-│   │   ├── 📂 device-categories/               # Phone, Tablet, Laptop...
-│   │   │   ├── dto/
-│   │   │   ├── device-categories.controller.ts
-│   │   │   ├── device-categories.service.ts
-│   │   │   └── device-categories.module.ts
-│   │   │
-│   │   ├── 📂 product-families/                # iPhone 16 Series, Galaxy S25...
-│   │   │   ├── dto/
-│   │   │   ├── product-families.controller.ts
-│   │   │   ├── product-families.service.ts
-│   │   │   └── product-families.module.ts
-│   │   │
-│   │   ├── 📂 device-models/                   # iPhone 16 Pro, Galaxy S25 Ultra...
-│   │   │   ├── dto/
-│   │   │   ├── device-models.controller.ts     # List, detail, filter
-│   │   │   ├── device-models.service.ts
-│   │   │   └── device-models.module.ts
-│   │   │
-│   │   ├── 📂 device-variants/                 # 256GB Natural Titanium...
-│   │   │   ├── dto/
-│   │   │   ├── device-variants.controller.ts   # Detail, compare
-│   │   │   ├── device-variants.service.ts
-│   │   │   └── device-variants.module.ts
-│   │   │
-│   │   ├── 📂 chipsets/                        # A18 Pro, Snapdragon 8 Elite...
-│   │   │   ├── dto/
-│   │   │   ├── chipsets.controller.ts
-│   │   │   ├── chipsets.service.ts
-│   │   │   └── chipsets.module.ts
-│   │   │
-│   │   ├── 📂 search/                          # Meilisearch integration
-│   │   │   ├── dto/
-│   │   │   ├── search.controller.ts            # GET /search?q=...
-│   │   │   ├── search.service.ts               # Sync DB → Meilisearch
-│   │   │   └── search.module.ts
-│   │   │
-│   │   ├── 📂 ai/                              # AI Research API
-│   │   │   ├── dto/
-│   │   │   ├── ai.controller.ts                # POST /ai/ask
-│   │   │   ├── ai.service.ts                   # RAG pipeline
-│   │   │   └── ai.module.ts
-│   │   │
-│   │   ├── 📂 wishlists/                       # User wishlists
-│   │   │   ├── dto/
-│   │   │   ├── wishlists.controller.ts
-│   │   │   ├── wishlists.service.ts
-│   │   │   └── wishlists.module.ts
-│   │   │
-│   │   ├── 📂 alerts/                          # Price alerts
-│   │   │   ├── dto/
-│   │   │   ├── alerts.controller.ts
-│   │   │   ├── alerts.service.ts
-│   │   │   └── alerts.module.ts
-│   │   │
-│   │   ├── 📂 affiliate/                       # Affiliate links + clicks
-│   │   │   ├── dto/
-│   │   │   ├── affiliate.controller.ts
-│   │   │   ├── affiliate.service.ts
-│   │   │   └── affiliate.module.ts
-│   │   │
-│   │   ├── 📂 subscriptions/                   # Stripe subscriptions
-│   │   │   ├── dto/
-│   │   │   ├── subscriptions.controller.ts
-│   │   │   ├── subscriptions.service.ts
-│   │   │   ├── webhooks.controller.ts          # Stripe webhooks
-│   │   │   └── subscriptions.module.ts
-│   │   │
-│   │   ├── 📂 notifications/                   # In-app, email, push
-│   │   │   ├── dto/
-│   │   │   ├── notifications.controller.ts
-│   │   │   ├── notifications.service.ts
-│   │   │   └── notifications.module.ts
-│   │   │
-│   │   └── 📂 wiki/                            # Wiki articles
-│   │       ├── dto/
-│   │       ├── wiki.controller.ts
-│   │       ├── wiki.service.ts
-│   │       └── wiki.module.ts
-│   │
-│   ├── app.module.ts                           # Root module - register all
-│   ├── app.controller.ts                       # Root controller (deprecated, dùng health)
-│   ├── app.service.ts                          # Root service (deprecated)
-│   └── main.ts                                 # Entry point - Fastify + Swagger
-│
-├── 📂 dist/                                    # Build output (gitignored)
-├── 📂 node_modules/                            # Dependencies (gitignored)
-├── 📂 test/                                    # E2E tests
-│   ├── app.e2e-spec.ts
-│   └── jest-e2e.json
-│
-├── 📄 .env                                     # Local env (gitignored)
-├── 📄 .env.example                             # Template env (committed)
-├── 📄 .eslintrc.js                             # ESLint config
-├── 📄 .prettierrc                              # Prettier config
-├── 📄 nest-cli.json                            # NestJS CLI config
-├── 📄 package.json                             # Dependencies + scripts
-├── 📄 tsconfig.json                            # TypeScript config (extends shared)
-├── 📄 tsconfig.build.json                      # Build-specific TS
-└── 📄 README.md
-```
-
-**File quan trọng và mục đích:**
-
-| File                           | Mục đích                                  | Khi nào sửa                |
-| ------------------------------ | ----------------------------------------- | -------------------------- |
-| `src/main.ts`                  | Entry point, setup Fastify, CORS, Swagger | Khi đổi global middleware  |
-| `src/app.module.ts`            | Root module, register tất cả modules      | Khi thêm module mới        |
-| `src/common/common.module.ts`  | Global filters, interceptors              | Hiếm khi                   |
-| `src/prisma/prisma.service.ts` | Wrapper PrismaClient                      | Hiếm khi                   |
-| `src/redis/redis.service.ts`   | Wrapper ioredis                           | Khi đổi connection options |
-| `src/modules/*/`               | Feature modules                           | Mỗi feature mới            |
-| `.env`                         | Local config                              | Mỗi machine                |
-| `nest-cli.json`                | Build config                              | Khi đổi build behavior     |
-| `tsconfig.json`                | TypeScript per-project                    | Khi cần path aliases       |
-
-**Module pattern (mỗi feature):**
-
-```
-modules/<feature-name>/
-├── dto/                          # Data Transfer Objects
-│   ├── create-<name>.dto.ts      # POST body validation
-│   ├── update-<name>.dto.ts      # PATCH body validation
-│   ├── query-<name>.dto.ts       # GET query params
-│   └── <name>-response.dto.ts    # Response shape (Swagger)
-├── <name>.controller.ts          # HTTP endpoints
-├── <name>.service.ts             # Business logic
-└── <name>.module.ts              # Module config
-```
-
-**Endpoints conventions:**
-
-| Method   | URL                     | Purpose             | Auth            |
-| -------- | ----------------------- | ------------------- | --------------- |
-| `GET`    | `/<resource>`           | List với pagination | Public hoặc JWT |
-| `GET`    | `/<resource>/:slug`     | Detail by slug      | Public          |
-| `GET`    | `/<resource>/:id/by-id` | Detail by UUID      | Public          |
-| `POST`   | `/<resource>`           | Create              | Admin           |
-| `PATCH`  | `/<resource>/:id`       | Update              | Admin           |
-| `DELETE` | `/<resource>/:id`       | Soft delete         | Admin           |
-| `GET`    | `/<resource>/search`    | Search              | Public          |
-
----
-
-#### 4.1.2 apps/web - Frontend Next.js
-
-**Vai trò:** Public website, hiển thị devices, compare, AI chat.
-
-**Trạng thái MVP:** Web app hiện có route phẳng trong `src/app` và component local trong `src/components`. Cấu trúc chi tiết bên dưới là target structure khi frontend lớn hơn; current tree thực tế được tóm tắt trong phần audit và sơ đồ cấp 1.
-
-**Cấu trúc chi tiết:**
-
-```
-apps/web/
-├── 📂 src/
-│   │
-│   ├── 📂 app/                                 # Next.js 15 App Router
-│   │   │
-│   │   ├── 📂 (public)/                        # Route group - public pages
-│   │   │   ├── layout.tsx                      # Public layout (header, footer)
-│   │   │   ├── page.tsx                        # Homepage
-│   │   │   │
-│   │   │   ├── 📂 (catalog)/                   # Catalog section
-│   │   │   │   ├── layout.tsx                  # Catalog layout (sidebar)
-│   │   │   │   │
-│   │   │   │   ├── 📂 devices/
-│   │   │   │   │   ├── page.tsx                # /devices - list
-│   │   │   │   │   ├── loading.tsx             # Loading UI
-│   │   │   │   │   ├── error.tsx               # Error boundary
-│   │   │   │   │   └── 📂 [slug]/
-│   │   │   │   │       ├── page.tsx            # /devices/iphone-16-pro
-│   │   │   │   │       ├── opengraph-image.tsx # OG image
-│   │   │   │   │       └── 📂 reviews/
-│   │   │   │   │           └── page.tsx        # /devices/[slug]/reviews
-│   │   │   │   │
-│   │   │   │   ├── 📂 chipsets/[slug]/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   │
-│   │   │   │   ├── 📂 brands/[slug]/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   │
-│   │   │   │   └── 📂 families/[slug]/
-│   │   │   │       └── page.tsx
-│   │   │   │
-│   │   │   ├── 📂 compare/
-│   │   │   │   ├── page.tsx                    # /compare (max 4 devices)
-│   │   │   │   └── 📂 [...slugs]/
-│   │   │   │       └── page.tsx                # /compare/iphone-16/galaxy-s25
-│   │   │   │
-│   │   │   ├── 📂 search/
-│   │   │   │   └── page.tsx                    # /search?q=...
-│   │   │   │
-│   │   │   └── 📂 ai/
-│   │   │       └── page.tsx                    # /ai - AI chat interface
-│   │   │
-│   │   ├── 📂 (auth)/                          # Auth pages
-│   │   │   ├── layout.tsx                      # Auth layout (centered)
-│   │   │   ├── 📂 login/
-│   │   │   │   └── page.tsx                    # /login
-│   │   │   ├── 📂 register/
-│   │   │   │   └── page.tsx                    # /register
-│   │   │   └── 📂 forgot-password/
-│   │   │       └── page.tsx                    # /forgot-password
-│   │   │
-│   │   ├── 📂 (account)/                       # User account (protected)
-│   │   │   ├── layout.tsx                      # Account layout (sidebar nav)
-│   │   │   ├── 📂 dashboard/
-│   │   │   │   └── page.tsx                    # /dashboard
-│   │   │   ├── 📂 wishlist/
-│   │   │   │   └── page.tsx                    # /wishlist
-│   │   │   ├── 📂 alerts/
-│   │   │   │   └── page.tsx                    # /alerts
-│   │   │   ├── 📂 notifications/
-│   │   │   │   └── page.tsx                    # /notifications
-│   │   │   ├── 📂 settings/
-│   │   │   │   └── page.tsx                    # /settings
-│   │   │   └── 📂 billing/
-│   │   │       └── page.tsx                    # /billing
-│   │   │
-│   │   ├── 📂 api/                             # API Routes (Next.js)
-│   │   │   ├── 📂 auth/
-│   │   │   │   ├── 📂 [...nextauth]/
-│   │   │   │   │   └── route.ts                # NextAuth.js handler
-│   │   │   │   └── 📂 callback/
-│   │   │   │       └── route.ts                # OAuth callbacks
-│   │   │   └── 📂 og/
-│   │   │       └── route.tsx                   # Dynamic OG images
-│   │   │
-│   │   ├── layout.tsx                          # Root layout (html, body)
-│   │   ├── globals.css                         # Global CSS + Tailwind
-│   │   ├── not-found.tsx                       # 404 page
-│   │   ├── error.tsx                           # Global error
-│   │   ├── loading.tsx                         # Global loading
-│   │   └── sitemap.ts                          # Dynamic sitemap
-│   │
-│   ├── 📂 components/                          # React components
-│   │   │
-│   │   ├── 📂 ui/                              # shadcn/ui components
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── select.tsx
-│   │   │   ├── tabs.tsx
-│   │   │   └── ...
-│   │   │
-│   │   ├── 📂 layout/                          # Layout components
-│   │   │   ├── header.tsx                      # Site header
-│   │   │   ├── footer.tsx                      # Site footer
-│   │   │   ├── sidebar.tsx                     # Sidebar nav
-│   │   │   └── mobile-nav.tsx                  # Mobile navigation
-│   │   │
-│   │   ├── 📂 catalog/                         # Catalog feature
-│   │   │   ├── device-card.tsx                 # Device preview card
-│   │   │   ├── device-list.tsx                 # Grid/list view
-│   │   │   ├── filter-sidebar.tsx              # Filters
-│   │   │   ├── sort-dropdown.tsx
-│   │   │   └── pagination.tsx
-│   │   │
-│   │   ├── 📂 device-detail/                   # Detail page components
-│   │   │   ├── hero-section.tsx                # Tên + ảnh + giá
-│   │   │   ├── variant-selector.tsx            # Pick color/storage
-│   │   │   ├── spec-table.tsx                  # Full specs
-│   │   │   ├── gallery.tsx                     # Image gallery
-│   │   │   ├── benchmark-chart.tsx
-│   │   │   └── buy-buttons.tsx                 # Affiliate links
-│   │   │
-│   │   ├── 📂 compare/                         # Compare feature
-│   │   │   ├── compare-table.tsx               # Side-by-side specs
-│   │   │   ├── device-picker.tsx               # Add device to compare
-│   │   │   ├── compare-summary.tsx             # AI summary
-│   │   │   └── pros-cons.tsx
-│   │   │
-│   │   ├── 📂 search/                          # Search feature
-│   │   │   ├── search-bar.tsx                  # Global search bar
-│   │   │   ├── search-results.tsx
-│   │   │   ├── search-filters.tsx
-│   │   │   └── instant-search.tsx              # Quick suggestions
-│   │   │
-│   │   ├── 📂 ai/                              # AI chat
-│   │   │   ├── chat-interface.tsx              # Main chat UI
-│   │   │   ├── message-bubble.tsx
-│   │   │   ├── citation-card.tsx               # Source citation
-│   │   │   └── streaming-text.tsx              # Streaming response
-│   │   │
-│   │   ├── 📂 auth/                            # Auth components
-│   │   │   ├── login-form.tsx
-│   │   │   ├── register-form.tsx
-│   │   │   └── auth-guard.tsx                  # Client-side route guard
-│   │   │
-│   │   └── 📂 common/                          # Reusable
-│   │       ├── logo.tsx
-│   │       ├── theme-toggle.tsx
-│   │       ├── error-boundary.tsx
-│   │       └── loading-spinner.tsx
-│   │
-│   ├── 📂 lib/                                 # Utilities (non-React)
-│   │   ├── 📂 api/                             # API client
-│   │   │   ├── client.ts                       # Axios/fetch wrapper
-│   │   │   ├── devices.ts                      # Device API calls
-│   │   │   ├── organizations.ts
-│   │   │   ├── auth.ts
-│   │   │   └── types.ts
-│   │   ├── 📂 auth/
-│   │   │   ├── session.ts                      # Get session
-│   │   │   └── config.ts                       # NextAuth config
-│   │   ├── 📂 utils/
-│   │   │   ├── cn.ts                           # className helper (clsx + twMerge)
-│   │   │   ├── format.ts                       # Format date, price, etc.
-│   │   │   ├── slugify.ts
-│   │   │   └── validation.ts
-│   │   └── constants.ts                        # App constants
-│   │
-│   ├── 📂 hooks/                               # Custom React hooks
-│   │   ├── use-auth.ts                         # Auth state
-│   │   ├── use-debounce.ts                     # Debounce values
-│   │   ├── use-local-storage.ts
-│   │   ├── use-compare.ts                      # Compare list state
-│   │   └── use-wishlist.ts
-│   │
-│   ├── 📂 stores/                              # Zustand stores
-│   │   ├── compare.store.ts                    # Compare list (persist)
-│   │   ├── user.store.ts                       # User session
-│   │   └── ui.store.ts                         # UI state (theme, modal)
-│   │
-│   ├── 📂 types/                               # TypeScript types
-│   │   ├── api.ts                              # API response types
-│   │   ├── device.ts                           # Device-related types
-│   │   └── user.ts
-│   │
-│   ├── 📂 styles/                              # Additional styles
-│   │   └── prose.css                           # Typography for MDX
-│   │
-│   └── middleware.ts                           # Next.js middleware (auth, redirects)
-│
-├── 📂 public/                                  # Static assets
-│   ├── favicon.ico
-│   ├── logo.svg
-│   ├── robots.txt
-│   └── 📂 images/
-│       └── ...
-│
-├── 📂 .next/                                   # Build output (gitignored)
-├── 📂 node_modules/                            # gitignored
-│
-├── 📄 .env.local                               # Local env (gitignored)
-├── 📄 .env.local.example                       # Template
-├── 📄 next.config.ts                           # Next.js config
-├── 📄 tailwind.config.ts                       # Tailwind config
-├── 📄 postcss.config.mjs                       # PostCSS
-├── 📄 tsconfig.json                            # TypeScript config
-├── 📄 package.json
-├── 📄 .eslintrc.json
-└── 📄 README.md
-```
-
-**Conventions Next.js App Router:**
-
-| File name             | Mục đích                      | Bắt buộc?            |
-| --------------------- | ----------------------------- | -------------------- |
-| `page.tsx`            | Page component (route)        | ✅ Có                |
-| `layout.tsx`          | Shared layout cho route       | ❌ Optional          |
-| `loading.tsx`         | Loading UI (Suspense)         | ❌ Optional          |
-| `error.tsx`           | Error boundary                | ❌ Optional          |
-| `not-found.tsx`       | 404 cho route                 | ❌ Optional          |
-| `route.ts`            | API route handler             | ❌ Chỉ trong `/api/` |
-| `opengraph-image.tsx` | Dynamic OG image              | ❌ Optional          |
-| `(group)/`            | Route group (không trong URL) | ❌ Optional          |
-| `[param]/`            | Dynamic route                 | ❌ Optional          |
-| `[...slug]/`          | Catch-all route               | ❌ Optional          |
-
----
-
-#### 4.1.3 Admin Dashboard
-
-**Trạng thái hiện tại:** Có workspace `/admin` trong `apps/web`, tái dùng auth shell và typed API client. Chưa tạo `apps/admin` riêng vì public web và operational UI vẫn dùng chung runtime/design system; chỉ tách app khi requirements hoặc deployment diverge thực sự.
-
-**Vai trò:** Internal CMS cho admin/moderator quản lý content, review crawl data, analytics.
-
-**Cấu trúc:**
-
-```
-apps/admin/
-├── src/
-│   ├── app/
-│   │   ├── (auth)/login/page.tsx
-│   │   └── (dashboard)/
-│   │       ├── layout.tsx                      # Dashboard layout
-│   │       ├── page.tsx                        # /admin - Overview
-│   │       │
-│   │       ├── 📂 devices/                     # Device management
-│   │       │   ├── page.tsx                    # List + filters
-│   │       │   ├── new/page.tsx                # Tạo device
-│   │       │   └── [id]/edit/page.tsx          # Edit
-│   │       │
-│   │       ├── 📂 crawl-queue/                 # Review crawled data
-│   │       │   ├── page.tsx                    # Queue list
-│   │       │   └── [id]/page.tsx               # Review + approve
-│   │       │
-│   │       ├── 📂 users/                       # User management
-│   │       │   ├── page.tsx
-│   │       │   └── [id]/page.tsx
-│   │       │
-│   │       ├── 📂 analytics/                   # Analytics dashboard
-│   │       │   ├── page.tsx                    # Overview
-│   │       │   ├── revenue/page.tsx            # Revenue
-│   │       │   └── users/page.tsx              # User analytics
-│   │       │
-│   │       ├── 📂 affiliate/                   # Affiliate management
-│   │       │   ├── partners/page.tsx
-│   │       │   ├── links/page.tsx
-│   │       │   └── conversions/page.tsx
-│   │       │
-│   │       └── 📂 settings/                    # Settings
-│   │           └── page.tsx
-│   │
-│   ├── components/                             # Admin components
-│   │   ├── data-table/                         # Reusable data table
-│   │   │   ├── data-table.tsx
-│   │   │   ├── pagination.tsx
-│   │   │   └── filters.tsx
-│   │   ├── forms/                              # Form components
-│   │   └── charts/                             # Analytics charts
-│   │
-│   └── lib/
-│       └── (giống apps/web)
-│
-└── (config files giống apps/web)
-```
-
----
-
-#### 4.1.4 apps/ai-service - AI Microservice (prototype)
-
-**Trạng thái MVP:** Có thư mục `apps/ai-service`, nhưng hiện là CLI/prototype chạy local embedding từ `@spechub/ai-core`. Chưa phải NestJS HTTP microservice như target architecture bên dưới.
-
-**Vai trò:** Tách riêng AI heavy compute (RAG, embeddings, LLM calls). Scale độc lập.
-
-**Cấu trúc:**
-
-```
-apps/ai-service/
-├── src/
-│   ├── 📂 modules/
-│   │   │
-│   │   ├── 📂 rag/                             # RAG pipeline
-│   │   │   ├── rag.service.ts                  # Main RAG logic
-│   │   │   ├── retriever.service.ts            # Hybrid retrieval
-│   │   │   ├── reranker.service.ts             # Cohere reranker
-│   │   │   ├── synthesizer.service.ts          # LLM synthesize
-│   │   │   └── rag.module.ts
-│   │   │
-│   │   ├── 📂 embeddings/                      # Embedding pipeline
-│   │   │   ├── embeddings.service.ts           # Voyage/OpenAI embed
-│   │   │   ├── chunker.service.ts              # Text chunking
-│   │   │   ├── indexer.service.ts              # Index to pgvector
-│   │   │   └── embeddings.module.ts
-│   │   │
-│   │   ├── 📂 llm/                             # LLM abstraction
-│   │   │   ├── llm.service.ts                  # Multi-provider
-│   │   │   ├── providers/
-│   │   │   │   ├── anthropic.provider.ts
-│   │   │   │   ├── openai.provider.ts
-│   │   │   │   └── google.provider.ts
-│   │   │   └── llm.module.ts
-│   │   │
-│   │   └── 📂 extractor/                       # LLM data extractor
-│   │       ├── extractor.service.ts            # Extract specs from HTML
-│   │       ├── schemas/                        # Output schemas
-│   │       │   ├── device-model.schema.ts
-│   │       │   └── chipset.schema.ts
-│   │       └── extractor.module.ts
-│   │
-│   ├── app.module.ts
-│   └── main.ts                                 # Port 4001
-│
-└── (config files giống apps/api)
-```
-
-**Endpoints:**
-
-| Method | URL                                         | Purpose                            |
-| ------ | ------------------------------------------- | ---------------------------------- |
-| `POST` | `/api/v1/ai/ask`                            | RAG: User hỏi → answer + citations |
-| `POST` | `/api/v1/ai/chat`                           | Alias của ask endpoint             |
-| `GET`  | `/api/v1/ai/search`                         | Retrieve context chunks theo query |
-| `GET`  | `/api/v1/ai/embeddings/stats`               | Thống kê embedding index           |
-| `POST` | `/api/v1/ai/embeddings/index-device-models` | Re-index catalog device models     |
-| `POST` | `/api/v1/ai/embeddings/index-raw-pages`     | Re-index raw pages đã review       |
-
----
-
-#### 4.1.5 Data ingestion / crawler workflow
-
-**Trạng thái Phase 2:** Đã có API workflow trong `apps/api/src/modules/data-ingestion` để quản lý crawler sources, raw pages và review queue. Chưa tách app `apps/crawler`; chỉ nên tạo app riêng khi bắt đầu chạy worker crawl/fetch production.
-
-**Vai trò:** Nhận dữ liệu từ crawler hoặc nhập thủ công, giữ raw HTML/text, parsed data, trạng thái review, rồi đưa raw pages đã `parsed/approved` vào RAG embedding index.
-
-**Endpoints hiện có:**
-
-| Method  | URL                                           | Purpose                           |
-| ------- | --------------------------------------------- | --------------------------------- |
-| `GET`   | `/api/v1/data-ingestion/sources`              | List crawler data sources         |
-| `POST`  | `/api/v1/data-ingestion/sources`              | Create data source                |
-| `PATCH` | `/api/v1/data-ingestion/sources/:id`          | Update data source                |
-| `GET`   | `/api/v1/data-ingestion/raw-pages`            | List raw pages                    |
-| `POST`  | `/api/v1/data-ingestion/raw-pages`            | Upsert raw page theo URL          |
-| `GET`   | `/api/v1/data-ingestion/review-queue`         | List pages cần review             |
-| `PATCH` | `/api/v1/data-ingestion/raw-pages/:id/review` | Approve/reject/update parsed data |
-
-**Cấu trúc:**
-
-```
-apps/api/src/modules/data-ingestion/
-├── data-ingestion.controller.ts
-├── data-ingestion.service.ts
-├── data-ingestion.module.ts
-└── dto/
-    ├── create-data-source.dto.ts
-    ├── create-raw-page.dto.ts
-    ├── query-raw-pages.dto.ts
-    ├── review-raw-page.dto.ts
-    └── raw-page-status.ts
-```
-
-**Production hardening tiếp theo:** nếu cần crawl tự động liên tục, tạo `apps/crawler` hoặc mở rộng `apps/worker` với BullMQ processor, scheduler, per-source parser và rate limit/proxy policy. Contract API/data model hiện đã sẵn sàng cho worker đó.
-
----
-
-#### 4.1.6 apps/worker - Background Jobs
-
-**Trạng thái hiện tại:** `apps/worker` chạy scheduled price-alert job riêng bằng `PRICE_ALERTS_WORKER_ENABLED=true`. Job dùng `@spechub/alerts-core`, cập nhật alert có điều kiện trong transaction và tạo notification trong cùng transaction để tránh trigger trùng khi scale nhiều worker. BullMQ/email/embedding queues vẫn là workstream tiếp theo.
-
-**Vai trò:** Process BullMQ jobs (email, embeddings, price check, notifications).
-
-**Cấu trúc:**
-
-```
-apps/worker/
-├── src/
-│   ├── 📂 workers/
-│   │   │
-│   │   ├── 📂 email/                           # Send emails
-│   │   │   ├── email.processor.ts              # Process email queue
-│   │   │   ├── templates/                      # Email templates (MJML)
-│   │   │   │   ├── welcome.tsx
-│   │   │   │   ├── price-alert.tsx
-│   │   │   │   └── verification.tsx
-│   │   │   └── email.module.ts
-│   │   │
-│   │   ├── 📂 embeddings/                      # Generate embeddings async
-│   │   │   ├── embeddings.processor.ts
-│   │   │   └── embeddings.module.ts
-│   │   │
-│   │   ├── 📂 price-check/                     # Cron: Check prices
-│   │   │   ├── price-check.processor.ts
-│   │   │   └── price-check.module.ts
-│   │   │
-│   │   ├── 📂 notifications/                   # Push notifications
-│   │   │   ├── push.processor.ts
-│   │   │   └── push.module.ts
-│   │   │
-│   │   └── 📂 reports/                         # Daily/weekly reports
-│   │       ├── reports.processor.ts
-│   │       └── reports.module.ts
-│   │
-│   ├── app.module.ts
-│   └── main.ts                                 # Worker, không expose HTTP
-│
-└── (config files)
-```
-
----
-
-### 4.2 Packages - Shared libraries
-
-#### 4.2.1 packages/database
-
-**Vai trò:** Prisma schema, migrations, Prisma Client. Dùng chung cho mọi app.
-
-```
-packages/database/
-├── 📂 prisma/
-│   ├── schema.prisma                           # Schema (~90 tables, 14 groups)
-│   ├── seed.ts                                 # Seed data
-│   ├── 📂 migrations/                          # SQL migrations
-│   │   ├── 20260506_init/
-│   │   │   └── migration.sql
-│   │   └── migration_lock.toml
-│   └── 📂 raw-sql/                             # Manual SQL
-│       └── post-migrate.sql                    # CHECK constraints, indexes
-│
-├── 📂 generated/                               # Generated Prisma Client (gitignored)
-│   └── client/
-│       ├── index.js
-│       └── index.d.ts
-│
-├── 📂 src/
-│   └── index.ts                                # Re-export Prisma types
-│
-├── 📄 .env                                     # DATABASE_URL (gitignored)
-├── 📄 package.json
-└── 📄 tsconfig.json
-```
-
-**Scripts:**
-
-```json
-{
-  "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
-  }
-}
-```
-
----
-
-#### 4.2.2 packages/types
-
-**Vai trò:** TypeScript types/interfaces dùng chung giữa frontend & backend.
-
-```
-packages/types/
-├── src/
-│   ├── api/                                    # API request/response types
-│   │   ├── device.types.ts
-│   │   ├── organization.types.ts
-│   │   ├── user.types.ts
-│   │   └── index.ts
-│   ├── domain/                                 # Domain models
-│   │   ├── device.ts
-│   │   ├── user.ts
-│   │   └── index.ts
-│   ├── enums/                                  # Shared enums
-│   │   ├── role.enum.ts
-│   │   ├── status.enum.ts
-│   │   └── index.ts
-│   └── index.ts                                # Main export
+├── apps/
+│   ├── api/          API NestJS/Fastify
+│   ├── web/          Ứng dụng Next.js
+│   ├── worker/       Cảnh báo giá, thu thập nguồn, gửi thư
+│   └── ai-service/   Chẩn đoán embedding cục bộ
+├── packages/
+│   ├── database/     Prisma, migration, seed, kiểm chứng dữ liệu
+│   ├── api-client/   Trình khách API có kiểu
+│   ├── ai-core/      Embedding cục bộ và hỗ trợ véc-tơ
+│   ├── alerts-core/  Quy tắc kiểm tra cảnh báo giá
+│   ├── scoring-core/ Thuật toán chuẩn hóa và tính điểm
+│   ├── auth/         Tiện ích xác thực dùng chung
+│   ├── analytics/    Giao diện phân tích
+│   ├── config/       Cấu hình TypeScript, ESLint, Tailwind
+│   ├── types/        Kiểu dữ liệu dùng chung
+│   ├── ui/           Thành phần giao diện dùng chung
+│   └── utils/        Tiện ích chung
+├── docs/             Quy chuẩn nội dung và Catalog Platform v3
+├── scripts/          Công cụ vận hành dự án
+├── turbo.json        Đồ thị tác vụ monorepo
+├── pnpm-workspace.yaml
 └── package.json
 ```
 
----
+### 7.2. Số liệu mã nguồn
 
-#### 4.2.3 packages/ui
+| Khu vực | Số tệp TS/TSX/Python/Prisma | Số dòng gần đúng |
+| --- | ---: | ---: |
+| `apps/api` | 241 | 38.294 |
+| `apps/web` | 77 | 37.351 |
+| `apps/worker` | 3 | 827 |
+| `apps/ai-service` | 1 | 72 |
+| `packages/database` | 27 | 32.096 |
+| `packages/scoring-core` | 3 | 842 |
+| Các gói dùng chung còn lại | 8 | 516 |
+| Tổng cộng | 360 | 113.998 |
 
-**Vai trò:** Shared React components (button, card, modal...) dùng cho cả web + admin.
+Số liệu không bao gồm `node_modules`, thư mục biên dịch, bộ nhớ đệm Next.js, mã sinh tự động và báo cáo độ phủ.
 
-```
-packages/ui/
-├── src/
-│   ├── components/
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── input.tsx
-│   │   ├── dialog.tsx
-│   │   └── ...
-│   ├── hooks/
-│   │   ├── use-media-query.ts
-│   │   └── use-on-click-outside.ts
-│   ├── styles/
-│   │   └── globals.css
-│   └── index.ts                                # Main export
-├── tailwind.config.ts                          # Base config
-└── package.json
-```
+### 7.3. Chuỗi công cụ
 
----
-
-#### 4.2.4 packages/config
-
-**Vai trò:** Shared configurations (ESLint, TypeScript, Tailwind).
-
-```
-packages/config/
-├── 📂 typescript/
-│   ├── base.json                               # Base TS config
-│   ├── nestjs.json                             # NestJS-specific
-│   ├── nextjs.json                             # Next.js-specific
-│   └── react-library.json                      # React libs
-├── 📂 eslint/
-│   ├── base.js
-│   ├── nextjs.js
-│   └── nestjs.js
-├── 📂 tailwind/
-│   └── base.js                                 # Base Tailwind config
-└── package.json
-```
+| Công nghệ | Phiên bản khai báo |
+| --- | --- |
+| Node.js | `>=22.11.0` |
+| pnpm | `9.15.0` |
+| Turborepo | `2.3.3` |
+| TypeScript | `5.7.2` |
+| Next.js | `15.1.3` |
+| React | `19.x` |
+| NestJS | `11.0.6` |
+| Fastify | `5.2.0` |
+| Prisma | `6.1.0` |
+| Meilisearch SDK | `0.46.0` |
+| TanStack Query | `5.62.10` |
 
 ---
 
-#### 4.2.5 packages/api-client
+## 8. Đặc tả ứng dụng web
 
-**Vai trò:** TypeScript SDK gọi API. Dùng cho web, admin, mobile.
+### 8.1. Nguyên tắc
 
-```
-packages/api-client/
-├── src/
-│   ├── client.ts                               # Main client class
-│   ├── endpoints/
-│   │   ├── devices.endpoint.ts
-│   │   ├── auth.endpoint.ts
-│   │   ├── users.endpoint.ts
-│   │   └── index.ts
-│   ├── types/
-│   └── index.ts
-└── package.json
-```
+- Sử dụng Next.js App Router.
+- Thành phần máy chủ tải dữ liệu ban đầu khi phù hợp; thành phần máy khách xử lý tương tác.
+- `QueryProvider` quản lý dữ liệu bất đồng bộ phía máy khách.
+- `AuthProvider` quản lý trạng thái đăng nhập và làm mới phiên.
+- `AppShell` cung cấp điều hướng chung, vùng lệnh và thành phần PWA.
+- URL API công khai lấy từ `NEXT_PUBLIC_SPECHUB_API_URL`; tải phía máy chủ ưu tiên `SPECHUB_API_INTERNAL_URL`.
+- Trang lỗi, tải, không tìm thấy và ngoại tuyến được khai báo độc lập.
 
-**Usage:**
+### 8.2. Danh mục tuyến
 
-```typescript
-import { SpecHubClient } from "@spechub/api-client";
+| Tuyến | Mục đích | Kiểu |
+| --- | --- | --- |
+| `/` | Trang chủ, tìm kiếm nhanh và thiết bị nổi bật | Động |
+| `/devices` | Danh mục thiết bị, lọc và phân trang | Động |
+| `/devices/[slug]` | Chi tiết mẫu, biến thể, media, mô-đun và điểm | Động |
+| `/hardware/[kind]/[slug]` | Chi tiết thành phần phần cứng | Động |
+| `/search` | Tìm kiếm thiết bị và phần cứng | Động |
+| `/compare` | So sánh thiết bị | Động |
+| `/recommend` | Khuyến nghị theo nhu cầu | Động |
+| `/ai` | Trợ lý AI theo luồng | Động |
+| `/wiki` | Danh sách bài Wiki | Tĩnh có dữ liệu phía máy khách |
+| `/wiki/[slug]` | Đọc bài Wiki | Động |
+| `/wiki/new` | Tạo bài Wiki | Có kiểm soát quyền |
+| `/wiki/[slug]/edit` | Tạo phiên bản sửa | Có kiểm soát quyền |
+| `/login` | Đăng nhập | Tĩnh |
+| `/register` | Đăng ký | Tĩnh |
+| `/dashboard` | Tổng quan cá nhân | Tĩnh có dữ liệu phía máy khách |
+| `/wishlist` | Danh sách yêu thích | Tĩnh có xác thực |
+| `/alerts` | Cảnh báo giá | Tĩnh có xác thực |
+| `/notifications` | Trung tâm thông báo | Tĩnh có xác thực |
+| `/billing` | Gói và thuê bao | Tĩnh có xác thực |
+| `/api-access` | Khóa API và mức sử dụng | Tĩnh có xác thực |
+| `/admin` | Catalog Studio và quản trị | Tĩnh có phân quyền |
+| `/offline` | Trang dự phòng PWA | Tĩnh |
 
-const client = new SpecHubClient({
-  baseUrl: "http://localhost:4000/api/v1",
-  token: "jwt_token",
-});
+### 8.3. Thành phần giao diện trọng yếu
 
-const devices = await client.devices.list({ page: 1 });
-```
+- `admin-console`: bề mặt quản trị người dùng, danh mục, đối tác, gói và nhật ký.
+- `catalog-studio-wizard`: quy trình tạo dữ liệu danh mục theo nhiều bước.
+- `scoring-profile-manager`: cấu hình, kiểm tra và xuất bản hồ sơ điểm.
+- `device-spec-modules`: trình bày thông số có cấu trúc theo nhóm.
+- `device-scorecard` và `catalog-score`: hiển thị điểm, mô-đun và giải thích.
+- `device-media-gallery`: ảnh/video của thiết bị theo dữ liệu media.
+- `marketplace-offers`: đề nghị mua hàng và giá từ đối tác.
+- `device-recommender`: thu thập nhu cầu và hiển thị gợi ý.
+- `ai-stream-answer`: xử lý sự kiện NDJSON của câu trả lời AI.
+- `research-workspace`: vùng nghiên cứu cục bộ cho khách và người dùng.
+- `wiki-editor` và `wiki-article-reader`: soạn thảo, hiển thị Markdown và trích dẫn.
 
----
+### 8.4. PWA và trạng thái ngoại tuyến
 
-#### 4.2.6 packages/auth
-
-**Vai trò:** Auth helpers, NextAuth config, session utilities.
-
-```
-packages/auth/
-├── src/
-│   ├── config.ts                               # NextAuth config
-│   ├── providers/
-│   │   ├── credentials.provider.ts
-│   │   └── google.provider.ts
-│   ├── utils/
-│   │   ├── jwt.ts
-│   │   └── session.ts
-│   └── index.ts
-└── package.json
-```
-
----
-
-#### 4.2.7 packages/utils
-
-**Vai trò:** Pure utility functions (formatters, validators, helpers).
-
-```
-packages/utils/
-├── src/
-│   ├── format/
-│   │   ├── date.ts                             # formatDate, timeAgo
-│   │   ├── price.ts                            # formatPrice, formatCurrency
-│   │   └── number.ts                           # formatNumber, abbreviate
-│   ├── validation/
-│   │   ├── email.ts
-│   │   ├── slug.ts
-│   │   └── uuid.ts
-│   ├── string/
-│   │   ├── slugify.ts
-│   │   ├── truncate.ts
-│   │   └── normalize.ts                        # Bỏ dấu tiếng Việt
-│   └── index.ts
-└── package.json
-```
+Ứng dụng cung cấp manifest, thành phần cài đặt và trang `/offline`. Dữ liệu cục bộ của khách chỉ nhằm hỗ trợ tiếp tục nghiên cứu; giá, thông báo và dữ liệu đã xuất bản phải được tải lại khi có kết nối để tránh sử dụng trạng thái cũ như dữ liệu hiện hành.
 
 ---
 
-#### 4.2.8 packages/ai-core
+## 9. Đặc tả API
 
-**Vai trò:** AI utilities dùng chung cho ai-service và backend.
+### 9.1. Quy ước chung
 
+- Tiền tố toàn cục: `/api`.
+- Phiên bản mặc định: `/v1`.
+- Cơ sở phát triển: `http://localhost:4000/api/v1`.
+- Swagger trong môi trường không phải vận hành: `/api/docs`.
+- Dữ liệu đầu vào được kiểm tra với `whitelist`, `forbidNonWhitelisted` và chuyển đổi kiểu.
+- Phản hồi lỗi được chuẩn hóa bởi bộ lọc lỗi toàn cục.
+- Xác thực mặc định bằng Bearer JWT; API B2B dùng `X-API-Key`.
+- Mỗi phản hồi có `X-Request-ID`.
+
+### 9.2. Thống kê bề mặt API
+
+| Phương thức | Số lượng |
+| --- | ---: |
+| GET | 91 |
+| POST | 57 |
+| PATCH | 24 |
+| DELETE | 13 |
+| PUT | 1 |
+| Tổng | 186 |
+
+Kết quả phân tích decorator ghi nhận 45 lần khai báo quyền `ADMIN`, 33 lần `EDITOR` và 3 lần `MODERATOR`. Con số này phản ánh decorator được phát hiện trong mã nguồn, không thay thế kiểm tra quyền sở hữu và logic ở lớp dịch vụ.
+
+### 9.3. Nhóm bộ điều khiển
+
+| Tiền tố | Số điểm cuối | Trách nhiệm |
+| --- | ---: | --- |
+| `health` | 4 | Trạng thái tổng, tiến trình, mức sẵn sàng và chỉ số |
+| `admin/dashboard` | 1 | Tổng quan quản trị |
+| `affiliate` | 13 | Đối tác, liên kết, đồng bộ giá, thống kê và lượt nhấp |
+| `ai` | 10 | Hỏi đáp, trả lời theo luồng, khuyến nghị, tìm kiếm, nghiên cứu và lập chỉ mục |
+| `alerts` | 5 | Cảnh báo giá và kiểm tra thủ công |
+| `api-keys` | 4 | Danh sách, tạo, luân chuyển và thu hồi khóa |
+| `auth` | 5 | Đăng ký, đăng nhập, làm mới, thông tin phiên và đăng xuất |
+| `b2b` | 3 | Đọc mẫu/biến thể qua khóa API |
+| `battery-units` | 3 | Danh sách và chi tiết pin |
+| `camera-modules` | 3 | Danh sách và chi tiết mô-đun camera |
+| `admin/catalog-studio` | 17 | Tìm kiếm, bản nháp, lịch sử, kiểm tra, xuất bản, hồ sơ điểm và media |
+| `chipsets` | 3 | Danh sách và chi tiết chipset |
+| `citations` | 7 | Nguồn và trích dẫn |
+| `data-ingestion` | 8 | Nguồn thu thập, trang thô và hàng đợi duyệt |
+| `device-categories` | 7 | Loại thiết bị và cấu trúc cây |
+| `device-models` | 7 | Mẫu thiết bị và trạng thái phát hành |
+| `device-variants` | 10 | Biến thể, benchmark, hồ sơ điểm và so sánh |
+| `display-units` | 3 | Danh sách và chi tiết màn hình |
+| `admin/hardware` | 5 | Tạo, sửa và xóa mô-đun phần cứng |
+| `hardware` | 11 | Đọc các loại phần cứng và phần mềm |
+| `notifications` | 5 | Danh sách, số chưa đọc, tạo và đánh dấu đã đọc |
+| `organizations` | 6 | Tổ chức/nhãn hiệu |
+| `product-families` | 6 | Dòng sản phẩm |
+| `search` | 1 | Tìm kiếm tổng hợp |
+| `subscriptions` | 12 | Gói, thuê bao, thanh toán và nhật ký |
+| `subscriptions/webhooks` | 1 | Webhook nhà cung cấp thanh toán |
+| `users` | 9 | Hồ sơ và quản trị người dùng |
+| `wiki` | 9 | Bài viết, phiên bản và xuất bản |
+| `wishlists` | 8 | Danh sách, mục và đồng bộ vùng nghiên cứu |
+
+### 9.4. Điểm cuối trọng yếu theo hành trình
+
+#### Xác thực
+
+```text
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+GET  /api/v1/auth/me
+POST /api/v1/auth/logout
 ```
-packages/ai-core/
-├── src/
-│   ├── embeddings/
-│   │   ├── voyage.ts                           # Voyage AI provider
-│   │   ├── openai.ts                           # OpenAI embeddings
-│   │   └── interface.ts
-│   ├── prompts/
-│   │   ├── rag.prompts.ts                      # RAG system prompts
-│   │   ├── extractor.prompts.ts                # Extraction prompts
-│   │   └── compare.prompts.ts
-│   ├── chunking/
-│   │   ├── recursive.ts                        # Recursive chunking
-│   │   └── semantic.ts
-│   ├── vectors/
-│   │   ├── similarity.ts                       # Cosine similarity
-│   │   └── normalize.ts
-│   └── index.ts
-└── package.json
+
+#### Khám phá danh mục
+
+```text
+GET /api/v1/device-models
+GET /api/v1/device-models/:slug
+GET /api/v1/device-variants
+GET /api/v1/device-variants/compare
+GET /api/v1/hardware/:kind/:slug
+GET /api/v1/search
 ```
+
+#### AI
+
+```text
+POST /api/v1/ai/ask
+POST /api/v1/ai/ask/stream
+POST /api/v1/ai/chat
+POST /api/v1/ai/recommendations
+GET  /api/v1/ai/search
+POST /api/v1/ai/research/hardware/:kind/:slug
+```
+
+#### Catalog Studio
+
+```text
+GET   /api/v1/admin/catalog-studio/search
+POST  /api/v1/admin/catalog-studio/drafts
+PATCH /api/v1/admin/catalog-studio/drafts/:id
+POST  /api/v1/admin/catalog-studio/drafts/:id/validate
+POST  /api/v1/admin/catalog-studio/drafts/:id/complete
+GET   /api/v1/admin/catalog-studio/history/:entityTable/:entityId
+POST  /api/v1/admin/catalog-studio/scoring-profiles/:id/publish
+POST  /api/v1/admin/catalog-studio/media/uploads
+PUT   /api/v1/admin/catalog-studio/media/uploads/:id/content
+POST  /api/v1/admin/catalog-studio/media/uploads/:id/complete
+```
+
+#### Cá nhân hóa và thương mại
+
+```text
+GET/POST/PATCH/DELETE /api/v1/wishlists/...
+GET/POST/PATCH/DELETE /api/v1/alerts/...
+GET/PATCH             /api/v1/notifications/...
+GET/POST/PATCH        /api/v1/subscriptions/...
+GET/POST/PATCH/DELETE /api/v1/affiliate/...
+GET/POST/DELETE       /api/v1/api-keys/...
+```
+
+### 9.5. Mã trạng thái và lỗi
+
+- `200`: đọc hoặc thao tác thành công.
+- `201`: tạo tài nguyên thành công.
+- `204`: thao tác thành công không có nội dung trả về, nếu được áp dụng.
+- `400`: dữ liệu đầu vào hoặc trạng thái nghiệp vụ không hợp lệ.
+- `401`: thiếu hoặc sai thông tin xác thực.
+- `403`: đã xác thực nhưng không có quyền.
+- `404`: không tìm thấy tài nguyên.
+- `409`: xung đột duy nhất, revision hoặc trạng thái.
+- `429`: vượt giới hạn tần suất/hạn mức.
+- `503`: phụ thuộc bắt buộc chưa sẵn sàng.
 
 ---
 
-#### 4.2.9 packages/analytics
+## 10. Đặc tả dữ liệu
 
-**Vai trò:** Tracking events (PostHog), unified API cho web/mobile.
+### 10.1. Nền tảng
 
+- Hệ quản trị: PostgreSQL.
+- ORM: Prisma 6.1.0.
+- Phần mở rộng yêu cầu theo tài liệu dự án: `pgvector`, `pg_trgm`, `unaccent`.
+- Lược đồ hiện có 139 mô hình và không khai báo `enum` Prisma.
+- Trạng thái chủ yếu được biểu diễn bằng bảng tham chiếu hoặc chuỗi được kiểm soát ở tầng ứng dụng.
+
+### 10.2. Nhóm ngôn ngữ, nguồn và media
+
+`languages`, `translations`, `release_statuses`, `currencies`, `sources`, `citations`, `media_assets`, `entity_media`, `module_field_coverage`, `tags`, `entity_tags`, `units`.
+
+Vai trò:
+
+- Chuẩn hóa ngôn ngữ, tiền tệ, trạng thái và đơn vị.
+- Lưu nguồn và trích dẫn độc lập với nội dung.
+- Gắn media/tag với nhiều loại thực thể bằng bảng liên kết.
+- Theo dõi độ phủ trường bắt buộc của từng mô-đun.
+
+### 10.3. Nhóm tổ chức và danh mục thiết bị
+
+`organizations`, `organization_roles`, `organization_role_assignments`, `device_categories`, `regions`, `product_families`, `device_models`, `device_variants`, `device_model_aliases`, `device_editorial_sections`, `variant_price_history`, `variant_physical_specs`, `variant_io_specs`, `variant_thermal_specs`, `model_lineage`, `model_similarity`.
+
+Quan hệ cốt lõi:
+
+```mermaid
+erDiagram
+    organizations ||--o{ product_families : owns
+    device_categories ||--o{ product_families : classifies
+    product_families ||--o{ device_models : contains
+    device_models ||--o{ device_variants : has
+    device_models ||--o{ device_model_aliases : has
+    device_models ||--o{ device_editorial_sections : contains
+    device_variants ||--o{ variant_price_history : records
+    device_variants ||--o| variant_physical_specs : has
+    device_variants ||--o| variant_io_specs : has
+    device_variants ||--o| variant_thermal_specs : has
 ```
-packages/analytics/
-├── src/
-│   ├── client.ts                               # PostHog client
-│   ├── events/                                 # Event definitions
-│   │   ├── user.events.ts
-│   │   ├── device.events.ts
-│   │   └── conversion.events.ts
-│   ├── hooks/
-│   │   └── use-analytics.ts                    # React hook
-│   └── index.ts
-└── package.json
+
+### 10.4. Nhóm từ điển công nghệ
+
+`technology_families`, `architectures`, `process_nodes`, `camera_roles`, `display_technologies`, `battery_chemistries`, `network_generations`.
+
+Các bảng này giảm việc lặp chuỗi và tạo điểm liên kết ổn định cho lọc, dịch thuật và phân tích.
+
+### 10.5. Nhóm thành phần phần cứng và phần mềm
+
+`chipsets`, `cpus`, `cpu_clusters`, `gpus`, `npus`, `modems`, `camera_sensors`, `camera_modules`, `display_units`, `battery_units`, `memory_standards`, `storage_standards`, `operating_systems`, `os_versions`, `os_ui_layers`, `os_ui_layer_versions`.
+
+Một chipset liên kết với CPU, GPU, NPU và modem qua các bảng nối, thay vì sao chép thông số vào từng thiết bị. Camera tách cảm biến và mô-đun; hệ điều hành tách nền tảng, phiên bản và lớp giao diện.
+
+### 10.6. Nhóm khả năng và bảng nối phần cứng
+
+`cellular_bands`, `wifi_bands`, `certifications`, `cpu_capabilities`, `cpu_capability_links`, `gpu_apis`, `gpu_api_support`, `npu_precision_capabilities`, `camera_features`, `camera_module_feature_links`, `camera_video_modes`, `camera_module_video_modes`, `hdr_standards`, `display_hdr_support`, `color_gamuts`, `display_color_gamut_support`, `charging_protocols`, `battery_charging_protocols`, `connectivity_features`, `chipset_cpu_links`, `chipset_gpu_links`, `chipset_npu_links`, `chipset_modem_links`, `camera_module_sensor_links`.
+
+### 10.7. Nhóm cấu hình biến thể
+
+`variant_chipsets`, `variant_cpus`, `variant_gpus`, `variant_npus`, `variant_modems`, `variant_displays`, `variant_batteries`, `variant_camera_systems`, `variant_camera_modules`, `variant_memory_configs`, `variant_storage_configs`, `variant_wifi_bands`, `variant_operating_systems`, `variant_software_profiles`, `variant_connectivity_support`, `variant_cellular_band_support`, `variant_certifications`, `variant_region_availability`, `software_features`, `variant_software_features`, `feature_definitions`, `device_variant_features`.
+
+Các bảng nối cho phép một biến thể có nhiều thành phần, cấu hình, băng tần, chứng nhận và tính năng mà vẫn giữ khả năng lọc bằng SQL.
+
+### 10.8. Nhóm điểm và benchmark
+
+`variant_module_scores`, `variant_score_metric_inputs`, `variant_scorecards`, `variant_scorecard_modules`, `scoring_profiles`, `scoring_profile_modules`, `scoring_profile_metrics`, `benchmarks`, `benchmark_runs`, `device_variant_benchmarks`, `chipset_benchmarks`, `cpu_benchmarks`, `gpu_benchmarks`, `npu_benchmarks`.
+
+Quy tắc tính tổng quát:
+
+```text
+điểm_chỉ_số = chuẩn_hóa(giá_trị, quy_tắc, hướng, giới_hạn)
+điểm_mô_đun = tổng(điểm_chỉ_số × trọng_số_chỉ_số)
+điểm_tổng   = tổng(điểm_mô_đun × trọng_số_mô_đun)
 ```
 
-#### 4.2.10 Trạng thái shared packages sau MVP
+Tổng trọng số chỉ số trong một mô-đun và tổng trọng số mô-đun trong một hồ sơ phải bằng 1 trong sai số cho phép. Kết quả đã tính lưu phiên bản hồ sơ và đầu vào để có thể kiểm tra lại.
 
-| Package               | Trạng thái | Ghi chú                                                                                             |
-| --------------------- | ---------- | --------------------------------------------------------------------------------------------------- |
-| `@spechub/database`   | Active     | Có Prisma schema, migrations, seed, generated client và `tsconfig.json` riêng.                      |
-| `@spechub/api-client` | Active     | Web đang dùng trực tiếp để gọi catalog, auth, search, compare và AI.                                |
-| `@spechub/ai-core`    | Active     | Có local embedding, chunking, excerpt và vector helper cho AI MVP.                                  |
-| `@spechub/types`      | Minimal    | Mới có base API/pagination types, chưa là source of truth cho toàn domain.                          |
-| `@spechub/config`     | Active     | Có TypeScript base/nestjs/nextjs/react-library configs, ESLint base config và Tailwind base preset. |
-| `@spechub/ui`         | Minimal    | Có shared UI tokens; React components vẫn local trong `apps/web/src/components`.                    |
-| `@spechub/auth`       | Active     | Có token storage helpers và đang được `apps/web` dùng.                                              |
-| `@spechub/utils`      | Active     | Có formatter/string helpers và đang được `apps/web` dùng qua `apps/web/src/lib/format.ts`.          |
-| `@spechub/analytics`  | Minimal    | Có typed analytics event/no-op client; chưa có PostHog/provider thật.                               |
+### 10.9. Nhóm bản nháp và lịch sử catalog
 
-**Khuyến nghị:** Tiếp tục mở rộng shared packages theo nhu cầu thật. `auth` và `utils` đã có consumer; `ui` và `analytics` chỉ nên lớn thêm khi admin app, mobile app hoặc tracking provider xuất hiện.
+`catalog_drafts`, `catalog_draft_versions`, `catalog_entity_versions`.
+
+- Bản nháp lưu payload, bước hiện tại và revision.
+- Phiên bản bản nháp phục vụ lịch sử và khôi phục.
+- Phiên bản thực thể ghi nhận trạng thái sau thay đổi quan trọng.
+- Xuất bản sử dụng giao dịch để tránh tạo dữ liệu nửa chừng.
+
+### 10.10. Nhóm người dùng, Wiki, AI và thu thập
+
+`users`, `wiki_articles`, `wiki_revisions`, `wiki_article_citations`, `comments`, `embeddings`, `ai_query_cache`, `search_logs`, `data_sources`, `raw_pages`.
+
+Ranh giới bắt buộc:
+
+- Bài Wiki công khai và phiên bản sửa tách biệt.
+- Dữ liệu thô từ trình thu thập không tự trở thành dữ liệu công khai.
+- Véc-tơ nhúng chỉ được tạo cho phạm vi dữ liệu đã phê duyệt.
+- Không đưa người dùng, thông tin xác thực, khóa API, thanh toán, nhật ký riêng tư hoặc bản nháp vào ngữ cảnh AI công khai.
+
+### 10.11. Nhóm thương mại và tương tác
+
+`affiliate_partners`, `affiliate_links`, `affiliate_price_history`, `affiliate_clicks`, `subscription_plans`, `subscriptions`, `billing_audit_logs`, `billing_webhook_events`, `wishlists`, `wishlist_items`, `price_alerts`, `notifications`, `notification_deliveries`, `api_keys`, `api_key_usage`.
+
+Thiết kế tách:
+
+- Liên kết hiện hành và lịch sử giá.
+- Thông báo logic và lần gửi theo kênh.
+- Gói công khai và thuê bao của người dùng.
+- Sự kiện webhook gốc, nhật ký xử lý và trạng thái thuê bao.
+- Định danh khóa API, mã băm bí mật và mức sử dụng.
+
+### 10.12. Chính sách migration
+
+1. Sao lưu và xác minh khả năng phục hồi trước thay đổi lớn.
+2. Ưu tiên migration cộng thêm; ứng dụng có thể đọc dữ liệu cũ và mới trong giai đoạn chuyển tiếp.
+3. Backfill theo lô và có tính lũy đẳng.
+4. Chuyển luồng ghi sang cấu trúc mới trước khi khóa cấu trúc cũ.
+5. Chỉ xóa cột hoặc ép ràng buộc chặt trong bản phát hành riêng sau khi độ phủ đạt yêu cầu.
+6. Không sửa migration đã áp dụng; tạo migration mới cho thay đổi tiếp theo.
 
 ---
 
-### 4.3 Infra & Docs
+## 11. Các quy trình nghiệp vụ trọng yếu
 
-**Trạng thái MVP:** Chưa có thư mục `infra/` và `docs/` trong repo. Phần dưới là cấu trúc đề xuất khi bắt đầu production hardening.
+### 11.1. Đăng nhập và làm mới phiên
 
+```mermaid
+sequenceDiagram
+    actor U as Người dùng
+    participant W as Web
+    participant A as Auth API
+    participant D as PostgreSQL
+    participant R as Redis
+    U->>W: Gửi thư điện tử và mật khẩu
+    W->>A: POST /auth/login
+    A->>D: Tìm người dùng và kiểm tra mật khẩu băm
+    D-->>A: Hồ sơ và vai trò
+    A->>R: Tạo phiên có thời hạn
+    A-->>W: Mã truy cập và cookie làm mới
+    W-->>U: Hoàn tất đăng nhập
+    W->>A: POST /auth/refresh khi mã truy cập hết hạn
+    A->>R: Kiểm tra phiên
+    R-->>A: Phiên hợp lệ
+    A-->>W: Mã truy cập mới
 ```
-infra/
-├── 📂 docker/
-│   ├── api.Dockerfile                          # Build API image
-│   ├── web.Dockerfile                          # Build web image
-│   ├── workers.Dockerfile                      # Build workers image
-│   └── docker-compose.prod.yml                 # Production compose
-│
-└── 📂 scripts/
-    ├── deploy.sh                               # Deploy script
-    ├── backup-db.sh                            # DB backup
-    └── seed-prod.sh                            # Seed production
 
-docs/
-├── 📂 architecture/
-│   ├── 001-monorepo.md                         # ADR: Why monorepo
-│   ├── 002-prisma-vs-typeorm.md
-│   ├── 003-meilisearch-vs-elasticsearch.md
-│   └── system-diagram.md
-│
-├── 📂 api/
-│   ├── openapi.yaml                            # OpenAPI spec
-│   └── postman-collection.json
-│
-└── 📂 runbooks/
-    ├── deployment.md
-    ├── debugging.md
-    └── incident-response.md
+### 11.2. Tìm kiếm và so sánh
+
+1. Người dùng nhập từ khóa/bộ lọc.
+2. Web gọi API tìm kiếm hoặc danh mục.
+3. Dịch vụ chuẩn hóa truy vấn, lựa chọn PostgreSQL hoặc Meilisearch theo cấu hình.
+4. Kết quả trả định danh, loại thực thể, slug, tóm tắt và thông tin phân trang.
+5. Khi so sánh, API tải theo lô các biến thể và quan hệ phần cứng.
+6. Web dựng ma trận nhóm thuộc tính, đánh dấu khác biệt và giữ trường thiếu là không xác định.
+
+### 11.3. Khuyến nghị và hỏi đáp AI
+
+1. Thu thập câu hỏi hoặc nhu cầu có cấu trúc.
+2. Phân loại ý định: tra cứu, so sánh, xếp hạng hoặc khuyến nghị.
+3. Truy xuất thực thể danh mục, nguồn, Wiki và dữ liệu liên quan trong phạm vi cho phép.
+4. Tạo bản tóm lược quyết định gồm tiêu chí, đánh đổi và trích dẫn.
+5. Sinh câu trả lời bằng bộ cục bộ hoặc nhà cung cấp đã cấu hình.
+6. Kiểm tra câu trả lời; loại phần không được ngữ cảnh hỗ trợ hoặc thực hiện một lần sửa có căn cứ.
+7. Trả nội dung, trích dẫn và giới hạn cho giao diện.
+
+### 11.4. Catalog Studio
+
+1. Tìm thực thể có sẵn để tránh tạo trùng.
+2. Tạo hoặc mở bản nháp.
+3. Nhập thông tin chung, mẫu, biến thể, chipset, màn hình, camera, pin, phần mềm và media.
+4. Lưu tự động kèm revision.
+5. Kiểm tra trường bắt buộc, quan hệ, nguồn, media và dữ liệu chấm điểm.
+6. Người có quyền xác nhận xuất bản.
+7. Dịch vụ thực hiện giao dịch, tạo lịch sử và cập nhật bản ghi công khai.
+8. Lập chỉ mục lại nếu thực thể thuộc phạm vi tìm kiếm hoặc AI.
+
+### 11.5. Thu thập và kiểm duyệt dữ liệu
+
+```mermaid
+flowchart LR
+    S[Nguồn được duyệt] --> C[Tiến trình thu thập]
+    C --> V[Kiểm tra URL, nguồn, kích thước, loại nội dung]
+    V --> R[Trang dữ liệu thô: chờ duyệt]
+    R --> H[Biên tập viên đánh giá]
+    H -->|Từ chối| X[Lưu lý do]
+    H -->|Chấp nhận| D[Bản nháp dữ liệu]
+    D --> P[Kiểm tra và xuất bản]
+    P --> I[Lập chỉ mục tìm kiếm/AI]
 ```
+
+### 11.6. Cảnh báo giá
+
+1. Người dùng tạo cảnh báo theo biến thể, ngưỡng và tiền tệ.
+2. Đồng bộ giá cập nhật liên kết và ghi lịch sử khi giá thay đổi.
+3. Tiến trình kiểm tra lấy các cảnh báo đang hoạt động.
+4. Nếu điều kiện đạt và chưa gửi trùng, hệ thống tạo thông báo.
+5. Thông báo trong ứng dụng được lưu ngay; lần gửi thư vào hàng đợi bền vững.
+6. Tiến trình thư gửi theo lô, thử lại lỗi tạm thời và dừng với lỗi vĩnh viễn.
+
+### 11.7. Thanh toán thuê bao
+
+1. Người dùng chọn gói.
+2. API tạo phiên thanh toán khi khóa Stripe và giá hợp lệ.
+3. Stripe gửi webhook có chữ ký.
+4. API xác minh chữ ký, thời gian và mã sự kiện duy nhất.
+5. Sự kiện được ghi bằng mã băm payload; sự kiện lặp không được xử lý lại.
+6. Thuê bao và nhật ký thanh toán được cập nhật trong giao dịch phù hợp.
+7. Người dùng nhận thông báo trạng thái.
+
+### 11.8. API B2B
+
+1. Người dùng đủ quyền lợi tạo khóa.
+2. Bí mật chỉ hiển thị một lần; máy chủ lưu mã băm.
+3. Yêu cầu gửi `X-API-Key`.
+4. Guard kiểm tra trạng thái, scope, giới hạn tần suất và hạn mức tháng.
+5. Dịch vụ trả dữ liệu công khai trong hợp đồng B2B.
+6. Mức sử dụng được ghi để đối soát và hiển thị.
 
 ---
 
-### 4.4 Root configuration files
+## 12. Trí tuệ nhân tạo và truy xuất tăng cường
 
-| File                         | Mục đích                | Sửa khi nào                                             |
-| ---------------------------- | ----------------------- | ------------------------------------------------------- |
-| `package.json`               | Root scripts + dev deps | Thêm script global                                      |
-| `pnpm-workspace.yaml`        | Định nghĩa workspaces   | Thêm folder mới vào workspace                           |
-| `turbo.json`                 | Turborepo task config   | Thêm task mới                                           |
-| `.gitignore`                 | Ignore files            | Khi build tool mới                                      |
-| `.npmrc`                     | pnpm config             | Hiếm khi                                                |
-| `.env.example`               | Template env vars       | Khi thêm env var mới                                    |
-| `pnpm-lock.yaml`             | Lockfile dependencies   | Khi dependency thay đổi                                 |
-| `spechub-v2-master-guide.md` | Master doc              | Mỗi major change                                        |
-| `README.md`                  | Root onboarding         | Setup, development commands, checks, workspace overview |
-| `docs/*`                     | Planned detailed docs   | Khi tách ADR/runbook/API docs                           |
+### 12.1. Nhà cung cấp
 
----
+| Giá trị `AI_PROVIDER` | Chức năng |
+| --- | --- |
+| `local` | Trả lời dựa trên quy tắc và dữ liệu cục bộ |
+| `ollama` | Mô hình cục bộ qua giao diện HTTP tương thích |
+| `openai` | Mô hình OpenAI theo cấu hình |
+| `anthropic` | Mô hình Anthropic theo cấu hình |
 
-## 5. Sơ đồ quan hệ giữa các thành phần
+`AI_EMBEDDING_PROVIDER` được cấu hình độc lập với nhà cung cấp sinh câu trả lời. Dịch vụ `apps/ai-service` hiện chỉ chẩn đoán embedding cục bộ; luồng sinh câu trả lời được thực hiện trong API.
 
-### 5.1 High-level architecture
+### 12.2. Phạm vi kho tri thức
 
-**Ghi chú:** Sơ đồ dưới đây là target architecture dài hạn. Current local product active ở `apps/web` (gồm `/admin`, `/wiki`, `/api-access` và PWA), `apps/api`, `apps/worker`, PostgreSQL/Prisma, Redis optional, Meilisearch optional, AI local RAG, safe crawler intake, Resend email outbox và probe/metrics. Mobile native, crawler extractor chuyên sâu, browser push và hosted observability vẫn thuộc roadmap.
+Được phép lập chỉ mục:
 
-```
-╔════════════════════════════════════════════════════════════════╗
-║                        CLIENTS LAYER                            ║
-║  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     ║
-║  │   Web App    │    │  Admin App   │    │  Mobile App  │     ║
-║  │  (Next.js)   │    │  (Next.js)   │    │   (Expo)     │     ║
-║  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘     ║
-╚═════════│═══════════════════│═══════════════════│══════════════╝
-          │                   │                   │
-          │  HTTPS + JWT Bearer Token              │
-          ▼                   ▼                   ▼
-╔════════════════════════════════════════════════════════════════╗
-║                     API GATEWAY LAYER                           ║
-║  ┌─────────────────────────────────────────────────────────┐  ║
-║  │              Main API (apps/api)                         │  ║
-║  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │  ║
-║  │  │   Auth   │ │ Catalog  │ │   AI     │ │Commerce  │   │  ║
-║  │  │  Module  │ │ Module   │ │ Module   │ │ Module   │   │  ║
-║  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │  ║
-║  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │  ║
-║  │  │  Users   │ │ Search   │ │Wishlist  │ │   Wiki   │   │  ║
-║  │  │  Module  │ │ Module   │ │ Module   │ │ Module   │   │  ║
-║  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │  ║
-║  └─────────────────────────────────────────────────────────┘  ║
-╚═════│════════════════│════════════════│═══════════════════════╝
-      │                │                │
-      ▼                ▼                ▼
-┌──────────┐    ┌──────────┐    ┌──────────────┐
-│ AI       │    │ Crawler  │    │   Workers    │
-│ Service  │    │ Service  │    │   (BullMQ)   │
-└─────┬────┘    └─────┬────┘    └──────┬───────┘
-      │               │                │
-      └───────┬───────┴────────────────┘
-              │
-              ▼
-╔════════════════════════════════════════════════════════════════╗
-║                      DATA LAYER                                 ║
-║  ┌─────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   ║
-║  │ PostgreSQL  │  │ pgvector │  │  Redis   │  │   S3/R2  │   ║
-║  │  (16.x)     │  │ (vectors)│  │  (cache) │  │ (files)  │   ║
-║  └─────────────┘  └──────────┘  └──────────┘  └──────────┘   ║
-║  ┌─────────────┐                                               ║
-║  │ Meilisearch │                                               ║
-║  │  (search)   │                                               ║
-║  └─────────────┘                                               ║
-╚════════════════════════════════════════════════════════════════╝
-              │
-              ▼
-╔════════════════════════════════════════════════════════════════╗
-║                   EXTERNAL SERVICES                             ║
-║  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       ║
-║  │  Claude  │  │  GPT-4   │  │ Voyage   │  │  Stripe  │       ║
-║  │   API    │  │   API    │  │   AI     │  │   API    │       ║
-║  └──────────┘  └──────────┘  └──────────┘  └──────────┘       ║
-║  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       ║
-║  │  VNPay   │  │  Resend  │  │  Sentry  │  │ PostHog  │       ║
-║  └──────────┘  └──────────┘  └──────────┘  └──────────┘       ║
-╚════════════════════════════════════════════════════════════════╝
-```
+- Mẫu và biến thể thiết bị đã xuất bản.
+- Thành phần phần cứng và quan hệ.
+- Benchmark, điểm và dữ liệu giải thích.
+- Bài Wiki đã xuất bản.
+- Trang dữ liệu thô đã được duyệt.
+- Nguồn và trích dẫn công khai.
+- Đề nghị mua hàng đáng tin cậy và gói công khai khi cần cho câu hỏi.
 
-### 5.2 Package dependencies graph
+Không được lập chỉ mục cho trả lời công khai:
 
-#### Current MVP graph
+- Người dùng, mật khẩu, phiên và khóa API.
+- Bản ghi thanh toán riêng tư.
+- Nhật ký nội bộ có dữ liệu nhạy cảm.
+- Bản nháp chưa duyệt.
+- Dữ liệu tương tác riêng tư của người dùng.
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                       APPS                                  │
-│                                                             │
-│   apps/web                                                   │
-│       └─► @spechub/api-client                               │
-│                                                             │
-│   apps/api                                                   │
-│       ├─► @spechub/database                                 │
-│       ├─► @spechub/types                                    │
-│       └─► @spechub/ai-core                                  │
-│                                                             │
-│   apps/ai-service                                            │
-│       ├─► @spechub/database                                 │
-│       └─► @spechub/ai-core                                  │
-│                                                             │
-└────────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌────────────────────────────────────────────────────────────┐
-│                    PACKAGES                                 │
-│                                                             │
-│   @spechub/api-client ────► (standalone SDK/types today)   │
-│   @spechub/ai-core ───────► (standalone local RAG helpers) │
-│   @spechub/database ──────► (standalone Prisma client)     │
-│   @spechub/types ─────────► (standalone minimal types)     │
-│   @spechub/config ────────► (standalone shared configs)    │
-│   @spechub/ui/auth/utils/analytics                         │
-│       └─► shared helpers/tokens; auth/utils used by web    │
-│                                                             │
-└────────────────────────────────────────────────────────────┘
-```
+### 12.3. Kiểm soát chất lượng câu trả lời
 
-#### Target graph sau khi scale
-
-Khi `apps/admin` riêng, `apps/crawler`, mobile app và shared UI/auth/utils thật sự xuất hiện, graph mục tiêu có thể mở rộng theo hướng:
-
-- `apps/web` và `apps/admin` dùng `@spechub/ui`, `@spechub/auth`, `@spechub/api-client`, `@spechub/utils`, `@spechub/analytics`.
-- `apps/api`, `apps/worker`, `apps/crawler`, `apps/ai-service` dùng `@spechub/database`, `@spechub/types`, `@spechub/ai-core` tùy nhu cầu.
-- `@spechub/types` nên trở thành source of truth cho DTO/domain types, hoặc được thay bằng OpenAPI-generated client để tránh duplicate contract.
-
-### 5.3 NestJS Module dependency graph (apps/api)
-
-**Current active modules trong `AppModule`:** `CommonModule`, `PrismaModule`, `RedisModule`, `UsersModule`, `AuthModule`, `OrganizationsModule`, `DeviceCategoriesModule`, `ProductFamiliesModule`, `DeviceModelsModule`, `DeviceVariantsModule`, `ChipsetsModule`, `DisplayUnitsModule`, `BatteryUnitsModule`, `CameraModulesModule`, `HardwareCatalogModule`, `SearchModule`, `AiModule`, `DataIngestionModule`, `CitationsModule`, `WikiModule`, `WishlistsModule`, `AffiliateModule`, `AlertsModule`, `NotificationsModule`, `SubscriptionsModule`, `ApiKeysModule`, `B2bModule`.
-
-**Planned/scaffolded nhưng chưa active:** crawler extractor chuyên sâu theo từng source, browser push provider, VNPay, mobile native và hosted observability.
-
-```
-                     AppModule
-                         │
-        ┌────────────────┼────────────────┬───────────────┐
-        │                │                │               │
-        ▼                ▼                ▼               ▼
-  ConfigModule    ThrottlerModule    CommonModule   PrismaModule
-       (global)        (global)         (global)       (global)
-                                                          │
-                                                          │ (used by all)
-                                                          ▼
-        ┌──────────────────────────────────────────────────┐
-        │                                                  │
-        ▼                                                  ▼
-   RedisModule                                       UsersModule
-     (global)                                             │
-                                                          │ uses
-                                                          ▼
-                                                     AuthModule
-                                                       │  │
-                                                       │  ├─► JwtModule
-                                                       │  └─► PassportModule
-                                                       │
-                                                       │ used by guards in all modules
-                                                       │
-        ┌────────────────┬──────────────┬──────────────┴───────────┬──────────────┐
-        ▼                ▼              ▼                          ▼              ▼
- OrganizationsModule  CategoriesModule  ModelsModule       VariantsModule    SearchModule
-        │                │                  │                      │                │
-        │                │                  │                      │                │
-        └──────────┬─────┴──────────┬──────┴──────────────┬──────┘                │
-                   ▼                ▼                     ▼                        │
-              uses PrismaService  uses RedisService  uses AuthModule          uses Meilisearch
-                                                          │
-                  (continues for active MVP modules: chipsets, display units,
-                   battery units, camera modules, search, ai)
-```
-
-### 5.4 Request flow (Auth + Authorization)
-
-```
-┌──────────┐
-│  Client  │
-│ Browser  │
-└────┬─────┘
-     │ POST /api/v1/auth/login
-     │ { email, password }
-     ▼
-┌──────────────────────────────────────────┐
-│         Fastify HTTP Server               │
-│  + CORS + Helmet + Cookie + Throttler    │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│       Global Guards (in order)           │
-│                                          │
-│  1. ThrottlerGuard - Rate limit check   │
-│  2. JwtAuthGuard                         │
-│     - Check @Public()? → yes, skip      │
-│     - else, verify JWT                   │
-│  3. RolesGuard                           │
-│     - Check @Roles()? → no, allow       │
-│     - else, check user.role             │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│      Global Pipes (validation)           │
-│                                          │
-│  - ValidationPipe (class-validator)      │
-│  - Transform DTO + reject invalid        │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│    Controller (AuthController.login)     │
-│                                          │
-│  - LocalAuthGuard verifies email/pass    │
-│  - LocalStrategy.validate() returns user │
-│  - req.user attached                     │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│      AuthService.login(user)             │
-│                                          │
-│  - signTokens({ sub, email, role })      │
-│  - jwtService.signAsync() x 2            │
-│  - usersService.updateLastLogin()        │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│    Global Interceptors (in order)        │
-│                                          │
-│  1. TransformInterceptor                 │
-│     - Wrap response { data, meta }       │
-│  2. LoggingInterceptor                   │
-│     - Log: POST /auth/login 200 45ms     │
-└────┬─────────────────────────────────────┘
-     │
-     ▼
-┌──────────────────────────────────────────┐
-│         Response to Client               │
-│                                          │
-│  {                                       │
-│    "data": {                             │
-│      "user": { ... },                    │
-│      "tokens": {                         │
-│        "access_token": "...",            │
-│        "refresh_token": "...",           │
-│        "expires_in": 604800              │
-│      }                                   │
-│    }                                     │
-│  }                                       │
-└──────────────────────────────────────────┘
-```
+- Câu trả lời phải dựa trên ngữ cảnh được truy xuất.
+- Trích dẫn phải tham chiếu thực thể/nguồn tồn tại trong kết quả truy xuất.
+- Nội dung định lượng không được hỗ trợ phải bị loại hoặc yêu cầu sửa một lần.
+- Kết quả khuyến nghị phải nêu điều kiện phù hợp và đánh đổi, không chỉ xếp hạng tuyệt đối.
+- Không cho mô hình truy cập SQL tùy ý.
+- Dữ liệu thu thập từ bên ngoài được coi là nội dung, không phải chỉ dẫn điều khiển mô hình.
 
 ---
 
-## 6. Database schema relationships
+## 13. Bảo mật và kiểm soát truy cập
 
-### 6.1 Sơ đồ quan hệ 14 nhóm bảng
+### 13.1. Chuỗi guard
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        META LAYER (0)                        │
-│  languages ─┬─► translations                                 │
-│             └─► (used by all "content" tables)              │
-│                                                              │
-│  sources ─► citations ─► (cited in wiki, specs)             │
-│                                                              │
-│  media_assets ─► entity_media ─► (polymorphic)              │
-│  tags ─► entity_tags ─► (polymorphic)                       │
-│  units ─► feature_definitions ─► benchmarks                 │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  ORGANIZATIONS (A)                           │
-│  organizations ─┬─► product_families (brand_org)            │
-│   │             ├─► chipsets (manufacturer)                  │
-│   │             ├─► display_units, camera_sensors, ...      │
-│   │             └─► organization_role_assignments           │
-│   │                                                          │
-│   └─► (self-ref: parent_org_id)                             │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  DEVICE HIERARCHY (B)                        │
-│                                                              │
-│  device_categories (tree)                                    │
-│        │                                                     │
-│        ▼                                                     │
-│  product_families ◄── organizations (brand)                 │
-│        │                                                     │
-│        ▼                                                     │
-│  device_models ─► model_lineage (successor/predecessor)     │
-│        │                                                     │
-│        ▼                                                     │
-│  device_variants (CENTER OF SCHEMA)                         │
-│        ├─► variant_physical_specs (1-1)                     │
-│        ├─► variant_io_specs (1-1)                           │
-│        ├─► variant_thermal_specs (1-1)                      │
-│        ├─► variant_price_history (1-many)                   │
-│        └─► (composition tables - layer F)                   │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  TAXONOMY (C)                                │
-│                                                              │
-│  technology_families (self-ref tree)                        │
-│  architectures (ARMv9.2-A, x86-64...)                       │
-│  process_nodes (TSMC N3B, ...)  ─► foundry_org              │
-│  display_technologies, battery_chemistries                  │
-│  network_generations (5G, Wi-Fi 7...)                       │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  COMPONENTS (D)                              │
-│                                                              │
-│  chipsets ─┬─► cpus (chipset_cpu_links)                     │
-│            ├─► gpus (chipset_gpu_links)                     │
-│            ├─► npus (chipset_npu_links)                     │
-│            └─► modems (chipset_modem_links)                 │
-│                                                              │
-│  camera_modules ─► camera_sensors (sensor_links)            │
-│  display_units, battery_units                                │
-│  memory_standards, storage_standards                         │
-│  operating_systems ─► os_versions ─► os_ui_layers           │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│           VARIANT COMPOSITION (F) - 15+ tables               │
-│                                                              │
-│  device_variants ─┬─► variant_chipsets ◄─► chipsets         │
-│                   ├─► variant_displays ◄─► display_units    │
-│                   ├─► variant_batteries ◄─► battery_units   │
-│                   ├─► variant_camera_modules                │
-│                   ├─► variant_memory_configs                │
-│                   ├─► variant_storage_configs               │
-│                   ├─► variant_operating_systems             │
-│                   └─► (...)                                  │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│        BENCHMARKS (H) - 5 score tables                       │
-│                                                              │
-│  benchmarks ─► benchmark_runs (context)                     │
-│              │                                               │
-│              ├─► device_variant_benchmarks                   │
-│              ├─► chipset_benchmarks                          │
-│              ├─► cpu_benchmarks                              │
-│              ├─► gpu_benchmarks                              │
-│              └─► npu_benchmarks                              │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  USERS & WIKI (I)                            │
-│                                                              │
-│  users ─┬─► wiki_revisions (author)                         │
-│         ├─► comments                                         │
-│         ├─► wishlists                                        │
-│         ├─► price_alerts                                     │
-│         ├─► notifications                                    │
-│         └─► subscriptions                                    │
-│                                                              │
-│  wiki_articles (polymorphic) ─► wiki_revisions              │
-│                              └─► wiki_article_citations     │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│          AI / SEARCH / CRAWLER (J, K)                        │
-│                                                              │
-│  embeddings (pgvector) ─► (polymorphic on entity)           │
-│  ai_query_cache ─► (no FK, query hash unique)               │
-│  search_logs ─► users                                        │
-│                                                              │
-│  data_sources ─► raw_pages ─► device_models                 │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│        COMMERCE & ENGAGEMENT (L, M, N)                       │
-│                                                              │
-│  affiliate_partners ─► affiliate_links ─► device_variants   │
-│                        │                                     │
-│                        ├─► affiliate_price_history          │
-│                        └─► affiliate_clicks                  │
-│                                                              │
-│  subscription_plans ─► subscriptions ─► users               │
-│                                                              │
-│  wishlists ─► wishlist_items ─► device_variants             │
-│  price_alerts ─► device_variants                            │
-│  notifications ─► users                                      │
-└─────────────────────────────────────────────────────────────┘
-```
+Thứ tự guard toàn cục:
 
-### 6.2 Patterns chính
+1. `ThrottlerGuard`.
+2. `JwtAuthGuard`.
+3. `RolesGuard`.
 
-#### Pattern 1: Polymorphic relationships
+Điểm cuối công khai phải có khai báo tương ứng. Điểm cuối B2B sử dụng guard khóa API riêng. Quyền truy cập tài nguyên của người dùng vẫn phải được kiểm tra theo chủ sở hữu ở lớp dịch vụ.
 
-```
-entity_table + entity_id → reference đến bất kỳ bảng nào
+### 13.2. Phiên
 
-Ví dụ:
-  translations: entity_table='device_models', entity_id='<uuid>'
-  entity_media: entity_table='chipsets', entity_id='<uuid>'
-  comments: entity_table='device_models', entity_id='<uuid>'
-```
+- Mã truy cập có thời hạn ngắn.
+- Mã làm mới gắn với UUID phiên trong Redis.
+- Đăng xuất thu hồi phiên ở phía máy chủ.
+- Triển khai thay đổi cấu trúc phiên có thể buộc người dùng đăng nhập lại.
 
-#### Pattern 2: Vertical partitioning (1-1)
+### 13.3. Media
 
-```
-device_variants ─┬─► variant_physical_specs (PK = device_variant_id)
-                 ├─► variant_io_specs (PK = device_variant_id)
-                 └─► variant_thermal_specs (PK = device_variant_id)
-```
+- Kiểm tra tên, MIME, kích thước và quyền trước khi tạo yêu cầu tải lên.
+- URL ký có thời hạn ngắn.
+- Ảnh tối đa 25 MB; video tối đa 2 GB theo tài liệu Catalog Platform v3.
+- Trạng thái media chuyển từ `pending` sang `ready` sau khi hoàn tất.
+- URL phân phối được tạo từ cấu hình kho lưu trữ, không nhúng cố định vào thực thể.
 
-#### Pattern 3: Junction table với role
+### 13.4. Dữ liệu nhạy cảm
 
-```
-variant_chipsets:
-  - device_variant_id
-  - chipset_id
-  - chip_role ('soc' | 'controller' | 'coprocessor')
-  - is_primary
-
-UNIQUE(device_variant_id, chipset_id, chip_role)
-```
-
-#### Pattern 4: Lookup tables thay enum
-
-```
-device_models.release_status_id → release_statuses.id
-                                  (rumored, announced, released, eol...)
-```
+- Không ghi giá trị bí mật vào log.
+- Không đưa tệp `.env` vào kiểm soát phiên bản.
+- Chỉ tài liệu hóa tên biến, không tài liệu hóa giá trị vận hành.
+- Webhook chỉ lưu mã băm payload khi không cần giữ payload gốc.
+- Khóa API chỉ lưu mã băm SHA-256 và thời điểm sử dụng cần thiết.
 
 ---
 
-## 7. Module dependencies
+## 14. Tác vụ nền và tích hợp ngoài
 
-### 7.1 NestJS module hierarchy (apps/api)
+### 14.1. Tiến trình nền
 
-```
-AppModule (root)
-│
-├─► Global Modules
-│   ├─► ConfigModule (env)
-│   ├─► ThrottlerModule (rate limit)
-│   ├─► CommonModule
-│   │   ├─► GlobalExceptionFilter
-│   │   ├─► TransformInterceptor
-│   │   └─► LoggingInterceptor
-│   ├─► PrismaModule
-│   │   └─► PrismaService
-│   └─► RedisModule
-│       └─► RedisService
-│
-├─► Foundation Modules
-│   ├─► UsersModule
-│   │   └─► UsersService
-│   │       (uses: PrismaService)
-│   └─► AuthModule
-│       ├─► JwtModule (async config)
-│       ├─► PassportModule
-│       ├─► JwtStrategy
-│       │   (uses: UsersService)
-│       ├─► LocalStrategy
-│       │   (uses: UsersService)
-│       ├─► AuthService
-│       │   (uses: UsersService, JwtService)
-│       └─► AuthController
-│
-└─► Feature Modules
-    │
-    ├─► OrganizationsModule
-    │   ├─► OrganizationsService
-    │   │   (uses: PrismaService, RedisService)
-    │   └─► OrganizationsController
-    │       (uses: JwtAuthGuard, RolesGuard)
-    │
-    ├─► DeviceCategoriesModule
-    │   └─► (similar structure)
-    │
-    ├─► ProductFamiliesModule
-    │   └─► (similar structure)
-    │
-    ├─► DeviceModelsModule
-    │   └─► (uses: OrganizationsService, CategoriesService...)
-    │
-    ├─► DeviceVariantsModule
-    │   └─► (uses: DeviceModelsService...)
-    │
-    ├─► ChipsetsModule
-    │   └─► (similar)
-    │
-    ├─► SearchModule
-    │   ├─► MeilisearchService
-    │   └─► SearchController
-    │       (uses: PrismaService for sync)
-    │
-    ├─► AIModule
-    │   ├─► AIService
-    │   │   (provider layer + local/catalog RAG logic)
-    │   └─► AIController
-    │
-    ├─► DataIngestionModule
-    │   └─► raw pages, review queue, data sources
-    │
-    ├─► CitationsModule
-    │   └─► citation sources and citation records
-    │
-    ├─► Commerce/Engagement Modules
-    │   ├─► WishlistsModule
-    │   ├─► AffiliateModule
-    │   ├─► AlertsModule
-    │   ├─► NotificationsModule
-    │   └─► SubscriptionsModule
-    │
-    └─► Component Modules
-        ├─► ChipsetsModule
-        ├─► DisplayUnitsModule
-        ├─► BatteryUnitsModule
-        └─► CameraModulesModule
-```
+`apps/worker` chạy ba nhóm công việc độc lập, mỗi nhóm chỉ bật khi biến môi trường cho phép:
 
-`WikiModule` là active surface: public read, versioned revisions, contributor proposals, editor publish và citation links. Crawler worker không tự publish catalog; raw pages luôn đi qua moderation queue trước.
+| Công việc | Cờ bật | Chu kỳ mặc định |
+| --- | --- | ---: |
+| Kiểm tra cảnh báo giá | `PRICE_ALERTS_WORKER_ENABLED` | 60 phút |
+| Thu thập nguồn | `CRAWLER_WORKER_ENABLED` | 360 phút |
+| Gửi thư thông báo | `EMAIL_DELIVERY_ENABLED` | 5 phút |
 
-### 7.2 Frontend component hierarchy (apps/web)
+Tiến trình sử dụng cờ nội bộ để tránh chạy chồng, kết nối Prisma khi có công việc và ngắt kết nối khi nhận `SIGINT` hoặc `SIGTERM`.
 
-**Current MVP:** `apps/web/src/app` đang dùng route phẳng: `/`, `/devices`, `/devices/[slug]`, `/compare`, `/search`, `/ai`, `/login`, `/register`, `/dashboard`, `/wishlist`, `/alerts`, `/notifications`, `/billing`, `/admin`, `/offline`. Root layout bọc `QueryProvider`, `AuthProvider` và `AppShell`. Component dùng thật đang nằm trực tiếp trong `apps/web/src/components`.
+### 14.2. Đồng bộ giá trong API
 
-**Target sau MVP:** Có thể tách route groups `(public)`, `(auth)`, `(account)` và tách component theo feature khi số lượng page/component tăng. Sơ đồ dưới đây là target hierarchy, không phải tree hiện tại 1:1.
+Bộ lập lịch giá liên kết có thể chạy trong API khi `AFFILIATE_PRICE_SYNC_ENABLED=true`. Công việc định kỳ chọn liên kết quá hạn, giới hạn kích thước lô và số yêu cầu đồng thời, sau đó cập nhật lịch sử và đánh giá cảnh báo.
 
-```
-RootLayout (app/layout.tsx)
-│
-├─► ThemeProvider
-├─► QueryProvider (TanStack Query)
-├─► AuthProvider
-└─► Toaster
-    │
-    ├─► (public)/layout.tsx
-    │   ├─► Header
-    │   │   ├─► Logo
-    │   │   ├─► MainNav
-    │   │   ├─► SearchBar
-    │   │   └─► UserMenu / LoginButton
-    │   │
-    │   ├─► <Page Content>
-    │   │   │
-    │   │   ├─► HomePage (page.tsx)
-    │   │   │   ├─► HeroSection
-    │   │   │   ├─► PopularDevices
-    │   │   │   ├─► RecentReviews
-    │   │   │   └─► CTASection
-    │   │   │
-    │   │   ├─► DeviceListPage (/devices)
-    │   │   │   ├─► FilterSidebar
-    │   │   │   ├─► SortDropdown
-    │   │   │   ├─► DeviceGrid
-    │   │   │   │   └─► DeviceCard (multiple)
-    │   │   │   └─► Pagination
-    │   │   │
-    │   │   ├─► DeviceDetailPage (/devices/[slug])
-    │   │   │   ├─► HeroSection
-    │   │   │   │   ├─► ImageGallery
-    │   │   │   │   ├─► VariantSelector
-    │   │   │   │   └─► BuyButtons
-    │   │   │   ├─► Tabs
-    │   │   │   │   ├─► SpecsTab
-    │   │   │   │   │   └─► SpecTable
-    │   │   │   │   ├─► ReviewsTab
-    │   │   │   │   ├─► CompareTab
-    │   │   │   │   └─► BenchmarksTab
-    │   │   │   │       └─► BenchmarkChart
-    │   │   │   ├─► RelatedDevices
-    │   │   │   └─► AISummaryCard
-    │   │   │
-    │   │   ├─► ComparePage (/compare)
-    │   │   │   ├─► DevicePicker (multiple)
-    │   │   │   ├─► CompareTable
-    │   │   │   ├─► AIAnalysis
-    │   │   │   └─► ProsCons
-    │   │   │
-    │   │   ├─► SearchPage (/search)
-    │   │   │   ├─► SearchBar (large)
-    │   │   │   ├─► SearchFilters
-    │   │   │   └─► SearchResults
-    │   │   │
-    │   │   └─► AIPage (/ai)
-    │   │       ├─► ChatInterface
-    │   │       │   ├─► MessageList
-    │   │       │   │   └─► MessageBubble (multiple)
-    │   │       │   └─► InputBox
-    │   │       └─► CitationsSidebar
-    │   │           └─► CitationCard (multiple)
-    │   │
-    │   └─► Footer
-    │
-    ├─► (auth)/layout.tsx (centered)
-    │   ├─► LoginPage
-    │   │   └─► LoginForm
-    │   └─► RegisterPage
-    │       └─► RegisterForm
-    │
-    └─► (account)/layout.tsx (protected)
-        ├─► AccountSidebar
-        ├─► DashboardPage
-        ├─► WishlistPage
-        ├─► AlertsPage
-        ├─► SettingsPage
-        └─► BillingPage
-```
+Trong môi trường có nhiều bản sao API, cần bảo đảm chỉ một chủ sở hữu lịch hoặc sử dụng khóa phân tán để tránh chạy lặp.
+
+### 14.3. Tích hợp
+
+| Tích hợp | Mục đích | Hành vi khi thiếu cấu hình |
+| --- | --- | --- |
+| Stripe | Thanh toán thuê bao và webhook | Chức năng thanh toán không khả dụng; gói vẫn có thể hiển thị |
+| Resend | Gửi thư thông báo | Chỉ giữ thông báo trong ứng dụng |
+| S3 tương thích | Media | Phát triển có thể dùng lưu trữ cục bộ |
+| Meilisearch | Tìm kiếm | Chuyển về tìm kiếm PostgreSQL |
+| Ollama/OpenAI/Anthropic | Sinh câu trả lời | Dùng phương án cục bộ hoặc trả lỗi có kiểm soát |
+| API giá thương mại | Giá chính thức | Đọc metadata cấu trúc từ liên kết đã lưu nếu phù hợp |
 
 ---
 
-## 8. Roadmap sau MVP
-
-### 8.1 Progress overview
-
-| Phase                               | Status                           | Ghi chú                                                                                                                                                                        |
-| ----------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Phase 0 — Foundation**            | ✅ Done                          | Monorepo, DB, API/web skeleton, seed, docs nền.                                                                                                                                |
-| **Phase 1 — MVP Core**              | ✅ Done                          | Catalog, detail, compare, search, auth, dashboard cơ bản, AI catalog Q&A.                                                                                                      |
-| **Phase 1.5 — Stabilization**       | ✅ Done                          | Type-check xanh, env chuẩn, docs/onboarding, package cleanup, build/test pass.                                                                                                 |
-| **Phase 2 — AI & Data**             | ✅ Done                          | Provider layer, embeddings cho catalog/raw pages, ingestion/review API, citation workflow.                                                                                     |
-| **Phase 3 — Commerce & Engagement** | ✅ Done                          | Affiliate, wishlist, alerts, notifications, subscriptions, dashboard/device CTAs.                                                                                              |
-| **Phase 4 — Operations & Scale**    | ✅ Local implementation complete | `/admin`, PWA/mobile shell, Stripe Checkout/webhook/audit và worker price-alert riêng. |
-| **Phase 5 — Product hardening**     | ✅ Local implementation complete | Wiki/revisions, safe crawler intake, B2B API key/quota, Resend email outbox, request IDs, probe/metrics và structured logs. |
-
-### 8.2 MVP đã hoàn thành
-
-| Nhóm                        | Trạng thái                                                                                                                                           |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monorepo                    | ✅ `pnpm-workspace.yaml`, Turborepo, root scripts.                                                                                                   |
-| Database                    | ✅ Prisma schema, migrations, seed data, generated client package.                                                                                   |
-| API core                    | ✅ NestJS/Fastify, versioned API, Swagger, validation, auth guards, rate limiting.                                                                   |
-| Catalog API                 | ✅ Organizations, categories, product families, device models, variants, chipsets, display/battery/camera.                                           |
-| Search                      | ✅ Database fallback + optional Meilisearch path and sync script.                                                                                    |
-| AI MVP                      | ✅ Local embedding/RAG helper, AI ask/search/stats/index endpoints.                                                                                  |
-| AI/Data Phase 2             | ✅ Local/OpenAI/Anthropic answer provider, OpenAI embedding provider, raw-page indexing, ingestion/review API, citation sources/citations API.       |
-| Commerce/Engagement Phase 3 | ✅ Wishlist, affiliate links/click tracking, price alerts, in-app notifications, subscription plans/manual assignment, dashboard/device integration. |
-| Web MVP                     | ✅ Homepage, devices, detail, compare, search, AI, login/register/dashboard.                                                                         |
-| API tests                   | ✅ `pnpm --filter @spechub/api test` pass với 21 suites / 76 tests trong `@spechub/api`.                                                             |
-
-### 8.3 Phase 1.5 — Stabilization ưu tiên cao
-
-| Ưu tiên | Task                                                                                                                                  | Lý do                                                                                |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Done    | Thêm `packages/database/tsconfig.json` và khai báo `@spechub/config` dependency.                                                      | `pnpm type-check` đã pass toàn repo.                                                 |
-| Done    | Chuẩn hóa env names giữa `.env.example`, `turbo.json`, API và web.                                                                    | Search/web setup không còn dùng tên biến lệch.                                       |
-| Done    | Tạo skeleton thật cho các module scaffold trong `apps/api/src/modules/{affiliate,alerts,notifications,subscriptions,wiki,wishlists}`. | Không còn file 0 byte.                                                               |
-| Done    | Bổ sung đủ file export cho `@spechub/config`.                                                                                         | TypeScript/ESLint/Tailwind shared config resolve được.                               |
-| Done    | Hiện thực hóa shared package exports; `@spechub/auth` và `@spechub/utils` có consumer ở web.                                          | Shared layer bớt nhiễu.                                                              |
-| Done    | Bổ sung root `README.md` onboarding ngắn.                                                                                             | Người mới có lệnh setup/run/test nhanh.                                              |
-| Done    | Chạy smoke checks: lint, type-check, test, Prisma validate, build.                                                                    | Health check toàn repo đã xanh sau khi API lint và web image/font setup được harden. |
-| Done    | Tạo CI tối thiểu: install, generate Prisma, Prisma validate, lint, type-check, test, build.                                           | Bảo vệ MVP trước regressions trong remote workflow.                                  |
-
-### 8.4 Phase 2 — AI & Auto Data
-
-| Task                            | Trạng thái Phase 2                                                                                                                 |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| LLM provider thật               | ✅ `AiProviderService` hỗ trợ `local`, `openai`, `anthropic`; thiếu API key thì tự fallback local.                                 |
-| Embedding pipeline production   | ✅ Catalog device models và reviewed raw pages có endpoint index riêng; model name được lưu trong embeddings/cache.                |
-| Crawler/data ingestion contract | ✅ `data-ingestion` module quản lý sources, raw pages, review queue và status lifecycle.                                           |
-| Admin review queue API          | ✅ `GET /data-ingestion/review-queue` và `PATCH /raw-pages/:id/review` đã có role guard admin/editor.                              |
-| Citation workflow               | ✅ `citations` module quản lý public read + admin/editor write cho sources/citations.                                              |
-| Catalog write contract          | ✅ Organizations, categories, product families, device models, variants có create/update/soft-delete admin/editor.                 |
-| Production hardening còn lại    | 🔄 Tạo worker crawler/parser chuyên sâu, audit log chi tiết và extractor schema theo source; review queue UI đã có trong `/admin`. |
-
-**Validation Phase 2:** `pnpm lint`, `pnpm type-check`, `pnpm test`, `pnpm db:validate`, `pnpm build` đều pass.
-
-### 8.5 Phase 3 — Commerce & Engagement
-
-**Mục tiêu:** biến các module scaffolded `affiliate`, `wishlists`, `alerts`, `notifications`, `subscriptions` thành feature thật, bắt đầu từ API + dashboard MVP, sau đó mới thêm worker/payment production. Phase này đã hoàn thành ở mức MVP: user có wishlist, buy links, alert, notification center và subscription overview.
-
-**Trạng thái hiện tại sau Phase 3:**
-
-| Nhóm            | Trạng thái                                                                                                                                                                                              |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Database schema | ✅ Đã có `affiliate_partners`, `affiliate_links`, `affiliate_price_history`, `affiliate_clicks`, `subscription_plans`, `subscriptions`, `wishlists`, `wishlist_items`, `price_alerts`, `notifications`. |
-| Seed            | ✅ Đã có subscription plans `free`, `pro`, `team` và affiliate partners/links mẫu cho seed variants.                                                                                                    |
-| API modules     | ✅ Active trong `AppModule`: `affiliate`, `wishlists`, `alerts`, `notifications`, `subscriptions`.                                                                                                      |
-| API client      | ✅ `packages/api-client` có typed methods/types cho toàn bộ Phase 3.                                                                                                                                    |
-| Web             | ✅ Dashboard có engagement summary; đã có `/wishlist`, `/alerts`, `/notifications`, `/billing` và panel buy/save/alert trên device detail.                                                              |
-| Tests           | ✅ Service specs bao phủ wishlist owner/default item, affiliate price history/clicks, alert plan gate/trigger, notification read flow, subscription fallback/assignment.                                |
-| Workers         | 🔄 Có scheduler opt-in trong API process; worker app/BullMQ riêng vẫn chuyển sang production hardening khi cần scale.                                                                                   |
-
-#### 8.5.1 Phase 3.0 — Chuẩn bị contract
-
-**Kết quả:** hoàn tất. Không phát sinh migration mới; dùng schema commerce/engagement đã có sẵn trong Prisma. Các module Phase 3 đã được register sau khi có service/controller/DTO/test thật.
-
-| Bước | Cách làm cụ thể                                                                                                                                                              | Output                                    |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| 1    | Audit schema hiện có và quyết định không migration nếu chưa cần. Dùng đúng tên model Prisma hiện tại: `subscriptions` chứ không tạo thêm `user_subscriptions`.               | Không phát sinh schema churn.             |
-| 2    | Register từng module vào `AppModule` theo thứ tự: `wishlists`, `affiliate`, `alerts`, `notifications`, `subscriptions`. Không register tất cả nếu chưa có service/test thật. | Module active có kiểm soát.               |
-| 3    | Chuẩn hóa DTO và response select cho từng module. Dùng snake_case field theo DB/API hiện có.                                                                                 | Swagger/API client không lệch convention. |
-| 4    | Cập nhật `packages/api-client` ngay khi endpoint ổn định.                                                                                                                    | Web không gọi fetch thủ công.             |
-| 5    | Thêm service specs trước hoặc cùng lúc với implementation.                                                                                                                   | Regression guard cho Phase 3.             |
-
-#### 8.5.2 Phase 3.1 — Wishlist MVP
-
-**Mục tiêu:** user đăng nhập có thể tạo wishlist, thêm/xóa device variant, xem danh sách đã lưu.
-
-**Trạng thái:** ✅ Hoàn tất MVP. API có default wishlist flow, owner/admin guard, add/remove item; web có trang `/wishlist` và device detail CTA để lưu variant.
-
-| Endpoint                                     | Quyền         | Hành vi                                                                                       |
-| -------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
-| `GET /api/v1/wishlists`                      | authenticated | List wishlist của current user, kèm item count.                                               |
-| `POST /api/v1/wishlists`                     | authenticated | Tạo wishlist `{ name, is_public }`.                                                           |
-| `PATCH /api/v1/wishlists/:id`                | owner/admin   | Sửa tên/public flag.                                                                          |
-| `DELETE /api/v1/wishlists/:id`               | owner/admin   | Xóa wishlist và items.                                                                        |
-| `POST /api/v1/wishlists/:id/items`           | owner/admin   | Add `device_variant_id`, optional `notes`; respect unique `[wishlist_id, device_variant_id]`. |
-| `DELETE /api/v1/wishlists/:id/items/:itemId` | owner/admin   | Remove item.                                                                                  |
-
-**Service rules:**
-
-- Tự tạo wishlist `Default` cho user nếu gọi add item mà chưa có wishlist.
-- Chỉ owner hoặc admin được sửa/xóa wishlist.
-- Public wishlist chỉ nên mở read endpoint sau khi có slug/share UX; MVP có thể giữ `is_public` nhưng chưa expose public route.
-- Khi add duplicate item, trả item hiện có hoặc `409 Conflict`; chọn một cách và test rõ.
-
-**Web work:**
-
-- Dashboard `/dashboard` thêm tab/card saved devices.
-- Device detail và compare cards có button save/unsave.
-- State tối thiểu: empty, loading, duplicate, removed.
-
-**Tests:**
-
-- List only current user's wishlists.
-- Add variant creates/uses default wishlist.
-- Duplicate add is handled deterministically.
-- Non-owner cannot mutate.
-
-#### 8.5.3 Phase 3.2 — Affiliate Links + Click Tracking
-
-**Mục tiêu:** hiển thị buy links cho device variant, track click để chuẩn bị monetization.
-
-**Trạng thái:** ✅ Hoàn tất MVP. API public list/detail/click tracking, admin/editor partner/link management, price history khi giá đổi; web hiển thị buy links trên device detail.
-
-| Endpoint                                 | Quyền                | Hành vi                                                                                |
-| ---------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
-| `GET /api/v1/affiliate/links`            | public               | List active buy links, filter theo `device_variant_id`, `region_code`, `partner_slug`. |
-| `GET /api/v1/affiliate/links/:id`        | public               | Detail link.                                                                           |
-| `POST /api/v1/affiliate/partners`        | admin/editor         | Tạo partner `{ name, slug, base_url, logo_url, commission_rate }`.                     |
-| `POST /api/v1/affiliate/links`           | admin/editor         | Tạo link cho variant/region/currency/current price.                                    |
-| `PATCH /api/v1/affiliate/links/:id`      | admin/editor         | Update price, stock, URL.                                                              |
-| `POST /api/v1/affiliate/links/:id/click` | public/auth optional | Ghi click rồi trả redirect URL hoặc `{ redirect_url }`.                                |
-
-**Service rules:**
-
-- Click record lấy `session_id`, `ip_address`, `user_agent`, `referrer`; `user_id` được lưu khi public endpoint nhận Bearer token hợp lệ qua optional JWT guard.
-- Không redirect thẳng trong service; controller quyết định trả JSON hay HTTP redirect.
-- Khi cập nhật `current_price`, ghi thêm `affiliate_price_history` nếu giá thay đổi.
-- Filter public chỉ trả partner/link active và `in_stock` nếu UI yêu cầu.
-
-**Seed nên thêm:**
-
-- Partner mẫu: Amazon, BestBuy hoặc retailer placeholder.
-- 2-3 affiliate links gắn vào seed variants để web có dữ liệu.
-
-**Tests:**
-
-- Public list filter theo variant/region.
-- Price update creates history only when price changes.
-- Click tracking creates row and returns product URL.
-
-#### 8.5.4 Phase 3.3 — Price Alerts
-
-**Mục tiêu:** user tạo alert khi giá variant thấp hơn target.
-
-**Trạng thái:** ✅ Hoàn tất MVP. API có create/list/update/deactivate và manual check endpoint; alert đọc feature flag từ subscription plan và tạo in-app notification khi trigger.
-
-| Endpoint                    | Quyền         | Hành vi                                                                      |
-| --------------------------- | ------------- | ---------------------------------------------------------------------------- |
-| `GET /api/v1/alerts`        | authenticated | List alerts của current user.                                                |
-| `POST /api/v1/alerts`       | authenticated | Tạo alert `{ device_variant_id, target_price, currency_code, region_code }`. |
-| `PATCH /api/v1/alerts/:id`  | owner/admin   | Update target/active state.                                                  |
-| `DELETE /api/v1/alerts/:id` | owner/admin   | Deactivate hoặc delete; MVP nên set `is_active=false`.                       |
-| `POST /api/v1/alerts/check` | admin/editor  | Manual check current affiliate prices và trigger notifications.              |
-
-**Service rules:**
-
-- Chỉ Pro/Team mới tạo unlimited alerts; Free dùng feature flag từ `subscription_plans.features.price_alerts` hoặc giới hạn 0.
-- Alert trigger khi `affiliate_links.current_price <= target_price` cùng currency/region.
-- Khi trigger, set `triggered_at` và tạo notification type `price_alert_triggered`.
-- MVP dùng manual check endpoint; worker giá tự động chuyển sang Phase 4 nếu cần.
-
-**Tests:**
-
-- User chỉ thấy alert của mình.
-- Free plan bị chặn nếu `price_alerts=false`.
-- Check endpoint tạo notification và không trigger lặp alert đã triggered/inactive.
-
-#### 8.5.5 Phase 3.4 — In-App Notifications
-
-**Mục tiêu:** có notification center trong dashboard, phục vụ alert/subscription events.
-
-**Trạng thái:** ✅ Hoàn tất MVP. API có list, unread count, create nội bộ/admin, mark read, mark all read; web có trang `/notifications`.
-
-| Endpoint                                 | Quyền                 | Hành vi                                                   |
-| ---------------------------------------- | --------------------- | --------------------------------------------------------- |
-| `GET /api/v1/notifications`              | authenticated         | List notification của current user, filter `unread_only`. |
-| `GET /api/v1/notifications/unread-count` | authenticated         | Count unread.                                             |
-| `PATCH /api/v1/notifications/:id/read`   | owner/admin           | Mark one as read.                                         |
-| `PATCH /api/v1/notifications/read-all`   | authenticated         | Mark all as read.                                         |
-| `POST /api/v1/notifications`             | admin/editor/internal | Create notification for a user.                           |
-
-**Service rules:**
-
-- `data` là JSON nhỏ, không lưu payload quá lớn.
-- Notification type nên là string enum trong DTO: `price_alert_triggered`, `subscription_updated`, `system`.
-- Email delivery đã được bổ sung sau Phase 3 bằng transactional outbox + worker Resend; browser push vẫn cần VAPID/provider riêng.
-
-**Web work:**
-
-- Dashboard notification list.
-- Header badge unread count nếu layout đã có chỗ phù hợp.
-- Empty state và read/read-all actions.
-
-#### 8.5.6 Phase 3.5 — Subscriptions MVP
-
-**Mục tiêu:** user xem plan, biết plan hiện tại, admin có thể gán subscription thủ công; payment thật để sau nếu chưa cần.
-
-**Trạng thái:** ✅ Hoàn tất production-ready Stripe path. API list plans, current subscription/effective features, Stripe Checkout, signed/idempotent webhook mapping, retry/cancel/resume, admin plan assignment và billing audit; web có `/billing`.
-
-| Endpoint                                      | Quyền                 | Hành vi                                                                                                                     |
-| --------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/v1/subscriptions/plans`             | public                | List active plans từ seed.                                                                                                  |
-| `GET /api/v1/subscriptions/me`                | authenticated         | Current user's subscription + effective features.                                                                           |
-| `POST /api/v1/subscriptions/checkout`         | authenticated         | Tạo Stripe Checkout session khi `STRIPE_SECRET_KEY` được cấu hình; nếu chưa cấu hình trả `not_configured` và audit an toàn. |
-| `PATCH /api/v1/subscriptions/users/:userId`   | admin                 | Gán plan/status/billing cycle thủ công.                                                                                     |
-| `POST /api/v1/subscriptions/me/cancel`        | authenticated         | Cancel at period end cho Stripe, cancel ngay cho manual entitlement.                                                        |
-| `POST /api/v1/subscriptions/me/resume`        | authenticated         | Bỏ cancel pending cho subscription còn hiệu lực.                                                                            |
-| `POST /api/v1/subscriptions/me/retry-payment` | authenticated         | Retry open Stripe invoice của `past_due`/`incomplete` subscription.                                                         |
-| `POST /api/v1/subscriptions/webhooks/stripe`  | public signed webhook | Verify raw-body HMAC, dedupe provider event và sync subscription/audit.                                                     |
-
-**Service rules:**
-
-- Nếu user chưa có subscription, effective plan là `free`.
-- Features đọc từ `subscription_plans.features`, ví dụ `wishlist_limit`, `price_alerts`, `ai_questions_per_day`, `api_access`.
-- Không hard-code quyền Pro/Team trong nhiều service; tạo helper `getEffectiveFeatures(userId)`.
-- Webhook thật phải verify signature trước khi xử lý; scaffold GET status hiện tại không đủ production.
-
-**Tests:**
-
-- User không subscription nhận free features.
-- Admin assign plan tạo/update `subscriptions`.
-- Feature helper trả đúng limit cho free/pro/team.
-
-#### 8.5.7 Phase 3.6 — Web Dashboard Integration
-
-**Trạng thái:** ✅ Hoàn tất MVP. Dashboard có engagement overview; các route account mới đã dùng API client typed thay vì raw fetch rải rác.
-
-| Route/UI                       | Việc cần làm                                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------------------------ |
-| `/dashboard`                   | Overview cards: saved devices, active alerts, unread notifications, current plan.                |
-| `/wishlist` hoặc dashboard tab | List wishlist/items, remove item, link sang device detail.                                       |
-| `/alerts` hoặc dashboard tab   | Create/update/deactivate price alerts.                                                           |
-| `/notifications`               | Notification center + mark read/all read.                                                        |
-| `/billing`                     | Plan cards, current plan, Stripe checkout, cancellation/retry states, and billing audit history. |
-| Device detail/compare          | Save to wishlist, show buy links, create price alert CTA.                                        |
-
-**UI nguyên tắc:** đây là dashboard vận hành, không làm landing page. Ưu tiên layout gọn, bảng/list rõ, form ngắn, trạng thái empty/loading/error đầy đủ.
-
-#### 8.5.8 Phase 3.7 — API Client, Tests, Docs
-
-**Trạng thái:** ✅ Hoàn tất MVP.
-
-| Nhóm              | Checklist                                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
-| API client        | Thêm types/methods cho wishlists, affiliate, alerts, notifications, subscriptions.                               |
-| Unit tests        | Service specs cho owner checks, duplicate handling, price alert trigger, notification read flow, feature helper. |
-| Integration smoke | Login user -> create wishlist -> add item -> create alert -> manual check -> notification.                       |
-| Docs              | Cập nhật README và master guide sau mỗi module active; không để `status: scaffolded` nếu đã register.            |
-| Validation        | `pnpm type-check`, `pnpm test`, `pnpm --filter @spechub/web lint`, `pnpm build`.                                 |
-
-#### 8.5.9 Definition of Done cho Phase 3
-
-- Commerce/engagement modules đã register trong `AppModule` và không còn chỉ trả `status: scaffolded`.
-- Authenticated users quản lý được wishlist, price alerts, notifications và xem subscription hiện tại.
-- Public device/variant UI có buy links từ affiliate module.
-- Admin/editor quản lý được affiliate partners/links và manual subscription assignment.
-- Price update có lịch sử, click tracking có row trong `affiliate_clicks`.
-- Alert trigger tạo in-app notification.
-- API client và web dùng contract typed, không gọi raw fetch rải rác.
-- Full checks pass; nếu còn warning thì ghi rõ trong docs.
-
-**Validation Phase 3/4/5 foundation:** `pnpm lint`, `pnpm type-check`, `pnpm test`, `pnpm db:validate`, `pnpm build`, `git diff --check` đều pass. API test pass với 23 suites / 84 tests.
-
-**Production hardening còn lại sau Phase 3 MVP:**
-
-- Done: tạo optional-auth guard cho affiliate click để public click vẫn hoạt động nhưng lưu được `user_id` khi có Bearer token hợp lệ.
-- Done: tách price-alert job sang `apps/worker` qua `PRICE_ALERTS_WORKER_ENABLED="true"`; `POST /alerts/check` vẫn giữ lại cho kiểm tra thủ công/admin.
-- Done: tích hợp Stripe Checkout, verify signed webhook và map provider events sang `subscriptions` cùng audit log.
-- Done: `/alerts` có tìm/chọn variant trực quan, sửa giá, tạm dừng và kích hoạt lại; tạo trùng sẽ cập nhật alert gần nhất.
-- Done: web tự refresh access token; logout thu hồi Redis session để access/refresh token cũ không tiếp tục dùng được.
-- Done: email delivery uses a transactional outbox + Resend worker; in-app notification remains the source of truth.
-
-### 8.6 Phase 4 — Scale
-
-| Task                  | Gợi ý triển khai                                                                                                                  |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| CI/CD                 | ✅ GitHub Actions đã chạy install, Prisma generate/validate, lint, type-check, test và build.                                     |
-| API lint              | ✅ `@spechub/api` đã có ESLint flat config và `pnpm lint` là health gate thật.                                                    |
-| Price alert schedule  | ✅ `apps/worker` chạy scheduler riêng qua `PRICE_ALERTS_WORKER_ENABLED`; API process fallback giữ opt-in cho local compatibility. |
-| Affiliate attribution | ✅ Public affiliate click có optional JWT guard để lưu user khi có token hợp lệ.                                                  |
-| Admin app             | ✅ `/admin` đã có trong `apps/web`; chỉ tách `apps/admin` khi deployment/workflow diverge đủ lớn.                                 |
-| Workers               | ✅ `apps/worker` xử lý price check, safe crawler intake và email outbox; BullMQ chỉ cần khi throughput tăng.                       |
-| Mobile                | ✅ Web có responsive audit target, PWA manifest/install prompt/offline fallback; native app chưa cần trước khi contract settle.   |
-| Observability         | ✅ `X-Request-ID`, `LOG_FORMAT=json`, `/health/live`, `/health/ready` và token-protected Prometheus process metrics; Sentry/PostHog vẫn cần provider key. |
-| Docs split            | Tách `docs/architecture`, `docs/api`, `docs/runbooks` sau khi root README đã rõ.                                                  |
-
----
-
-## 9. Naming conventions
-
-### 9.1 Files & Folders
-
-| Loại       | Convention                       | Example                           |
-| ---------- | -------------------------------- | --------------------------------- |
-| Files      | kebab-case                       | `device-model.service.ts`         |
-| Folders    | kebab-case                       | `device-models/`                  |
-| Components | PascalCase trong file kebab-case | `DeviceCard` in `device-card.tsx` |
-| Test files | `*.spec.ts` or `*.test.ts`       | `users.service.spec.ts`           |
-| E2E tests  | `*.e2e-spec.ts`                  | `auth.e2e-spec.ts`                |
-
-### 9.2 TypeScript
-
-| Loại             | Convention                   | Example                            |
-| ---------------- | ---------------------------- | ---------------------------------- |
-| Variables        | camelCase                    | `deviceModel`, `currentUser`       |
-| Constants        | UPPER_SNAKE_CASE             | `JWT_EXPIRES_IN`, `MAX_PAGE_SIZE`  |
-| Types/Interfaces | PascalCase                   | `DeviceModel`, `CreateDto`         |
-| Enums            | PascalCase                   | `UserRole.Admin`                   |
-| Functions        | camelCase                    | `findById()`, `validatePassword()` |
-| Classes          | PascalCase                   | `AuthService`, `PrismaService`     |
-| Generic types    | Single letter or descriptive | `<T>`, `<TUser>`                   |
-
-### 9.3 Database
-
-| Loại         | Convention                       | Example                             |
-| ------------ | -------------------------------- | ----------------------------------- |
-| Tables       | snake_case plural                | `device_models`, `variant_chipsets` |
-| Columns      | snake_case                       | `device_variant_id`, `created_at`   |
-| Foreign keys | `<referenced_table_singular>_id` | `device_variant_id`                 |
-| Indexes      | `<table>_<column>_idx`           | `users_email_idx`                   |
-| Constraints  | `<table>_<purpose>_check`        | `users_role_check`                  |
-
-### 9.4 API endpoints
-
-| Loại          | Convention               | Example                        |
-| ------------- | ------------------------ | ------------------------------ |
-| Routes        | kebab-case               | `/api/v1/device-models`        |
-| Query params  | snake_case               | `?sort_by=name&page_size=20`   |
-| Request body  | snake_case (match DB)    | `{ "device_model_id": "..." }` |
-| Response body | snake_case (consistency) | `{ "created_at": "..." }`      |
-
-### 9.5 Git
-
-```
-Branch naming:
-  feat/<feature>           # New feature
-  fix/<bug>                # Bug fix
-  chore/<task>             # Maintenance
-  refactor/<area>          # Refactor
-  docs/<area>              # Documentation
-
-Commit conventions (Conventional Commits):
-  feat(auth): add JWT refresh token
-  fix(prisma): resolve migration race condition
-  docs(readme): update setup instructions
-  refactor(common): extract pagination helper
-  test(auth): add login integration tests
-  chore(deps): upgrade prisma to 6.1.0
-  perf(search): add index on slug column
-```
-
----
-
-## 10. Quick reference
-
-### 10.1 Lệnh hằng ngày
+## 15. Cấu hình và môi trường vận hành
+
+### 15.1. Cổng mặc định
+
+| Dịch vụ | Cổng |
+| --- | ---: |
+| Web | 3000 |
+| API | 4000 |
+| PostgreSQL | 5432 |
+| Redis | 6379 |
+| Prisma Studio | 5555 |
+| Meilisearch | 7700 |
+
+### 15.2. Nhóm biến môi trường
+
+- Cơ sở dữ liệu: `DATABASE_URL`, `DATABASE_TEST_URL`.
+- Redis: `REDIS_URL`.
+- Tìm kiếm: `MEILI_ENABLED`, `MEILI_HOST`, `MEILI_API_KEY`, `MEILI_DEVICE_MODELS_INDEX`.
+- AI: `AI_PROVIDER`, `AI_CHAT_BASE_URL`, các biến mô hình, thời gian chờ và khóa nhà cung cấp.
+- Kho lưu trữ: các biến `STORAGE_*` và `NEXT_PUBLIC_STORAGE_CDN_BASE_URL`.
+- Xác thực: `AUTH_SECRET`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN`.
+- Thanh toán: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_WEBHOOK_TOLERANCE_SECONDS`.
+- Thư điện tử: `EMAIL_DELIVERY_ENABLED`, `RESEND_API_KEY`, `EMAIL_FROM` và các giới hạn thử lại.
+- Tác vụ nền: các cờ bật, chu kỳ và giới hạn lô.
+- Quan sát: `LOG_FORMAT`, `METRICS_TOKEN`, `SENTRY_DSN`, `POSTHOG_KEY`.
+- URL: `FRONTEND_URL`, `ADMIN_URL`, `NEXT_PUBLIC_SPECHUB_API_URL`, `SPECHUB_API_INTERNAL_URL`.
+
+### 15.3. Thiết lập phát triển
 
 ```bash
-# Development
-pnpm dev                              # Start all apps
-pnpm dev:api                          # Start only API
-pnpm dev:web                          # Start only web
-
-# Database
-pnpm db:generate                      # Generate Prisma Client
-pnpm db:migrate                       # Run migrations
-pnpm db:seed                          # Seed data
-pnpm db:studio                        # Open Prisma Studio
-pnpm db:reset                         # Reset DB (caution!)
-
-# Build & Test
-pnpm build                            # Build all
-pnpm test                             # Run tests
-pnpm lint                             # Lint all
-pnpm type-check                       # TypeScript check
-pnpm format                           # Prettier format
-
-# Services
-brew services start postgresql@16
-brew services start redis
-brew services start meilisearch
-
-# Git workflow
-git checkout -b feat/auth-module
-git commit -m "feat(auth): add JWT strategy"
-git push origin feat/auth-module
-```
-
-### 10.2 URLs hữu ích
-
-| URL                                   | Service                                                         |
-| ------------------------------------- | --------------------------------------------------------------- |
-| `http://localhost:3000`               | Web frontend                                                    |
-| `http://localhost:3000/admin`         | Admin workspace trong `apps/web` (role-aware)                   |
-| `http://localhost:4000/api/v1`        | API base URL                                                    |
-| `http://localhost:4000/api/docs`      | Swagger UI                                                      |
-| `http://localhost:4000/api/v1/health` | Health check                                                    |
-| `http://localhost:4001/api/v1`        | AI service target (MVP hiện là CLI/prototype, chưa expose HTTP) |
-| `http://localhost:5555`               | Prisma Studio                                                   |
-| `http://localhost:7700`               | Meilisearch dashboard                                           |
-| `http://localhost:6379`               | Redis (use redis-cli)                                           |
-| `http://localhost:5432`               | PostgreSQL (use psql)                                           |
-
-### 10.3 File quan trọng cần biết
-
-| File              | Path                                      | Mục đích             |
-| ----------------- | ----------------------------------------- | -------------------- |
-| Root package.json | `/package.json`                           | Scripts toàn project |
-| Workspace config  | `/pnpm-workspace.yaml`                    | Khai báo workspaces  |
-| Turbo config      | `/turbo.json`                             | Build pipeline       |
-| API entry         | `/apps/api/src/main.ts`                   | Bootstrap API        |
-| API root module   | `/apps/api/src/app.module.ts`             | Register modules     |
-| Prisma schema     | `/packages/database/prisma/schema.prisma` | Database design      |
-| Seed file         | `/packages/database/prisma/seed.ts`       | Initial data         |
-| Web entry         | `/apps/web/src/app/layout.tsx`            | Root layout          |
-| Master doc        | `/spechub-v2-master-guide.md`             | Reference này        |
-
-### 10.4 Test credentials (after seed)
-
-| Email                    | Password         | Role        |
-| ------------------------ | ---------------- | ----------- |
-| `admin@spechub.io`       | `admin123`       | admin       |
-| `contributor@spechub.io` | `contributor123` | contributor |
-
-### 10.5 Khắc phục sự cố nhanh
-
-```bash
-# Port đã bị chiếm
-lsof -ti:4000 | xargs kill -9
-
-# Restart services
-brew services restart postgresql@16
-brew services restart redis
-
-# Reset Prisma
-cd packages/database
-rm -rf node_modules/.prisma
-pnpm prisma generate
-
-# Clean monorepo
-pnpm clean              # If you have clean script
-rm -rf node_modules .turbo
 pnpm install
-
-# Reset DB
-pnpm db:reset           # Drop & recreate
-
-# Check workspace packages
-pnpm ls -r --depth=0
+cp .env.example .env
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
 ```
 
----
+Khởi động độc lập:
 
-## 📌 Quy tắc vàng
+```bash
+pnpm dev:api
+pnpm dev:web
+pnpm dev:worker
+```
 
-1. **Cố định version** — Không dùng `latest`, đặc biệt cho production-critical packages
-2. **Không skip migration** — Mọi schema change phải qua Prisma migrate
-3. **Test trước khi merge** — Lint + type-check + unit tests phải pass
-4. **Conventional commits** — `feat:`, `fix:`, `docs:`, etc.
-5. **Documentation đi đôi với code** — Mới feature → update docs
-6. **Soft delete mặc định** — Không xóa cứng data
-7. **DTO validation strict** — Mọi input phải qua class-validator
-8. **Cache aggressively** — Redis cho heavy queries
-9. **Error handling consistent** — Dùng GlobalExceptionFilter
-10. **Security first** — Không bao giờ commit `.env`, hash passwords, validate inputs
+Không chạy đồng thời nhiều phiên `pnpm dev` trên cùng cổng. Nếu cần nhiều bản sao, phải cấp cổng riêng và cập nhật URL/CORS tương ứng.
 
 ---
 
-## 🔗 Liên kết tham khảo
+## 16. Kiểm thử, chất lượng và tiêu chí nghiệm thu
 
-- **Repository:** (TBD - GitHub URL)
-- **Master Documentation:** `spechub-v2-master-guide.md`
-- **API Documentation:** `http://localhost:4000/api/docs`
-- **Database Schema:** `packages/database/prisma/schema.prisma`
+### 16.1. Kết quả kiểm chứng ngày 05/08/2026
+
+| Hạng mục | Lệnh | Kết quả |
+| --- | --- | --- |
+| Kiểm tra quy tắc mã | `pnpm lint` | Đạt; 2 tác vụ có cấu hình lint thành công |
+| Kiểm tra kiểu | `pnpm type-check` | Đạt; 7 tác vụ thành công |
+| Kiểm thử API | `pnpm test` | 36 bộ, 189 ca đạt, 0 thất bại |
+| Kiểm thử chấm điểm dữ liệu | `pnpm test` | 4 ca đạt, 0 thất bại |
+| Kiểm tra Prisma | `pnpm db:validate` | Lược đồ hợp lệ |
+| Biên dịch toàn dự án | `pnpm build` | 5 tác vụ biên dịch thành công; web tạo 17 trang tĩnh và các trang động theo cấu hình |
+
+### 16.2. Phạm vi kiểm thử hiện có
+
+Các bộ kiểm thử API bao phủ những khu vực chính:
+
+- Xác thực, JWT strategy, hồ sơ và vai trò người dùng.
+- Tổ chức, loại thiết bị, dòng sản phẩm, mẫu và biến thể.
+- Phần cứng, tìm kiếm và Catalog Studio.
+- AI, kiểm tra căn cứ, khuyến nghị và nghiên cứu phần cứng.
+- Wiki, DTO nội dung, nguồn và trích dẫn.
+- Danh sách yêu thích, cảnh báo, thông báo và lịch nền.
+- Affiliate, đồng bộ giá và đọc giá thị trường.
+- Gói thuê bao, khóa API và bộ lọc lỗi toàn cục.
+- Thuật toán và hồ sơ chấm điểm.
+
+### 16.3. Tiêu chí hoàn tất cho thay đổi mã nguồn
+
+1. Không phát sinh lỗi lint.
+2. Không phát sinh lỗi TypeScript.
+3. Các kiểm thử liên quan và toàn bộ bộ kiểm thử bắt buộc đều đạt.
+4. Lược đồ Prisma hợp lệ; migration mới có kế hoạch backfill/rollback.
+5. Biên dịch web, API, worker và các gói có build đều thành công.
+6. Điểm cuối mới có DTO, kiểm soát truy cập, xử lý lỗi và tài liệu.
+7. Chức năng giao diện có trạng thái tải, rỗng, lỗi và quyền.
+8. Thay đổi dữ liệu công khai có nguồn hoặc quy trình duyệt.
+9. Thay đổi AI có kiểm thử căn cứ/trích dẫn.
+10. Đặc tả này được cập nhật nếu hợp đồng hoặc kiến trúc thay đổi.
+
+### 16.4. Kiểm thử còn thiếu cần bổ sung
+
+- Kiểm thử đầu cuối bằng trình duyệt cho hành trình đăng nhập, tìm kiếm, so sánh, AI, Wiki, cảnh báo và Catalog Studio.
+- Kiểm thử tích hợp với PostgreSQL/Redis thật trên môi trường cô lập.
+- Kiểm thử hợp đồng Stripe, Resend, storage, Meilisearch và nhà cung cấp AI.
+- Kiểm thử tải theo truy vấn đại diện và công bố p50/p95/p99.
+- Kiểm thử xâm nhập và rà soát theo OWASP ASVS/API Security.
+- Bộ dữ liệu chuẩn đánh giá độ đúng, độ phủ trích dẫn và tính hữu ích của AI.
 
 ---
 
-**Document maintained by:** SpecHub Team
-**Last updated:** 2026-06-16
-**Version:** 3.1
-**Next review:** After Phase 1.5 stabilization
+## 17. Giới hạn hiện tại và định hướng phát triển
+
+### 17.1. Giới hạn
+
+- Chưa có số liệu tải có thể tái lập; không khẳng định khả năng phục vụ đồng thời.
+- Độ phủ dữ liệu phụ thuộc seed và nguồn đã duyệt.
+- Nội dung Wiki có thể chưa đồng đều giữa các chủ đề.
+- Bề mặt dữ liệu 139 mô hình làm tăng chi phí migration và quản trị quyền sở hữu miền.
+- AI có kiểm tra căn cứ ở mức mã nguồn nhưng chưa có báo cáo định lượng trên tập chuẩn.
+- Một số tích hợp chỉ hoạt động khi có thông tin xác thực hợp lệ của nhà cung cấp.
+- Tiến trình lập lịch cần cơ chế điều phối rõ khi triển khai nhiều bản sao.
+
+### 17.2. Ưu tiên gần
+
+1. Bổ sung kiểm thử đầu cuối và kiểm thử tích hợp dữ liệu.
+2. Xây dựng dashboard chất lượng catalog: độ phủ trường, nguồn, media và dữ liệu cũ.
+3. Chuẩn hóa OpenAPI và sinh trình khách tự động cho toàn bộ bề mặt API.
+4. Xây dựng bộ đánh giá AI có câu hỏi chuẩn, đáp án, citation và đánh giá của chuyên gia.
+5. Đo tải các tuyến danh mục, so sánh, tìm kiếm, auth và AI.
+6. Hoàn thiện khóa phân tán hoặc hàng đợi cho lịch chạy trong môi trường nhiều bản sao.
+7. Diễn tập sao lưu/khôi phục và ghi nhận RPO/RTO.
+
+### 17.3. Ưu tiên dài hạn
+
+- Mở rộng danh mục sang laptop, tablet, thiết bị đeo, TV và thiết bị gia dụng trên cùng lõi model/variant/module.
+- Tách dịch vụ tìm kiếm hoặc AI khi nhu cầu mở rộng thực tế yêu cầu, không tách chỉ vì số lượng mô-đun.
+- Hỗ trợ nhiều vùng dữ liệu và chính sách bản địa hóa.
+- Cung cấp webhook/delta feed cho đối tác B2B.
+- Xây dựng hệ thống quản trị chất lượng nguồn và phát hiện xung đột dữ liệu tự động.
+
+---
+
+## 18. Hướng dẫn vận hành và xử lý sự cố
+
+### 18.1. Lệnh kiểm tra chuẩn
+
+```bash
+pnpm lint
+pnpm type-check
+pnpm test
+pnpm db:validate
+pnpm build
+```
+
+### 18.2. Cổng bị chiếm
+
+Triệu chứng:
+
+```text
+EADDRINUSE: address already in use 0.0.0.0:4000
+```
+
+Kiểm tra tiến trình:
+
+```bash
+lsof -nP -iTCP:3000 -sTCP:LISTEN
+lsof -nP -iTCP:4000 -sTCP:LISTEN
+```
+
+Chỉ dừng đúng PID được xác định. Không dùng lệnh kết thúc diện rộng nếu chưa kiểm tra mục tiêu.
+
+### 18.3. Giao diện mất CSS hoặc tài nguyên `_next/static` trả 404
+
+Nguyên nhân thường gặp:
+
+- Có nhiều tiến trình `next dev` cùng sử dụng thư mục `.next`.
+- Tiến trình cũ vẫn giữ cổng 3000.
+- Bộ nhớ đệm `.next` không đồng nhất với tiến trình đang phục vụ.
+- Web đang gọi sai URL API không trực tiếp gây mất CSS, nhưng có thể làm trang hiển thị lỗi dữ liệu.
+
+Quy trình xử lý:
+
+1. Dừng các tiến trình web trùng cổng sau khi xác định PID.
+2. Di chuyển thư mục `.next` cũ sang thư mục tạm để có thể khôi phục nếu cần.
+3. Chạy một phiên `pnpm dev:web` duy nhất.
+4. Kiểm tra tài nguyên CSS trong Network và xác nhận mã 200.
+5. Nếu dùng reverse proxy, kiểm tra đường dẫn `/_next/static/*` được chuyển đúng tới web.
+
+### 18.4. API không sẵn sàng
+
+1. Kiểm tra `GET /api/v1/health/live`.
+2. Kiểm tra `GET /api/v1/health/ready`.
+3. Nếu database lỗi, kiểm tra `DATABASE_URL`, dịch vụ PostgreSQL và migration.
+4. Nếu Redis lỗi, kiểm tra `REDIS_URL`; luồng xác thực yêu cầu Redis.
+5. Đối chiếu `X-Request-ID` với nhật ký.
+
+### 18.5. Không được thực hiện trên dữ liệu cần giữ
+
+- Không chạy `pnpm db:reset`.
+- Không xóa migration đã áp dụng.
+- Không xóa thư mục dữ liệu PostgreSQL.
+- Không đặt lại toàn bộ worktree để xử lý một lỗi cục bộ.
+- Không ghi đè tệp `.env` nếu chưa sao lưu các giá trị vận hành.
+
+---
+
+## 19. Phụ lục kiểm kê
+
+### 19.1. Ứng dụng và gói trong monorepo
+
+| Tên workspace | Vai trò | Có lệnh build |
+| --- | --- | --- |
+| `@spechub/web` | Giao diện Next.js | Có |
+| `@spechub/api` | API NestJS/Fastify | Có |
+| `@spechub/worker` | Tiến trình nền | Có |
+| `@spechub/ai-service` | Chẩn đoán embedding | Có |
+| `@spechub/database` | Prisma và dữ liệu | Không có build riêng; có generate/validate/test |
+| `@spechub/scoring-core` | Thuật toán chấm điểm | Có |
+| `@spechub/alerts-core` | Quy tắc cảnh báo | Thư viện nguồn |
+| `@spechub/api-client` | Trình khách có kiểu | Thư viện nguồn |
+| `@spechub/ai-core` | Embedding và véc-tơ | Thư viện nguồn |
+| `@spechub/auth` | Tiện ích xác thực | Thư viện nguồn |
+| `@spechub/analytics` | Giao diện phân tích | Thư viện nguồn |
+| `@spechub/config` | Cấu hình dùng chung | Không áp dụng |
+| `@spechub/types` | Kiểu dùng chung | Thư viện nguồn |
+| `@spechub/ui` | Thành phần dùng chung | Thư viện nguồn |
+| `@spechub/utils` | Tiện ích dùng chung | Thư viện nguồn |
+
+### 19.2. Danh mục 139 mô hình Prisma
+
+```text
+languages, translations, release_statuses, currencies, sources, citations,
+media_assets, entity_media, module_field_coverage, tags, entity_tags, units,
+organizations, organization_roles, organization_role_assignments,
+device_categories, regions, product_families, device_models, device_variants,
+device_model_aliases, device_editorial_sections, variant_price_history,
+variant_physical_specs, variant_io_specs, variant_thermal_specs, model_lineage,
+model_similarity, technology_families, architectures, process_nodes,
+camera_roles, display_technologies, battery_chemistries, network_generations,
+chipsets, cpus, cpu_clusters, gpus, npus, modems, camera_sensors,
+camera_modules, display_units, battery_units, memory_standards,
+storage_standards, operating_systems, os_versions, os_ui_layers,
+os_ui_layer_versions, cellular_bands, wifi_bands, certifications,
+cpu_capabilities, cpu_capability_links, gpu_apis, gpu_api_support,
+npu_precision_capabilities, camera_features, camera_module_feature_links,
+camera_video_modes, camera_module_video_modes, hdr_standards,
+display_hdr_support, color_gamuts, display_color_gamut_support,
+charging_protocols, battery_charging_protocols, connectivity_features,
+chipset_cpu_links, chipset_gpu_links, chipset_npu_links, chipset_modem_links,
+camera_module_sensor_links, variant_chipsets, variant_cpus, variant_gpus,
+variant_npus, variant_modems, variant_displays, variant_batteries,
+variant_camera_systems, variant_camera_modules, variant_memory_configs,
+variant_storage_configs, variant_wifi_bands, variant_operating_systems,
+variant_software_profiles, variant_connectivity_support,
+variant_module_scores, variant_score_metric_inputs, variant_scorecards,
+variant_scorecard_modules, scoring_profiles, scoring_profile_modules,
+scoring_profile_metrics, variant_cellular_band_support,
+variant_certifications, variant_region_availability, software_features,
+variant_software_features, feature_definitions, device_variant_features,
+benchmarks, benchmark_runs, device_variant_benchmarks, chipset_benchmarks,
+cpu_benchmarks, gpu_benchmarks, npu_benchmarks, catalog_drafts,
+catalog_draft_versions, catalog_entity_versions, users, wiki_articles,
+wiki_revisions, wiki_article_citations, comments, embeddings, ai_query_cache,
+search_logs, data_sources, raw_pages, affiliate_partners, affiliate_links,
+affiliate_price_history, affiliate_clicks, subscription_plans, subscriptions,
+billing_audit_logs, billing_webhook_events, wishlists, wishlist_items,
+price_alerts, notifications, notification_deliveries, api_keys, api_key_usage
+```
+
+### 19.3. Tài liệu liên quan
+
+- `README.md`: hướng dẫn thiết lập và mô tả chức năng hiện hành.
+- `docs/catalog-platform-v3.md`: nguyên tắc cấu trúc catalog, media, điểm và Catalog Studio.
+- `docs/catalog-content-standard.md`: quy chuẩn nội dung danh mục.
+- `packages/database/prisma/schema.prisma`: nguồn sự thật của mô hình dữ liệu.
+- `apps/api/src/app.module.ts`: nguồn sự thật của các mô-đun API được nạp.
+- `apps/api/src/main.ts`: nguồn sự thật của cấu hình khởi động API.
+- `apps/web/src/app`: nguồn sự thật của các tuyến giao diện.
+
+---
+
+## Kết luận tài liệu
+
+Đặc tả này phản ánh trạng thái hiện hành của Spechub tại ngày 05/08/2026. Mọi con số kiểm kê phải được tạo lại khi thay đổi tuyến giao diện, bộ điều khiển, điểm cuối hoặc lược đồ Prisma. Các kết quả kiểm thử trong tài liệu là kết quả tại thời điểm rà soát, không phải cam kết vĩnh viễn cho các phiên bản sau.

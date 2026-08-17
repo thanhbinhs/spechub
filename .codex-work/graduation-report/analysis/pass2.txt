@@ -1,0 +1,3291 @@
+                    TRƯỜNG ĐẠI HỌC PHENIKAA
+
+                KHOA CÔNG NGHỆ THÔNG TIN
+
+
+
+                    ĐỒ ÁN TỐT NGHIỆP
+
+
+        XÂY DỰNG NỀN TẢNG SPECHUB –
+     TRA CỨU, SO SÁNH VÀ NGHIÊN CỨU
+               THIẾT BỊ THÔNG MINH
+
+
+Đơn vị thực hiện:               Nhóm phát triển Spechub
+
+
+
+
+                          HÀ NỘI – 2026
+                    TRƯỜNG ĐẠI HỌC PHENIKAA
+
+                 KHOA CÔNG NGHỆ THÔNG TIN
+
+
+
+                    ĐỒ ÁN TỐT NGHIỆP
+
+
+         XÂY DỰNG NỀN TẢNG SPECHUB –
+     TRA CỨU, SO SÁNH VÀ NGHIÊN CỨU
+                 THIẾT BỊ THÔNG MINH
+
+
+Đơn vị thực hiện:               Nhóm phát triển Spechub
+
+Loại tài liệu:                  Báo cáo đồ án tốt nghiệp
+
+
+
+
+                          HÀ NỘI – 2026
+                                     TÓM TẮT        [[PAGE:summary]]
+
+
+
+
+  Spechub là nền tảng dữ liệu và nghiên cứu thiết bị thông minh, được xây dựng nhằm
+giải quyết tình trạng thông số phân tán, cách đặt tên không thống nhất và thiếu khả năng
+truy nguyên nguồn khi người dùng tìm hiểu sản phẩm. Hệ thống hợp nhất danh mục thiết
+bị, biến thể thương mại, linh kiện phần cứng, điểm đánh giá, lịch sử giá và nội dung
+Wiki trong một mô hình dữ liệu quan hệ có cấu trúc.
+
+  Giải pháp sử dụng kiến trúc monorepo với giao diện Next.js 15 và React 19, API
+NestJS 11 chạy trên Fastify 5, lớp truy cập dữ liệu Prisma 6, PostgreSQL 16 cùng các
+mở rộng pgvector, pg_trgm và unaccent. Redis được dùng cho phiên đăng nhập, bộ nhớ
+đệm và điều phối tác vụ; Meilisearch là lựa chọn tăng cường cho tìm kiếm. Các chức
+năng chính gồm tra cứu và lọc thiết bị, so sánh, khuyến nghị theo nhu cầu, trợ lý AI dựa
+trên truy xuất tăng cường có trích dẫn, Wiki cộng tác, wishlist, cảnh báo giá, thông báo,
+quản trị catalog và API B2B.
+
+  Báo cáo phân tích yêu cầu, kiến trúc, use case, luồng tuần tự, quy trình thu thập–duyệt
+dữ liệu và mô hình cơ sở dữ liệu theo bốn miền. Việc đánh giá dựa trên mã nguồn thực
+tế: 22 route giao diện, 30 controller API với 186 endpoint và 139 mô hình Prisma. Tại
+thời điểm kiểm chứng ngày 05/08/2026, 36 bộ kiểm thử API với 189 ca kiểm thử đều
+đạt; lược đồ Prisma hợp lệ; các kiểm tra readiness xác nhận PostgreSQL và Redis hoạt
+động bình thường.
+
+  Kết quả cho thấy Spechub đã hình thành được nền tảng kỹ thuật có khả năng mở rộng
+theo miền nghiệp vụ, duy trì nguồn gốc dữ liệu và hỗ trợ nhiều nhóm người dùng. Các
+hướng phát triển quan trọng tiếp theo là hoàn thiện đo tải, kiểm thử giao diện đầu cuối,
+tăng độ phủ dữ liệu thực tế, xây dựng cơ chế đánh giá chất lượng câu trả lời AI và triển
+khai giám sát sản xuất theo mục tiêu mức dịch vụ.
+
+  Từ khóa: Spechub; danh mục thiết bị; so sánh; PostgreSQL; RAG; Wiki; cảnh báo
+giá.
+
+
+
+
+                                             i
+                                 LỜI CAM ĐOAN          [[PAGE:declaration]]
+
+
+
+
+  Báo cáo này mô tả dự án Spechub trên cơ sở mã nguồn, cấu hình, lược đồ dữ liệu, tài
+liệu kỹ thuật và kết quả kiểm thử có thể kiểm chứng trong kho dự án. Các số liệu định
+lượng được ghi rõ phạm vi và thời điểm quan sát; tài liệu không suy diễn danh tính sinh
+viên, giảng viên hướng dẫn hoặc kết quả triển khai chưa được kiểm chứng.
+
+  Những khái niệm và công nghệ tham khảo từ tài liệu chính thức được liệt kê trong
+phần Tài liệu tham khảo. Các hình giao diện được chụp từ hệ thống Spechub chạy cục
+bộ; các sơ đồ phân tích được tái dựng từ cấu trúc hiện thực. Nhóm phát triển chịu trách
+nhiệm về tính trung thực của nội dung và việc phân biệt rõ giữa chức năng đã hiện thực,
+lựa chọn kiến trúc và định hướng phát triển.
+
+
+
+
+                                                                              Hà Nội, tháng 8 năm 2026
+                                                                               Nhóm phát triển Spechub
+
+
+
+
+                                               ii
+                                   LỜI CẢM ƠN         [[PAGE:thanks]]
+
+
+
+
+  Nhóm phát triển Spechub trân trọng cảm ơn môi trường đào tạo của Trường Đại học
+Phenikaa và Khoa Công nghệ Thông tin đã cung cấp nền tảng kiến thức cần thiết về kỹ
+nghệ phần mềm, cơ sở dữ liệu, phát triển web và bảo đảm chất lượng. Hai báo cáo mẫu
+được cung cấp đã giúp xác lập cấu trúc học thuật, nhịp trình bày và tiêu chuẩn hình thức
+cho tài liệu này.
+
+  Nhóm cũng ghi nhận đóng góp của cộng đồng mã nguồn mở đã phát triển Next.js,
+React, NestJS, Fastify, Prisma, PostgreSQL, Redis, Meilisearch và các công cụ kiểm thử
+được sử dụng trong dự án. Mọi góp ý về phạm vi, chất lượng dữ liệu, an toàn hệ thống
+và trải nghiệm người dùng sẽ là cơ sở quan trọng để Spechub tiếp tục hoàn thiện.
+
+
+
+
+                                            iii
+                                                                       MỤC LỤC                    [[PAGE:toc]]
+
+
+
+
+TÓM TẮT.........................................................................................................................................................i
+LỜI CAM ĐOAN...........................................................................................................................................ii
+LỜI CẢM ƠN................................................................................................................................................iii
+DANH MỤC HÌNH ẢNH............................................................................................................................vii
+DANH MỤC BẢNG BIỂU...........................................................................................................................ix
+DANH MỤC TỪ VIẾT TẮT........................................................................................................................xi
+MỞ ĐẦU..........................................................................................................................................................1
+   1. Lý do chọn đề tài...................................................................................................................................1
+   2. Mục tiêu................................................................................................................................................1
+   3. Đối tượng và phạm vi...........................................................................................................................1
+   4. Phương pháp thực hiện.........................................................................................................................2
+   5. Đóng góp của đồ án..............................................................................................................................2
+   6. Cấu trúc báo cáo....................................................................................................................................2
+CHƯƠNG 1. TỔNG QUAN VỀ ĐỀ TÀI.....................................................................................................3
+   1.1. Bối cảnh và bài toán...........................................................................................................................3
+   1.2. Khoảng trống của các cách tiếp cận hiện có......................................................................................4
+   1.3. Tầm nhìn và phạm vi sản phẩm.........................................................................................................5
+   1.4. Các bên liên quan...............................................................................................................................6
+   1.5. Yêu cầu chức năng.............................................................................................................................6
+   1.6. Yêu cầu phi chức năng.......................................................................................................................7
+   1.7. Rủi ro và ràng buộc............................................................................................................................8
+   1.8. Kết luận chương.................................................................................................................................9
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ...........................................................................10
+   2.1. Nguyên tắc kiến trúc........................................................................................................................10
+   2.2. Monorepo và tổ chức mã nguồn......................................................................................................11
+   2.3. Lớp trình bày với Next.js và React..................................................................................................12
+   2.4. API với NestJS và Fastify................................................................................................................12
+   2.5. Prisma, PostgreSQL và tìm kiếm dữ liệu........................................................................................13
+
+
+
+
+                                                                                   iv
+                                                            MỤC LỤC (TIẾP)                               [[PAGE:toc-cont-28]]
+
+
+
+
+    2.6. Redis, tác vụ nền và khả năng phục hồi..........................................................................................13
+    2.7. Truy xuất tăng cường và AI có trích dẫn.........................................................................................14
+    2.8. Xác thực, phân quyền và bảo mật....................................................................................................14
+    2.9. PWA, quan sát hệ thống và triển khai.............................................................................................15
+    2.10. Kết luận chương.............................................................................................................................18
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG........................................................................19
+    3.1. Tác nhân và mô hình use case.........................................................................................................19
+    3.2. Đặc tả use case.................................................................................................................................22
+    3.3. Thiết kế các luồng tuần tự................................................................................................................30
+    3.4. Thiết kế quy trình nghiệp vụ nền.....................................................................................................33
+    3.5. Thiết kế dữ liệu................................................................................................................................35
+    3.6. Thiết kế API và hợp đồng dữ liệu....................................................................................................40
+    3.7. Thiết kế an toàn và kiểm soát chất lượng........................................................................................41
+    3.8. Kết luận chương...............................................................................................................................42
+CHƯƠNG 4. PHÁT TRIỂN VÀ KẾT QUẢ..............................................................................................43
+    4.1. Môi trường và quy trình phát triển..................................................................................................43
+    4.2. Hiện thực các mô-đun chính............................................................................................................44
+    4.3. Kết quả giao diện.............................................................................................................................45
+    4.4. Kết quả API và dữ liệu....................................................................................................................55
+    4.5. Kiểm thử và kiểm chứng.................................................................................................................56
+    4.6. Đánh giá mức độ đáp ứng................................................................................................................57
+    4.7. Hạn chế............................................................................................................................................58
+    4.8. Kết luận chương...............................................................................................................................58
+KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN..................................................................................................59
+TÀI LIỆU THAM KHẢO............................................................................................................................61
+PHỤ LỤC A. DANH MỤC API..................................................................................................................63
+PHỤ LỤC B. DANH MỤC MÔ HÌNH DỮ LIỆU....................................................................................65
+PHỤ LỤC C. HƯỚNG DẪN VẬN HÀNH VÀ KIỂM THỬ...................................................................71
+
+
+
+
+                                                                                  v
+                                            MỤC LỤC (TIẾP)                    [[PAGE:toc-cont-56]]
+
+
+
+
+PHỤ LỤC D. HƯỚNG DẪN SỬ DỤNG TÓM TẮT................................................................................73
+
+
+
+
+                                                             vi
+                                          DANH MỤC HÌNH ẢNH                                        [[PAGE:lof]]
+
+
+
+
+Hình 1.1. Sơ đồ ngữ cảnh hệ thống Spechub...........................................................................................4
+Hình 2.1. Cấu trúc monorepo Spechub...................................................................................................11
+Hình 2.2. Kiến trúc logic nhiều lớp........................................................................................................16
+Hình 2.3. Mô hình triển khai tham chiếu................................................................................................17
+Hình 3.1. Use case phía người dùng.......................................................................................................20
+Hình 3.2. Use case biên tập và quản trị..................................................................................................21
+Hình 3.3. Trình tự đăng nhập và làm mới phiên....................................................................................31
+Hình 3.4. Trình tự tìm kiếm và so sánh..................................................................................................32
+Hình 3.5. Trình tự trợ lý AI theo RAG...................................................................................................33
+Hình 3.6. Luồng theo dõi giá và phát cảnh báo......................................................................................34
+Hình 3.7. Luồng thu thập, chuẩn hóa và duyệt dữ liệu..........................................................................35
+Hình 3.8. ERD nhóm danh mục thiết bị.................................................................................................37
+Hình 3.9. ERD nhóm phần cứng và chấm điểm.....................................................................................38
+
+
+
+
+                                                                     vii
+                                  DANH MỤC HÌNH ẢNH (TIẾP)                                                     [[PAGE:lof-cont]]
+
+
+
+
+Hình 3.10. ERD nhóm nội dung và AI...................................................................................................39
+Hình 3.11. ERD nhóm người dùng và thương mại................................................................................40
+Hình 4.1. Trang chủ Spechub.................................................................................................................47
+Hình 4.2. Trang danh mục thiết bị..........................................................................................................48
+Hình 4.3. Trang chi tiết thiết bị...............................................................................................................49
+Hình 4.4. Kết quả tìm kiếm thiết bị và phần cứng.................................................................................50
+Hình 4.5. Giao diện chọn thiết bị để so sánh..........................................................................................51
+Hình 4.6. Quy trình khuyến nghị theo nhu cầu......................................................................................52
+Hình 4.7. Giao diện trợ lý AI..................................................................................................................53
+Hình 4.8. Giao diện Wiki công nghệ......................................................................................................54
+Hình 4.9. Giao diện đăng nhập...............................................................................................................55
+
+
+
+
+                                                                       viii
+                                          DANH MỤC BẢNG BIỂU                                           [[PAGE:lot]]
+
+
+
+
+Bảng 1.1. So sánh cách tiếp cận dữ liệu thiết bị.......................................................................................4
+Bảng 1.2. Các bên liên quan.....................................................................................................................6
+Bảng 1.3. Yêu cầu chức năng chính.........................................................................................................6
+Bảng 1.4. Yêu cầu phi chức năng.............................................................................................................7
+Bảng 1.5. Rủi ro và biện pháp giảm thiểu................................................................................................8
+Bảng 2.1. Thành phần công nghệ và phiên bản......................................................................................10
+Bảng 2.2. Biện pháp bảo mật theo lớp....................................................................................................17
+Bảng 2.3. Lựa chọn kiến trúc và đánh đổi..............................................................................................15
+Bảng 3.1. Tác nhân hệ thống..................................................................................................................19
+Bảng 3.2. Danh mục use case.................................................................................................................21
+Bảng 3.3. Đặc tả UC-01 – Tìm kiếm và lọc thiết bị...............................................................................23
+Bảng 3.4. Đặc tả UC-02 – So sánh thiết bị.............................................................................................24
+Bảng 3.5. Đặc tả UC-03 – Nhận khuyến nghị và hỏi AI........................................................................25
+Bảng 3.6. Đặc tả UC-04 – Đăng nhập và quản lý phiên........................................................................26
+Bảng 3.7. Đặc tả UC-05 – Wishlist và cảnh báo giá..............................................................................27
+Bảng 3.8. Đặc tả UC-06 – Đóng góp và duyệt Wiki..............................................................................28
+
+
+
+
+                                                                        ix
+                                DANH MỤC BẢNG BIỂU (TIẾP)                                                     [[PAGE:lot-cont]]
+
+
+
+
+Bảng 3.9. Đặc tả UC-07 – Thu thập và duyệt catalog............................................................................29
+Bảng 3.10. Đặc tả UC-08 – Khai thác API B2B....................................................................................30
+Bảng 3.11. Phân nhóm 139 mô hình dữ liệu..........................................................................................35
+Bảng 3.12. Quy ước hợp đồng API........................................................................................................40
+Bảng 4.1. Môi trường phần mềm............................................................................................................43
+Bảng 4.2. Mô-đun hiện thực chính.........................................................................................................44
+Bảng 4.3. Bản đồ route giao diện...........................................................................................................45
+Bảng 4.4. Thống kê endpoint API..........................................................................................................55
+Bảng 4.5. Bằng chứng kiểm thử và kiểm chứng....................................................................................56
+Bảng 4.6. Đánh giá mức độ đáp ứng yêu cầu.........................................................................................57
+Bảng 4.7. Hạn chế và tác động...............................................................................................................58
+Bảng A.1. Danh mục controller và endpoint..........................................................................................63
+Bảng B.1. Danh sách mô hình Prisma....................................................................................................65
+Bảng C.1. Ma trận lệnh vận hành và mục đích......................................................................................71
+Bảng D.1. Tác vụ người dùng thường gặp.............................................................................................73
+
+
+
+
+                                                                       x
+              DANH MỤC TỪ VIẾT TẮT                        [[PAGE:abbr]]
+
+
+
+
+Từ viết tắt                 Tiếng Anh                                     Ý nghĩa
+
+    AI             Artificial Intelligence              Trí tuệ nhân tạo
+
+                    Application Programming
+   API                                                  Giao diện lập trình ứng dụng
+                Interface
+
+   B2B             Business-to-Business                 Dịch vụ giữa các tổ chức
+
+    CI             Continuous Integration               Tích hợp liên tục
+
+  CRUD             Create, Read, Update, Delete         Các thao tác dữ liệu cơ bản
+
+   CSR             Client-Side Rendering                Kết xuất phía trình duyệt
+
+  DTO              Data Transfer Object                 Đối tượng truyền dữ liệu
+
+   ERD             Entity–Relationship Diagram          Sơ đồ thực thể–quan hệ
+
+   FK              Foreign Key                          Khóa ngoại
+
+                   Hypertext Transfer Protocol       Giao thức truyền siêu văn
+HTTP(S)
+                (Secure)                          bản (bảo mật)
+
+   JWT             JSON Web Token                       Mã thông báo web JSON
+
+  LLM              Large Language Model                 Mô hình ngôn ngữ lớn
+
+   NFR             Non-functional Requirement           Yêu cầu phi chức năng
+
+  ORM              Object–Relational Mapping            Ánh xạ đối tượng–quan hệ
+
+   PK              Primary Key                          Khóa chính
+
+                  Progressive Web
+  PWA                                                   Ứng dụng web tiến bộ
+                Application
+
+                  Retrieval-Augmented                Sinh nội dung có truy xuất
+  RAG
+                Generation                        tăng cường
+
+                                                        Kiểm soát truy cập theo vai
+  RBAC             Role-Based Access Control
+                                                  trò
+
+                   Representational State           Phong cách kiến trúc dịch vụ
+  REST
+                Transfer                          web
+
+                                                    Bộ công cụ phát triển phần
+   SDK             Software Development Kit
+                                                  mềm
+
+   SLO             Service Level Objective              Mục tiêu mức dịch vụ
+
+
+
+                                 xi
+Từ viết tắt              Tiếng Anh                      Ý nghĩa
+
+   SPA           Single-Page Application      Ứng dụng đơn trang
+
+   SSR           Server-Side Rendering        Kết xuất phía máy chủ
+
+                User Interface / User         Giao diện / trải nghiệm
+  UI/UX
+              Experience                   người dùng
+
+                 Universally Unique
+  UUID                                        Định danh duy nhất phổ quát
+              Identifier
+
+
+
+
+                             xii
+                                                                             MỞ ĐẦU   [[PAGE:opening]]
+
+
+
+
+1. Lý do chọn đề tài               [[PAGE:opening-1]]
+
+
+
+
+  Thị trường thiết bị thông minh phát triển nhanh về số lượng model, biến thể bộ nhớ,
+cấu hình phần cứng và phiên bản phần mềm. Cùng một sản phẩm có thể được mô tả
+bằng nhiều tên thương mại, đơn vị đo hoặc tập thông số khác nhau giữa trang hãng, cửa
+hàng và bài đánh giá. Người dùng phải mở nhiều nguồn, tự đối chiếu và thường không
+biết một con số bắt nguồn từ đâu.
+
+  Các trang thương mại điện tử tối ưu cho giao dịch, trong khi các bảng thông số đơn lẻ
+thường thiếu quan hệ giữa thiết bị, chipset, CPU, GPU, màn hình, camera và bằng chứng
+nguồn. Khi bổ sung AI, nếu hệ thống không ràng buộc câu trả lời vào catalog đã chuẩn
+hóa và trích dẫn, nguy cơ đưa ra thông tin thiếu căn cứ càng tăng. Spechub được lựa
+chọn để nghiên cứu một nền tảng coi dữ liệu, nguồn gốc và quy trình duyệt là lõi, thay vì
+chỉ là một giao diện tìm kiếm.
+
+2. Mục tiêu   [[PAGE:opening-2]]
+
+
+
+
+  Mục tiêu tổng quát là xây dựng nền tảng web phục vụ tra cứu, so sánh và nghiên cứu
+thiết bị thông minh trên một mô hình dữ liệu có cấu trúc, có thể truy nguyên nguồn và
+mở rộng cho tác vụ AI. Các mục tiêu cụ thể gồm:
+
+      Chuẩn hóa danh mục model, variant, linh kiện và thuộc tính kỹ thuật.
+      Cung cấp tìm kiếm, lọc, xem chi tiết, so sánh và khuyến nghị theo nhu cầu.
+      Thiết kế trợ lý AI/RAG sử dụng ngữ cảnh catalog và trả về trích dẫn.
+      Tổ chức Wiki có phiên bản, kiểm duyệt, bình luận và liên kết nguồn.
+      Hỗ trợ wishlist, lịch sử giá, cảnh báo và thông báo theo kênh.
+      Cung cấp công cụ biên tập, audit, health/metrics và API B2B có hạn mức.
+      Đánh giá hiện thực bằng kiểm thử tự động, kiểm tra lược đồ và readiness hạ tầng.
+
+3. Đối tượng và phạm vi                                 [[PAGE:opening-3]]
+
+
+
+
+  Đối tượng nghiên cứu gồm kiến trúc ứng dụng web nhiều lớp, thiết kế cơ sở dữ liệu
+catalog, tìm kiếm toàn văn và vector, quản lý phiên và phân quyền, quy trình biên tập dữ
+
+                                                                                1
+liệu, RAG có trích dẫn, tác vụ nền và kiểm thử API. Phạm vi sản phẩm bao gồm web,
+API, worker, các gói dùng chung và hạ tầng PostgreSQL/Redis; báo cáo không coi việc
+vận hành tải lớn ngoài Internet hoặc độ đầy đủ của mọi thiết bị trên thị trường là kết quả
+đã được chứng minh.
+
+4. Phương pháp thực hiện                                        [[PAGE:opening-4]]
+
+
+
+
+    1. Khảo sát hai báo cáo mẫu để xác lập cấu trúc, kiểu trình bày, cách đánh số
+        hình/bảng và nhịp nội dung.
+    2. Phân tích mã nguồn, package manifest, tài liệu dự án, controller API, route web
+        và lược đồ Prisma bằng công cụ tĩnh.
+    3. Chạy hệ thống cục bộ, kiểm tra health/readiness, chụp giao diện thực tế và chạy
+        bộ kiểm thử API.
+    4. Mô hình hóa tác nhân, use case, biểu đồ tuần tự, quy trình nền và ERD theo
+        miền dữ liệu.
+    5. Đối chiếu kết quả với yêu cầu, nhận diện hạn chế và đề xuất hướng phát triển có
+        thể kiểm chứng.
+
+5. Đóng góp của đồ án                      [[PAGE:opening-5]]
+
+
+
+
+  Đồ án đóng góp một mô hình dữ liệu sâu cho thiết bị thông minh; một kiến trúc
+monorepo tách ứng dụng triển khai và gói dùng chung; một bề mặt API có phân quyền;
+luồng AI gắn với dữ liệu và trích dẫn; cùng quy trình biên tập không cho dữ liệu ngoài đi
+thẳng vào catalog công khai. Báo cáo cũng đưa ra bộ sơ đồ và phụ lục định lượng để các
+thành viên mới có thể hiểu nhanh hệ thống.
+
+6. Cấu trúc báo cáo   [[PAGE:opening-6]]
+
+
+
+
+  Sau phần mở đầu, Chương 1 trình bày bối cảnh, yêu cầu và ràng buộc; Chương 2 giải
+thích cơ sở lý thuyết và các lựa chọn công nghệ; Chương 3 đặc tả use case, luồng tương
+tác và dữ liệu; Chương 4 mô tả hiện thực, giao diện và kết quả kiểm thử. Phần cuối tổng
+kết, nêu hướng phát triển, tài liệu tham khảo và các phụ lục API, mô hình dữ liệu, vận
+hành và hướng dẫn sử dụng.
+
+
+
+                                                                                     2
+                   CHƯƠNG 1. TỔNG QUAN VỀ ĐỀ TÀI                      [[PAGE:ch1]]
+
+
+
+
+1.1. Bối cảnh và bài toán   [[PAGE:ch1-1]]
+
+
+
+
+  Một quyết định mua thiết bị không chỉ phụ thuộc giá niêm yết. Người dùng cần biết
+khác biệt giữa các variant, cấu hình chipset, chất lượng màn hình, camera, pin, khả năng
+cập nhật hệ điều hành và mức phù hợp với nhu cầu. Dữ liệu này thường nằm rải rác ở
+trang hãng, cửa hàng, cơ sở benchmark và bài viết kỹ thuật. Tên trường, đơn vị và mức
+chi tiết khác nhau khiến việc tổng hợp thủ công tốn thời gian và dễ sai.
+
+  Ở góc độ kỹ thuật, dữ liệu thiết bị có tính quan hệ cao. Một model có nhiều variant;
+một variant dùng nhiều thành phần; một linh kiện có thể xuất hiện trên nhiều thiết bị;
+một giá trị có thể cần nhiều nguồn xác nhận và thay đổi theo thời gian. Nếu lưu toàn bộ
+dưới dạng văn bản hoặc JSON không được quản trị, việc tìm kiếm, so sánh, chấm điểm
+và duy trì tính nhất quán sẽ khó mở rộng.
+
+  Spechub xác định ba bài toán trung tâm: chuẩn hóa tri thức thiết bị; cung cấp trải
+nghiệm khám phá có thể giải thích; và duy trì vòng đời dữ liệu từ thu thập, đối soát, xuất
+bản đến lập chỉ mục. Các chức năng thương mại như wishlist, cảnh báo giá, affiliate và
+gói API được thiết kế xoay quanh lõi dữ liệu đó.
+
+
+
+
+                                              3
+                           Hình 1.1. Sơ đồ ngữ cảnh hệ thống Spechub           [[PAGE:fig-1-1]]
+
+
+
+
+1.2. Khoảng trống của các cách tiếp cận hiện có          [[PAGE:ch1-2]]
+
+
+
+
+  Không có một kiểu sản phẩm đơn lẻ đáp ứng đồng thời chiều sâu dữ liệu, trải nghiệm
+so sánh, cộng tác nội dung, khả năng truy nguyên và quyền truy cập lập trình. Bảng 1.1
+tổng hợp sự khác biệt theo mục tiêu sử dụng; đây là phân tích định tính về loại hình giải
+pháp, không phải xếp hạng một nhà cung cấp cụ thể.
+
+                           Bảng 1.1. So sánh cách tiếp cận dữ liệu thiết bị          [[PAGE:tab-1-1]]
+
+
+
+
+                                                                                     Khoảng trống đối với
+           Cách tiếp cận                     Điểm mạnh
+                                                                                                        Spechub
+
+                                                                             Khó so sánh chéo; dữ liệu
+                                     Thông tin chính thức, hình
+            Trang hãng                                                    thường chỉ tập trung sản phẩm
+                                  ảnh chuẩn
+                                                                          của hãng
+
+                                                                             Thông số có thể rút gọn, lặp
+           Sàn/cửa hàng              Giá và tồn kho gần giao dịch         hoặc không đồng nhất giữa
+                                                                          người bán
+
+
+
+
+                                                   4
+                                                                           Khoảng trống đối với
+           Cách tiếp cận                                 Điểm mạnh
+                                                                                Spechub
+
+                                                                         Quan hệ linh kiện, nguồn
+          Trang thông số           Tra cứu nhanh nhiều model         trích dẫn và quy trình duyệt
+                                                                     thường hạn chế
+
+                                                                        Khó cấu trúc hóa để lọc, so
+                                  Phân tích sâu, có ngữ cảnh
+           Bài đánh giá                                              sánh tự động và cập nhật hàng
+                               sử dụng
+                                                                     loạt
+
+                                                                        Có nguy cơ trả lời không
+         Chatbot tổng quát         Hội thoại tự nhiên                bám catalog, thiếu trích dẫn và
+                                                                     không tái lập
+
+                                                                         Đòi hỏi đầu tư lớn cho chuẩn
+                                 Kết hợp catalog, nguồn,
+             Spechub                                                 hóa, kiểm duyệt và vận hành dữ
+                               Wiki, so sánh, RAG và cảnh báo
+                                                                     liệu
+
+  Khoảng trống mà Spechub ưu tiên không phải là số lượng trang, mà là khả năng liên
+kết dữ liệu có cấu trúc với bằng chứng. Khi một thuộc tính xuất hiện trong kết quả so
+sánh hoặc câu trả lời AI, hệ thống cần xác định được thực thể liên quan, phiên bản dữ
+liệu và nguồn tham chiếu phù hợp.
+
+1.3. Tầm nhìn và phạm vi sản phẩm       [[PAGE:ch1-3]]
+
+
+
+
+  Tầm nhìn của Spechub là trở thành lớp tri thức dùng chung cho nghiên cứu thiết bị
+thông minh. Lớp trải nghiệm phục vụ người dùng cuối; Catalog Studio phục vụ quản trị
+dữ liệu; API B2B mở quyền truy cập có kiểm soát; còn worker duy trì các tác vụ dài và
+định kỳ. Phạm vi mã nguồn quan sát được bao gồm 22 route web, 30 controller API, 186
+endpoint và 139 mô hình dữ liệu.
+
+      Catalog: loại thiết bị, hãng/tổ chức, họ sản phẩm, model, variant, alias, media và
+       trạng thái phát hành.
+      Phần cứng: chipset, CPU, GPU, NPU, màn hình, camera, pin, bộ nhớ, lưu trữ, hệ
+       điều hành và benchmark.
+      Khám phá: tìm kiếm, lọc, xem chi tiết, so sánh, chấm điểm và khuyến nghị.
+      Nội dung: nguồn, trích dẫn, Wiki, phiên bản, bình luận, kiểm duyệt và
+       embedding.
+      Cá nhân hóa: tài khoản, wishlist, cảnh báo giá, thông báo và tùy chọn kênh nhận.
+
+
+                                                            5
+      Thương mại/vận hành: affiliate, lịch sử giá, subscription, Stripe webhook, API
+       key, usage, audit và health/metrics.
+
+1.4. Các bên liên quan     [[PAGE:ch1-4]]
+
+
+
+
+                                                          Bảng 1.2. Các bên liên quan     [[PAGE:tab-1-2]]
+
+
+
+
+          Bên liên quan                                            Nhu cầu chính                                                Tiêu chí thành công
+
+                                                           Tìm và so sánh nhanh mà                              Kết quả rõ, có bộ lọc, có
+          Khách truy cập
+                                                        không buộc đăng nhập                                 nguồn và URL chia sẻ được
+
+                                                                                                                Dữ liệu cá nhân tách biệt,
+                                                           Lưu danh sách, theo dõi giá,
+            Người dùng                                                                                       cảnh báo đúng điều kiện, không
+                                                        nhận thông báo
+                                                                                                             gửi lặp
+
+                                                            Cập nhật catalog và nội dung                         Có hàng đợi duyệt, diff,
+           Biên tập viên
+                                                        từ nguồn                                             citation và audit
+
+                                                           Đánh giá thay đổi và phiên                           Phê duyệt/từ chối có lý do,
+          Kiểm duyệt viên
+                                                        bản Wiki                                             phân quyền đúng
+
+                                                           Quản lý quyền, gói dịch vụ                          Có dashboard, health,
+           Quản trị viên
+                                                        và vận hành                                          metrics, log và cơ chế thu hồi
+
+                                                                                                                API key có scope, hạn mức,
+                                                           Truy cập dữ liệu ổn định
+           Đối tác B2B                                                                                       thống kê usage và tài liệu hợp
+                                                        bằng API
+                                                                                                             đồng
+
+                                                           Phát triển nhiều mô-đun                               Build/test nhất quán, kiểu dữ
+          Nhóm phát triển
+                                                        trong một kho                                        liệu dùng chung, lỗi dễ truy vết
+
+
+1.5. Yêu cầu chức năng                [[PAGE:ch1-5]]
+
+
+
+
+  Yêu cầu chức năng được nhóm theo hành trình người dùng và vòng đời dữ liệu. Mỗi
+yêu cầu có mã để đối chiếu ở Chương 4.
+
+                                                       Bảng 1.3. Yêu cầu chức năng chính                     [[PAGE:tab-1-3]]
+
+
+
+
+                                                                                                                                       Bằng chứng hiện
+            Mã                                           Yêu cầu                 Mức ưu tiên
+                                                                                                                                           thực
+
+
+                                     Tìm kiếm thiết
+                                                                                                                                    Route /search,
+           FR-01                 bị/phần cứng theo từ khóa                   Bắt buộc
+                                                                                                                                 controller search/catalog
+                                 và bộ lọc
+
+                                    Xem model, variant,                                                                             Route /devices/[slug],
+           FR-02                                                             Bắt buộc
+                                 thông số, điểm và nguồn                                                                         API catalog
+
+
+
+
+                                                                         6
+                                                                                                              Bằng chứng hiện
+           Mã                                 Yêu cầu                    Mức ưu tiên
+                                                                                                                   thực
+
+
+                         So sánh nhiều thiết bị                                                            Route /compare,
+          FR-03                                                    Bắt buộc
+                     trên thuộc tính chuẩn hóa                                                          compare service
+
+                        Đề xuất thiết bị theo                                                               Route /recommend,
+          FR-04                                                    Cao
+                     nhu cầu                                                                            AI recommendations
+
+                          Hỏi AI và nhận câu                                                                Route /ai, /ai/ask và
+          FR-05                                                    Cao
+                     trả lời có citation                                                                /ai/chat
+
+                        Đăng ký, đăng nhập,                                                                Auth API, JWT và
+          FR-06                                                    Bắt buộc
+                     làm mới và thu hồi phiên                                                           Redis session
+
+                        Quản lý wishlist và                                                                Route /wishlist, /alerts
+          FR-07                                                    Cao
+                     cảnh báo giá                                                                       và worker
+
+                         Đọc, soạn, sửa và
+                                                                                                           Các route /wiki và
+          FR-08      duyệt Wiki theo phiên                         Cao
+                                                                                                        API moderation
+                     bản
+
+                         Thu thập, chuẩn hóa                                                               Data source, raw
+          FR-09                                                    Bắt buộc
+                     và duyệt dữ liệu catalog                                                           page, review workflow
+
+                        Quản trị quyền,
+                                                                                                           Admin/billing/audit
+          FR-10      subscription, audit và                        Cao
+                                                                                                        controllers
+                     webhook
+
+                         Cấp API key, scope                                                               Route /api-access và
+          FR-11                                                    Trung bình
+                     và theo dõi usage B2B                                                              B2B controllers
+
+                         Cung cấp health,
+          FR-12                                                    Bắt buộc                                4 endpoint /health
+                     readiness và metrics
+
+
+1.6. Yêu cầu phi chức năng   [[PAGE:ch1-6]]
+
+
+
+
+                                              Bảng 1.4. Yêu cầu phi chức năng    [[PAGE:tab-1-4]]
+
+
+
+
+                Mã                                         Thuộc tính                               Yêu cầu có thể kiểm chứng
+
+
+                                                                                            Validate DTO theo whitelist;
+                                                                                        từ chối trường lạ; JWT và RBAC;
+            NFR-01                               An toàn
+                                                                                        Helmet; CORS giới hạn; không
+                                                                                        lưu API key dạng rõ.
+
+                                                                                           Ràng buộc khóa/unique trong
+                                                                                        DB; quy trình duyệt; citation;
+            NFR-02                               Tính đúng
+                                                                                        kiểm thử service/controller;
+                                                                                        schema Prisma hợp lệ.
+
+                                                                                            Health/liveness/readiness tách
+            NFR-03                               Khả dụng                               biệt; phụ thuộc DB/Redis được
+                                                                                        báo rõ; lỗi có request ID.
+
+
+
+                                                               7
+                  Mã                                             Thuộc tính                       Yêu cầu có thể kiểm chứng
+
+
+                                                                                      Phân trang, index, cache
+               NFR-04                                 Hiệu năng                    Redis, tìm kiếm chuyên dụng tùy
+                                                                                   chọn; tác vụ dài chạy nền.
+
+                                                                                     Mô-đun NestJS theo miền;
+               NFR-05                                 Mở rộng                      monorepo; dữ liệu chuẩn hóa;
+                                                                                   API version /v1.
+
+                                                                                      Structured log, request ID,
+               NFR-06                                 Quan sát                     metrics và audit cho hành động
+                                                                                   đặc quyền.
+
+                                                                                       Giao diện responsive,
+                                                                                   PWA/offline, thông báo trạng thái
+               NFR-07                                 Trải nghiệm
+                                                                                   và thao tác chính có thể dùng bàn
+                                                                                   phím.
+
+                                                                                       TypeScript strict, schema
+                                                                                   dùng chung, lint/test, tài liệu
+               NFR-08                                 Bảo trì
+                                                                                   Swagger trong môi trường phát
+                                                                                   triển.
+
+  Một số mục như ngưỡng latency phần trăm vị, tải đồng thời và SLO sản xuất chưa có
+bằng chứng đo tải trong phạm vi đồ án. Vì vậy báo cáo chỉ nêu chúng như mục tiêu thiết
+kế và hướng kiểm chứng tiếp theo, không công bố con số hiệu năng giả định.
+
+1.7. Rủi ro và ràng buộc      [[PAGE:ch1-7]]
+
+
+
+
+                                               Bảng 1.5. Rủi ro và biện pháp giảm thiểu   [[PAGE:tab-1-5]]
+
+
+
+
+                Rủi ro                                    Khả năng / tác động                                Biện pháp giảm thiểu
+
+
+                                                                                       Lưu raw page, content hash,
+     Nguồn ngoài thay đổi cấu trúc                    Cao / Cao                    parser theo nguồn, hàng đợi
+                                                                                   review và cảnh báo thất bại
+
+                                                                                       Chuẩn hóa đơn vị, lưu
+          Thông số xung đột                           Cao / Cao                    citation, trust score và yêu cầu đối
+                                                                                   soát trước xuất bản
+
+                                                                                       RAG top-k, prompt policy,
+      AI tạo nội dung thiếu căn cứ                    Trung bình / Cao             citation ID, cache có phiên bản và
+                                                                                   đánh giá thủ công
+
+                                                                                       Cookie bảo mật, hash key,
+       Lộ refresh token/API key                       Thấp / Cao                   session Redis, scope, rate limit và
+                                                                                   thu hồi
+
+
+
+
+                                                                     8
+               Rủi ro                        Khả năng / tác động          Biện pháp giảm thiểu
+
+
+                                                                       Chia miền, bảng nối,
+         Tăng trưởng lược đồ             Cao / Trung bình          migration, quy ước đặt tên và phụ
+                                                                   lục mô hình
+
+                                                                      Timeout, fallback, retry có
+       Phụ thuộc dịch vụ ngoài           Trung bình / Trung bình   giới hạn, webhook idempotency
+                                                                   và degrade có kiểm soát
+
+                                                                      Ưu tiên chất lượng hơn số
+        Thiếu dữ liệu bao phủ            Cao / Trung bình          lượng, đo độ đầy đủ theo category
+                                                                   và mở rộng theo lộ trình
+
+
+1.8. Kết luận chương    [[PAGE:ch1-8]]
+
+
+
+
+  Chương 1 đã xác định Spechub là bài toán quản trị tri thức thiết bị chứ không chỉ là
+một website liệt kê sản phẩm. Yêu cầu trọng tâm là cấu trúc dữ liệu sâu, truy nguyên
+nguồn, khám phá dễ dùng, kiểm soát thay đổi và bề mặt API an toàn. Các yêu cầu và rủi
+ro này là cơ sở để lựa chọn công nghệ ở Chương 2 và đặc tả thiết kế ở Chương 3.
+
+
+
+
+                                                      9
+          CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ                                                                     [[PAGE:ch2]]
+
+
+
+
+2.1. Nguyên tắc kiến trúc   [[PAGE:ch2-1]]
+
+
+
+
+  Kiến trúc Spechub tuân theo các nguyên tắc: phân tách trách nhiệm; hợp đồng dữ liệu
+rõ; xác thực ở biên và phân quyền ở nghiệp vụ; mọi thay đổi quan trọng có audit; dữ liệu
+ngoài phải qua bước chuẩn hóa/duyệt; tác vụ dài được tách khỏi request; và chức năng
+AI phải có khả năng truy vết về ngữ cảnh.
+
+  Ứng dụng được tổ chức theo nhiều lớp. Web chịu trách nhiệm trình bày và trạng thái
+tương tác; API thực hiện validation, xác thực và điều phối use case; service/module chứa
+quy tắc nghiệp vụ; Prisma quản lý truy cập quan hệ; còn PostgreSQL, Redis, search và
+các dịch vụ ngoài đảm nhiệm lưu trữ hoặc năng lực chuyên biệt. Cách phân tách này
+giúp kiểm thử từng tầng và thay thế phụ thuộc mà không làm thay đổi toàn bộ giao diện.
+
+                         Bảng 2.1. Thành phần công nghệ và phiên bản                [[PAGE:tab-2-1]]
+
+
+
+
+            Lớp                              Công nghệ                Phiên bản                                   Vai trò
+
+
+                                                                                                          Thực thi web/API và
+          Runtime              Node.js                        >=22.11.0
+                                                                                                       công cụ
+
+                                                                                                          Quản lý monorepo và
+         Workspace             pnpm / Turborepo               pnpm@9.15.0 / 2.3.3
+                                                                                                       pipeline
+
+                                                                                                          SSR/CSR, App
+            Web                Next.js / React                15.1.3 / ^19.0.0
+                                                                                                       Router và UI
+
+                                                                                                           REST, guard, pipe và
+            API                NestJS / Fastify               11.0.6 / 5.2.0
+                                                                                                       hiệu năng HTTP
+
+                                                                                                           Schema dùng chung
+         Validation            Zod                            3.24.1
+                                                                                                       và kiểm tra dữ liệu
+
+                                                                                                           ORM, migration và
+            Data               Prisma                         6.1.0
+                                                                                                       kiểu dữ liệu
+
+                                                                                                          Quan hệ, full-text,
+          Database             PostgreSQL                     16
+                                                                                                       vector và extension
+
+                                                            Theo môi trường triển                         Phiên, cache và điều
+        Cache/session          Redis
+                                                         khai                                          phối
+
+                                                                                                          Tìm kiếm chuyên
+           Search              Meilisearch client             0.46.0
+                                                                                                       dụng tùy chọn
+
+
+
+
+                                                         10
+            Lớp                 Công nghệ                          Phiên bản                                Vai trò
+
+
+                                                                                                      Cache và đồng bộ dữ
+            State          TanStack Query                     5.62.10
+                                                                                                  liệu phía web
+
+
+2.2. Monorepo và tổ chức mã nguồn       [[PAGE:ch2-2]]
+
+
+
+
+  Monorepo dùng pnpm workspace và Turborepo cho phép web, API, worker, database
+và các gói dùng chung phát triển trong một kho nhưng vẫn có ranh giới triển khai. Kiểu
+dữ liệu, schema validation và cấu hình TypeScript/ESLint được chia sẻ để giảm sai khác
+giữa client và server. Pipeline có thể chạy build, test và lint theo đồ thị phụ thuộc, tận
+dụng cache cho phần không thay đổi.
+
+
+
+
+                             Hình 2.1. Cấu trúc monorepo Spechub               [[PAGE:fig-2-1]]
+
+
+
+
+  Ranh giới package không thay thế ranh giới nghiệp vụ. Trong API, mỗi miền như
+catalog, AI, Wiki, alerts, affiliate, billing và admin tiếp tục có module/controller/service
+riêng. Cách tổ chức hai cấp giúp đội phát triển xác định nơi chứa code, đồng thời hạn chế
+việc một module truy cập trực tiếp chi tiết nội bộ của module khác.
+
+
+
+
+                                                         11
+2.3. Lớp trình bày với Next.js và React           [[PAGE:ch2-3]]
+
+
+
+
+  Next.js App Router tổ chức trang theo route filesystem, hỗ trợ kết xuất phía máy chủ
+cho nội dung cần khả năng lập chỉ mục và kết xuất phía khách cho tương tác giàu trạng
+thái. React 19 cung cấp mô hình component; TanStack Query quản lý cache, trạng thái
+tải/lỗi và làm mới dữ liệu server; Tailwind CSS giúp thống nhất token khoảng cách, màu
+và responsive.
+
+  Danh sách 22 route thể hiện bốn nhóm trải nghiệm: khám phá công khai; tài khoản/cá
+nhân hóa; nội dung Wiki; và quản trị/thương mại. Thiết kế PWA bổ sung service worker
+và trang offline để người dùng có phản hồi rõ khi mất kết nối. Việc phân tách route
+không đồng nghĩa mọi trang đều công khai: middleware và trạng thái xác thực phải điều
+hướng hoặc chặn thao tác cần quyền.
+
+       Server rendering phù hợp trang catalog/chi tiết cần metadata và tải lần đầu ổn
+        định.
+       Client component dùng cho bộ lọc, chọn so sánh, biểu mẫu nhiều bước và hội
+        thoại AI.
+       TanStack Query giúp tránh tự viết cơ chế cache riêng cho từng trang.
+       URL chứa slug và query filter làm trạng thái có thể chia sẻ, quay lại và kiểm thử.
+
+2.4. API với NestJS và Fastify   [[PAGE:ch2-4]]
+
+
+
+
+  NestJS cung cấp dependency injection, module, controller, pipe, guard và interceptor.
+Fastify được chọn làm HTTP adapter để có pipeline gọn và khả năng xử lý cao. API
+dùng prefix /api, URI version v1 và DTO được kiểm tra bởi ValidationPipe với whitelist,
+forbidNonWhitelisted và transform; vì vậy trường không được định nghĩa bị từ chối thay
+vì âm thầm đi vào nghiệp vụ.
+
+  Guard toàn cục xử lý JWT, vai trò và rate limit; decorator công khai cho phép các
+endpoint đọc như health hoặc tìm kiếm bỏ qua xác thực khi phù hợp. Swagger chỉ bật
+trong môi trường phát triển để hỗ trợ khám phá hợp đồng mà không mở bề mặt không
+cần thiết ở môi trường sản xuất. Request ID được gắn vào luồng xử lý để liên kết phản
+hồi lỗi với log.
+
+
+
+                                                                   12
+  Thống kê tĩnh ghi nhận 30 controller và 186 endpoint, gồm 91 GET, 57 POST, 24
+PATCH, 13 DELETE và 1 PUT. Phân bố này phù hợp hệ thống vừa có bề mặt đọc
+catalog lớn, vừa có quy trình tạo/duyệt nội dung và tác vụ quản trị.
+
+     Hợp          đồng         phản          hồi                                 lỗi     tham      chiếu
+   HTTP/1.1                     400                                              Bad             Request
+   {
+                                                       "statusCode":                                400,
+                 "message":      ["field                 must      not                    be    empty"],
+                         "requestId":                      "<id                        truy        vết>"
+   }
+
+
+2.5. Prisma, PostgreSQL và tìm kiếm dữ liệu                     [[PAGE:ch2-5]]
+
+
+
+
+  Prisma cung cấp lược đồ khai báo, client có kiểu và quy trình migration. Với 139
+model, lợi ích quan trọng là hợp đồng dữ liệu được kiểm tra tập trung và quan hệ được
+biểu diễn rõ trong code. PostgreSQL 16 phù hợp dữ liệu quan hệ nhiều ràng buộc, đồng
+thời cho phép mở rộng tìm kiếm bằng pg_trgm, unaccent và lưu vector bằng pgvector.
+
+  Tìm kiếm không chỉ là so khớp chuỗi. Truy vấn cần chuẩn hóa dấu, alias, tên model,
+hãng, chipset và từ khóa thuộc tính; kết quả phải phân trang, xếp hạng và quay lại thực
+thể đầy đủ. Kiến trúc cho phép dùng khả năng PostgreSQL làm nền và Meilisearch như
+bộ máy chuyên dụng tùy chọn. Dù đường tìm kiếm nào được chọn, kết quả cuối vẫn
+được hydrate từ catalog để duy trì một nguồn sự thật.
+
+  Vector embedding hỗ trợ truy xuất ngữ nghĩa cho Wiki, thông số và câu hỏi AI.
+Vector không thay thế quan hệ hay citation: nó chỉ giúp chọn ngữ cảnh gần nghĩa. Thực
+thể gốc, phiên bản, model embedding và liên kết nguồn cần được lưu để có thể tái tạo
+hoặc vô hiệu hóa chỉ mục khi dữ liệu thay đổi.
+
+2.6. Redis, tác vụ nền và khả năng phục hồi    [[PAGE:ch2-6]]
+
+
+
+
+  Redis được sử dụng cho phiên đăng nhập, cache và các trạng thái ngắn hạn cần truy
+cập nhanh. Refresh token gắn với session UUID lưu trong Redis giúp logout thực sự thu
+hồi phiên, thay vì chỉ xóa token ở trình duyệt. Cache phải có TTL và namespace theo
+phiên bản để tránh trả dữ liệu cũ sau khi catalog được xuất bản.
+
+
+
+
+                                             13
+  Worker xử lý cảnh báo giá, đồng bộ nguồn, lập chỉ mục hoặc gửi thông báo—những
+tác vụ không nên giữ request HTTP mở. Thiết kế job cần idempotent, có khóa chống
+chạy trùng, retry giới hạn và dead-letter/ghi lỗi rõ. Readiness kiểm tra DB và Redis giúp
+bộ điều phối chỉ gửi lưu lượng khi phụ thuộc cốt lõi sẵn sàng.
+
+2.7. Truy xuất tăng cường và AI có trích dẫn                     [[PAGE:ch2-7]]
+
+
+
+
+  RAG kết hợp bước truy xuất ngữ cảnh với mô hình sinh nội dung. Câu hỏi được
+chuẩn hóa, tìm top-k đoạn hoặc thực thể phù hợp, sau đó API xây dựng prompt gồm
+chính sách trả lời, ngữ cảnh và định danh trích dẫn. Mô hình tạo câu trả lời; hệ thống
+kiểm tra định dạng và trả cả citation để giao diện hiển thị liên kết nguồn.
+
+  Ba ranh giới kiểm soát chất lượng là retrieval, generation và presentation. Retrieval
+phải lọc theo trạng thái xuất bản và quyền; generation không được coi kiến thức ngoài
+context là dữ kiện chắc chắn; presentation cần phân biệt câu trả lời, cảnh báo thiếu bằng
+chứng và nguồn. Cache AI nên gắn với hash truy vấn, phiên bản dữ liệu và model để
+tránh dùng lại kết quả sau thay đổi quan trọng.
+
+  Đánh giá AI không thể chỉ dùng test unit. Cần tập câu hỏi chuẩn, đáp án/nguồn mong
+đợi, thước đo citation precision, context recall, mức phù hợp và kiểm tra an toàn prompt
+injection. Phạm vi hiện tại đã có kiến trúc và endpoint, nhưng bộ benchmark định lượng
+toàn diện là hướng phát triển tiếp theo.
+
+2.8. Xác thực, phân quyền và bảo mật       [[PAGE:ch2-8]]
+
+
+
+
+  Luồng xác thực phát hành access token ngắn hạn và refresh token gắn phiên. Mật
+khẩu được lưu dưới dạng băm; refresh cookie cần HttpOnly, Secure và SameSite phù
+hợp. RBAC phân biệt USER, EDITOR, MODERATOR và ADMIN; quyền chỉnh sửa
+catalog hoặc xuất bản Wiki được kiểm tra ở server, không dựa vào việc ẩn nút trên giao
+diện.
+
+
+
+
+                                                            14
+                           Bảng 2.2. Biện pháp bảo mật theo lớp      [[PAGE:tab-2-2]]
+
+
+
+
+              Lớp                              Rủi ro                                   Biện pháp
+
+
+                                                                        Escape nội dung, CSP/Helmet,
+           Trình duyệt             XSS, đánh cắp token              refresh cookie HttpOnly, không
+                                                                    lưu bí mật trong localStorage
+
+                                                                       HTTPS, CORS giới hạn,
+            HTTP/API               Payload lạ, abuse                ValidationPipe, giới hạn kích
+                                                                    thước và rate limit
+
+                                                                        Hash mật khẩu, throttle,
+                                   Credential stuffing, phiên tồn
+            Xác thực                                                session Redis, rotate/thu hồi
+                             tại
+                                                                    refresh
+
+                                                                       JWT guard, Roles guard,
+           Phân quyền              Leo thang đặc quyền              deny-by-default và kiểm tra
+                                                                    ownership
+
+                                                                       Prisma parameterization, ràng
+             Dữ liệu               Injection, mất toàn vẹn          buộc DB, transaction, migration
+                                                                    và backup
+
+                                                                       Xác minh chữ ký,
+         Webhook/API key           Replay, lộ khóa                  idempotency, lưu hash, scope và
+                                                                    revoked_at
+
+                                                                        Lọc nguồn, tách system
+             AI/RAG                Prompt injection, lộ dữ liệu     policy, không truy xuất tài liệu
+                                                                    vượt quyền, citation bắt buộc
+
+                                                                       Request ID, audit log, metrics,
+            Vận hành               Thiếu truy vết                   cảnh báo và scrub dữ liệu nhạy
+                                                                    cảm
+
+
+2.9. PWA, quan sát hệ thống và triển khai       [[PAGE:ch2-9]]
+
+
+
+
+                                                 15
+                             Hình 2.2. Kiến trúc logic nhiều lớp   [[PAGE:fig-2-2]]
+
+
+
+
+  PWA cải thiện khả năng cài đặt và phản hồi khi kết nối không ổn định, nhưng cache
+phải được thiết kế cẩn trọng để không làm stale dữ liệu giá hoặc trạng thái tài khoản.
+Quan sát hệ thống gồm health, liveness, readiness, metrics, structured log và request ID;
+audit log tập trung vào thay đổi có ảnh hưởng nghiệp vụ. Hai lớp này phục vụ các mục
+đích khác nhau và không nên trộn lẫn.
+
+
+
+
+                                             16
+                       Hình 2.3. Mô hình triển khai tham chiếu       [[PAGE:fig-2-3]]
+
+
+
+
+                       Bảng 2.3. Lựa chọn kiến trúc và đánh đổi   [[PAGE:tab-2-3]]
+
+
+
+
+     Lựa chọn                            Lợi ích                                        Đánh đổi / kiểm soát
+
+
+                                                                 Kho lớn; cần ranh giới
+     Monorepo                 Chia sẻ kiểu và pipeline
+                                                              package và cache build
+
+                              Giao dịch và triển khai đơn       Cần kỷ luật phụ thuộc để tránh
+Modular monolith API
+                           giản                               module chồng chéo
+
+                               Toàn vẹn quan hệ và truy vấn      Lược đồ lớn; cần index,
+PostgreSQL trung tâm
+                           linh hoạt                          migration và ownership rõ
+
+                                                                Thêm phụ thuộc; phải thiết kế
+       Redis                  Phiên/cache nhanh
+                                                              TTL, eviction và phục hồi
+
+                                                                  Đồng bộ chỉ mục và chế độ
+Meilisearch tùy chọn          Tìm kiếm xếp hạng tốt
+                                                              fallback
+
+                                                                 Chi phí, latency và yêu cầu
+       RAG                    AI bám dữ liệu và có citation
+                                                              benchmark chất lượng
+
+                                                                  Cần idempotency, retry, giám
+      Worker                  Tách tác vụ dài khỏi request
+                                                              sát và xử lý lỗi
+
+
+
+
+                                           17
+2.10. Kết luận chương   [[PAGE:ch2-10]]
+
+
+
+
+  Các công nghệ được lựa chọn tạo thành một kiến trúc TypeScript xuyên suốt, có dữ
+liệu quan hệ làm nền, cache và search là năng lực bổ trợ, còn AI được đặt sau lớp truy
+xuất và citation. Điểm quan trọng không nằm ở danh sách framework mà ở cách ranh
+giới và kiểm soát được ghép thành luồng có thể kiểm thử. Chương 3 cụ thể hóa các
+nguyên tắc này thành tác nhân, use case, tuần tự và ERD.
+
+
+
+
+                                           18
+         CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG                                                         [[PAGE:ch3]]
+
+
+
+
+3.1. Tác nhân và mô hình use case      [[PAGE:ch3-1]]
+
+
+
+
+  Phân tích tác nhân dựa trên quyền và mục tiêu nghiệp vụ, không đồng nhất tác nhân
+với một màn hình. Khách truy cập có thể thực hiện luồng đọc; người dùng kế thừa quyền
+đọc và có dữ liệu cá nhân; ba vai trò nội bộ có đặc quyền tăng dần; đối tác B2B tương
+tác bằng API key thay vì phiên trình duyệt.
+
+                                  Bảng 3.1. Tác nhân hệ thống           [[PAGE:tab-3-1]]
+
+
+
+
+          Tác nhân               Xác thực                     Khả năng chính                         Giới hạn
+
+
+                                                            Tìm kiếm, lọc, xem
+                                                                                              Không lưu dữ liệu cá
+        Khách truy cập     Không bắt buộc               chi tiết, so sánh, khuyến
+                                                                                           nhân lâu dài
+                                                        nghị công khai
+
+                                                                                              Chỉ thao tác dữ liệu
+                                                           Wishlist, cảnh báo,
+         Người dùng        JWT + refresh session                                           của mình; nội dung chờ
+                                                        thông báo, đóng góp Wiki
+                                                                                           duyệt
+
+                                                                                              Không quản trị người
+                                                           Soạn catalog, quản lý
+        Biên tập viên      JWT, role EDITOR                                                dùng/hệ thống ngoài
+                                                        nguồn, đối soát dữ liệu
+                                                                                           phạm vi
+
+                           JWT, role                       Duyệt thay đổi và                  Quyết định được ghi
+       Kiểm duyệt viên
+                         MODERATOR                      phiên bản Wiki                     audit
+
+                                                           Quản trị quyền, gói,
+                                                                                              Thao tác nhạy cảm
+         Quản trị viên     JWT, role ADMIN              API key, webhook và vận
+                                                                                           phải có log và xác nhận
+                                                        hành
+
+                                                                                               Không dùng endpoint
+                                                           Đọc dữ liệu theo hợp
+         Đối tác B2B       API key + scope                                                 nội bộ; có quota và thu
+                                                        đồng và hạn mức
+                                                                                           hồi
+
+                                                                                               Không nhận tương tác
+                                                           Đồng bộ, cảnh báo,
+           Worker          Danh tính dịch vụ                                               trực tiếp; job phải
+                                                        thông báo, lập chỉ mục
+                                                                                           idempotent
+
+
+
+
+                                                        19
+Hình 3.1. Use case phía người dùng   [[PAGE:fig-3-1]]
+
+
+
+
+                20
+               Hình 3.2. Use case biên tập và quản trị                     [[PAGE:fig-3-2]]
+
+
+
+
+                      Bảng 3.2. Danh mục use case       [[PAGE:tab-3-2]]
+
+
+
+
+ Mã                    Tên                   Tác nhân chính                                              Kết quả
+
+
+              Tìm kiếm và lọc thiết                                                              Danh sách xếp hạng,
+UC-01                                      Khách/Người dùng
+        bị                                                                                    phân trang và có bộ lọc
+
+                                                                                                 Ma trận thuộc tính
+UC-02         So sánh thiết bị             Khách/Người dùng
+                                                                                              chuẩn hóa
+
+              Khuyến nghị và hỏi                                                                 Gợi ý/câu trả lời có lý
+UC-03                                      Khách/Người dùng
+        AI                                                                                    do và citation
+
+                                                                                                  Access token và
+           Đăng nhập và quản lý
+UC-04                                      Người dùng nội bộ                                  refresh session có thể thu
+        phiên
+                                                                                              hồi
+
+                                                                                                  Theo dõi variant và
+              Wishlist và cảnh báo
+UC-05                                      Người dùng                                         notification khi đạt
+        giá
+                                                                                              ngưỡng
+
+           Đóng góp và duyệt             Người                                                   Revision được xuất
+UC-06
+        Wiki                          dùng/Moderator                                          bản hoặc từ chối có lý do
+
+            Thu thập và duyệt           Editor/Moderator/                                        Dữ liệu chuẩn hóa có
+UC-07
+        catalog                       Worker                                                  nguồn được xuất bản
+
+
+
+
+                                      21
+            Mã                                  Tên                Tác nhân chính             Kết quả
+
+
+                                                                                       Truy cập theo scope,
+           UC-08                        Khai thác API B2B        Đối tác/Admin
+                                                                                    quota và usage
+
+
+3.2. Đặc tả use case   [[PAGE:ch3-2]]
+
+
+
+
+  Tám use case dưới đây đại diện cho hành trình đọc, cá nhân hóa, cộng tác, quản trị dữ
+liệu và tích hợp. Luồng được viết ở mức nghiệp vụ; đường dẫn API cụ thể có thể thay
+đổi nhưng tiền/hậu điều kiện và kiểm soát phải được giữ.
+
+
+
+
+                                                            22
+           Bảng 3.3. Đặc tả UC-01 – Tìm kiếm và lọc thiết bị   [[PAGE:tab-3-3]]
+
+
+
+
+      Thuộc tính                                          Nội dung
+
+      Mã use case                      UC-01
+
+                                      Tìm nhanh thiết bị hoặc phần cứng phù hợp
+        Mục tiêu
+                                   theo từ khóa, loại, hãng và thuộc tính.
+
+       Tác nhân                        Khách truy cập; Người dùng.
+
+                                      Catalog có dữ liệu đã xuất bản; dịch vụ tìm
+     Tiền điều kiện                kiếm ở chế độ PostgreSQL hoặc Meilisearch sẵn
+                                   sàng.
+
+                                     Tác nhân nhập từ khóa, chọn bộ lọc hoặc mở
+       Kích hoạt
+                                   URL có query parameter.
+
+                                      1) Web chuẩn hóa input và gửi GET search.
+                                   2) API kiểm tra tham số, giới hạn trang và sort.
+                                   3) Search tìm ID xếp hạng theo text/alias.
+      Luồng chính
+                                   4) Catalog hydrate model, variant, media và facet.
+                                   5) API trả DTO phân trang.
+                                   6) Web hiển thị kết quả, bộ lọc và trạng thái URL.
+
+                                       A1) Từ khóa rỗng: trả danh mục theo filter.
+                                   A2) Không có kết quả: gợi ý bỏ bớt filter hoặc
+                                   alias gần đúng.
+Luồng thay thế / ngoại lệ
+                                   E1) Search chuyên dụng lỗi: fallback sang
+                                   PostgreSQL nếu cấu hình cho phép.
+                                   E2) Tham số sai: trả 400 cùng request ID.
+
+                                       Không thay đổi catalog; có thể ghi search log
+     Hậu điều kiện
+                                   và latency mà không lưu dữ liệu nhạy cảm.
+
+                                      Whitelist filter; giới hạn page size; chỉ trả bản
+  Dữ liệu và kiểm soát             ghi published; query được parameter hóa; cache
+                                   theo query chuẩn hóa.
+
+
+
+
+                                  23
+               Bảng 3.4. Đặc tả UC-02 – So sánh thiết bị   [[PAGE:tab-3-4]]
+
+
+
+
+      Thuộc tính                                             Nội dung
+
+      Mã use case                      UC-02
+
+                                      Đặt từ hai đến một số hữu hạn thiết bị cạnh
+        Mục tiêu
+                                   nhau trên cùng hệ thuộc tính.
+
+       Tác nhân                        Khách truy cập; Người dùng.
+
+                                      Các slug hợp lệ và model có ít nhất một
+     Tiền điều kiện
+                                   variant được xuất bản.
+
+                                       Tác nhân chọn nút So sánh từ danh sách/chi
+       Kích hoạt
+                                   tiết hoặc mở URL compare.
+
+                                       1) Web duy trì danh sách slug không trùng.
+                                   2) API nhận danh sách và kiểm tra số lượng.
+                                   3) Service tải model, variant và phần cứng liên
+                                   quan.
+                                   4) Thuộc tính được ánh xạ vào schema so sánh
+      Luồng chính
+                                   theo category.
+                                   5) Giá trị được chuẩn hóa đơn vị và đánh dấu
+                                   thiếu dữ liệu.
+                                   6) Web hiển thị ma trận, điểm khác biệt và nguồn
+                                   khi có.
+
+                                      A1) Chỉ có một thiết bị: yêu cầu chọn thêm.
+                                   A2) Khác category không tương thích: dùng tập
+                                   thuộc tính chung hoặc cảnh báo.
+Luồng thay thế / ngoại lệ
+                                   E1) Slug không tồn tại: bỏ mục lỗi và thông báo.
+                                   E2) Dữ liệu thiếu: hiển thị 'Chưa có dữ liệu',
+                                   không suy diễn.
+
+                                      URL chứa lựa chọn có thể chia sẻ; không thay
+     Hậu điều kiện
+                                   đổi dữ liệu người dùng nếu chưa lưu.
+
+                                      Giới hạn số model; thứ tự ổn định; chuẩn hóa
+  Dữ liệu và kiểm soát             đơn vị; citation gắn thuộc tính; tránh N+1 bằng
+                                   include/batch.
+
+
+
+
+                                  24
+         Bảng 3.5. Đặc tả UC-03 – Nhận khuyến nghị và hỏi AI   [[PAGE:tab-3-5]]
+
+
+
+
+      Thuộc tính                                         Nội dung
+
+      Mã use case                     UC-03
+
+                                     Chuyển nhu cầu tự nhiên hoặc bộ tiêu chí
+        Mục tiêu                  thành gợi ý có thể giải thích và câu trả lời có
+                                  nguồn.
+
+       Tác nhân                       Khách truy cập; Người dùng; AI service.
+
+                                     Catalog/Wiki đã lập chỉ mục; chính sách
+     Tiền điều kiện
+                                  prompt và cấu hình model hợp lệ.
+
+                                     Tác nhân hoàn thành biểu mẫu khuyến nghị
+       Kích hoạt
+                                  hoặc gửi câu hỏi.
+
+                                      1) API validate nhu cầu/câu hỏi.
+                                  2) Bộ truy xuất tạo query và lấy top-k context
+                                  theo quyền.
+                                  3) Catalog tải dữ kiện/citation tương ứng.
+      Luồng chính                 4) AI service tạo prompt ràng buộc.
+                                  5) LLM trả nội dung có tham chiếu ID.
+                                  6) API kiểm tra, lưu log/cache phù hợp và trả câu
+                                  trả lời cùng citation.
+                                  7) Web hiển thị kết quả, lý do và liên kết nguồn.
+
+                                     A1) Không đủ context: trả lời giới hạn và đề
+                                  nghị làm rõ.
+                                  A2) Model ngoài danh mục: nêu rõ không tìm
+                                  thấy.
+Luồng thay thế / ngoại lệ
+                                  E1) Dịch vụ LLM lỗi: trả thông báo có thể thử lại,
+                                  không giả câu trả lời.
+                                  E2) Citation không hợp lệ: loại phần không kiểm
+                                  chứng hoặc đánh dấu.
+
+                                       Có bản ghi đo chất lượng/latency nếu chính
+     Hậu điều kiện                sách cho phép; catalog không bị sửa bởi câu trả
+                                  lời.
+
+                                      Giới hạn độ dài; lọc prompt injection; chỉ
+  Dữ liệu và kiểm soát            context published; timeout; cache theo phiên bản;
+                                  citation bắt buộc cho dữ kiện.
+
+
+
+
+                                 25
+         Bảng 3.6. Đặc tả UC-04 – Đăng nhập và quản lý phiên   [[PAGE:tab-3-6]]
+
+
+
+
+      Thuộc tính                                        Nội dung
+
+      Mã use case                     UC-04
+
+                                     Xác thực an toàn và cho phép thu hồi phiên
+        Mục tiêu
+                                  độc lập với access token.
+
+                                    Người dùng; Biên tập viên; Moderator;
+       Tác nhân
+                                  Admin.
+
+                                     Tài khoản hoạt động; PostgreSQL và Redis
+     Tiền điều kiện
+                                  sẵn sàng.
+
+                                     Tác nhân gửi email/mật khẩu hoặc access
+       Kích hoạt
+                                  token hết hạn cần làm mới.
+
+                                     1) API validate credential.
+                                  2) Tìm user và so mật khẩu băm.
+                                  3) Tạo session UUID trong Redis với TTL.
+      Luồng chính                 4) Phát access token ngắn hạn và refresh token.
+                                  5) Web nhận hồ sơ và lưu trạng thái.
+                                  6) Khi refresh, API xác minh chữ ký và session.
+                                  7) Logout xóa/thu hồi session và cookie.
+
+                                       E1) Sai credential: phản hồi chung, không tiết
+                                  lộ email tồn tại.
+                                  E2) Session hết hạn/thu hồi: yêu cầu đăng nhập
+Luồng thay thế / ngoại lệ         lại.
+                                  E3) Tài khoản khóa: từ chối và audit.
+                                  E4) Redis không sẵn sàng: readiness fail; không
+                                  cấp phiên không thể quản lý.
+
+                                     Phiên hợp lệ được lưu có TTL hoặc đã bị thu
+     Hậu điều kiện                hồi; sự kiện đăng nhập đặc quyền có thể được
+                                  audit.
+
+                                     Rate limit; hash mật khẩu; cookie
+  Dữ liệu và kiểm soát            HttpOnly/Secure; rotate token; RBAC server-
+                                  side; scrub token khỏi log.
+
+
+
+
+                                 26
+           Bảng 3.7. Đặc tả UC-05 – Wishlist và cảnh báo giá   [[PAGE:tab-3-7]]
+
+
+
+
+      Thuộc tính                                         Nội dung
+
+      Mã use case                      UC-05
+
+                                       Lưu variant quan tâm và nhận thông báo khi
+        Mục tiêu
+                                   giá đạt điều kiện.
+
+       Tác nhân                        Người dùng; Worker; Notification service.
+
+                                      Người dùng đăng nhập; variant tồn tại; kênh
+     Tiền điều kiện
+                                   thông báo được cấu hình.
+
+                                       Người dùng thêm wishlist hoặc đặt target
+       Kích hoạt
+                                   price.
+
+                                      1) API kiểm tra ownership, variant, tiền tệ và
+                                   ngưỡng.
+                                   2) Lưu wishlist/alert duy nhất.
+                                   3) Worker định kỳ đọc giá mới.
+      Luồng chính
+                                   4) So khớp điều kiện và chống gửi lặp.
+                                   5) Tạo notification và delivery.
+                                   6) Gửi qua kênh được bật.
+                                   7) Ghi trạng thái delivery và lần kích hoạt.
+
+                                      A1) Giá đã dưới ngưỡng tại lúc tạo: thông báo
+                                   ngay theo chính sách.
+Luồng thay thế / ngoại lệ          A2) Người dùng tắt alert: worker bỏ qua.
+                                   E1) Kênh gửi lỗi: retry giới hạn, ghi failed.
+                                   E2) Giá thiếu/stale: không kích hoạt, ghi lý do.
+
+                                      Alert có trạng thái và last_triggered_at;
+     Hậu điều kiện
+                                   delivery có lịch sử để chống lặp và hỗ trợ.
+
+                                      Unique user+variant; decimal/currency chuẩn;
+  Dữ liệu và kiểm soát             idempotency key; quiet hours; preference và
+                                   unsubscribe.
+
+
+
+
+                                  27
+           Bảng 3.8. Đặc tả UC-06 – Đóng góp và duyệt Wiki   [[PAGE:tab-3-8]]
+
+
+
+
+      Thuộc tính                                        Nội dung
+
+      Mã use case                     UC-06
+
+                                      Cho phép cộng tác nội dung mà vẫn duy trì
+        Mục tiêu
+                                  lịch sử, nguồn và quyền xuất bản.
+
+       Tác nhân                       Người dùng; Biên tập viên; Kiểm duyệt viên.
+
+                                    Tác nhân đăng nhập; bài viết hoặc quyền tạo
+     Tiền điều kiện
+                                  mới hợp lệ.
+
+       Kích hoạt                      Tác nhân tạo/sửa bài Wiki và gửi duyệt.
+
+                                      1) Web tải current revision và citation.
+                                  2) Tác nhân soạn nội dung, thêm nguồn.
+                                  3) API validate và tạo revision draft.
+                                  4) Gửi revision vào hàng đợi review.
+      Luồng chính
+                                  5) Moderator xem diff, nguồn và bình luận.
+                                  6) Phê duyệt tạo current revision mới hoặc từ chối
+                                  có lý do.
+                                  7) Sự kiện xuất bản làm mới search/embedding.
+
+                                     A1) Xung đột revision: yêu cầu merge trên
+                                  phiên bản mới.
+Luồng thay thế / ngoại lệ         A2) Yêu cầu bổ sung nguồn: trả về draft.
+                                  E1) Citation không hợp lệ: không cho xuất bản.
+                                  E2) Tác nhân thiếu role: trả 403 và audit.
+
+                                     Mọi revision được giữ; bài published trỏ
+     Hậu điều kiện                current_revision; quyết định review có actor và
+                                  thời gian.
+
+                                     Optimistic concurrency; sanitize rich text;
+  Dữ liệu và kiểm soát            RBAC; audit; không sửa trực tiếp revision đã xuất
+                                  bản.
+
+
+
+
+                                 28
+          Bảng 3.9. Đặc tả UC-07 – Thu thập và duyệt catalog   [[PAGE:tab-3-9]]
+
+
+
+
+      Thuộc tính                                         Nội dung
+
+      Mã use case                      UC-07
+
+                                      Đưa dữ liệu nguồn vào catalog qua pipeline có
+        Mục tiêu
+                                   kiểm soát và truy nguyên.
+
+       Tác nhân                        Worker; Biên tập viên; Kiểm duyệt viên.
+
+                                      Data source được đăng ký, có chính sách thu
+     Tiền điều kiện
+                                   thập và parser phù hợp.
+
+                                      Lịch job, webhook hoặc thao tác đồng bộ thủ
+       Kích hoạt
+                                   công.
+
+                                       1) Worker fetch và lưu raw page/content hash.
+                                   2) Parser trích xuất candidate.
+                                   3) Chuẩn hóa alias, đơn vị và quan hệ.
+                                   4) So với phiên bản catalog, tạo diff kèm citation.
+      Luồng chính
+                                   5) Editor đối soát và chỉnh candidate.
+                                   6) Moderator phê duyệt/từ chối.
+                                   7) Transaction xuất bản, audit và phát sự kiện
+                                   reindex.
+
+                                       A1) Content hash không đổi: kết thúc không
+                                   tạo diff.
+                                   A2) Nguồn xung đột: giữ candidate và yêu cầu
+Luồng thay thế / ngoại lệ          nguồn thứ hai.
+                                   E1) Parser lỗi: lưu raw page/log, không tác động
+                                   catalog.
+                                   E2) Transaction lỗi: rollback toàn bộ.
+
+                                      Catalog chỉ thay đổi khi được duyệt; nguồn,
+     Hậu điều kiện
+                                   raw page, diff và quyết định được lưu.
+
+                                       Rate/robots policy; hash; schema validation;
+  Dữ liệu và kiểm soát             transaction; idempotency; audit và quyền theo vai
+                                   trò.
+
+
+
+
+                                  29
+                            Bảng 3.10. Đặc tả UC-08 – Khai thác API B2B        [[PAGE:tab-3-10]]
+
+
+
+
+                     Thuộc tính                                              Nội dung
+
+                     Mã use case                           UC-08
+
+                                                         Cho đối tác truy cập dữ liệu theo scope, gói và
+                       Mục tiêu
+                                                      hạn mức có thể theo dõi.
+
+                      Tác nhân                             Đối tác B2B; Quản trị viên.
+
+                                                         Đối tác có subscription/API key hoạt động và
+                    Tiền điều kiện
+                                                      scope phù hợp.
+
+                                                         Đối tác gửi request có API key tới endpoint
+                      Kích hoạt
+                                                      cho phép.
+
+                                                         1) Gateway/guard băm key và tìm bản ghi.
+                                                      2) Kiểm tra revoked_at, subscription, scope và
+                                                      quota.
+                                                      3) Validate tham số và gọi service catalog.
+                     Luồng chính
+                                                      4) Trả DTO versioned.
+                                                      5) Ghi usage theo đơn vị và route.
+                                                      6) Trả header quota/request ID.
+                                                      7) Admin xem usage hoặc thu hồi/rotate key.
+
+                                                         E1) Key sai/thu hồi: 401.
+                                                      E2) Thiếu scope: 403.
+               Luồng thay thế / ngoại lệ              E3) Vượt quota: 429 và retry guidance.
+                                                      E4) Gói hết hạn: chặn và phát sự kiện billing nếu
+                                                      cần.
+
+                                                         Usage được cộng idempotent; không lưu key
+                    Hậu điều kiện
+                                                      dạng rõ; đối tác có thể quan sát hạn mức.
+
+                                                          Key chỉ hiển thị một lần; lưu hash; scope tối
+                 Dữ liệu và kiểm soát                 thiểu; rate limit; audit rotate/revoke; API
+                                                      versioning.
+
+
+3.3. Thiết kế các luồng tuần tự      [[PAGE:ch3-3]]
+
+
+
+
+  Biểu đồ tuần tự tập trung vào ranh giới tin cậy và nơi dữ liệu được kiểm tra. Luồng
+đăng nhập cho thấy refresh token không tự đủ để cấp phiên mới; session Redis là điều
+kiện bắt buộc. Luồng tìm kiếm tách xếp hạng ID khỏi hydrate thực thể. Luồng AI tách
+retrieval, catalog và generation để giữ citation.
+
+
+
+
+                                                      30
+Hình 3.3. Trình tự đăng nhập và làm mới phiên   [[PAGE:fig-3-3]]
+
+
+
+
+                     31
+Hình 3.4. Trình tự tìm kiếm và so sánh   [[PAGE:fig-3-4]]
+
+
+
+
+                  32
+                            Hình 3.5. Trình tự trợ lý AI theo RAG   [[PAGE:fig-3-5]]
+
+
+
+
+  Điểm chung của ba luồng là Web không truy cập dữ liệu nền trực tiếp. API chịu trách
+nhiệm validate, authorize và tạo DTO; các dịch vụ hạ tầng trả dữ liệu kỹ thuật, còn quyết
+định nghiệp vụ nằm trong module. Nhờ đó, client không cần biết cấu trúc 139 bảng và
+không thể bỏ qua quy tắc bằng cách gọi DB/search trực tiếp.
+
+3.4. Thiết kế quy trình nghiệp vụ nền   [[PAGE:ch3-4]]
+
+
+
+
+  Hai quy trình nền có tính trạng thái và cần chống thực hiện lặp. Cảnh báo giá phải
+phân biệt giá hiện tại với sự kiện đạt ngưỡng, tôn trọng preference và lưu delivery.
+Pipeline dữ liệu phải giữ raw page ngay cả khi parse thất bại, vì đây là bằng chứng để
+sửa parser và tái chạy.
+
+
+
+
+                                                         33
+Hình 3.6. Luồng theo dõi giá và phát cảnh báo   [[PAGE:fig-3-6]]
+
+
+
+
+                     34
+                            Hình 3.7. Luồng thu thập, chuẩn hóa và duyệt dữ liệu                           [[PAGE:fig-3-7]]
+
+
+
+
+3.5. Thiết kế dữ liệu   [[PAGE:ch3-5]]
+
+
+
+
+  Lược đồ Prisma được phân tích có 139 model. Một ERD duy nhất với toàn bộ bảng sẽ
+không đọc được trên khổ A4, vì vậy báo cáo chia thành bốn miền và chỉ hiển thị thực
+thể/thuộc tính tiêu biểu. Danh sách vật lý đầy đủ được đưa vào Phụ lục B. Các bảng
+dùng snake_case và quan hệ được định nghĩa rõ trong Prisma.
+
+  Nguyên tắc thiết kế là giữ thuộc tính cốt lõi ở cột có kiểu, dùng bảng nối cho quan hệ
+N–N, tách dữ liệu lịch sử/phiên bản khỏi bản hiện hành, và tách citation khỏi thực thể để
+một nguồn có thể chứng minh nhiều mệnh đề. JSON chỉ phù hợp metadata linh hoạt,
+không thay thế khóa ngoại cho quan hệ cần truy vấn hoặc ràng buộc.
+
+                                         Bảng 3.11. Phân nhóm 139 mô hình dữ liệu      [[PAGE:tab-3-11]]
+
+
+
+
+               Miền                                       Nhóm thực thể                                                       Mục đích
+
+
+                                                 organizations, categories,
+                                                                                      Định danh sản phẩm và biến thể
+             Catalog lõi                      families, models, variants, alias,
+                                                                                   chuẩn hóa
+                                              media, status, currency
+
+
+
+
+                                                                 35
+        Miền                         Nhóm thực thể                               Mục đích
+
+
+                            chipset, CPU, GPU, NPU,
+   Phần cứng/điểm       display, camera, battery, memory,             Mô tả cấu hình và kết quả đo
+                        storage, OS, score, benchmark
+
+                            data source, raw page, source,
+                                                                      Truy nguyên, cộng tác và truy
+ Nguồn/nội dung/AI      citation, Wiki, revision, comment,
+                                                                   xuất ngữ nghĩa
+                        embedding, cache, search log
+
+                            user, wishlist, alert, notification,
+                                                                      Cá nhân hóa, doanh thu và vận
+Người dùng/thương mại   subscription, API key, usage,
+                                                                   hành
+                        affiliate, webhook, audit
+
+
+
+
+                                            36
+                          Hình 3.8. ERD nhóm danh mục thiết bị   [[PAGE:fig-3-8]]
+
+
+
+
+  Catalog tách model khỏi variant vì tên sản phẩm và thông tin marketing có thể dùng
+chung, trong khi SKU, màu, RAM, lưu trữ, kích thước và giá thuộc biến thể. Alias cho
+phép tìm theo tên khác mà không nhân bản model; media có alt text để phục vụ truy cập
+và tái sử dụng.
+
+
+
+
+                                           37
+                       Hình 3.9. ERD nhóm phần cứng và chấm điểm   [[PAGE:fig-3-9]]
+
+
+
+
+  Thành phần phần cứng có thể tái sử dụng giữa nhiều variant và một variant có nhiều
+camera hoặc bộ nhớ. Bảng nối giữ vai trò/vị trí và metadata của lần gắn. Score profile
+tách trọng số khỏi scorecard, nhờ đó có thể tính điểm theo nhu cầu mà không ghi đè một
+con số duy nhất.
+
+
+
+
+                                           38
+                           Hình 3.10. ERD nhóm nội dung và AI   [[PAGE:fig-3-10]]
+
+
+
+
+  Wiki revision là bản bất biến; article chỉ trỏ phiên bản hiện hành. Citation được nối
+với revision để biết chính xác nguồn nào hỗ trợ phiên bản nào. Embedding tham chiếu
+subject_type/id và lưu model/dimensions, cho phép tái tạo chỉ mục có kiểm soát khi đổi
+model embedding.
+
+
+
+
+                                           39
+                          Hình 3.11. ERD nhóm người dùng và thương mại                       [[PAGE:fig-3-11]]
+
+
+
+
+  Notification là ý định thông báo; delivery là từng lần gửi qua một kênh. Tách hai bảng
+cho phép retry và thống kê mà không tạo notification lặp. API key lưu hash, usage tham
+chiếu key, subscription biểu diễn quyền thương mại, còn audit ghi hành động thay đổi
+trạng thái quan trọng.
+
+3.6. Thiết kế API và hợp đồng dữ liệu         [[PAGE:ch3-6]]
+
+
+
+
+  API sử dụng URI version v1 để cho phép thay đổi hợp đồng có kiểm soát. Resource
+path ưu tiên danh từ; POST dùng cho tạo hoặc action có side effect; PATCH cho cập
+nhật một phần; DELETE cho thu hồi/xóa theo chính sách. DTO không lộ trực tiếp cấu
+trúc Prisma và chỉ trả trường cần thiết theo quyền.
+
+                                 Bảng 3.12. Quy ước hợp đồng API         [[PAGE:tab-3-12]]
+
+
+
+
+             Khía cạnh                                         Quy ước                                           Lý do
+
+
+                                                                           Tách hạ tầng và phiên bản
+              Base path             /api/v1
+                                                                         URI
+
+
+
+
+                                                                 40
+             Khía cạnh                      Quy ước                                 Lý do
+
+
+                                  DTO + ValidationPipe;                  Không cho trường lạ đi vào
+                  Input
+                               whitelist/forbid/transform            service
+
+                                 JWT/session hoặc API key;              Mặc định yêu cầu xác thực,
+                  Auth
+                               @Public khi cần                       ngoại lệ rõ
+
+                                 ADMIN / EDITOR /
+                  Role                                                  Đặt kiểm soát ở server
+                               MODERATOR
+
+                                  page/pageSize hoặc cursor có          Tránh tải tập dữ liệu không
+                Phân trang
+                               giới hạn                              giới hạn
+
+                                  HTTP status + message +                Client xử lý nhất quán và hỗ
+                   Lỗi
+                               requestId                             trợ truy vết
+
+                                  Key hoặc unique state cho
+            Idempotency                                                 Chống lặp khi retry
+                               webhook/job/action
+
+                                  Latency, status, route                Đo vận hành mà vẫn bảo vệ
+                Quan sát
+                               template; không log bí mật            dữ liệu
+
+
+3.7. Thiết kế an toàn và kiểm soát chất lượng       [[PAGE:ch3-7]]
+
+
+
+
+  Mô hình đe dọa tập trung vào bốn tài sản: tài khoản/phiên; dữ liệu catalog có nguồn;
+khóa API và dữ liệu usage; context/câu trả lời AI. Biên tin cậy xuất hiện tại trình duyệt–
+API, API–dịch vụ ngoài, worker–nguồn và webhook–billing. Tại mỗi biên cần xác thực
+nguồn, giới hạn input, timeout và log sự kiện.
+
+      Quyền sở hữu: user chỉ sửa wishlist/alert của mình; editor không mặc nhiên có
+       quyền quản trị tài khoản.
+      Tính toàn vẹn: dùng transaction cho xuất bản nhiều bảng; revision đã xuất bản
+       bất biến; webhook có idempotency.
+      Tính bí mật: mật khẩu/API key/token chỉ lưu dạng băm hoặc bí mật; log được
+       scrub.
+      Khả dụng: throttle, giới hạn page size/payload, worker retry có backoff và
+       readiness cho phụ thuộc.
+      Chất lượng dữ liệu: content hash, citation, review state, audit và thống kê trường
+       thiếu.
+      Chất lượng AI: context published, citation validation, timeout/fallback và
+       benchmark câu hỏi chuẩn.
+
+
+
+                                               41
+  Kiểm soát chất lượng được đặt trước và sau hiện thực: lint/typecheck/schema
+validation ngăn lỗi cấu trúc; unit test kiểm tra quy tắc; readiness kiểm tra kết nối; ảnh
+giao diện xác nhận luồng; còn đo tải, E2E và kiểm thử bảo mật động là các lớp cần bổ
+sung trước sản xuất.
+
+3.8. Kết luận chương   [[PAGE:ch3-8]]
+
+
+
+
+  Chương 3 đã chuyển yêu cầu thành tám use case, ba luồng tuần tự, hai quy trình nền
+và bốn ERD theo miền. Thiết kế nhấn mạnh ranh giới quyền, dữ liệu published,
+idempotency, citation và khả năng truy vết. Chương 4 trình bày cách các thành phần này
+xuất hiện trong mã nguồn, giao diện và kết quả kiểm chứng.
+
+
+
+
+                                            42
+                 CHƯƠNG 4. PHÁT TRIỂN VÀ KẾT QUẢ                                                           [[PAGE:ch4]]
+
+
+
+
+4.1. Môi trường và quy trình phát triển                 [[PAGE:ch4-1]]
+
+
+
+
+  Dự án yêu cầu Node.js từ 22.11, pnpm 9.15 và các dịch vụ PostgreSQL/Redis. Quy
+trình điển hình gồm cài phụ thuộc ở workspace root, cấu hình biến môi trường từ tệp
+mẫu, khởi động hạ tầng, chạy migration/generate/seed khi cần, sau đó chạy web, API và
+worker bằng pipeline Turborepo. Mỗi ứng dụng vẫn có script riêng để gỡ lỗi cô lập.
+
+  Mã nguồn TypeScript được kiểm tra bằng lint/typecheck; unit test API chạy bằng Jest;
+Prisma CLI kiểm tra lược đồ. Swagger phục vụ khám phá API ở môi trường phát triển.
+Health endpoint tách status tổng hợp, liveness, readiness và metrics để việc kiểm tra tiến
+trình không bị đồng nhất với khả năng nhận lưu lượng.
+
+                               Bảng 4.1. Môi trường phần mềm                  [[PAGE:tab-4-1]]
+
+
+
+
+            Thành phần                              Yêu cầu / cấu hình                              Mục đích kiểm chứng
+
+
+                                                                                          Runtime thống nhất cho
+              Node.js             >= 22.11.0
+                                                                                       Next.js, NestJS và toolchain
+
+                                                                                           Cài đặt workspace và lockfile
+               pnpm               9.15.0
+                                                                                       có thể tái lập
+
+                                  16 +                                                   Lược đồ quan hệ, tìm kiếm và
+            PostgreSQL
+                               pgvector/pg_trgm/unaccent                               embedding
+
+               Redis              Kết nối bằng biến môi trường                                   Session, cache và điều phối
+
+                                  127.0.0.1:3000 khi kiểm tra
+               Web                                                                               22 route giao diện và PWA
+                               cục bộ
+
+                                                                                         186 endpoint, health và
+                API               127.0.0.1:4000, base /api/v1
+                                                                                       Swagger dev
+
+                                                                                          36 suite / 189 test trong lần
+               Test               Jest theo workspace API
+                                                                                       kiểm chứng
+
+              Prisma              validate/generate/migrate                                      Kiểm tra lược đồ và client
+
+
+4.2. Hiện thực các mô-đun chính    [[PAGE:ch4-2]]
+
+
+
+
+  Controller inventory cho thấy hệ thống không dồn mọi hành vi vào một API tổng
+quát. Các module được nhóm theo miền và dùng service để phối hợp Prisma, Redis,
+
+
+
+                                                                         43
+search hoặc dịch vụ ngoài. Bảng 4.2 tóm tắt chức năng đã hiện diện trong mã nguồn; phụ
+lục A liệt kê toàn bộ controller.
+
+                                                Bảng 4.2. Mô-đun hiện thực chính       [[PAGE:tab-4-2]]
+
+
+
+
+                Mô-đun                                         Chức năng                                         Kỹ thuật nổi bật
+
+
+                                                   Model, variant, linh kiện,             Prisma relation, slug, filter,
+            Catalog/Hardware
+                                                media, alias, score                     DTO
+
+                                                    Tìm text/facet và dựng ma trận          pg_trgm/unaccent; Meilisearch
+            Search/Compare
+                                                so sánh                                 tùy chọn; batch hydrate
+
+                                                   Register/login/refresh/me/               JWT, password hash, Redis
+               Auth/User
+                                                logout và hồ sơ                         session, RBAC
+
+                                                   Ask, chat, recommendation,             Retrieval, embedding, cache,
+                   AI
+                                                context/citation                        model adapter
+
+                                                   Article, revision, citation,             Versioning, diff, trạng thái và
+            Wiki/Moderation
+                                                comment và review                       role
+
+                                                    Theo dõi variant, ngưỡng giá và        Ownership, worker,
+             Wishlist/Alerts
+                                                notification                            idempotency, delivery
+
+                                                    Đối tác, link, click, lịch sử và         Sync, inspect, audit và
+             Affiliate/Price
+                                                insight                                 attribution
+
+                                                   Subscription, webhook, API              Stripe, signature, hash key,
+              Billing/B2B
+                                                key và usage                            scope/quota
+
+                                                   Dashboard, audit, health và                            Guard, request ID, readiness và
+          Admin/Observability
+                                                metrics                                 log
+
+  Một nguyên tắc hiện thực đáng chú ý là public endpoint và role không được suy ra từ
+tên đường dẫn. Decorator/guard trên server xác định quyền; đối với các thao tác chỉnh
+sửa hoặc quản trị, service vẫn phải kiểm tra ownership/trạng thái nghiệp vụ. Điều này
+tránh tình huống một endpoint có URL công khai nhưng vô tình cho phép hành động đặc
+quyền.
+
+4.3. Kết quả giao diện         [[PAGE:ch4-3]]
+
+
+
+
+  Giao diện được kiểm tra ở độ rộng 1440 × 900 từ hệ thống chạy cục bộ với dữ liệu
+hiện có. Ảnh chụp dưới đây minh họa các luồng chính, không phải mockup. Snapshot
+ngày 05/08/2026 ghi nhận trang catalog hiển thị 282 model, 39 hãng và 8 loại thiết bị;
+các con số này là trạng thái dữ liệu tại thời điểm chụp, không phải cam kết cố định của
+sản phẩm.
+
+                                                                   44
+                                     Bảng 4.3. Bản đồ route giao diện             [[PAGE:tab-4-3]]
+
+
+
+
+        Route                             Vai trò                         Route                              Vai trò
+
+
+                             Trang chủ/điều hướng
+           /                                                  /login                                 Đăng nhập
+                          khám phá
+
+                                Catalog Studio và quản
+        /admin                                                /notifications                         Thông báo
+                          trị
+
+          /ai                   Trợ lý AI                     /offline                               Trạng thái PWA offline
+
+        /alerts                 Cảnh báo giá                  /recommend                             Khuyến nghị
+
+      /api-access               API key và usage              /register                              Đăng ký
+
+       /billing                 Gói thuê bao                  /search                                Tìm kiếm
+
+      /compare                  So sánh                       /wiki                                  Danh mục Wiki
+
+                             Bảng điều khiển cá
+      /dashboard                                              /wiki/[slug]                           Chi tiết Wiki
+                          nhân
+
+       /devices                 Danh mục thiết bị             /wiki/[slug]/edit                      Sửa Wiki
+
+    /devices/[slug]             Chi tiết model                /wiki/new                              Tạo Wiki
+
+/hardware/[kind]/[slug]         Chi tiết phần cứng            /wishlist                              Danh sách yêu thích
+
+
+
+
+                                                         45
+                               Hình 4.1. Trang chủ Spechub   [[PAGE:fig-4-1]]
+
+
+
+
+  Trang chủ ưu tiên hai hành động: bắt đầu tìm kiếm và đi vào các thiết bị nổi bật. Hero
+diễn đạt giá trị cốt lõi theo ngôn ngữ người dùng; thanh điều hướng giữ các đích Search,
+Devices, Compare, Recommend, AI và Wiki ở mức dễ thấy.
+
+
+
+
+                                            46
+                               Hình 4.2. Trang danh mục thiết bị   [[PAGE:fig-4-2]]
+
+
+
+
+  Trang danh mục kết hợp số liệu tổng quan, lọc và danh sách thẻ. Phân trang/lọc ở
+server giúp URL có thể chia sẻ; trạng thái rỗng và lỗi cần được phân biệt để người dùng
+biết nên đổi bộ lọc hay thử lại.
+
+
+
+
+                                              47
+                               Hình 4.3. Trang chi tiết thiết bị   [[PAGE:fig-4-3]]
+
+
+
+
+  Trang chi tiết gom thông tin model, media, variant và phần cứng vào một ngữ cảnh.
+Việc hiển thị điểm cần đi kèm profile/trọng số hoặc diễn giải; nguồn nên đặt gần thuộc
+tính thay vì chỉ ở cuối trang để tăng khả năng kiểm chứng.
+
+
+
+
+                                              48
+                       Hình 4.4. Kết quả tìm kiếm thiết bị và phần cứng   [[PAGE:fig-4-4]]
+
+
+
+
+  Kết quả tìm kiếm không giới hạn ở model mà có thể đưa ra thực thể phần cứng, giúp
+người nghiên cứu đi từ tên thương mại tới chipset hoặc linh kiện. Nhãn loại kết quả và
+slug rõ ràng giúp tránh nhầm lẫn giữa model, variant và component.
+
+
+
+
+                                              49
+                          Hình 4.5. Giao diện chọn thiết bị để so sánh   [[PAGE:fig-4-5]]
+
+
+
+
+  Giao diện so sánh bắt đầu bằng lựa chọn có kiểm soát thay vì hiển thị bảng trống. Sau
+khi đủ model, ma trận cần ghim cột tên, nhóm thuộc tính, làm nổi khác biệt và không
+điền giá trị suy đoán cho trường thiếu.
+
+
+
+
+                                               50
+                        Hình 4.6. Quy trình khuyến nghị theo nhu cầu   [[PAGE:fig-4-6]]
+
+
+
+
+  Khuyến nghị dùng biểu mẫu ba bước để chuyển mục tiêu trừu tượng thành tiêu chí có
+cấu trúc trước khi gọi service. Cách này giảm độ mơ hồ, giúp giải thích vì sao một thiết
+bị được chọn và tạo fallback khi dịch vụ LLM không sẵn sàng.
+
+
+
+
+                                             51
+                                Hình 4.7. Giao diện trợ lý AI   [[PAGE:fig-4-7]]
+
+
+
+
+  Giao diện AI cần dành không gian cho citation, cảnh báo giới hạn và nút mở thực thể
+catalog. Nội dung hội thoại không được che khuất nguồn; câu trả lời nên hỗ trợ truy vấn
+tiếp theo nhưng không biến trạng thái chat thành nguồn sự thật cho lần truy xuất khác.
+
+
+
+
+                                             52
+                            Hình 4.8. Giao diện Wiki công nghệ   [[PAGE:fig-4-8]]
+
+
+
+
+  Snapshot Wiki đang ở trạng thái chưa có bài xuất bản trong các bộ đếm hiển thị. Điều
+này được giữ nguyên như bằng chứng thực tế thay vì điền dữ liệu minh họa. Luồng
+tạo/sửa/duyệt đã có route và mô hình; độ phong phú nội dung là công việc dữ liệu tiếp
+theo.
+
+
+
+
+                                            53
+                                               Hình 4.9. Giao diện đăng nhập   [[PAGE:fig-4-9]]
+
+
+
+
+  Biểu mẫu đăng nhập tối giản, nhưng kiểm soát an toàn nằm ở API: validate, rate limit,
+kiểm tra băm, tạo session Redis và cookie. Thông báo sai thông tin cần đủ hữu ích nhưng
+không tiết lộ tài khoản có tồn tại.
+
+4.4. Kết quả API và dữ liệu   [[PAGE:ch4-4]]
+
+
+
+
+  Phân tích tĩnh controller xác định 186 endpoint. Con số này bao gồm cả public, user
+và admin action; nó phản ánh độ rộng bề mặt chứ không tự động đồng nghĩa độ hoàn
+thiện. 45 endpoint có decorator ADMIN, 33 có EDITOR và 3 có MODERATOR theo
+dấu vết mã nguồn; các endpoint còn lại có thể dùng guard xác thực chung, ownership
+hoặc public decorator.
+
+                                               Bảng 4.4. Thống kê endpoint API      [[PAGE:tab-4-4]]
+
+
+
+
+               Nhóm                                        Số lượng                                              Diễn giải
+
+
+              Controller                          30                                                   Nhóm endpoint theo miền
+
+            Endpoint tổng                         186                                                  Route handler được phát hiện
+
+                                                                                               Đọc catalog, health, dashboard
+                GET                               91
+                                                                                           và tra cứu
+
+                                                                                              Tạo, đăng nhập, action, chat
+                POST                              57
+                                                                                           và đồng bộ
+
+
+
+                                                             54
+                Nhóm                                               Số lượng                                     Diễn giải
+
+
+                                                                                       Cập nhật một phần và chuyển
+               PATCH                                 24
+                                                                                   trạng thái
+
+              DELETE                                 13                               Xóa/thu hồi resource
+
+                                                                                       Thay thế/cập nhật toàn phần ở
+                 PUT                                 1
+                                                                                   trường hợp riêng
+
+                                                                                     Endpoint có decorator
+            Role ADMIN                               45
+                                                                                   ADMIN
+
+                                                                                     Endpoint có decorator
+            Role EDITOR                              33
+                                                                                   EDITOR
+
+                                                                                     Endpoint có decorator
+         Role MODERATOR                              3
+                                                                                   MODERATOR
+
+  Lược đồ Prisma có 139 model và không khai báo enum Prisma; các trạng thái chủ yếu
+được biểu diễn bằng bảng tham chiếu hoặc trường chuỗi có kiểm soát ở tầng ứng dụng.
+Ưu điểm là dữ liệu tham chiếu có thể mở rộng; nhược điểm là cần bảo đảm validation và
+khóa ngoại để tránh giá trị trạng thái tùy ý.
+
+4.5. Kiểm thử và kiểm chứng         [[PAGE:ch4-5]]
+
+
+
+
+  Bằng chứng được thu thập trên workspace ngày 05/08/2026. Unit test API được chạy
+trực tiếp bằng Jest để tránh nhiễu từ package khác; Prisma validate chạy trên lược đồ
+hiện tại; API readiness được gọi khi PostgreSQL và Redis đang hoạt động. Kết quả được
+ghi theo nguyên tắc có phạm vi: chưa có test tải thì không suy ra hiệu năng sản xuất,
+chưa có E2E toàn tuyến thì không coi unit test là bằng chứng cho mọi luồng UI.
+
+                               Bảng 4.5. Bằng chứng kiểm thử và kiểm chứng                [[PAGE:tab-4-5]]
+
+
+
+
+              Hạng mục                                             Kết quả                                   Phạm vi kết luận
+
+
+                                              36 suite đạt; 189 test đạt; 0 thất       Quy tắc/controller/service có
+             API unit test
+                                          bại; khoảng 14,78 giây                   test trong apps/api
+
+                                                                                       Cú pháp, quan hệ và cấu hình
+            Prisma validate                          Lược đồ hợp lệ
+                                                                                   Prisma được CLI chấp nhận
+
+             Health tổng                             status = ok                      Tiến trình API phản hồi health
+
+                                                                                      API kết nối PostgreSQL trong
+          Readiness database                         ok
+                                                                                   môi trường kiểm tra
+
+
+
+
+                                                                     55
+             Hạng mục                                             Kết quả                                   Phạm vi kết luận
+
+
+                                                                                     API kết nối Redis trong môi
+          Readiness Redis                              ok
+                                                                                 trường kiểm tra
+
+                                        9 màn hình chính được mở và                  Route render với dữ liệu hiện
+              UI smoke
+                                     chụp                                        có; không thay thế E2E assertion
+
+                                        22 web route; 30 controller; 186            Độ rộng mã nguồn tại
+           Static inventory
+                                     endpoint; 139 model                         commit/worktree đang phân tích
+
+     Tóm            tắt            kết           quả          kiểm                                                          chứng
+   API   tests:   36    passed   suites   /   189    passed tests   /                                                 0    failed
+   Prisma                               schema:                                                                             valid
+   Health:                                 status                                                                              ok
+   Readiness:              database             ok;           redis                                                            ok
+   Observed UI snapshot: 282 models / 39 brands / 8 categories
+
+
+4.6. Đánh giá mức độ đáp ứng          [[PAGE:ch4-6]]
+
+
+
+
+                                Bảng 4.6. Đánh giá mức độ đáp ứng yêu cầu              [[PAGE:tab-4-6]]
+
+
+
+
+           Nhóm yêu cầu                                        Mức đáp ứng                                Bằng chứng / nhận xét
+
+
+                                                                                     Route, API, schema và giao
+          Catalog và chi tiết                          Đạt ở mức hiện thực       diện chi tiết; cần tiếp tục tăng độ
+                                                                                 phủ dữ liệu
+
+                                                                                    Route/API/sequence và UI; cần
+         Tìm kiếm và so sánh                           Đạt ở mức hiện thực
+                                                                                 benchmark relevance và tải
+
+                                                                                    Endpoint, UI và RAG design;
+           Khuyến nghị/AI                              Đạt kiến trúc và bề mặt   cần bộ đánh giá chất lượng có
+                                                                                 chuẩn
+
+                                                                                    JWT, refresh session Redis,
+            Auth/RBAC                                  Đạt ở mức hiện thực
+                                                                                 guard, role và unit test; cần pentest
+
+                                                                                    Route/schema/controller;
+          Wiki/moderation                              Đạt mô hình và luồng      snapshot chưa có nội dung
+                                                                                 published đáng kể
+
+                                                                                     Route, API, worker/notification
+            Wishlist/alert                             Đạt mô hình và luồng
+                                                                                 design; cần E2E theo thời gian
+
+                                                                                     API key, usage, subscription,
+             B2B/billing                               Có nền tảng               Stripe/webhook; cần thử nghiệm
+                                                                                 đối tác thật
+
+                                                                                     Health/readiness/metrics/
+              Vận hành                                 Đạt kiểm chứng cơ bản     request ID; chưa có SLO và đo tải
+                                                                                 sản xuất
+
+
+
+
+                                                                     56
+4.7. Hạn chế   [[PAGE:ch4-7]]
+
+
+
+
+                                                     Bảng 4.7. Hạn chế và tác động       [[PAGE:tab-4-7]]
+
+
+
+
+                         Hạn chế                                    Tác động                                             Ưu tiên xử lý
+
+
+      Chưa có benchmark tải trong                      Không thể công bố p95/p99                               Cao: k6/Artillery theo search,
+              báo cáo                               hoặc số người dùng đồng thời                            compare, AI và auth
+
+       Độ phủ dữ liệu thay đổi theo                     Một số category/Wiki có thể ít                         Cao: KPI completeness và
+             seed/nguồn                             nội dung                                                pipeline nguồn
+
+      Chưa có E2E toàn tuyến được                        Unit test không phát hiện mọi                          Cao: Playwright cho hành trình
+             dẫn chứng                              lỗi trình duyệt–API                                     chính
+
+                                                       Khó định lượng độ                                        Cao: golden set, RAG metrics
+        AI chưa có bộ chấm chuẩn
+                                                    đúng/citation                                           và human review
+
+                                                          Migration và ownership phức                          Trung bình: data dictionary,
+         Nhiều mô hình dữ liệu
+                                                    tạp                                                     domain owner và migration policy
+
+       Dịch vụ ngoài có chế độ tùy                      Hành vi khác nhau theo môi                              Trung bình: contract test và
+                chọn                                trường                                                  fallback matrix
+
+      Chưa chứng minh triển khai đa                    Khả dụng/khôi phục thảm họa                            Sau MVP: backup restore drill,
+               vùng                                 chưa được đánh giá                                      RPO/RTO và chaos test
+
+  Các hạn chế được trình bày để giữ ranh giới giữa hiện thực có bằng chứng và kỳ vọng
+sản phẩm. Đây cũng là backlog kỹ thuật: mỗi mục phải được chuyển thành phép đo, test
+hoặc tiêu chí nghiệm thu thay vì chỉ là tuyên bố định tính.
+
+4.8. Kết luận chương               [[PAGE:ch4-8]]
+
+
+
+
+  Chương 4 đã đối chiếu thiết kế với mã nguồn, giao diện và kiểm thử. Spechub có bề
+mặt chức năng rộng, dữ liệu sâu và nền tảng vận hành cơ bản; 189 kiểm thử API, schema
+hợp lệ và readiness DB/Redis là bằng chứng tích cực. Tuy nhiên mức sẵn sàng sản xuất
+còn phụ thuộc vào đo tải, E2E, benchmark AI, chất lượng dữ liệu và giám sát theo SLO.
+
+
+
+
+                                                                       57
+                                      KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN   [[PAGE:conclusion]]
+
+
+
+
+1. Kết luận   [[PAGE:conclusion-1]]
+
+
+
+
+  Đồ án đã phân tích và tài liệu hóa một nền tảng nghiên cứu thiết bị có cấu trúc từ lớp
+trải nghiệm đến dữ liệu. Spechub giải quyết mối liên hệ giữa model, variant, phần cứng,
+nội dung, nguồn, người dùng và giá bằng 139 mô hình Prisma; cung cấp 22 route web và
+186 endpoint API theo các miền catalog, search, AI, Wiki, alerts, commerce và vận
+hành.
+
+  Kiến trúc sử dụng Next.js/React, NestJS/Fastify, Prisma/PostgreSQL, Redis và
+worker trong monorepo. Các quyết định quan trọng gồm tách published khỏi draft/raw,
+citation khỏi nội dung, notification khỏi delivery, session khỏi token và retrieval khỏi
+generation. Những ranh giới này giúp hệ thống có khả năng truy vết, kiểm thử và mở
+rộng tốt hơn.
+
+  Kết quả kiểm chứng cho thấy API vượt qua 36 suite với 189 test, lược đồ Prisma hợp
+lệ và readiness xác nhận PostgreSQL/Redis. Giao diện chính có thể mở và hiển thị dữ
+liệu snapshot. Báo cáo không coi các kết quả đó là thay thế cho thử tải, E2E, pentest
+hoặc đánh giá AI; thay vào đó, chúng tạo baseline có thể tái lập cho các vòng tiếp theo.
+
+2. Hướng phát triển                    [[PAGE:conclusion-2]]
+
+
+
+
+    6. Xây dựng bộ KPI chất lượng catalog: độ đầy đủ theo category, freshness,
+        conflict rate, citation coverage và thời gian review.
+    7. Bổ sung Playwright E2E cho đăng nhập, tìm kiếm, so sánh, khuyến nghị, Wiki
+        review và cảnh báo giá; chạy trong CI với dữ liệu seed ổn định.
+    8. Thiết lập kiểm thử tải và SLO cho search, device detail, compare, auth refresh
+        và AI; theo dõi p50/p95/p99, error rate và saturation.
+    9. Tạo golden set cho AI/RAG, đo context recall, citation precision, faithfulness và
+        chất lượng khuyến nghị; có đánh giá con người định kỳ.
+    10. Hoàn thiện pipeline ingestion theo từng nguồn với parser contract test, cảnh báo
+        thay đổi DOM, ưu tiên nguồn chính thức và chính sách tuân thủ.
+
+
+
+                                                               58
+11. Nâng cấp an toàn bằng threat-model review, dependency scanning, secret
+   scanning, pentest, backup/restore drill và diễn tập thu hồi khóa.
+12. Tách dịch vụ khi có bằng chứng tải/ownership cần thiết, không phân tán kiến
+   trúc sớm; trước mắt củng cố ranh giới modular monolith và event contract.
+13. Mở rộng API B2B và Catalog Studio qua feedback của đối tác/biên tập viên thật,
+   kèm quota, billing, audit và tài liệu SDK.
+
+
+
+
+                                        59
+                            TÀI LIỆU THAM KHẢO              [[PAGE:references]]
+
+
+
+
+[1] Spechub repository, README và tài liệu kiến trúc nội bộ trong workspace, truy cập
+    ngày 05/08/2026.
+
+[2] Next.js Documentation, https://nextjs.org/docs, truy cập ngày 05/08/2026.
+
+[3] React Documentation, https://react.dev/, truy cập ngày 05/08/2026.
+
+[4] NestJS Documentation, https://docs.nestjs.com/, truy cập ngày 05/08/2026.
+
+[5] Fastify Documentation, https://fastify.dev/docs/latest/, truy cập ngày 05/08/2026.
+
+[6] Prisma ORM Documentation, https://www.prisma.io/docs/orm, truy cập ngày
+    05/08/2026.
+
+[7] PostgreSQL 16 Documentation, https://www.postgresql.org/docs/16/, truy cập ngày
+    05/08/2026.
+
+[8] pgvector Documentation, https://github.com/pgvector/pgvector, truy cập ngày
+    05/08/2026.
+
+[9] Redis Documentation, https://redis.io/docs/latest/, truy cập ngày 05/08/2026.
+
+[10] Meilisearch Documentation, https://www.meilisearch.com/docs, truy cập ngày
+    05/08/2026.
+
+[11] OWASP Application Security Verification Standard, https://owasp.org/www-
+    project-application-security-verification-standard/, truy cập ngày 05/08/2026.
+
+[12] OWASP API Security Top 10, https://owasp.org/www-project-api-security/, truy
+    cập ngày 05/08/2026.
+
+[13]     OpenAI,       Retrieval      and      model       prompting              documentation,
+    https://platform.openai.com/docs/, truy cập ngày 05/08/2026.
+
+[14] Stripe Documentation – Webhooks and subscriptions, https://docs.stripe.com/, truy
+    cập ngày 05/08/2026.
+
+
+
+                                             60
+[15]   W3C,    Web     Content    Accessibility   Guidelines   (WCAG)   2.2,
+   https://www.w3.org/TR/WCAG22/, truy cập ngày 05/08/2026.
+
+
+
+
+                                       61
+                           PHỤ LỤC A. DANH MỤC API                         [[PAGE:appendix-a]]
+
+
+
+
+  Bảng A.1 được sinh từ controller inventory của mã nguồn. Prefix rỗng hoặc controller
+không có handler trực tiếp vẫn được giữ để phản ánh đúng cấu trúc module. Endpoint chi
+tiết có thể xem trong Swagger ở môi trường phát triển.
+
+                               Bảng A.1. Danh mục controller và endpoint         [[PAGE:tab-a-1]]
+
+
+
+
+         STT               Controller                 Prefix          Số endpoint                      Phân bố method
+
+
+           1          app                    (gốc)               0                                     –
+
+           2          health                 health              4                                     GET:4
+
+           3          admin-dashboard        admin/dashboard     1                                     GET:1
+
+                                                                                                       DELETE:1,
+           4          affiliate              affiliate           13                                 GET:4, PATCH:2,
+                                                                                                    POST:6
+
+           5          ai                     ai                  10                                    GET:2, POST:8
+
+                                                                                                       DELETE:1,
+           6          alerts                 alerts              5                                  GET:1, PATCH:1,
+                                                                                                    POST:2
+
+                                                                                                      DELETE:1,
+           7          api-keys               api-keys            4
+                                                                                                    GET:1, POST:2
+
+           8          auth                   auth                5                                     GET:1, POST:4
+
+           9          b2b                    b2b                 3                                     GET:3
+
+          10          battery-units          battery-units       3                                     GET:3
+
+          11          camera-modules         camera-modules      3                                     GET:3
+
+                                                                                                      GET:7,
+                                              admin/catalog-
+          12          catalog-studio                             17                                 PATCH:1, POST:8,
+                                          studio
+                                                                                                    PUT:1
+
+          13          chipsets               chipsets            3                                     GET:3
+
+                                                                                                      GET:3,
+          14          citations              citations           7
+                                                                                                    PATCH:2, POST:2
+
+                                                                                                      GET:4,
+          15          data-ingestion         data-ingestion      8
+                                                                                                    PATCH:2, POST:2
+
+                                                                                                       DELETE:1,
+          16          device-categories      device-categories   7                                  GET:4, PATCH:1,
+                                                                                                    POST:1
+
+
+
+
+                                                       62
+          STT            Controller                 Prefix          Số endpoint      Phân bố method
+
+
+                                                                                     DELETE:1,
+          17          device-models         device-models      7                  GET:4, PATCH:1,
+                                                                                  POST:1
+
+                                                                                     DELETE:1,
+          18          device-variants       device-variants    10                 GET:6, PATCH:1,
+                                                                                  POST:2
+
+          19          display-units         display-units      3                     GET:3
+
+                       admin-hardware-                                              DELETE:1,
+          20                                admin/hardware     5
+                   catalog                                                        PATCH:1, POST:3
+
+          21          hardware-catalog      hardware           11                    GET:11
+
+                                                                                    GET:2,
+          22          notifications         notifications      5
+                                                                                  PATCH:2, POST:1
+
+                                                                                     DELETE:1,
+          23          organizations         organizations      6                  GET:3, PATCH:1,
+                                                                                  POST:1
+
+                                                                                     DELETE:1,
+          24          product-families      product-families   6                  GET:3, PATCH:1,
+                                                                                  POST:1
+
+          25          search                search             1                     GET:1
+
+                                                                                    GET:5,
+          26          subscriptions         subscriptions      12
+                                                                                  PATCH:2, POST:5
+
+                                            subscriptions/
+          27          webhooks                                 1                     POST:1
+                                         webhooks
+
+                                                                                    DELETE:1,
+          28          users                 users              9
+                                                                                  GET:4, PATCH:4
+
+                                                                                     DELETE:1,
+          29          wiki                  wiki               9                  GET:4, PATCH:1,
+                                                                                  POST:3
+
+                                                                                     DELETE:2,
+          30          wishlists             wishlists          8                  GET:1, PATCH:1,
+                                                                                  POST:4
+
+  Các nhóm endpoint có bề mặt lớn gồm affiliate/price, AI, catalog, Wiki/moderation,
+notification, admin và billing. Khi mở rộng, cần ưu tiên tính nhất quán của DTO, status
+code, pagination và quyền hơn là tăng số route.
+
+
+
+
+                                                     63
+             PHỤ LỤC B. DANH MỤC MÔ HÌNH DỮ LIỆU                                                [[PAGE:appendix-b]]
+
+
+
+
+  Lược đồ vật lý có 139 model Prisma. Bảng B.1 liệt kê toàn bộ tên model theo thứ tự
+xuất hiện trong schema và nhóm phân tích gần đúng. Nhóm chỉ phục vụ đọc báo cáo;
+quan hệ thật được định nghĩa trong Prisma.
+
+                            Bảng B.1. Danh sách mô hình Prisma   [[PAGE:tab-b-1]]
+
+
+
+
+               STT                              Tên model                                Nhóm phân tích
+
+
+                1                languages                                      Catalog / tham chiếu
+
+                2                translations                                   Catalog / tham chiếu
+
+                3                release_statuses                               Catalog / tham chiếu
+
+                4                currencies                                     Catalog / tham chiếu
+
+                5                sources                                        Nội dung / AI / nguồn
+
+                6                citations                                      Nội dung / AI / nguồn
+
+                7                media_assets                                   Catalog / tham chiếu
+
+                8                entity_media                                   Catalog / tham chiếu
+
+                9                module_field_coverage                          Catalog / tham chiếu
+
+                10               tags                                           Catalog / tham chiếu
+
+                11               entity_tags                                    Catalog / tham chiếu
+
+                12               units                                          Catalog / tham chiếu
+
+                13               organizations                                  Catalog / tham chiếu
+
+                14               organization_roles                             Catalog / tham chiếu
+
+                15               organization_role_assignments                  Catalog / tham chiếu
+
+                16               device_categories                              Catalog / tham chiếu
+
+                17               regions                                        Catalog / tham chiếu
+
+                18               product_families                               Catalog / tham chiếu
+
+                19               device_models                                  Catalog / tham chiếu
+
+                20               device_variants                                Catalog / tham chiếu
+
+                21               device_model_aliases                           Catalog / tham chiếu
+
+                22               device_editorial_sections                      Catalog / tham chiếu
+
+                23               variant_price_history                          Người dùng / thương mại
+
+
+
+
+                                                    64
+STT                  Tên model            Nhóm phân tích
+
+
+24    variant_physical_specs     Catalog / tham chiếu
+
+25    variant_io_specs           Catalog / tham chiếu
+
+26    variant_thermal_specs      Catalog / tham chiếu
+
+27    model_lineage              Catalog / tham chiếu
+
+28    model_similarity           Catalog / tham chiếu
+
+29    technology_families        Catalog / tham chiếu
+
+30    architectures              Catalog / tham chiếu
+
+31    process_nodes              Catalog / tham chiếu
+
+32    camera_roles               Phần cứng / điểm
+
+33    display_technologies       Phần cứng / điểm
+
+34    battery_chemistries        Phần cứng / điểm
+
+35    network_generations        Catalog / tham chiếu
+
+36    chipsets                   Phần cứng / điểm
+
+37    cpus                       Phần cứng / điểm
+
+38    cpu_clusters               Phần cứng / điểm
+
+39    gpus                       Phần cứng / điểm
+
+40    npus                       Phần cứng / điểm
+
+41    modems                     Catalog / tham chiếu
+
+42    camera_sensors             Phần cứng / điểm
+
+43    camera_modules             Phần cứng / điểm
+
+44    display_units              Phần cứng / điểm
+
+45    battery_units              Phần cứng / điểm
+
+46    memory_standards           Phần cứng / điểm
+
+47    storage_standards          Phần cứng / điểm
+
+48    operating_systems          Phần cứng / điểm
+
+49    os_versions                Catalog / tham chiếu
+
+50    os_ui_layers               Catalog / tham chiếu
+
+51    os_ui_layer_versions       Catalog / tham chiếu
+
+52    cellular_bands             Catalog / tham chiếu
+
+
+
+
+                       65
+STT                Tên model                 Nhóm phân tích
+
+
+53    wifi_bands                    Catalog / tham chiếu
+
+54    certifications                Catalog / tham chiếu
+
+55    cpu_capabilities              Phần cứng / điểm
+
+56    cpu_capability_links          Phần cứng / điểm
+
+57    gpu_apis                      Phần cứng / điểm
+
+58    gpu_api_support               Phần cứng / điểm
+
+59    npu_precision_capabilities    Phần cứng / điểm
+
+60    camera_features               Phần cứng / điểm
+
+61    camera_module_feature_links   Phần cứng / điểm
+
+62    camera_video_modes            Phần cứng / điểm
+
+63    camera_module_video_modes     Phần cứng / điểm
+
+64    hdr_standards                 Catalog / tham chiếu
+
+65    display_hdr_support           Phần cứng / điểm
+
+66    color_gamuts                  Catalog / tham chiếu
+
+67    display_color_gamut_support   Phần cứng / điểm
+
+68    charging_protocols            Catalog / tham chiếu
+
+69    battery_charging_protocols    Phần cứng / điểm
+
+70    connectivity_features         Catalog / tham chiếu
+
+71    chipset_cpu_links             Phần cứng / điểm
+
+72    chipset_gpu_links             Phần cứng / điểm
+
+73    chipset_npu_links             Phần cứng / điểm
+
+74    chipset_modem_links           Phần cứng / điểm
+
+75    camera_module_sensor_links    Phần cứng / điểm
+
+76    variant_chipsets              Phần cứng / điểm
+
+77    variant_cpus                  Phần cứng / điểm
+
+78    variant_gpus                  Phần cứng / điểm
+
+79    variant_npus                  Phần cứng / điểm
+
+80    variant_modems                Catalog / tham chiếu
+
+81    variant_displays              Phần cứng / điểm
+
+
+
+
+                         66
+STT                Tên model                   Nhóm phân tích
+
+
+82    variant_batteries               Catalog / tham chiếu
+
+83    variant_camera_systems          Phần cứng / điểm
+
+84    variant_camera_modules          Phần cứng / điểm
+
+85    variant_memory_configs          Phần cứng / điểm
+
+86    variant_storage_configs         Phần cứng / điểm
+
+87    variant_wifi_bands              Catalog / tham chiếu
+
+88    variant_operating_systems       Phần cứng / điểm
+
+89    variant_software_profiles       Catalog / tham chiếu
+
+90    variant_connectivity_support    Catalog / tham chiếu
+
+91    variant_module_scores           Phần cứng / điểm
+
+92    variant_score_metric_inputs     Phần cứng / điểm
+
+93    variant_scorecards              Phần cứng / điểm
+
+94    variant_scorecard_modules       Phần cứng / điểm
+
+95    scoring_profiles                Catalog / tham chiếu
+
+96    scoring_profile_modules         Catalog / tham chiếu
+
+97    scoring_profile_metrics         Catalog / tham chiếu
+
+98    variant_cellular_band_support   Catalog / tham chiếu
+
+99    variant_certifications          Catalog / tham chiếu
+
+100   variant_region_availability     Catalog / tham chiếu
+
+101   software_features               Catalog / tham chiếu
+
+102   variant_software_features       Catalog / tham chiếu
+
+103   feature_definitions             Catalog / tham chiếu
+
+104   device_variant_features         Catalog / tham chiếu
+
+105   benchmarks                      Phần cứng / điểm
+
+106   benchmark_runs                  Phần cứng / điểm
+
+107   device_variant_benchmarks       Phần cứng / điểm
+
+108   chipset_benchmarks              Phần cứng / điểm
+
+109   cpu_benchmarks                  Phần cứng / điểm
+
+110   gpu_benchmarks                  Phần cứng / điểm
+
+
+
+
+                         67
+STT                   Tên model            Nhóm phân tích
+
+
+111   npu_benchmarks              Phần cứng / điểm
+
+112   catalog_drafts              Catalog / tham chiếu
+
+113   catalog_draft_versions      Catalog / tham chiếu
+
+114   catalog_entity_versions     Catalog / tham chiếu
+
+115   users                       Người dùng / thương mại
+
+116   wiki_articles               Nội dung / AI / nguồn
+
+117   wiki_revisions              Nội dung / AI / nguồn
+
+118   wiki_article_citations      Nội dung / AI / nguồn
+
+119   comments                    Nội dung / AI / nguồn
+
+120   embeddings                  Nội dung / AI / nguồn
+
+121   ai_query_cache              Nội dung / AI / nguồn
+
+122   search_logs                 Nội dung / AI / nguồn
+
+123   data_sources                Nội dung / AI / nguồn
+
+124   raw_pages                   Nội dung / AI / nguồn
+
+125   affiliate_partners          Người dùng / thương mại
+
+126   affiliate_links             Người dùng / thương mại
+
+127   affiliate_price_history     Người dùng / thương mại
+
+128   affiliate_clicks            Người dùng / thương mại
+
+129   subscription_plans          Người dùng / thương mại
+
+130   subscriptions               Người dùng / thương mại
+
+131   billing_audit_logs          Người dùng / thương mại
+
+132   billing_webhook_events      Người dùng / thương mại
+
+133   wishlists                   Người dùng / thương mại
+
+134   wishlist_items              Người dùng / thương mại
+
+135   price_alerts                Người dùng / thương mại
+
+136   notifications               Người dùng / thương mại
+
+137   notification_deliveries     Người dùng / thương mại
+
+138   api_keys                    Người dùng / thương mại
+
+139   api_key_usage               Người dùng / thương mại
+
+
+
+
+                         68
+       PHỤ LỤC C. HƯỚNG DẪN VẬN HÀNH VÀ KIỂM THỬ                                                                [[PAGE:appendix-c]]
+
+
+
+
+  Các lệnh dưới đây mang tính quy trình; tên script cụ thể phải đối chiếu package.json
+tại thời điểm chạy. Không đưa bí mật hoặc giá trị production vào tài liệu. Tệp .env chỉ
+được tạo từ mẫu và quản lý ngoài kiểm soát phiên bản.
+
+                           Bảng C.1. Ma trận lệnh vận hành và mục đích                     [[PAGE:tab-c-1]]
+
+
+
+
+               Bước                                             Lệnh tham chiếu         Mục đích / kết quả mong đợi
+
+
+                                                                                     Cài đúng lockfile trong
+              Cài đặt               pnpm install --frozen-lockfile
+                                                                                  workspace
+
+                                    pnpm docker:up hoặc docker                        Khởi động PostgreSQL, Redis
+              Hạ tầng
+                                 compose up                                       và dịch vụ tùy chọn
+
+                                     pnpm --filter database prisma                   Lược đồ hợp lệ trước
+              Prisma
+                                 validate                                         generate/migrate
+
+                                    pnpm --filter database prisma
+             Generate                                                                   Tạo Prisma client đúng schema
+                                 generate
+
+                                                                                     Áp migration có review; không
+             Migration              Prisma migrate theo môi trường
+                                                                                  dùng reset trên dữ liệu cần giữ
+
+                                    Script seed của                                     Tạo dữ liệu phát triển có thể tái
+               Seed
+                                 packages/database                                lập
+
+                                                                                      Chạy pipeline web/API/worker
+               Dev                  pnpm dev
+                                                                                  theo cấu hình
+
+                                                                                        Chạy Jest và báo suite/test thất
+             Test API               pnpm --filter api test
+                                                                                  bại
+
+             Typecheck              pnpm typecheck                                      Kiểm tra kiểu toàn workspace
+
+               Lint                 pnpm lint                                           Kiểm tra quy ước và lỗi tĩnh
+
+                                                                                     DB/Redis phải báo ready trước
+              Health                GET /api/v1/health/ready
+                                                                                  nhận lưu lượng
+
+                                    Quy trình pg_dump/restore đã                     Kiểm tra khả năng phục hồi,
+              Backup
+                                 phê duyệt                                        không chỉ tạo bản sao
+
+
+C.1. Checklist trước khi triển khai     [[PAGE:appendix-c-1]]
+
+
+
+
+      Tất cả migration đã review, backup có thể phục hồi và biến môi trường bắt buộc
+       đã được kiểm tra.
+      Test, typecheck, lint và build đều đạt trên cùng commit; image/container có
+       version bất biến.
+
+
+                                                                      69
+   CORS, cookie, JWT secret, webhook secret, API key hashing và rate limit đúng
+    môi trường.
+   Health/readiness/metrics, log redaction, request ID, dashboard và cảnh báo đã
+    hoạt động.
+   Search index/embedding có version; worker idempotent; retry/dead-letter được
+    quan sát.
+   Có kế hoạch rollback, người chịu trách nhiệm và tiêu chí dừng triển khai.
+
+
+
+
+                                         70
+             PHỤ LỤC D. HƯỚNG DẪN SỬ DỤNG TÓM TẮT                                                                           [[PAGE:appendix-d]]
+
+
+
+
+  Hướng dẫn này mô tả hành trình ở mức người dùng và không yêu cầu hiểu cấu trúc kỹ
+thuật.
+
+                                                        Bảng D.1. Tác vụ người dùng thường gặp        [[PAGE:tab-d-1]]
+
+
+
+
+                  Tác vụ                                               Cách thực hiện                                    Lưu ý
+
+
+                                                               Mở Search/Devices, nhập từ            Bỏ bớt filter nếu không có kết
+              Tìm thiết bị
+                                                            khóa, chọn loại/hãng và bộ lọc        quả; kiểm tra alias
+
+                                                               Chọn thẻ model để xem variant,         Phân biệt model với variant;
+              Xem chi tiết
+                                                            phần cứng, điểm và nguồn              trường thiếu không phải giá trị 0
+
+                                                              Thêm từ hai thiết bị vào               Ưu tiên cùng category; mở
+                  So sánh
+                                                            Compare                               nguồn khi giá trị mâu thuẫn
+
+                                                               Hoàn thành các bước nhu               Kết quả là hỗ trợ quyết định,
+            Nhận khuyến nghị
+                                                            cầu/ngân sách/ưu tiên                 không thay thế kiểm tra thực tế
+
+                                                                Đặt câu hỏi cụ thể và xem             Không coi câu không có nguồn
+                  Hỏi AI
+                                                            citation                              là dữ kiện đã xác minh
+
+                                                                Đăng nhập, lưu variant và đặt         Kiểm tra tiền tệ, kênh nhận và
+            Wishlist/cảnh báo
+                                                            target price                          tùy chọn thông báo
+
+                                                                Tạo/sửa revision, thêm nguồn          Bản sửa không xuất bản ngay;
+             Đóng góp Wiki
+                                                            và gửi duyệt                          có thể được yêu cầu bổ sung
+
+                                                                Tạo API key theo gói, lưu khóa        Khóa chỉ hiển thị rõ một lần;
+               Dùng API
+                                                            an toàn và gọi endpoint trong scope   theo dõi quota/usage
+
+
+D.1. Xử lý sự cố cơ bản         [[PAGE:appendix-d-1]]
+
+
+
+
+        Nếu trang báo offline: kiểm tra kết nối, thử tải lại; dữ liệu cache có thể không
+         phải giá mới nhất.
+        Nếu đăng nhập hết hạn: thực hiện đăng nhập lại; không gửi token hoặc ảnh chụp
+         token cho người khác.
+        Nếu kết quả sai: mở citation, ghi URL/thuộc tính/variant và gửi phản hồi có bằng
+         chứng.
+        Nếu cảnh báo không đến: kiểm tra alert active, ngưỡng, kênh nhận, quiet hours
+         và trạng thái notification.
+        Nếu API trả 429: đọc header quota/retry, giảm tần suất và không tạo thêm key để
+         né hạn mức.
+
+
+
+                                                                              71
+

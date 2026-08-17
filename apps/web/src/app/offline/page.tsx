@@ -3,8 +3,8 @@ import { CloudOff, RefreshCw } from "lucide-react";
 
 export default function OfflinePage() {
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-xl items-center px-4 py-8 sm:px-6">
-      <section className="w-full rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="app-page mx-auto flex min-h-[70vh] w-full max-w-xl items-center px-4 py-8 sm:px-6">
+      <section className="app-panel w-full p-6">
         <div className="grid h-11 w-11 place-items-center rounded-md bg-slate-100 text-slate-700">
           <CloudOff size={20} />
         </div>

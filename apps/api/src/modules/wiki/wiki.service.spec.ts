@@ -1,4 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
+import { QueryWikiArticlesDto } from "./dto/query-wiki-articles.dto";
 import { WikiService } from "./wiki.service";
 
 describe("WikiService", () => {
@@ -22,6 +23,8 @@ describe("WikiService", () => {
     },
     wiki_articles: {
       findFirst: jest.fn(),
+      findMany: jest.fn(),
+      count: jest.fn(),
       update: jest.fn(),
     },
     wiki_revisions: {
@@ -36,7 +39,8 @@ describe("WikiService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     prisma.$transaction.mockImplementation(
-      async (callback: (tx: typeof transaction) => unknown) => callback(transaction),
+      async (callback: (tx: typeof transaction) => unknown) =>
+        callback(transaction),
     );
     service = new WikiService(prisma as any);
   });
@@ -90,6 +94,10 @@ describe("WikiService", () => {
           title: "iPhone 16 Pro",
           slug: "iphone-16-pro",
           status: "draft",
+          cover_image_url: "https://images.example.com/iphone-16-pro.webp",
+          cover_image_alt: "Mặt lưng iPhone 16 Pro màu titan",
+          cover_image_caption: "Cụm ba camera trên iPhone 16 Pro.",
+          cover_image_credit: "Ảnh: SpecHub",
           citations: [
             {
               citation_id: "f4c07fa6-0b8c-42ec-9de4-d2f275120ce3",
@@ -101,6 +109,16 @@ describe("WikiService", () => {
       ),
     ).resolves.toEqual({ data: { id: "article-1" } });
 
+    expect(transaction.wiki_articles.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          cover_image_url: "https://images.example.com/iphone-16-pro.webp",
+          cover_image_alt: "Mặt lưng iPhone 16 Pro màu titan",
+          cover_image_caption: "Cụm ba camera trên iPhone 16 Pro.",
+          cover_image_credit: "Ảnh: SpecHub",
+        }),
+      }),
+    );
     expect(transaction.wiki_revisions.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -159,5 +177,109 @@ describe("WikiService", () => {
         "user-1",
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("rejects cover image metadata without a cover image URL", async () => {
+    await expect(
+      service.create(
+        {
+          entity_table: "device_models",
+          entity_id: "device-1",
+          title: "iPhone 16 Pro",
+          slug: "iphone-16-pro",
+          cover_image_alt: "Mặt lưng iPhone 16 Pro",
+        },
+        "user-1",
+      ),
+    ).rejects.toThrow("Cover image metadata requires cover_image_url");
+  });
+
+  it("updates cover metadata and clears stale values when the image changes", async () => {
+    prisma.wiki_articles.findFirst.mockResolvedValue({
+      id: "article-1",
+      title: "Current title",
+      body_markdown: "Current body",
+      status: "draft",
+      published_at: null,
+      cover_image_url: "https://images.example.com/old.webp",
+      cover_image_alt: "Old alternative text",
+      cover_image_caption: "Old caption",
+      cover_image_credit: "Old credit",
+    });
+    transaction.wiki_revisions.findFirst.mockResolvedValue({
+      revision_number: 1,
+    });
+    transaction.wiki_revisions.create.mockResolvedValue({ id: "revision-2" });
+    transaction.wiki_articles.update.mockResolvedValue({ id: "article-1" });
+
+    await service.update(
+      "article-1",
+      {
+        cover_image_url: "https://images.example.com/new.webp",
+        cover_image_alt: "New alternative text",
+      },
+      "editor-1",
+    );
+
+    expect(transaction.wiki_articles.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          cover_image_url: "https://images.example.com/new.webp",
+          cover_image_alt: "New alternative text",
+          cover_image_caption: null,
+          cover_image_credit: null,
+        }),
+      }),
+    );
+  });
+
+  it("ranks Vietnamese search without diacritics and serializes view counts", async () => {
+    prisma.languages.findFirst.mockResolvedValue({ id: 1, code: "vi" });
+    prisma.wiki_articles.findMany.mockResolvedValue([
+      {
+        id: "article-general",
+        title: "Checklist mua thiết bị",
+        summary: "Kiểm tra màn hình và pin trước khi mua.",
+        tags: ["mua-sam"],
+        view_count: BigInt(20),
+        reading_time_minutes: 3,
+        published_at: new Date("2026-07-20"),
+        updated_at: new Date("2026-07-20"),
+      },
+      {
+        id: "article-display",
+        title: "Cách đọc màn hình OLED",
+        summary: "Hướng dẫn đọc độ sáng và màu sắc.",
+        tags: ["man-hinh", "oled"],
+        view_count: BigInt(10),
+        reading_time_minutes: 2,
+        published_at: new Date("2026-07-10"),
+        updated_at: new Date("2026-07-10"),
+      },
+    ]);
+
+    const query = Object.assign(new QueryWikiArticlesDto(), {
+      q: "man hinh",
+      language_code: "vi",
+      page: 1,
+      pageSize: 10,
+    });
+    const result = await service.listPublished(query);
+
+    expect(result.data[0]).toEqual(
+      expect.objectContaining({
+        id: "article-display",
+        view_count: "10",
+      }),
+    );
+    expect(result.meta.total).toBe(2);
+    expect(prisma.wiki_articles.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          language_id: 1,
+          status: "published",
+        }),
+      }),
+    );
   });
 });

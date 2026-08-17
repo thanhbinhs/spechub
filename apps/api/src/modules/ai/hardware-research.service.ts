@@ -66,8 +66,21 @@ const DEVICE_BENCHMARK_SELECT = {
   source: { select: SOURCE_SELECT },
 } satisfies Prisma.device_variant_benchmarksSelect;
 
+const MODULE_SCORE_SELECT = {
+  device_variant_id: true,
+  score: true,
+  score_source: true,
+  score_version: true,
+  rationale: true,
+  factors: true,
+} satisfies Prisma.variant_module_scoresSelect;
+
 type DeviceBenchmark = Prisma.device_variant_benchmarksGetPayload<{
   select: typeof DEVICE_BENCHMARK_SELECT;
+}>;
+
+type ModuleScore = Prisma.variant_module_scoresGetPayload<{
+  select: typeof MODULE_SCORE_SELECT;
 }>;
 
 type DeviceCandidate = {
@@ -83,10 +96,10 @@ type PreparedBenchmark = {
   relativeScore: number | null;
 };
 
-type EvidenceStatus = "measured" | "partial" | "insufficient_data";
+type EvidenceStatus = "measured" | "modeled" | "partial" | "insufficient_data";
 type EvidenceQuality = "strong" | "moderate" | "limited";
 
-const SCORING_VERSION = "hardware-effectiveness-v2";
+const SCORING_VERSION = "hardware-effectiveness-v3";
 
 const MODULE_BENCHMARK_TERMS: Record<HardwareModuleKind, string[]> = {
   chipset: [
@@ -112,9 +125,6 @@ const MODULE_BENCHMARK_TERMS: Record<HardwareModuleKind, string[]> = {
     "random write",
   ],
   "operating-system": ["operating system", "system", "os performance"],
-  "wireless-standard": ["wireless", "wifi", "wi fi", "wlan"],
-  "port-standard": ["port", "usb", "thunderbolt", "data transfer"],
-  sensor: ["sensor", "sensing"],
   camera: ["camera", "photo", "video", "imaging"],
   display: ["display", "screen", "brightness", "color accuracy", "pwm"],
   battery: [
@@ -143,36 +153,66 @@ export class HardwareResearchService {
     );
     const question = dto.question?.trim() || null;
     const candidates = this.deviceCandidates(hardwareModule.devices);
-    const benchmarkRecords = candidates.length
-      ? await this.prisma.device_variant_benchmarks.findMany({
-          where: {
-            device_variant_id: {
-              in: candidates.map((candidate) => candidate.variantId),
+    const [benchmarkRecords, moduleScores] = candidates.length
+      ? await Promise.all([
+          this.prisma.device_variant_benchmarks.findMany({
+            where: {
+              device_variant_id: {
+                in: candidates.map((candidate) => candidate.variantId),
+              },
             },
-          },
-          select: DEVICE_BENCHMARK_SELECT,
-          orderBy: [{ tested_at: "desc" }, { id: "asc" }],
-        })
-      : [];
+            select: DEVICE_BENCHMARK_SELECT,
+            orderBy: [{ tested_at: "desc" }, { id: "asc" }],
+          }),
+          this.prisma.variant_module_scores.findMany({
+            where: {
+              device_variant_id: {
+                in: candidates.map((candidate) => candidate.variantId),
+              },
+              module_kind: hardwareModule.kind,
+              module_id: hardwareModule.id,
+            },
+            select: MODULE_SCORE_SELECT,
+          }),
+        ])
+      : [[], []];
     const relevantRecords = benchmarkRecords.filter((record) =>
       this.isRelevantBenchmark(hardwareModule.kind, record),
     );
     const preparedRecords = this.prepareBenchmarkGroups(relevantRecords);
-    const assessments = this.buildAssessments(candidates, preparedRecords);
-    const rankedAssessments = assessments
+    const moduleScoreByVariant = new Map(
+      moduleScores.map((score) => [score.device_variant_id, score]),
+    );
+    const assessments = this.buildAssessments(
+      candidates,
+      preparedRecords,
+      moduleScoreByVariant,
+    );
+    const measuredAssessments = assessments
       .filter((assessment) => assessment.status === "measured")
       .sort(
         (left, right) =>
           (right.effectiveness_score ?? 0) - (left.effectiveness_score ?? 0) ||
           left.device.name.localeCompare(right.device.name),
       );
+    const modeledAssessments = assessments
+      .filter((assessment) => assessment.status === "modeled")
+      .sort(
+        (left, right) =>
+          (right.effectiveness_score ?? 0) - (left.effectiveness_score ?? 0) ||
+          left.device.name.localeCompare(right.device.name),
+      );
+    const rankedAssessments = measuredAssessments.length
+      ? measuredAssessments
+      : modeledAssessments;
 
     rankedAssessments.forEach((assessment, index) => {
       assessment.rank = index + 1;
     });
 
     const orderedAssessments = [
-      ...rankedAssessments,
+      ...measuredAssessments,
+      ...modeledAssessments,
       ...assessments
         .filter((assessment) => assessment.status === "partial")
         .sort((left, right) =>
@@ -191,9 +231,11 @@ export class HardwareResearchService {
     );
     const status: EvidenceStatus = comparisonGroups.size
       ? "measured"
-      : relevantRecords.length
-        ? "partial"
-        : "insufficient_data";
+      : moduleScores.length
+        ? "modeled"
+        : relevantRecords.length
+          ? "partial"
+          : "insufficient_data";
     const benchmarkedDeviceCount = new Set(
       relevantRecords.map((record) => record.device_variant_id),
     ).size;
@@ -202,10 +244,16 @@ export class HardwareResearchService {
         .filter((record) => record.relativeScore !== null)
         .map((record) => record.record.device_variant_id),
     ).size;
-    const chunks = this.buildEvidenceChunks(hardwareModule, rankedAssessments);
+    const modeledDeviceCount = new Set(
+      moduleScores.map((score) => score.device_variant_id),
+    ).size;
+    const chunks = this.buildEvidenceChunks(
+      hardwareModule,
+      measuredAssessments,
+    );
     const citations = chunks.map((chunk) => this.toCitation(chunk));
     const generated =
-      question && rankedAssessments.length
+      question && measuredAssessments.length
         ? await this.generateExplanation(question, chunks, citations)
         : null;
     const summary =
@@ -230,15 +278,21 @@ export class HardwareResearchService {
         question,
         assessment_status: status,
         methodology: {
-          label: "Hiệu quả triển khai theo benchmark thiết bị",
+          label: "Benchmark sử dụng mô-đun trên từng thiết bị",
           description:
-            "Chỉ so sánh kết quả đo của các phiên bản dùng cùng mô-đun khi benchmark, subscore và điều kiện thử nghiệm tương thích.",
+            "Giữ nguyên điểm gốc của từng benchmark và chỉ đối chiếu các kết quả cùng bài đo, phiên bản và hạng mục. Dữ liệu cấu hình chỉ bổ sung ngữ cảnh, không thay thế benchmark.",
           criteria: [
             {
               key: "device_outcome",
               label: "Kết quả trên thiết bị",
               requirement:
                 "Dùng benchmark của phiên bản thiết bị, không dùng số lượng sản phẩm hay độ mới làm điểm hiệu quả.",
+            },
+            {
+              key: "configuration_fallback",
+              label: "Ngữ cảnh cấu hình khi thiếu phép đo",
+              requirement:
+                "Mô tả độ đầy đủ tích hợp, RAM/lưu trữ và quan hệ thiết bị–mô-đun; không tạo điểm hiệu năng thay thế.",
             },
             {
               key: "comparable_conditions",
@@ -265,6 +319,7 @@ export class HardwareResearchService {
           linked_device_count: candidates.length,
           benchmarked_device_count: benchmarkedDeviceCount,
           comparable_device_count: comparableDeviceCount,
+          modeled_device_count: modeledDeviceCount,
           benchmark_result_count: relevantRecords.length,
           comparable_metric_count: comparisonGroups.size,
         },
@@ -280,10 +335,10 @@ export class HardwareResearchService {
           preparedRecords,
         ),
         disclaimer:
-          "Điểm hiển thị là chỉ số đầu ra benchmark tương đối trong nhóm có thể đối chiếu, không phải điểm chất lượng tuyệt đối của thiết bị. Không được diễn giải thành hiệu suất điện năng nếu chưa có phép đo công suất hoặc năng lượng.",
+          "Nhãn “Đo thực tế” là chỉ số đầu ra tương đối trong nhóm đo tương thích. Nhãn “Cấu hình” là điểm tham chiếu từ dữ liệu tích hợp đã lưu, không phải phép đo hiệu năng hay hiệu suất điện năng.",
       },
       meta: {
-        source: "structured_benchmarks",
+        source: "hybrid_module_scores",
         scoring_version: SCORING_VERSION,
         generated_by: generated ? "hybrid" : "rule_engine",
         rag_provider: generated?.provider ?? "local",
@@ -420,8 +475,10 @@ export class HardwareResearchService {
   private buildAssessments(
     candidates: DeviceCandidate[],
     preparedRecords: PreparedBenchmark[],
+    moduleScoreByVariant: Map<string, ModuleScore>,
   ) {
     return candidates.map((candidate) => {
+      const moduleScore = moduleScoreByVariant.get(candidate.variantId) ?? null;
       const records = preparedRecords
         .filter(
           (prepared) =>
@@ -440,9 +497,11 @@ export class HardwareResearchService {
       );
       const status: EvidenceStatus = comparableRecords.length
         ? "measured"
-        : records.length
-          ? "partial"
-          : "insufficient_data";
+        : moduleScore
+          ? "modeled"
+          : records.length
+            ? "partial"
+            : "insufficient_data";
       const effectivenessScore = comparableRecords.length
         ? this.roundScore(
             comparableRecords.reduce(
@@ -450,7 +509,9 @@ export class HardwareResearchService {
               0,
             ) / comparableRecords.length,
           )
-        : null;
+        : moduleScore
+          ? Number(moduleScore.score)
+          : null;
       const throttledCount = records.filter(
         (record) => record.record.benchmark_run?.is_thermal_throttled === true,
       ).length;
@@ -462,6 +523,26 @@ export class HardwareResearchService {
         rank: null as number | null,
         status,
         effectiveness_score: effectivenessScore,
+        score_basis:
+          status === "measured"
+            ? ("benchmark" as const)
+            : status === "modeled"
+              ? ("configuration_model" as const)
+              : ("none" as const),
+        score_label:
+          status === "measured"
+            ? "Đo thực tế"
+            : status === "modeled"
+              ? "Cấu hình"
+              : "Chưa có điểm",
+        score_details: moduleScore
+          ? {
+              source: moduleScore.score_source,
+              version: moduleScore.score_version,
+              rationale: moduleScore.rationale,
+              factors: moduleScore.factors,
+            }
+          : null,
         evidence_quality: this.evidenceQuality(comparableRecords),
         device: {
           variant_id: candidate.variantId,
@@ -483,6 +564,7 @@ export class HardwareResearchService {
         metrics: {
           benchmark_count: records.length,
           comparable_metric_count: comparableRecords.length,
+          configuration_score_available: Boolean(moduleScore),
           throttled_result_count: throttledCount,
           undocumented_condition_count: undocumentedConditionCount,
         },
@@ -493,6 +575,7 @@ export class HardwareResearchService {
           status,
           effectivenessScore,
           comparableRecords.length,
+          moduleScore,
         ),
         trade_offs: this.tradeOffs(
           status,
@@ -563,10 +646,7 @@ export class HardwareResearchService {
     }
 
     return Boolean(
-      run &&
-        run.app_version &&
-        run.power_mode &&
-        run.ambient_temp_c !== null,
+      run && run.app_version && run.power_mode && run.ambient_temp_c !== null,
     );
   }
 
@@ -599,9 +679,16 @@ export class HardwareResearchService {
     status: EvidenceStatus,
     score: number | null,
     comparableMetricCount: number,
+    moduleScore: ModuleScore | null,
   ) {
     if (status === "measured") {
-      return `Chỉ số đầu ra tương đối ${score}/100 từ ${comparableMetricCount} phép đo có thể đối chiếu.`;
+      return `Có ${comparableMetricCount} hạng mục benchmark cùng chuẩn để đối chiếu; kết luận dựa trên điểm gốc của từng phép đo.`;
+    }
+    if (status === "modeled") {
+      return (
+        moduleScore?.rationale ??
+        "Chưa có benchmark chung. Dữ liệu cấu hình chỉ được dùng để mô tả cách mô-đun được tích hợp, không tạo điểm hiệu năng."
+      );
     }
     if (status === "partial") {
       return "Có kết quả đo riêng lẻ nhưng chưa có thiết bị đối chứng cùng benchmark và điều kiện thử nghiệm.";
@@ -615,7 +702,11 @@ export class HardwareResearchService {
     undocumentedConditionCount: number,
   ) {
     const tradeOffs: string[] = [];
-    if (status !== "measured") {
+    if (status === "modeled") {
+      tradeOffs.push(
+        "Chưa có nhóm benchmark đối chứng; điểm hiện tại phản ánh mức phù hợp cấu hình.",
+      );
+    } else if (status !== "measured") {
       tradeOffs.push("Không xếp hạng khi chưa có nhóm benchmark đối chứng.");
     }
     if (throttledCount) {
@@ -658,16 +749,14 @@ export class HardwareResearchService {
       slug: assessment.device.slug,
       score: (assessment.effectiveness_score ?? 0) / 100,
       chunkText: [
-        `Fixed rank: ${assessment.rank}.`,
         `Device: ${assessment.device.name}.`,
         `Variant: ${assessment.device.variant_name}.`,
-        `Relative benchmark outcome index: ${assessment.effectiveness_score}/100.`,
         `Comparable metrics: ${assessment.metrics.comparable_metric_count}.`,
         ...assessment.benchmark_results
           .filter((result) => result.comparable)
           .map(
             (result) =>
-              `${result.benchmark.name}${result.benchmark.subscore_name ? ` / ${result.benchmark.subscore_name}` : ""}: ${result.score}${result.benchmark.unit?.symbol ? ` ${result.benchmark.unit.symbol}` : ""}, relative ${result.relative_score}/100, comparison size ${result.comparison_size}.`,
+              `${result.benchmark.name}${result.benchmark.version ? ` ${result.benchmark.version}` : ""}${result.benchmark.subscore_name ? ` / ${result.benchmark.subscore_name}` : ""}: ${result.score}${result.benchmark.unit?.symbol ? ` ${result.benchmark.unit.symbol}` : ""}, comparison size ${result.comparison_size}.`,
           ),
         ...assessment.trade_offs.map((tradeOff) => `Trade-off: ${tradeOff}`),
       ].join("\n"),
@@ -752,13 +841,35 @@ export class HardwareResearchService {
       return `Chưa thể tạo kết luận hiệu quả cho ${hardwareModule.name} [1].`;
     }
     const second = rankedAssessments[1];
-    const lines = [
-      `${first.device.name} · ${first.device.variant_name} đang có chỉ số đầu ra tương đối cao nhất (${first.effectiveness_score}/100) trong ${comparableMetricCount} nhóm benchmark có thể đối chiếu [2].`,
-    ];
+    if (status === "modeled") {
+      return `Các thiết bị dùng ${hardwareModule.name} hiện mới có dữ liệu cấu hình liên kết. SpecHub chưa xếp hạng hiệu năng cho đến khi có ít nhất hai kết quả cùng benchmark và cùng phiên bản [1].`;
+    }
+
+    const firstResult = first.benchmark_results.find(
+      (result) => result.comparable,
+    );
+    const lines = firstResult
+      ? [
+          `${first.device.name} · ${first.device.variant_name} đạt ${firstResult.score}${firstResult.benchmark.unit?.symbol ? ` ${firstResult.benchmark.unit.symbol}` : " điểm"} ở ${firstResult.benchmark.name}${firstResult.benchmark.version ? ` ${firstResult.benchmark.version}` : ""}${firstResult.benchmark.subscore_name ? ` · ${firstResult.benchmark.subscore_name}` : ""} [2].`,
+        ]
+      : [
+          `${first.device.name} · ${first.device.variant_name} có ${comparableMetricCount} hạng mục benchmark có thể đối chiếu [2].`,
+        ];
     if (second) {
-      lines.push(
-        `${second.device.name} · ${second.device.variant_name} đứng kế tiếp với ${second.effectiveness_score}/100; cần xem từng phép đo và điều kiện thử nghiệm trước khi kết luận cho nhu cầu sử dụng cụ thể [3].`,
+      const secondResult = second.benchmark_results.find(
+        (result) =>
+          result.comparable &&
+          firstResult &&
+          result.benchmark.slug === firstResult.benchmark.slug &&
+          result.benchmark.version === firstResult.benchmark.version &&
+          result.benchmark.subscore_name ===
+            firstResult.benchmark.subscore_name,
       );
+      if (secondResult) {
+        lines.push(
+          `${second.device.name} · ${second.device.variant_name} đạt ${secondResult.score}${secondResult.benchmark.unit?.symbol ? ` ${secondResult.benchmark.unit.symbol}` : " điểm"} trong cùng phép đo [3].`,
+        );
+      }
     }
     return lines.join("\n\n");
   }

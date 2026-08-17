@@ -1,0 +1,21 @@
+{
+  "name": "@spechub/scoring-core",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@spechub/config": "workspace:*",
+    "typescript": "5.7.2"
+  }
+}

@@ -20,6 +20,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@spechub/api-client": "workspace:*",
     "@spechub/auth": "workspace:*",
+    "@spechub/scoring-core": "workspace:*",
     "@spechub/utils": "workspace:*",
     "@tanstack/react-query": "5.62.10",
     "@tanstack/react-query-devtools": "5.62.10",
@@ -38,6 +39,7 @@
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1",
     "tailwind-merge": "2.6.0",
+    "xlsx": "0.18.5",
     "zod": "3.24.1",
     "zustand": "5.0.2"
   },

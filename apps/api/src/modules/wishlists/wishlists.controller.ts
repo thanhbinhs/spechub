@@ -18,6 +18,7 @@ import {
 } from "../../common/decorators/current-user.decorator";
 import { AddWishlistItemDto } from "./dto/add-wishlist-item.dto";
 import { CreateWishlistDto } from "./dto/create-wishlist.dto";
+import { SyncResearchWorkspaceDto } from "./dto/sync-research-workspace.dto";
 import { UpdateWishlistDto } from "./dto/update-wishlist.dto";
 import { WishlistsService } from "./wishlists.service";
 
@@ -39,6 +40,18 @@ export class WishlistsController {
     return this.wishlistsService.create(userId, dto);
   }
 
+  @Post("workspace/sync")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Merge or replace the signed-in research workspace",
+  })
+  syncWorkspace(
+    @CurrentUser("id") userId: string,
+    @Body() dto: SyncResearchWorkspaceDto,
+  ) {
+    return this.wishlistsService.syncWorkspace(userId, dto);
+  }
+
   @Patch(":id")
   @ApiOperation({ summary: "Update wishlist" })
   update(
@@ -46,7 +59,12 @@ export class WishlistsController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateWishlistDto,
   ) {
-    return this.wishlistsService.update(user.id, user.role as UserRole, id, dto);
+    return this.wishlistsService.update(
+      user.id,
+      user.role as UserRole,
+      id,
+      dto,
+    );
   }
 
   @Delete(":id")
@@ -75,7 +93,12 @@ export class WishlistsController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: AddWishlistItemDto,
   ) {
-    return this.wishlistsService.addItem(user.id, user.role as UserRole, id, dto);
+    return this.wishlistsService.addItem(
+      user.id,
+      user.role as UserRole,
+      id,
+      dto,
+    );
   }
 
   @Delete(":id/items/:itemId")

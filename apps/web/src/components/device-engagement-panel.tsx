@@ -3,17 +3,23 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, ShoppingBag } from "lucide-react";
+import { clsx } from "clsx";
 import type { DeviceVariantDetail } from "@spechub/api-client";
 import { useAuth } from "@/components/auth-provider";
+import { useResearchWorkspace } from "@/components/research-workspace";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
+import type { ResearchDevice } from "@/lib/research-device";
 
 export function DeviceEngagementPanel({
   variants,
+  device,
 }: {
   variants: DeviceVariantDetail[];
+  device: ResearchDevice;
 }) {
   const { user, tokens } = useAuth();
+  const { isReady, isSaved, toggleSaved, syncStatus } = useResearchWorkspace();
   const queryClient = useQueryClient();
   const defaultVariant = useMemo(
     () => variants.find((variant) => variant.is_default) ?? variants[0],
@@ -34,17 +40,6 @@ export function DeviceEngagementPanel({
     enabled: Boolean(defaultVariant?.id),
   });
 
-  const saveMutation = useMutation({
-    mutationFn: () =>
-      api.addDefaultWishlistItem(
-        { device_variant_id: defaultVariant!.id },
-        accessToken!,
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlists"] });
-    },
-  });
-
   const alertMutation = useMutation({
     mutationFn: (price: number) =>
       api.createPriceAlert(
@@ -59,13 +54,6 @@ export function DeviceEngagementPanel({
     onSuccess: () => {
       setTargetPrice("");
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
-    },
-  });
-
-  const clickMutation = useMutation({
-    mutationFn: (linkId: string) => api.trackAffiliateClick(linkId),
-    onSuccess: (result) => {
-      window.location.href = result.data.redirect_url;
     },
   });
 
@@ -88,9 +76,14 @@ export function DeviceEngagementPanel({
       <div className="space-y-2">
         {buyLinks.data?.length ? (
           buyLinks.data.slice(0, 3).map((link) => (
-            <button
+            <a
               key={link.id}
-              onClick={() => clickMutation.mutate(link.id)}
+              href={link.product_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                void api.trackAffiliateClick(link.id).catch(() => undefined);
+              }}
               className="flex w-full items-center justify-between gap-3 rounded-md border border-slate-200 px-3 py-2 text-left transition hover:border-blue-300"
             >
               <span className="min-w-0">
@@ -107,7 +100,7 @@ export function DeviceEngagementPanel({
                   code: link.currency_code,
                 })}
               </span>
-            </button>
+            </a>
           ))
         ) : (
           <p className="rounded-md border border-dashed border-slate-200 p-3 text-sm text-slate-500">
@@ -118,12 +111,23 @@ export function DeviceEngagementPanel({
 
       <div className="mt-4 grid gap-2">
         <button
-          disabled={!user || !accessToken || saveMutation.isPending}
-          onClick={() => saveMutation.mutate()}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-700 transition hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!isReady}
+          aria-pressed={isSaved(defaultVariant.id)}
+          onClick={() => toggleSaved(device)}
+          className={clsx(
+            "inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+            isSaved(defaultVariant.id)
+              ? "border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-300"
+              : "border-slate-300 text-slate-700 hover:border-blue-300",
+          )}
         >
-          <Heart size={16} />
-          {saveMutation.isSuccess ? "Đã lưu" : "Lưu phiên bản"}
+          <Heart
+            size={16}
+            fill={isSaved(defaultVariant.id) ? "currentColor" : "none"}
+          />
+          {isSaved(defaultVariant.id)
+            ? "Đã lưu vào bộ sưu tập"
+            : "Lưu phiên bản"}
         </button>
 
         <form onSubmit={submitAlert} className="flex gap-2">
@@ -146,8 +150,11 @@ export function DeviceEngagementPanel({
 
       {!user ? (
         <p className="mt-3 text-xs text-slate-500">
-          Đăng nhập để lưu phiên bản hoặc tạo cảnh báo giá.
+          Thiết bị được lưu trên máy này. Đăng nhập để đồng bộ bộ sưu tập và ghi
+          chú.
         </p>
+      ) : syncStatus === "syncing" ? (
+        <p className="mt-3 text-xs text-blue-600">Đang đồng bộ bộ sưu tập…</p>
       ) : null}
       {alertMutation.error ? (
         <p className="mt-3 text-xs text-red-600">

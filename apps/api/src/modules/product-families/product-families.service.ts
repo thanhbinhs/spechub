@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { Prisma } from '@spechub/database'
 import {
   createPaginationMeta,
@@ -133,6 +137,17 @@ export class ProductFamiliesService {
 
   async remove(id: string): Promise<ProductFamilyItem> {
     await this.findById(id)
+    const linkedModels = await this.prisma.device_models.count({
+      where: {
+        product_family_id: id,
+        deleted_at: null,
+      },
+    })
+    if (linkedModels > 0) {
+      throw new ConflictException(
+        `Không thể xóa dòng sản phẩm vì đang có ${linkedModels} thiết bị sử dụng. Hãy chuyển hoặc xóa các thiết bị trước.`,
+      )
+    }
 
     return this.prisma.product_families.update({
       where: { id },

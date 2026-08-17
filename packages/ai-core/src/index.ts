@@ -7,7 +7,10 @@ export type RagEntityType =
   | "device_variant"
   | "hardware_module"
   | "product_family"
-  | "raw_page";
+  | "raw_page"
+  | "wiki_article"
+  | "organization"
+  | "catalog_reference";
 
 export type RagChunk = {
   entityType: RagEntityType;

@@ -12,12 +12,36 @@ import {
   Scale,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { DeviceArtwork } from "@/components/device-artwork";
+import { CatalogScorePair } from "@/components/catalog-score";
+import { DeviceDescription } from "@/components/device-description";
 import { DeviceEngagementPanel } from "@/components/device-engagement-panel";
+import { DeviceMediaGallery } from "@/components/device-media-gallery";
+import {
+  DeviceScorecard,
+  DeviceScorecardSummary,
+} from "@/components/device-scorecard";
 import { DeviceSpecModules } from "@/components/device-spec-modules";
 import { MarketplaceOffers } from "@/components/marketplace-offers";
+import { MarkdownContent } from "@/components/markdown-content";
+import {
+  CompareToggle,
+  TrackDeviceView,
+} from "@/components/research-workspace";
 import { Surface } from "@/components/surface";
-import { formatDate, formatPrice, specText } from "@/lib/format";
+import {
+  formatDimensions,
+  formatMeasurement,
+  formatDate,
+  formatPrice,
+  formatResolution,
+  formatScreenSize,
+} from "@/lib/format";
+import {
+  localizeDescription,
+  localizeDeviceCategory,
+  localizeReleaseStatus,
+} from "@/lib/localize";
+import { toResearchDevice } from "@/lib/research-device";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +59,9 @@ export default async function DeviceDetailPage({
     model.product_family?.brand_org?.short_name ??
     model.product_family?.brand_org?.name ??
     "SpecHub";
-  const category = model.product_family?.device_category?.name ?? "Thiết bị";
+  const category = localizeDeviceCategory(
+    model.product_family?.device_category,
+  );
   const physical = defaultVariant?.variant_physical_specs;
   const chipset = defaultVariant?.variant_chipsets?.[0]?.chipset;
   const display = defaultVariant?.variant_displays?.[0]?.display_unit;
@@ -44,9 +70,14 @@ export default async function DeviceDetailPage({
     .slice(0, 2)
     .map((variant) => variant.id)
     .join(",");
+  const editorialSections = (model.editorial_sections ?? []).filter(
+    (section) => section.is_published,
+  );
+  const researchDevice = toResearchDevice(model, defaultVariant);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <TrackDeviceView device={researchDevice} />
       <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
         <Link href="/devices" className="hover:text-slate-950">
           Thiết bị
@@ -55,16 +86,19 @@ export default async function DeviceDetailPage({
         <span>{model.name}</span>
       </div>
 
-      <section className="grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <DeviceArtwork
-          hero
-          brand={brand}
-          name={model.name}
-          category={category}
-          accent={defaultVariant?.color_hex}
+      <section className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <DeviceMediaGallery
+          media={model.media}
+          fallback={{
+            brand,
+            name: model.name,
+            category,
+            imageUrl: model.cover_image_url,
+            accent: defaultVariant?.color_hex,
+          }}
         />
 
-        <div className="flex flex-col justify-center rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
               {brand}
@@ -73,45 +107,68 @@ export default async function DeviceDetailPage({
               {category}
             </span>
             <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-              {model.release_status?.name ?? "Chưa xác định"}
+              {localizeReleaseStatus(model.release_status)}
             </span>
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             {model.name}
           </h1>
-          {model.description ? (
+          {model.summary ? (
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base sm:leading-7">
-              {model.description}
+              {localizeDescription(model.summary)}
             </p>
           ) : null}
-          <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-            <Metric
-              icon={<Calendar size={18} />}
-              label="Ra mắt"
-              value={formatDate(model.release_date)}
-            />
-            <Metric
-              icon={<Cpu size={18} />}
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <HeroSpec
+              icon={<Cpu size={16} />}
               label="Chipset"
-              value={chipset?.name ?? "Chưa có"}
+              value={chipset?.name}
             />
-            <Metric
-              icon={<Monitor size={18} />}
+            <HeroSpec
+              icon={<Monitor size={16} />}
               label="Màn hình"
               value={
                 display
-                  ? `${specText(display.size_inch)} inch · ${specText(
-                      display.refresh_rate_hz,
-                    )} Hz`
-                  : "Chưa có"
+                  ? [
+                      formatScreenSize(display.size_inch),
+                      formatMeasurement(display.refresh_rate_hz, "Hz", 0),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")
+                  : undefined
               }
             />
-            <Metric
-              icon={<BatteryCharging size={18} />}
+            <HeroSpec
+              icon={<BatteryCharging size={16} />}
               label="Pin"
-              value={`${specText(battery?.capacity_mah)} mAh`}
+              value={
+                battery?.capacity_mah
+                  ? formatMeasurement(battery.capacity_mah, "mAh", 0)
+                  : undefined
+              }
+            />
+            <HeroSpec
+              icon={<Calendar size={16} />}
+              label="Ra mắt"
+              value={formatDate(model.release_date)}
             />
           </div>
+          <DeviceScorecardSummary
+            scorecards={defaultVariant?.variant_scorecards}
+            className="mt-4"
+          />
+          <div className="mt-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+              Benchmark
+            </p>
+            <CatalogScorePair
+              benchmarks={defaultVariant?.device_variant_benchmarks}
+              scores={defaultVariant?.variant_module_scores}
+              categorySlug={model.product_family?.device_category?.slug}
+              className="bg-slate-50/70"
+            />
+          </div>
+
           <div className="mt-6 flex flex-col gap-2 sm:flex-row">
             <Link
               href={`/ai?q=${encodeURIComponent(`Phân tích ${model.name}`)}`}
@@ -120,13 +177,16 @@ export default async function DeviceDetailPage({
               <BrainCircuit size={17} />
               Hỏi AI
             </Link>
-            <Link
-              href={compareIds ? `/compare?ids=${compareIds}` : "/compare"}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
-            >
-              <GitCompareArrows size={17} />
-              So sánh phiên bản
-            </Link>
+            {defaultVariant ? <CompareToggle device={researchDevice} /> : null}
+            {variants.length > 1 ? (
+              <Link
+                href={compareIds ? `/compare?ids=${compareIds}` : "/compare"}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-slate-950"
+              >
+                <GitCompareArrows size={17} />
+                So sánh phiên bản
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>
@@ -137,11 +197,24 @@ export default async function DeviceDetailPage({
       >
         <div className="flex min-w-max gap-1">
           <SectionLink href="#overview">Tổng quan</SectionLink>
+          {model.description ? (
+            <SectionLink href="#description">Mô tả chi tiết</SectionLink>
+          ) : editorialSections.length ? (
+            <SectionLink href="#review">Đánh giá chi tiết</SectionLink>
+          ) : null}
+          <SectionLink href="#scorecard">Điểm SpecHub</SectionLink>
           <SectionLink href="#hardware-modules">Mô-đun phần cứng</SectionLink>
           <SectionLink href="#marketplace-prices">Giá tại sàn</SectionLink>
           <SectionLink href="#variants">Phiên bản</SectionLink>
         </div>
       </nav>
+
+      {model.description ? (
+        <DeviceDescription
+          markdown={model.description}
+          deviceName={model.name}
+        />
+      ) : null}
 
       <section
         id="overview"
@@ -164,14 +237,14 @@ export default async function DeviceDetailPage({
           <div className="grid gap-3 p-5 sm:p-6 md:grid-cols-2">
             <SpecRow
               icon={<Cpu size={18} />}
-              label="Hiệu năng"
+              label="Nền tảng xử lý"
               value={[
                 chipset?.name,
                 chipset?.manufacturer?.short_name ??
                   chipset?.manufacturer?.name,
                 chipset?.integrated_5g ? "tích hợp 5G" : null,
                 chipset?.max_ram_gb
-                  ? `tối đa ${chipset.max_ram_gb}GB RAM`
+                  ? `tối đa ${formatMeasurement(chipset.max_ram_gb, "GB", 0)} RAM`
                   : null,
               ]
                 .filter(Boolean)
@@ -182,29 +255,53 @@ export default async function DeviceDetailPage({
               label="Màn hình"
               value={
                 display
-                  ? `${display.size_inch ?? "Chưa có"} inch, ${
-                      display.resolution_width ?? "?"
-                    } x ${display.resolution_height ?? "?"}, ${
-                      display.refresh_rate_hz ?? "?"
-                    }Hz, ${specText(display.brightness_peak_nits)} nits`
+                  ? [
+                      formatScreenSize(display.size_inch),
+                      formatResolution(
+                        display.resolution_width,
+                        display.resolution_height,
+                      ),
+                      formatMeasurement(display.refresh_rate_hz, "Hz", 0),
+                      formatMeasurement(display.brightness_peak_nits, "nit", 0),
+                    ]
+                      .filter(Boolean)
+                      .join(", ")
                   : undefined
               }
             />
             <SpecRow
               icon={<BatteryCharging size={18} />}
               label="Pin và sạc"
-              value={`${specText(battery?.capacity_mah)} mAh, ${specText(
-                battery?.wired_charging_w,
-              )}W sạc có dây, ${specText(battery?.wireless_charging_w)}W sạc không dây`}
+              value={[
+                formatMeasurement(battery?.capacity_mah, "mAh", 0),
+                battery?.wired_charging_w !== undefined &&
+                battery?.wired_charging_w !== null
+                  ? `${formatMeasurement(battery.wired_charging_w, "W", 0)} sạc có dây`
+                  : undefined,
+                battery?.wireless_charging_w !== undefined &&
+                battery?.wireless_charging_w !== null
+                  ? `${formatMeasurement(battery.wireless_charging_w, "W", 0)} sạc không dây`
+                  : undefined,
+              ]
+                .filter(Boolean)
+                .join(", ")}
             />
             <SpecRow
               icon={<Scale size={18} />}
               label="Thân máy"
-              value={`${specText(physical?.height_mm)} x ${specText(
-                physical?.width_mm,
-              )} x ${specText(physical?.thickness_mm)} mm, ${specText(
-                physical?.weight_g,
-              )} g`}
+              value={[
+                formatDimensions(
+                  [
+                    physical?.height_mm,
+                    physical?.width_mm,
+                    physical?.thickness_mm,
+                  ],
+                  "mm",
+                ),
+                formatMeasurement(physical?.weight_g, "g", 0),
+              ]
+                .filter(Boolean)
+                .join(", ")}
             />
           </div>
           <div className="grid gap-x-6 gap-y-4 border-t border-slate-200 bg-slate-50/50 px-5 py-4 sm:grid-cols-2 sm:px-6 xl:grid-cols-5">
@@ -223,9 +320,42 @@ export default async function DeviceDetailPage({
         </div>
 
         <div className="space-y-5">
-          <DeviceEngagementPanel variants={variants} />
+          <DeviceEngagementPanel variants={variants} device={researchDevice} />
         </div>
       </section>
+
+      {!model.description && editorialSections.length ? (
+        <section
+          id="review"
+          className="scroll-mt-28 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+        >
+          <div className="border-b border-slate-200 px-5 py-5 sm:px-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-600">
+              Biên tập SpecHub
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              Đánh giá chi tiết {model.name}
+            </h2>
+            {model.summary ? (
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
+                {model.summary}
+              </p>
+            ) : null}
+          </div>
+          <div className="mx-auto max-w-4xl px-5 pb-8 sm:px-7">
+            {editorialSections.map((section) => (
+              <article key={section.id}>
+                <h3 className="mb-2 mt-8 text-xl font-semibold text-slate-950">
+                  {section.title}
+                </h3>
+                <MarkdownContent markdown={section.body_markdown} />
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <DeviceScorecard scorecards={defaultVariant?.variant_scorecards} />
 
       <DeviceSpecModules variant={defaultVariant} />
 
@@ -319,28 +449,6 @@ export default async function DeviceDetailPage({
   );
 }
 
-function Metric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        <span className="text-blue-600">{icon}</span>
-        <span>{label}</span>
-      </div>
-      <div className="mt-2 break-words text-sm font-semibold leading-5 text-slate-950">
-        {value}
-      </div>
-    </div>
-  );
-}
-
 function SpecRow({
   icon,
   label,
@@ -361,6 +469,28 @@ function SpecRow({
           {value || "Chưa có"}
         </div>
       </div>
+    </div>
+  );
+}
+
+function HeroSpec({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value?: string | null;
+}) {
+  return (
+    <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-blue-600">{icon}</span>
+        {label}
+      </div>
+      <p className="mt-1.5 truncate text-sm font-semibold text-slate-950">
+        {value || "Chưa có"}
+      </p>
     </div>
   );
 }

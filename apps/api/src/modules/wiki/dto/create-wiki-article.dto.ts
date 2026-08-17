@@ -6,7 +6,6 @@ import {
   IsIn,
   IsOptional,
   IsString,
-  IsUrl,
   Matches,
   MinLength,
   MaxLength,
@@ -65,10 +64,56 @@ export class CreateWikiArticleDto {
   @MaxLength(40, { each: true })
   tags?: string[];
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description:
+      "HTTP(S) URL or site-relative path for the article cover image",
+    example: "https://images.example.com/iphone-camera-comparison.webp",
+    maxLength: 2048,
+    nullable: true,
+  })
   @IsOptional()
-  @IsUrl({ require_tld: false })
-  cover_image_url?: string;
+  @Matches(/^(?:https?:\/\/[^\s]+|\/(?!\/)[^\s]+)$/i, {
+    message:
+      "cover_image_url must be an HTTP(S) URL or a site-relative image path",
+  })
+  @MaxLength(2048)
+  cover_image_url?: string | null;
+
+  @ApiPropertyOptional({
+    description: "Accessible alternative text for the cover image",
+    example: "Camera modules of two flagship phones placed side by side",
+    maxLength: 300,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(300)
+  cover_image_alt?: string | null;
+
+  @ApiPropertyOptional({
+    description: "Caption displayed with the cover image",
+    example: "The camera layouts differ in sensor size and zoom range.",
+    maxLength: 500,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(500)
+  cover_image_caption?: string | null;
+
+  @ApiPropertyOptional({
+    description: "Image creator, publisher, or licensing credit",
+    example: "Photo: SpecHub",
+    maxLength: 200,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  cover_image_credit?: string | null;
 
   @ApiPropertyOptional()
   @IsOptional()

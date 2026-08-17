@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import type { ReactNode } from "react";
+import {
+  Building2,
+  GitCompareArrows,
+  Layers3,
+  SearchX,
+  Smartphone,
+} from "lucide-react";
 import { api, categoryTreeData } from "@/lib/api";
 import { DeviceCard } from "@/components/device-card";
 import { EmptyState } from "@/components/empty-state";
@@ -18,13 +25,21 @@ export default async function DevicesPage({
   const q = stringParam(params.q);
   const brandSlug = stringParam(params.brand_slug);
   const categorySlug = stringParam(params.category_slug);
+  const sort = stringParam(params.sort) || "newest";
   const page = numberParam(params.page, 1);
+  const sortQuery =
+    sort === "name-asc"
+      ? { sortBy: "name", sortOrder: "asc" as const }
+      : sort === "updated"
+        ? { sortBy: "updated_at", sortOrder: "desc" as const }
+        : { sortBy: "release_date", sortOrder: "desc" as const };
   const query = {
     q: q || undefined,
     brand_slug: brandSlug || undefined,
     category_slug: categorySlug || undefined,
     page,
     pageSize: 12,
+    ...sortQuery,
   };
 
   const [models, brands, categoryResult] = await Promise.all([
@@ -32,43 +47,59 @@ export default async function DevicesPage({
     api.listOrganizations({ pageSize: 50, sortBy: "name", sortOrder: "asc" }),
     api.getDeviceCategoryTree(),
   ]);
+  const categoryOptions = categoryTreeData(categoryResult);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <PageHeader
-        eyebrow="Danh mục"
         title="Thiết bị"
-        description={`${models.meta.total} mẫu máy thuộc các hãng, danh mục, phiên bản và linh kiện.`}
         action={
           <Link
             href="/compare"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"
           >
+            <GitCompareArrows size={16} />
             Bắt đầu so sánh
           </Link>
         }
       />
+
+      <section
+        className="grid gap-3 sm:grid-cols-3"
+        aria-label="Tổng quan danh mục thiết bị"
+      >
+        <CatalogStat
+          icon={<Smartphone size={18} />}
+          value={models.meta.total}
+          label="mẫu thiết bị"
+        />
+        <CatalogStat
+          icon={<Building2 size={18} />}
+          value={brands.meta.total}
+          label="thương hiệu"
+        />
+        <CatalogStat
+          icon={<Layers3 size={18} />}
+          value={categoryOptions.length}
+          label="danh mục"
+        />
+      </section>
 
       <FilterForm
         action="/devices"
         q={q}
         brandSlug={brandSlug}
         categorySlug={categorySlug}
+        sort={sort}
+        showSort
+        instant
         brands={brands.data}
-        categories={categoryTreeData(categoryResult)}
+        categories={categoryOptions}
       />
 
       {models.data.length ? (
         <>
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3 text-sm">
-            <span className="text-slate-500">
-              Hiển thị {models.data.length} trong {models.meta.total} thiết bị
-            </span>
-            <span className="font-medium text-slate-700">
-              Trang {models.meta.page}/{models.meta.totalPages}
-            </span>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {models.data.map((model) => (
               <DeviceCard key={model.id} model={model} />
             ))}
@@ -80,6 +111,7 @@ export default async function DevicesPage({
               q,
               brand_slug: brandSlug,
               category_slug: categorySlug,
+              sort: sort === "newest" ? "" : sort,
             }}
           />
         </>
@@ -87,7 +119,6 @@ export default async function DevicesPage({
         <EmptyState
           icon={<SearchX size={20} />}
           title="Không tìm thấy thiết bị phù hợp"
-          description="Hãy thử từ khóa rộng hơn hoặc xóa một trong các bộ lọc."
           action={
             <Link
               href="/devices"
@@ -98,6 +129,30 @@ export default async function DevicesPage({
           }
         />
       )}
+    </div>
+  );
+}
+
+function CatalogStat({
+  icon,
+  value,
+  label,
+}: {
+  icon: ReactNode;
+  value: number;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <span className="grid size-10 place-items-center rounded-lg bg-blue-50 text-blue-600">
+        {icon}
+      </span>
+      <span>
+        <strong className="block text-lg font-semibold leading-none text-slate-950">
+          {value.toLocaleString("vi-VN")}
+        </strong>
+        <span className="mt-1 block text-xs text-slate-500">{label}</span>
+      </span>
     </div>
   );
 }

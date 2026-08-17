@@ -1,0 +1,2517 @@
+                                           BỘ GIÁO DỤC VÀ ĐÀO TẠO
+
+                                               ĐẠI HỌC PHENIKAA
+
+
+
+
+      PHẠM THÀNH TRUNG
+
+
+
+                                         ĐỒ ÁN TỐT NGHIỆP
+                           XÂY DỰNG HỆ THỐNG QUẢN LÝ VÀ ĐẶT VÉ
+
+                                         XEM PHIM TRỰC TUYẾN
+TIN
+
+                         Sinh viên: Phạm Thành Trung
+
+
+
+
+      CÔNG NGHỆ THÔNG
+                         Mã số sinh viên: 21012899                    Khóa: Khóa 15
+
+                         Ngành: Công nghệ Thông tin                   Hệ: Chính quy
+
+                         Giảng viên hướng dẫn: TS. Đặng Thị Thúy An
+
+
+
+
+                                                 Hà Nội – Năm 2026
+               BỘ GIÁO DỤC VÀ ĐÀO TẠO
+
+                   ĐẠI HỌC PHENIKAA
+
+
+
+
+             ĐỒ ÁN TỐT NGHIỆP
+XÂY DỰNG HỆ THỐNG QUẢN LÝ VÀ ĐẶT VÉ
+
+             XEM PHIM TRỰC TUYẾN
+
+
+ Sinh viên: Phạm Thành Trung
+
+ Mã số sinh viên: 21012899                    Khóa: Khóa 15
+
+ Ngành: Công nghệ Thông tin                   Hệ: Chính quy
+
+ Giảng viên hướng dẫn: TS. Đặng Thị Thúy An
+
+
+
+
+                      Hà Nội – Năm 2026
+                                              i
+
+
+                                      TÓM TẮT
+  Đồ án tập trung vào việc "Xây dựng hệ thống quản lý và đặt vé xem phim trực tuyến".
+Dự án này giải quyết những thách thức mà các cửa hàng phải đối mặt trong việc quản lý
+bán hàng và cạnh tranh trên thị trường kỹ thuật số.
+
+  Ứng dụng được phát triển miễn phí, cung cấp một nền tảng tương tác hiệu quả giữa
+khách hàng và nhân viên. Các chức năng chính bao gồm quản lý suất chiếu/vé, doanh thu
+cho nhân viên, và các tính năng mua sắm, theo dõi vé, đánh giá cho khách hàng. Quản trị
+viên có quyền quản lý danh mục và banner quảng cáo.
+
+  Điểm nổi bật của đồ án là việc tích hợp hệ thống tối ưu hoá lịch chiếu sử dụng Trí tuệ
+nhân tạo (AI). Hệ thống này lựa chọn áp dụng mô hình OptaPlanner, kết hợp giữa
+OptaSchedulingService và Ràng buộc lịch chiếu (Constraints) để phân tích hành vi người
+dùng và đề xuất các suất chiếu/vé phù hợp, qua đó cá nhân hóa trải nghiệm mua sắm và
+tăng hiệu quả kinh doanh.
+
+  Đồ án sử dụng các công nghệ hiện đại như ngôn ngữ lập trình TypeScript với framework
+React để xây dựng ứng dụng Web. MySQL được dùng để quản lý cơ sở dữ liệu và xác
+thực người dùng, trong khi Java (Spring Boot) được sử dụng để phát triển hệ thống gợi ý.
+Toàn bộ ứng dụng được thiết kế theo mô hình Client-Server tách biệt. Frontend sử dụng
+React để xây dựng giao diện người dùng (SPA), trong khi Backend sử dụng Java Spring
+Boot với kiến trúc 3 lớp (3-Layer Architecture) giúp đảm bảo tính tách biệt giữa logic
+nghiệp vụ và dữ liệu, dễ dàng bảo trì và mở rộng.
+                                             ii
+
+
+                                  LỜI CAM ĐOAN
+  Tên tôi là: Phạm Thành Trung
+
+  Mã sinh viên: 21012899      Lớp: K15 CNTT5
+
+  Ngành: Công nghệ Thông tin
+
+  Tôi đã thực hiện đồ án/khóa luận tốt nghiệp với đề tài: Xây dựng hệ thống quản lý và
+đặt vé xem phim trực tuyến.
+
+  Tôi xin cam đoan đây là đề tài nghiên cứu của riêng tôi và được sự hướng dẫn của: cô
+TS. Đặng Thị Thuý An.
+
+  Các nội dung nghiên cứu, kết quả trong đề tài này là trung thực và chưa được các tác
+giả khác công bố dưới bất kỳ hình thức nào. Nếu phát hiện có bất kỳ hình thức gian lận
+nào tôi xin hoàn toàn chịu trách nhiệm trước pháp luật.
+
+
+
+                                                    Hà Nội, ngày … tháng … năm 2026
+
+         GIẢNG VIÊN HƯỚNG DẪN                                SINH VIÊN
+
+                (ký, ghi rõ họ tên)                        (ký, ghi rõ họ tên)
+                                            iii
+
+
+                                   LỜI CẢM ƠN
+  Tôi xin chân thành cảm ơn Trường Công nghệ Thông tin Phenikaa - Đại học Phenikaa
+đã tạo điều kiện cho tôi hoàn thành tốt Đồ án khóa luận tốt nghiệp. Đồ án khóa luận tốt
+nghiệp này đã giúp cho tôi có thêm rất nhiều kinh nghiệm quý báu để tôi có thể hoàn thiện
+hơn trong công việc và môi trường làm việc sau này.
+
+  Tôi xin gửi lời cảm ơn đến quý thầy cô và Trường Công nghệ Thông tin Phenikaa - Đại
+học Phenikaa đã tạo điều kiện tuyệt vời cho tôi hoàn thành đồ án tốt nghiệp. Cảm ơn các
+thầy cô vì đã chia sẻ kiến thức và kinh nghiệm quý báu, giúp tôi vượt qua những thách
+thức và hoàn thiện công việc của mình. Đặc biệt, tôi muốn bày tỏ lòng biết ơn sâu sắc đến
+cô Đặng Thị Thúy An, người đã dành thời gian và tâm huyết để hướng dẫn và góp ý cho
+đồ án của tôi.
+
+  Mặc dù đã nỗ lực hết mình, nhưng tôi nhận thức được rằng có thể vẫn còn những thiếu
+sót trong suất chiếu/vé cũng như trong báo cáo của tôi. Vì vậy tôi mong rằng trong quá
+trình bảo vệ, tôi có thể nhận được sự đồng cảm và chia sẻ từ quý thầy cô để hoàn thiện
+hơn kết quả của mình.
+
+  Tôi xin chân thành cảm ơn!
+                                                         MỤC LỤC
+MỞ ĐẦU............................................................................................................................1
+
+CHƯƠNG 1.                TỔNG QUAN ĐỀ TÀI...........................................................................2
+    1.1.      Đặt vấn đề........................................................................................................... 2
+    1.2.      Mục tiêu nghiên cứu........................................................................................... 2
+    1.3.      Đối tượng và phạm vi nghiên cứu......................................................................3
+       1.3.1.        Đối tượng nghiên cứu................................................................................. 3
+       1.3.2.        Phạm vi nghiên cứu....................................................................................3
+    1.4.      Phương pháp nghiên cứu....................................................................................4
+    1.5.      Định hướng giải pháp.........................................................................................4
+    1.6.      Khảo sát hiện trạng............................................................................................. 5
+       1.6.1.        Vai trò khách hàng...................................................................................... 6
+       1.6.2.        Vai trò nhân viên.........................................................................................6
+       1.6.3.        Vai trò quản trị viên....................................................................................7
+       1.6.4.        Quy trình nghiệp vụ....................................................................................7
+       1.6.5.        Tổng hợp các chức năng chính...................................................................9
+
+CHƯƠNG 2.                CƠ SỞ LÝ THUYẾT........................................................................... 11
+    2.1.      Công nghệ sử dụng phát triển hệ thống............................................................11
+       2.1.1.        Ngôn ngữ lập trình Java và Framework Spring Boot...............................11
+       2.1.2.        Thư viện tối ưu hóa OptaPlanner (AI Constraint Solver).........................13
+       2.1.3.        Thư viện React (Frontend)........................................................................14
+       2.1.4.        Các giải pháp lưu trữ và cơ sở dữ liệu......................................................15
+       2.1.5.        Kiến trúc RESTful API.............................................................................17
+       2.1.6.        Spring Security và giao thức JWT............................................................17
+       2.1.7.        Thư viện giao diện (UI Framework).........................................................18
+       2.1.8.        Cơ chế xác thực Google OAuth2 và Social Login....................................18
+    2.2.      Môi trường phát triển hệ thống (IDE)...............................................................18
+    2.3.      Thiết kế kiến trúc phần mềm............................................................................19
+       2.3.1.        Mô hình tổng quát (Client-Server)............................................................19
+       2.3.2.        Kiến trúc 3 lớp tại phía Server (Backend)................................................19
+CHƯƠNG 3.                PHÂN TÍCH THIẾT KẾ HỆ THỐNG.................................................21
+   3.1.       Phân tích yêu cầu hệ thống............................................................................... 21
+       3.1.1.        Yêu cầu chức năng....................................................................................21
+       3.1.2.        Yêu cầu phi chức năng..............................................................................22
+   3.2.       Phân tích Use Case...........................................................................................22
+       3.2.1.        Danh sách các Use Case theo vai trò........................................................22
+       3.2.2.        Biểu đồ Use Case (Diagram)....................................................................24
+       3.2.3.        Đặc tả chi tiết các Use Case tiêu biểu.......................................................30
+       3.2.4.        Thiết kế sơ đồ quy trình nghiệp vụ...........................................................32
+       3.2.5.        Thiết kế biểu đồ tuần tự............................................................................ 38
+   3.3.       Thiết kế cơ sở dữ liệu........................................................................................44
+       3.3.1.        Sơ đồ thực thể mối quan hệ (ERD)...........................................................44
+
+CHƯƠNG 4.                PHÁT TRIỂN SẢN PHẨM..................................................................48
+   4.1.       Áp dụng cơ sở lý thuyết vào phát triển ứng dụng.............................................48
+       4.1.1.        Hiện thực hóa kiến trúc hệ thống và quy trình phát triển.........................48
+       4.1.2.        Ứng dụng AI và thuật toán tối ưu hóa......................................................48
+       4.1.3.        Triển khai cơ chế bảo mật và xác thực.....................................................49
+       4.1.4.        Giải pháp lưu trữ và quản lý dữ liệu.........................................................50
+   4.2.       Các kỹ thuật được áp dụng để tối ưu hệ thống.................................................50
+       4.2.1.        Giải thuật tối ưu hóa lập lịch tự động với AI (OptaPlanner)....................50
+       4.2.2.        Kỹ thuật xử lý tranh chấp ghế thời gian thực...........................................52
+       4.2.3.        Tối ưu hóa truy vấn CSDL........................................................................53
+       4.2.4.        Kỹ thuật Code Splitting và Lazy Loading (Frontend)..............................54
+       4.2.5.        Cơ chế bộ nhớ đệm (Caching với Spring Cache).....................................54
+   4.3.       Hiện thực hóa giao diện hệ thống.....................................................................55
+       4.3.1.        Giao diện chung........................................................................................55
+       4.3.2.        Giao diện phía khách hàng........................................................................59
+       4.3.3.        Giao diện phía nhân viên..........................................................................66
+       4.3.4.        Giao diện phía quản trị viên......................................................................73
+
+KẾT LUẬN.......................................................................................................................82
+   1. Kết luận.................................................................................................................... 82
+   2. Hướng phát triển.......................................................................................................82
+
+TÀI LIỆU THAM KHẢO................................................................................................ 83
+
+
+
+
+                                          DANH MỤC HÌNH ẢNH
+Hình 3.1 Sơ đồ Use Case tổng quan của hệ thống.......................................................25
+
+Hình 3.2 Sơ đồ Use Case của vai trò khách hàng.........................................................26
+
+Hình 3.3 Sơ đồ Use Case của vai trò nhân viên...........................................................28
+
+Hình 3.4 Sơ đồ Use Case của vai trò quản trị viên.......................................................29
+
+Hình 3.5 Sơ đồ hoạt động Use Case lập lịch xuất chiếu..............................................33
+
+Hình 3.6 Sơ đồ hoạt động Use Case đặt vé xem phim và chọn ghế ngồi.....................34
+
+Hình 3.7 Sơ đồ hoạt động Use Case đăng nhập bằng Google......................................35
+
+Hình 3.8 Sơ đồ hoạt động Use Case quản lý nhân sự và phân quyền..........................37
+
+Hình 3.9 Sơ đồ hoạt động Use Case xác thực vé điện tử.............................................38
+
+Hình 3.10 Biểu đồ tuần tự Use Case lập lịch xuất chiếu..............................................39
+
+Hình 3.11 Biểu đồ tuần tự Use Case đặt vé xem phim và chọn ghế ngồi....................40
+
+Hình 3.12 Biểu đồ tuần tự Use Case đăng nhập bằng Google.....................................41
+
+Hình 3.13 Biểu đồ tuần tự Use Case quản lý nhân sự và phân quyền..........................42
+
+Hình 3.14 Biểu đồ tuần tự Use Case xác thực vé điện tử.............................................43
+
+Hình 3.15 Sơ đồ thực thể mối quan hệ của hệ thống BMS..........................................45
+
+Hình 4.1 Giao diện đăng nhập có tích hợp Google......................................................55
+
+Hình 4.2 Giao diện màn hình đăng ký tài khoản..........................................................56
+
+Hình 4.3 Giao diện màn hình quên mật khẩu...............................................................57
+
+Hình 4.4 Giao diện mail hướng dẫn đặt lại mật khẩu...................................................57
+
+Hình 4.5 Giao diện đặt mật khẩu mới..........................................................................58
+
+Hình 4.6 Giao diện phần header, menu, banner...........................................................59
+
+Hình 4.7 Giao diện phần bộ lọc và danh sách phim đang chiếu..................................59
+
+Hình 4.8 Giao diện phần đặt vé nhanh.........................................................................60
+
+Hình 4.9 Giao diện phần ưu đãi và sự kiện..................................................................60
+
+Hình 4.10 Giao diện xem chi tiết phim - phần trailer phim.........................................61
+Hình 4.11 Giao diện xem thông tin giới thiệu về phim................................................61
+
+Hình 4.12 Giao diện người dùng chọn rạp, suất chiếu.................................................62
+
+Hình 4.13 Giao diện layout ghế ngồi............................................................................62
+
+Hình 4.14 Giao diện thông tin đặt vé...........................................................................63
+
+Hình 4.15 Giao diện thông tin khách hàng...................................................................63
+
+Hình 4.16 Popup hiển thị QR code...............................................................................64
+
+Hình 4.17 Giao diện rạp ở gần bạn...............................................................................64
+
+Hình 4.18 Giao diện chọn rạp phim trước....................................................................65
+
+Hình 4.19 Giao diện profile người dùng......................................................................65
+
+Hình 4.20 Giao diện lịch sử đặt vé...............................................................................66
+
+Hình 4.21 Giao diện thông tin rạp phim phía nhân viên..............................................66
+
+Hình 4.22 Giao diện tổng quan lịch chiếu và phim tại rạp...........................................67
+
+Hình 4.23 Giao diện thông báo của nhân viên.............................................................67
+
+Hình 4.24 Giao diện thống kê của nhân viên - phần biểu đồ.......................................68
+
+Hình 4.25 Giao diện thống kê của nhân viên - phần gợi ý...........................................68
+
+Hình 4.26 Giao diện lập lịch tự động - phần cấu hình..................................................69
+
+Hình 4.27 Giao diện thông tin thống kê kết quả...........................................................69
+
+Hình 4.28 Giao diện suất chiếu được sinh ra (dạng timeline)......................................70
+
+Hình 4.29 Giao diện suất chiếu được sinh ra (dạng bảng)...........................................70
+
+Hình 4.30 Giao diện nhân viên quản lý phim...............................................................71
+
+Hình 4.31 Giao diện nhân viên quản lý suất chiếu.......................................................71
+
+Hình 4.32 Giao diện nhân viên theo dõi tình trạng bán vé của 1 suất chiếu................72
+
+Hình 4.33 Giao diện thống kê của quản trị viên - phần biểu đồ...................................73
+
+Hình 4.34 Giao diện thống kê của quản trị viên - phần gợi ý......................................73
+
+Hình 4.35 Giao diện quản trị viên quản lý các thể loại phim.......................................74
+Hình 4.36 Giao diện quản trị viên quản lý rạp phim....................................................74
+
+Hình 4.37 Giao diện quản trị viên xem chi tiết rạp phim.............................................75
+
+Hình 4.38 Giao diện quản trị viên quản lý phòng trong rạp.........................................75
+
+Hình 4.39 Giao diện quản trị viên quản lý ghế trong rạp.............................................76
+
+Hình 4.40 Giao diện quản trị viên quản lý gán phim cho rạp......................................76
+
+Hình 4.41 Popup quản trị viên gán phim cho rạp.........................................................77
+
+Hình 4.42 Giao diện quản trị viên quản lý nhân viên trong rạp...................................77
+
+Hình 4.43 Giao diện quản trị viên quản lý phim..........................................................78
+
+Hình 4.44 Giao diện quản trị viên xem thông tin phim (1)..........................................78
+
+Hình 4.45 Giao diện quản trị viên xem thông tin phim (2)..........................................79
+
+Hình 4.46 Giao diện quản trị viên import film từ file csv............................................79
+
+Hình 4.47 Giao diện quản trị viên quản lý banner.......................................................80
+
+Hình 4.48 Giao diện quản trị viên quản lý tài khoản....................................................80
+
+Hình 4.49 Giao diện quản trị viên quản lý các phim đã gán........................................81
+
+Hình 4.50 Giao diện quản trị viên quản lý các yêu cầu chiếu phim.............................81
+                                  DANH MỤC BẢNG BIỂU
+
+Bảng 3.1 Danh sách các Use Case của vai trò khách hàng..........................................23
+
+Bảng 3.2 Danh sách các Use Case của vai trò nhân viên.............................................23
+
+Bảng 3.3 Danh sách các Use Case của vai trò quản trị viên........................................24
+
+Bảng 4.1 Kiến trúc giải thuật lập lịch tự động..............................................................50
+                       DANH MỤC TỪ VIẾT TẮT
+
+
+Chữ viết tắt           Tên tiếng anh                      Tên tiếng việt
+
+                 Application Programming
+    API                                            Giao diện lập trình ứng dụng
+                          Interface
+
+   BMS            Booking Movie System              Hệ thống đặt vé xem phim
+
+                  Integrated Development
+    IDE                                           Môi trường phát triển tích hợp
+                        Environment
+
+                                                 Giải pháp thanh toán ngân hàng tự
+   SePay         Vietnam Payment Solution
+                                                               động
+
+                                                   Mã thông báo định danh dạng
+   JWT               JSON Web Token
+                                                               JSON
+
+   DTO              Data Transfer Object           Đối tượng chuyển đổi dữ liệu
+
+                                                 Giao diện lập trình lưu trữ dữ liệu
+    JPA             Java Persistence API
+                                                                Java
+
+                                                  Kiến trúc chuyển đổi trạng thái
+   REST        Representational State Transfer
+                                                             biểu diễn
+
+                HyperText Transfer Protocol      Giao thức truyền tải siêu văn bản
+HTTP/HTTPS
+                          (Secure)                           (Bảo mật)
+
+                                                  Giao thức truyền tải thư tín đơn
+  SMTP         Simple Mail Transfer Protocol
+                                                                giản
+
+   SSL             Secure Sockets Layer              Lớp bảo mật cổng kết nối
+
+  CORS         Cross-Origin Resource Sharing       Chia sẻ tài nguyên đa nguồn
+                                             1
+
+
+                                        MỞ ĐẦU
+  Trong những năm gần đây, ngành công nghiệp điện ảnh Việt Nam đã có những bước
+tiến vượt bậc, trở thành một trong những thị trường có tốc độ tăng trưởng nhanh nhất khu
+vực Đông Nam Á. Theo số liệu từ Statista và các đơn vị quan sát điện ảnh, doanh thu rạp
+chiếu tại Việt Nam đã phục hồi mạnh mẽ sau đại dịch, đạt mốc hàng nghìn tỷ đồng mỗi
+năm với sự bùng nổ của các cụm rạp hiện đại như CGV, Lotte Cinema, hay Galaxy Studio.
+
+  Tuy nhiên, đi kèm với sự phát triển về số lượng phòng chiếu và khán giả là áp lực khổng
+lồ về mặt vận hành. Việc quản lý hàng trăm suất chiếu mỗi ngày tại nhiều chi nhánh, cùng
+bài toán tối ưu hóa tỷ lệ lấp đầy ghế ngồi (occupancy rate) vẫn là thách thức lớn. Các
+phương pháp quản lý truyền thống thường dẫn đến tình trạng sắp xếp lịch chiếu không
+linh hoạt, gây lãng phí tài nguyên phòng chiếu vào các khung giờ thấp điểm và quá tải vào
+giờ cao điểm.
+
+  Nhận thấy nhu cầu cấp thiết về một giải pháp công nghệ toàn diện, em đã lựa chọn đề
+tài: “Xây dựng hệ thống quản lý và đặt vé xem phim trực tuyến” cho đồ án tốt nghiệp của
+mình. Hệ thống hướng đến việc chuyên nghiệp hóa quy trình vận hành rạp và mang lại sự
+thuận tiện tối đa cho khán giả trong kỷ nguyên số.
+                                                            2
+
+
+                          CHƯƠNG 1. TỔNG QUAN ĐỀ TÀI
+1.1. Đặt vấn đề
+
+  Trong những năm gần đây, điện ảnh đã trở thành món ăn tinh thần không thể thiếu và
+là ngành công nghiệp giải trí có tốc độ tăng trưởng mạnh mẽ nhất tại Việt Nam. Sự xuất
+hiện của các cụm rạp tiêu chuẩn quốc tế đã kéo theo nhu cầu cực kỳ lớn của khán giả về
+việc tiếp cận thông tin phim và đặt chỗ một cách nhanh chóng, chính xác.
+
+  Tuy nhiên, việc vận hành một hệ thống rạp chiếu phim quy mô lớn đối mặt với nhiều
+thách thức phức tạp: từ việc điều phối hàng chục suất chiếu mỗi ngày, quản lý hàng ngàn
+ghế ngồi theo thời gian thực, đến việc xử lý các đợt cao điểm khi có "bom tấn" ra mắt. Các
+phương thức quản lý thủ công hoặc hệ thống rời rạc đã không còn đủ khả năng đáp ứng
+yêu cầu về tốc độ và tính minh bạch trong giao dịch.
+
+  Nhận thấy tầm quan trọng của việc chuyển đổi số trong lĩnh vực này, em đã chọn đề
+tài: “Xây dựng hệ thống quản lý và đặt vé xem phim trực tuyến” làm đồ án tốt nghiệp. Hệ
+thống được thiết kế nhằm tối ưu hóa quy trình vận hành cho nhà quản lý rạp và mang lại
+trải nghiệm đặt vé "không chạm" mượt mà cho khán giả.
+
+1.2. Mục tiêu nghiên cứu
+
+  Đồ án hướng tới việc giải quyết ba bài toán cốt lõi của một rạp chiếu phim hiện đại:
+
+  − Xây dựng hệ thống đặt vé xem phim: Phát triển nền tảng trực tuyến có giao diện trực
+        quan, dễ sử dụng trên nền tảng Web để khách hàng chủ động chọn phim và vị trí ghế
+        ngồi.
+  − Tối ưu hóa lịch chiếu bằng AI: Áp dụng thư viện OptaPlanner1 để giải quyết các bài
+        toán ràng buộc về thời gian, phòng chiếu và nhân sự, giúp tự động hóa quy trình xếp
+        lịch chiếu khoa học.
+  − Ứng dụng thuật toán Hybrid Filtering2: Kết hợp các phương pháp lọc để nâng cao
+        khả năng gợi ý suất chiếu/vé phù hợp, hiệu quả.
+  − Nâng cao trải nghiệm người dùng: Giảm thiểu thời gian tìm kiếm suất chiếu/vé, đồng
+        thời đáp ứng các nhu cầu tương tác cơ bản và nâng cao của khách hàng trong suốt
+        quá trình sử dụng dịch vụ.
+
+  1
+      OptaPlanner: Bộ giải tối ưu hóa các ràng buộc mã nguồn mở dựa trên Java của Red Hat.
+  2
+      Hybrid Filtering: Kỹ thuật tìm kiếm kết hợp giữa lọc theo các tiêu chí và lọc theo nội dung.
+                                                            3
+
+
+1.3. Đối tượng và phạm vi nghiên cứu
+
+1.3.1. Đối tượng nghiên cứu
+
+  − Quy trình nghiệp vụ tại các cụm rạp chiếu phim chuyên nghiệp: Quản lý thông tin
+        phim, thiết lập sơ đồ phòng chiếu đa dạng, quản lý loại vé và khung giá theo giờ.
+  − Luồng nghiệp vụ đặt vé trực tuyến: Từ khâu tra cứu suất chiếu, chọn ghế trống theo
+        thời gian thực đến thanh toán và xác nhận vé.
+  − Giải quyết bài toán lập lịch dựa trên các ràng buộc (CSP)3 nhằm tối ưu hóa lịch chiếu.
+
+1.3.2. Phạm vi nghiên cứu
+
+  Về chức năng:
+
+  − Người dùng: Tìm kiếm suất chiếu, chọn vị trí ghế ngồi trực quan và thực hiện quy
+        trình đặt chỗ nhanh chóng.
+  − Quản trị (Admin/Staff): Quản lý phim, phòng chiếu, tình trạng ghế và doanh thu.
+        Đặc biệt tập trung vào công cụ hỗ trợ xếp lịch chiếu thông minh.
+
+  Về công nghệ:
+
+  − Frontend: Sử dụng React để xây dựng giao diện Web/Mobile đa nền tảng.
+  − Backend: Hệ thống sử dụng ngôn ngữ lập trình Java kết hợp với thư viện OptaPlanner
+        để xử lý các ràng buộc lịch chiếu.
+  − Cơ sở dữ liệu: Sử dụng MySQL để lưu trữ dữ liệu có cấu trúc (thông tin phim, người
+        dùng, hóa đơn).
+  − Lưu trữ hình ảnh: Sử dụng nền tảng đám mây Cloudinary 4 để quản lý và tối ưu hóa
+        hiển thị hình ảnh poster phim, banner.
+
+1.4. Phương pháp nghiên cứu
+
+  Phương pháp phân tích hướng đối tượng:
+
+  − Khảo sát thực tế nhu cầu của khách hàng và nhà quản lý rạp phim để xác định các
+        thực thể và mối quan hệ trong hệ thống.
+  − Sử dụng ngôn ngữ UML để thiết kế sơ đồ Use Case, sơ đồ tuần tự và mô hình thực
+        thể mối quan hệ cho cơ sở dữ liệu MySQL.
+
+
+  3
+      CSP: Bài toán thỏa mãn ràng buộc, dùng để tìm lời giải tối ưu cho lịch chiếu dựa trên các điều kiện cho trước.
+  4
+      Cloudinary: Nền tảng đám mây chuyên quản lý, lưu trữ và tối ưu hóa hình ảnh/video thông qua API.
+                                             4
+
+
+  Phương pháp nghiên cứu thuật toán AI:
+
+  − Nghiên cứu cơ chế giải quyết ràng buộc của thư viện OptaPlanner.
+  − Xây dựng bộ quy tắc (Hard/Soft constraints) như: thời gian nghỉ giữa các suất chiếu,
+     sức chứa phòng, và độ ưu tiên phim để hệ thống tự động đề xuất lịch chiếu tối ưu.
+
+  Phương pháp phát triển phần mềm:
+
+  − Triển khai mã nguồn Backend bằng Java và Frontend bằng React theo kiến trúc
+     RESTful API.
+  − Tích hợp Cloudinary API để xử lý upload và truy xuất hình ảnh phim một cách linh
+     hoạt.
+  − Kiểm thử hệ thống: Thực hiện chạy thử nghiệm với các kịch bản thực tế để đánh giá
+     tính ổn định, độ chính xác của việc đặt chỗ và hiệu quả của bộ giải AI cho lịch chiếu.
+
+1.5. Định hướng giải pháp
+
+  Việc ứng dụng công nghệ thông tin vào hoạt động quản lý suất chiếu và tương tác với
+khách hàng mang lại những cải thiện rõ rệt trong quy trình vận hành và nâng cao trải
+nghiệm người dùng. Đề tài hướng đến việc phát triển một ứng dụng đặt vé xem phim hiện
+đại trên nền tảng Web, giúp số hóa và tối ưu hóa toàn bộ quy trình mua bán dành cho các
+cụm rạp chiếu phim chuyên nghiệp.
+
+  Giải pháp cụ thể bao gồm các định hướng chính sau:
+
+  − Xây dựng nền tảng tương tác đa chiều: Ứng dụng cung cấp đầy đủ các chức năng hỗ
+     trợ khách hàng trong việc tìm kiếm phim, đặt chỗ theo thời gian thực và quản lý vé
+     điện tử. Đồng thời, hệ thống cung cấp bộ công cụ quản trị mạnh mẽ giúp nhân viên
+     dễ dàng điều phối suất chiếu, quản lý tình trạng ghế ngồi và theo dõi hiệu quả kinh
+     doanh một cách tức thời.
+  − Tối ưu hóa vận hành bằng trí tuệ nhân tạo (AI): Một điểm nhấn quan trọng của hệ
+     thống là việc tích hợp thư viện OptaPlanner để tự động hóa khâu xếp lịch chiếu. Giải
+     pháp này giúp giải quyết các bài toán ràng buộc phức tạp (như thời gian dọn dẹp
+     phòng, sự chồng chéo giữa các suất chiếu, ưu tiên phim hot), góp phần tối đa hóa tỷ
+     lệ lấp đầy phòng chiếu và tăng doanh thu cho rạp.
+  − Chuẩn hóa quy trình và quản lý dữ liệu: Giải pháp mang lại lợi ích thiết thực thông
+     qua việc tiêu chuẩn hóa quy trình làm việc chuyên nghiệp, tiết kiệm thời gian vận
+                                             5
+
+
+     hành thủ công và giảm thiểu sai sót trong khâu bán vé. Dữ liệu được quản lý tập
+     trung, giúp nhà điều hành đưa ra quyết định kinh doanh dựa trên số liệu thực tế.
+  − Lựa chọn công nghệ tối ưu: Để hiện thực hóa giải pháp, em tiến hành nghiên cứu và
+     lựa chọn các công nghệ phù hợp:
+     o   React: Phát triển giao diện Web hiện đại, đảm bảo tính linh hoạt và tương thích
+         trên nhiều thiết bị.
+     o   MySQL: Hệ quản trị cơ sở dữ liệu quan hệ mạnh mẽ, đảm bảo tính toàn vẹn dữ
+         liệu cho các giao dịch đặt vé.
+     o   Cloudinary: Giải pháp quản lý hình ảnh poster, banner trên nền tảng đám mây,
+         giúp tối ưu tốc độ tải trang và dung lượng lưu trữ.
+     o   Java & OptaPlanner: Xây dựng Backend vững chắc và bộ giải thuật tối ưu hóa
+         lịch trình thông minh.
+
+  Thông qua việc khảo sát nhu cầu thực tế, phân tích hệ thống kỹ lưỡng và thiết kế cơ sở
+dữ liệu khoa học, giải pháp hướng tới một ứng dụng có hiệu năng cao, bảo mật và khả
+năng vận hành ổn định trong môi trường thực tế của các cụm rạp.
+
+1.6. Khảo sát hiện trạng
+
+  Qua quá trình khảo sát thực tế tại các cụm rạp chiếu phim phổ biến hiện nay, có thể
+nhận thấy hệ thống vận hành xoay quanh 3 nhóm đối tượng chính với các chức năng và
+nhu cầu tương tác khác nhau:
+
+1.6.1. Vai trò khách hàng
+
+  Khách hàng có nhu cầu tiếp cận thông tin phim và đặt chỗ một cách nhanh chóng nhất.
+Quy trình hiện tại cho phép khách hàng:
+
+  − Tra cứu thông tin về các bộ phim sắp chiếu, xem trailer và đánh giá từ cộng đồng
+     ngay trên giao diện chính.
+  − Lựa chọn suất chiếu dựa trên thời gian và định dạng phòng chiếu (2D, 3D, IMAX...).
+  − Sau khi chọn suất chiếu, khách hàng có thể quan sát sơ đồ ghế ngồi trực quan để
+     chọn vị trí mong muốn và tiến hành thanh toán trực tuyến.
+  − Nhận vé điện tử (thường là mã QR) qua ứng dụng để thực hiện thủ tục soát vé tại rạp
+     mà không cần in vé giấy.
+                                             6
+
+
+1.6.2. Vai trò nhân viên
+
+  Trong hệ thống đặt vé xem phim trực tuyến, nhân viên đóng vai trò là bộ phận trực tiếp
+vận hành và quản lý các hoạt động hàng ngày tại cụm rạp được phân công. Các nghiệp vụ
+chính của nhân viên bao gồm:
+
+  − Quản lý và lập lịch chiếu: Tiếp nhận danh sách các bộ phim đã được Admin hệ thống
+     phê duyệt cho phép chiếu tại rạp. Chủ động sắp xếp và phân bổ các suất chiếu cụ thể
+     vào các khung giờ và phòng chiếu tương ứng sao cho hợp lý.
+  − Ứng dụng AI tối ưu hoá: Thay vì xếp lịch hoàn toàn thủ công, hệ thống hỗ trợ Staff
+     sử dụng công cụ tối ưu hóa ứng dụng OptaPlanner. Tính năng này giúp tự động tính
+     toán lịch chiếu một cách khoa học, ngăn chặn hoàn toàn việc chồng chéo khung
+     giờ/phòng chiếu và tối ưu hóa công suất khai thác phòng chiếu.
+  − Quản lý bán vé: Giám sát tình trạng đặt chỗ trống/kín của các suất chiếu theo thời
+     gian thực. Kiểm soát, quét và xác thực vé điện tử của khách hàng trước khi vào rạp.
+  − Thống kê và Báo cáo tại chi nhánh: Theo dõi biến động doanh thu, lượng khách mua
+     vé và các chỉ số kinh doanh thực tế tại đúng chi nhánh/cụm rạp mà mình quản lý
+     (được lọc dữ liệu độc lập nhờ hệ thống phân quyền của Spring Security).
+
+1.6.3. Vai trò quản trị viên
+
+  Trong hệ thống đặt vé xem phim trực tuyến, quản trị viên là cấp bậc có quyền hạn cao
+nhất, đóng vai trò điều hành, quản trị tổng thể và định hướng chiến lược kinh doanh cho
+toàn bộ hệ thống rạp chiếu. Các nghiệp vụ cốt lõi của quản trị viên bao gồm:
+
+  − Quản lý hệ thống cụm rạp và phòng chiếu: Khởi tạo, cấu hình và duy trì thông tin
+     của toàn bộ các chi nhánh rạp chiếu trên toàn quốc. Thiết lập thông số phòng chiếu
+     (số ghế, loại ghế).
+  − Quản lý phim: Kiểm duyệt, cập nhật cơ sở dữ liệu phim (thông tin, poster, trailer, độ
+     tuổi quy định) và quyết định phân bổ danh sách phim về các cụm rạp cụ thể để nhân
+     viên có cơ sở lập lịch.
+  − Quản trị nhân sự và phân quyền: Khởi tạo, cấp phát và quản lý tài khoản cho đội ngũ
+     quản lý/nhân viên tại từng chi nhánh rạp.
+  − Kiểm soát luồng truy cập và đảm bảo tính bảo mật của hệ thống thông qua cơ chế
+     phân quyền, đảm bảo nhân viên chỉ thao tác được trên dữ liệu rạp mà họ được giao
+     quản lý.
+                                              7
+
+
+  − Thống kê, báo cáo và phân tích tổng thể: Nắm bắt và giám sát toàn diện dữ liệu kinh
+     doanh của toàn hệ thống theo thời gian thực.
+  − Xem xét các biểu đồ thống kê, báo cáo phân tích doanh thu, tỷ lệ lấp đầy phòng chiếu
+     tổng quát hoặc so sánh chi tiết giữa các cụm rạp khác nhau. Từ đó, đưa ra các quyết
+     định điều chỉnh chiến lược vận hành hiệu quả.
+
+1.6.4. Quy trình nghiệp vụ
+
+  Qua khảo sát thực tế và phân tích yêu cầu nghiệp vụ đối với hệ thống đặt vé xem phim,
+quy trình vận hành và tương tác của các tác nhân được xác định như sau.
+
+  Quy trình đặt và sử dụng vé của hách hàng:
+
+  − Bước 1: Khách hàng truy cập hệ thống, duyệt danh sách các bộ phim đang chiếu,
+     hoặc tìm kiếm phim theo sở thích. Sau đó, khách hàng chọn cụm rạp, ngày giờ và
+     suất chiếu mong muốn.
+  − Bước 2: Khách hàng tiến hành chọn vị trí ghế ngồi trực tiếp trên sơ đồ phòng chiếu
+     (hệ thống sẽ hiển thị ghế trống/đã đặt theo thời gian thực).
+  − Bước 3: Khách hàng kiểm tra lại thông tin đơn hàng và tiến hành thanh toán trực
+     tuyến.
+  − Bước 4: Sau khi thanh toán thành công, hệ thống tự động xuất và gửi vé điện tử vào
+     tài khoản hoặc email của khách hàng.
+  − Bước 5: Khách hàng đến cụm rạp, xuất trình vé điện tử/mã QR để nhân viên quét xác
+     nhận trước khi vào phòng chiếu mà không cần thao tác nhận hàng hay vận chuyển
+     vật lý.
+
+     Quy trình làm việc của nhân viên tại cụm rạp:
+
+  − Bước 1: Dựa trên danh sách phim được quản trị viên cho phép chiếu, nhân viên sắp
+     xếp và tạo các suất chiếu cụ thể (chọn ngày, giờ, phòng chiếu) cho rạp mà mình quản
+     lý (có thể kết hợp công cụ AI tối ưu hóa xếp lịch).
+  − Bước 2: Nhân viên theo dõi tình trạng bán vé, tỷ lệ lấp đầy ghế của các suất chiếu
+     ngay trên hệ thống để nắm bắt tình hình.
+  − Bước 3: Khi khách hàng tới rạp, nhân viên làm nhiệm vụ kiểm tra và quét mã QR
+     trên vé điện tử để xác thực tính hợp lệ của vé và cho phép khách vào rạp.
+                                             8
+
+
+  − Bước 4: Quản lý các giao dịch phát sinh tại quầy, hỗ trợ khách hàng và theo dõi
+     thống kê doanh thu thực tế tại chi nhánh rạp được phân công.
+
+  Quy trình vận hành của quản trị viên
+
+  − Bước 1: Admin chịu trách nhiệm tạo và cập nhật toàn bộ cơ sở dữ liệu nền tảng, bao
+     gồm: thêm mới bộ phim, quản lý thông tin các cụm rạp, phòng chiếu và định hướng
+     phim về các rạp trực thuộc.
+  − Bước 2: Khởi tạo tài khoản và phân quyền quản lý các rạp cụ thể cho từng nhân viên
+     để đảm bảo tính riêng tư của dữ liệu rạp lưới.
+  − Bước 3: Cập nhật hệ thống banner quảng cáo, thông tin sự kiện hoặc các chương
+     trình khuyến mãi hiển thị trên trang chủ để thu hút khách hàng trải nghiệm dịch vụ.
+  − Bước 4: Quản trị viên theo dõi và phân tích các báo cáo thống kê doanh thu, tỷ lệ bán
+     vé trên toàn hệ thống thời gian thực để đưa ra các định hướng kinh doanh kịp thời.
+
+1.6.5. Tổng hợp các chức năng chính
+
+  Từ các quy trình nghiệp vụ đã phân tích, ứng dụng BMS sẽ bao gồm các nhóm chức
+năng chính sau.
+
+  Đối với khách hàng:
+
+  − Quản lý tra cứu: Xem chi tiết phim, tìm kiếm phim và lọc các suất chiếu theo thời
+     gian, rạp chiếu.
+  − Quản lý chọn ghế: Xem sơ đồ phòng chiếu trực quan và chọn ghế trống theo thời
+     gian thực vòng đời suất chiếu.
+  − Quản lý thanh toán: Thanh toán trực tuyến an toàn cho đơn đặt vé và dịch vụ đi kèm
+     (bắp nước nếu có).
+  − Quản lý vé điện tử: Lịch sử đặt vé, tra cứu trạng thái vé (đã đặt, đã hủy, đã sử dụng)
+     và hiển thị vé điện tử/mã QR để vào rạp.
+  − Quản lý tài khoản cá nhân: Cập nhật thông tin hồ sơ, đổi mật khẩu.
+  − Đánh giá và phản hồi: Viết nhận xét, đánh giá chất lượng phim và dịch vụ rạp chiếu.
+
+  Đối với nhân viên rạp:
+
+  − Quản lý lịch chiếu: Thiết lập, sắp xếp và quản lý các suất chiếu cụ thể tại chi nhánh
+     rạp được phân công (tích hợp AI tối ưu hóa xếp lịch chiếu).
+                                          9
+
+
+− Quản lý đặt vé tại quầy: Bán vé trực tiếp cho khách tại rạp và hỗ trợ khách hàng giải
+  quyết các trường hợp thay đổi vé/hủy vé.
+− Kiểm soát vé: Quét mã QR/vé điện tử để xác thực khách hàng trước khi vào rạp.
+− Quản lý doanh thu chi nhánh: Xem báo cáo và thống kê lượng vé bán ra, doanh thu
+  thực tế tại cụm rạp mình quản lý.
+− Quản lý hồ sơ cá nhân: Cập nhật thông tin tài khoản nhân viên.
+
+Đối với quản trị viên:
+
+− Quản lý danh mục cốt lõi: Quản lý cơ sở dữ liệu về phim, cụm rạp, phòng chiếu, ghế
+  ngồi...
+− Quản lý tài khoản và phân quyền: Khởi tạo, chỉnh sửa và cấp quyền truy cập hệ thống
+  cho các nhân viên thuộc các rạp khác nhau.
+− Quản lý nội dung: Quản lý các banner quảng cáo, tin tức, sự kiện và các chương trình
+  khuyến mãi trên trang chủ.
+− Quản lý hệ thống tổng thể: Theo dõi toàn bộ giao dịch, quản lý doanh thu toàn hệ
+  thống với hệ thống báo cáo và biểu đồ chuyên sâu thời gian thực.
+                                                          10
+
+
+                          CHƯƠNG 2. CƠ SỞ LÝ THUYẾT
+2.1. Công nghệ sử dụng phát triển hệ thống
+
+   Để xây dựng một hệ thống quản lý rạp chiếu phim hiện đại, có khả năng mở rộng và
+bảo mật cao, đồ án lựa chọn mô hình tách biệt giữa Backend (Spring Boot) và Frontend
+(React & TypeScript), giao tiếp thông qua RESTful API.
+
+2.1.1. Ngôn ngữ lập trình Java và Framework Spring Boot
+
+       a) Ngôn ngữ lập trình Java
+
+   Java là một ngôn ngữ lập trình hướng đối tượng (Object-Oriented Programming - OOP)
+mạnh mẽ, đa nền tảng, được vận hành trên máy ảo Java (JVM).5 Trong hệ thống quản lý
+rạp chiếu phim, Java đóng vai trò là "trái tim" xử lý các nghiệp vụ phức tạp nhờ vào các
+đặc tính kỹ thuật sau:
+
+   − Quản lý luồng và xử lý đồng thời: Java cung cấp bộ công cụ xử lý đa luồng ổn định,
+       giúp hệ thống có thể tiếp nhận và xử lý hàng ngàn yêu cầu đặt vé từ nhiều khách
+       hàng tại các cụm rạp khác nhau trong cùng một thời điểm mà không gây ra xung đột
+       dữ liệu.
+   − Tính bảo mật và hiệu suất: Với cơ chế kiểm tra kiểu dữ liệu chặt chẽ và trình quản lý
+       bộ nhớ tự động, Java giúp hạn chế tối đa các lỗi tràn bộ nhớ, đảm bảo hệ thống vận
+       hành ổn định trong thời gian dài.
+   − Độc lập nền tảng: Nguyên lý "Write Once, Run Anywhere" cho phép mã nguồn
+       Backend của rạp phim có thể triển khai linh hoạt trên nhiều môi trường máy chủ khác
+       nhau (Windows, Linux, Cloud) mà không cần thay đổi cấu trúc cốt lõi.
+
+       b)Framework Spring Boot
+
+   Spring Boot là một Framework mã nguồn mở dựa trên nền tảng Spring, được thiết kế
+để đơn giản hóa quá trình khởi tạo, cấu hình và triển khai các ứng dụng Java.
+
+
+
+   Cơ chế Inversion of Control (IoC) và Dependency Injection (DI)6:
+
+
+   5
+      JVM (Java Virtual Machine): Máy ảo Java đóng vai trò là bộ máy thực thi mã bytecode, giúp ứng dụng Java có
+thể chạy trên bất kỳ hệ điều hành nào mà không cần biên dịch lại.
+    6
+      IoC & DI: Các mẫu thiết kế (Design Patterns) giúp tách rời sự phụ thuộc giữa các đối tượng, nâng cao tính linh
+hoạt và khả năng bảo trì của mã nguồn trong Spring Boot.
+                                              11
+
+
+  − IoC: Là nguyên lý cốt lõi giúp chuyển quyền quản lý vòng đời của các đối tượng
+     (Beans) từ tay lập trình viên sang cho Spring Container.
+  − DI: Spring Boot tự động "tiêm" các thành phần phụ thuộc vào nhau.
+
+  Kiến trúc phân lớp chuẩn: Dự án áp dụng mô hình 3 lớp để tách biệt trách nhiệm, giúp
+việc bảo trì và nâng cấp trở nên dễ dàng:
+
+  − Web Layer (Controller): Tiếp nhận các yêu cầu HTTP từ giao diện React, điều hướng
+     dữ liệu thông qua các RestController và trả về phản hồi dưới dạng JSON.
+  − Service Layer: Chứa toàn bộ logic nghiệp vụ tập trung của hệ thống, ví dụ: kiểm tra
+     tính hợp lệ của suất chiếu trước khi thanh toán hoặc gọi bộ giải OptaPlanner để tối
+     ưu hóa lịch chiếu.
+  − Data Access Layer (Repository): Kết hợp với Spring Data JPA để thực hiện các giao
+     tiếp với MySQL, giúp thao tác với dữ liệu theo mô hình đối tượng thay vì các câu
+     lệnh SQL thuần túy.
+
+  Triết lý "Convention over Configuration": Spring Boot tự động cấu hình các thành phần
+dựa trên các thư viện có sẵn trong dự án (Starters). Điều này giúp rút ngắn thời gian thiết
+lập hệ thống máy chủ nhúng (Embedded Tomcat) và các cấu hình bảo mật ban đầu. Sự kết
+hợp giữa Java và Spring Boot tạo nên một nền tảng Backend vững chắc cho đồ án:
+
+  − Xử lý Transaction: Đảm bảo tính nhất quán (ACID) tuyệt đối trong quy trình thanh
+     toán vé. Nếu bất kỳ bước nào trong quy trình thanh toán gặp lỗi, hệ thống sẽ tự động
+     hoàn tác (Rollback) để đảm bảo không bị mất ghế hoặc trừ tiền sai cho khách hàng.
+  − Khả năng tích hợp cao: Dễ dàng kết nối với các thư viện AI như OptaPlanner để giải
+     quyết bài toán tối ưu hóa suất chiếu, cũng như tích hợp các dịch vụ bên thứ ba như
+     Cloudinary để quản lý hình ảnh poster phim.
+
+2.1.2. Thư viện tối ưu hóa OptaPlanner (AI Constraint Solver)
+
+  OptaPlanner là một bộ giải mã nguồn mở về tối ưu hóa tổ hợp (Constraint Satisfaction
+Solver), được xây dựng trên nền tảng Java. Trong đồ án này, OptaPlanner đóng vai trò là
+thành phần then chốt để giải quyết bài toán lập lịch suất chiếu tự động – một bài toán thuộc
+lớp NP-hard với không gian tìm kiếm cực kỳ lớn mà các thuật toán thông thường không
+thể giải quyết hiệu quả.
+                                            12
+
+
+  OptaPlanner không sử dụng các phương pháp tìm kiếm vét cạn (Brute-force) vì sẽ gây
+bùng nổ tổ hợp. Thay vào đó, thư viện ứng dụng các thuật toán Metaheuristics tiên tiến:
+
+  − Tabu Search: Giúp hệ thống tránh bị lặp lại các phương án đã thử và thoát khỏi các
+     điểm tối ưu cục bộ để tìm đến điểm tối ưu toàn cục.
+  − Simulated Annealing: Mô phỏng quá trình luyện kim, cho phép hệ thống chấp nhận
+     các phương án kém hơn ở giai đoạn đầu để khám phá toàn bộ không gian lời giải,
+     sau đó dần dần hội tụ về phương án tốt nhất.
+  − Late Acceptance: Một kỹ thuật tối ưu hóa hiện đại giúp cải thiện chất lượng lịch
+     chiếu dựa trên việc so sánh với các kết quả trong lịch sử tìm kiếm gần nhất.
+
+  Để OptaPlanner có thể xử lý, bài toán quản lý rạp phim được mô hình hóa thành các
+thành phần kỹ thuật sau:
+
+  − Planning Entity: Trong dự án này chính là đối tượng suất chiếu. Đây là thực thể mà
+     hệ thống cần phải gán giá trị để có một lịch chiếu hoàn chỉnh.
+  − Planning Variable: Là các thuộc tính của suất chiếu mà bộ giải AI cần tìm giá trị tối
+     ưu, bao gồm: thời gian bắt đầu (Start Time) và phòng chiếu (Room).
+  − Planning Solution: Là tập hợp toàn bộ các Suất chiếu sau khi đã được AI gán thời
+     gian và phòng chiếu cụ thể, thỏa mãn các yêu cầu đặt ra.
+
+  Điểm mạnh nhất của OptaPlanner là khả năng xử lý các ràng buộc phức tạp thông qua
+ngôn ngữ khai báo:
+
+  − Ràng buộc cứng: Là các quy tắc bắt buộc không được vi phạm. Nếu vi phạm, lịch
+     chiếu sẽ không có giá trị thực tế. Ví dụ: trong cùng một phòng chiếu, một suất chiếu
+     mới chỉ được bắt đầu sau khi suất chiếu trước đó đã kết thúc và cộng thêm thời gian
+     dọn dẹp.
+  − Ràng buộc mềm: Là các quy tắc không bắt buộc nhưng giúp tối ưu hóa doanh thu và
+     trải nghiệm. Hệ thống sẽ cố gắng đạt được điểm số cao nhất ở phần này. Ví dụ: ưu
+     tiên giờ vàng bằng cách xếp các phim bom tấn vào khung giờ từ 18h - 21h, hay giảm
+     thời gian chết bằng cách sắp xếp các suất chiếu liên tục để tối ưu hóa hiệu suất sử
+     dụng phòng máy.
+
+  Quy trình xử lý trong hệ thống:
+                                                        13
+
+
+   − Tiếp nhận đầu vào: Backend gửi danh sách phim (đã được admin gán cho rạp) và
+      danh sách phòng chiếu trống cho bộ giải.
+   − Xây dựng lời giải ban đầu: AI nhanh chóng tạo ra một lịch chiếu cơ bản để lấp đầy
+      các khoảng trống.
+   − Giai đoạn tối ưu hóa: AI liên tục thực hiện hàng ngàn phép thử, thay đổi thời gian và
+      phòng chiếu của từng suất để tìm kiếm điểm số cao nhất dựa trên các ràng buộc đã
+      định nghĩa.
+   − Trả về kết quả: Sau khi đạt được ngưỡng thời gian hoặc điểm số mục tiêu, hệ thống
+      trả về lịch chiếu tối ưu nhất cho nhân viên rạp xác nhận.
+
+2.1.3. Thư viện React (Frontend)
+
+   Giao diện người dùng của hệ thống được xây dựng dựa trên sự kết hợp giữa thư viện
+React và ngôn ngữ TypeScript, hướng tới việc tạo ra một ứng dụng SPA 7 có hiệu năng
+cao, giao diện mượt mà và mã nguồn dễ bảo trì.
+
+      a)Tổng quan về React
+
+   React là một thư viện JavaScript mã nguồn mở được phát triển bởi Meta (Facebook),
+chuyên dùng để xây dựng giao diện người dùng dựa trên các components. Trong đồ án
+này, React đóng vai trò cốt lõi trong việc quản lý hiển thị và tương tác của khách hàng.
+
+   − Cơ chế Virtual DOM: Thay vì cập nhật trực tiếp lên cây DOM của trình duyệt (vốn
+      rất tốn tài nguyên), React sử dụng một bản sao nhẹ hơn gọi là Virtual DOM. Khi có
+      sự thay đổi (ví dụ: khách hàng nhấn chọn một ghế ngồi), React sẽ so sánh sự khác
+      biệt giữa hai phiên bản Virtual DOM và chỉ cập nhật đúng phần tử bị thay đổi lên
+      màn hình thực tế. Điều này giúp giao diện chọn ghế và đặt vé đạt được tốc độ phản
+      hồi gần như tức thì.
+   − Kiến trúc dựa trên component: Giao diện được chia nhỏ thành các thành phần độc
+      lập và có thể tái sử dụng như MovieCard, SeatMap, Navbar. Cách tiếp cận này giúp
+      mã nguồn được tổ chức chặt chẽ, dễ dàng kiểm thử và nâng cấp mà không ảnh hưởng
+      đến các phần khác của hệ thống.
+
+
+
+
+   7
+     SPA (Single Page Application): Ứng dụng web một trang, hoạt động bằng cách tải lại toàn bộ trang web một lần
+duy nhất và chỉ cập nhật các thành phần cần thiết khi người dùng tương tác, giúp tăng tốc độ trải nghiệm.
+                                              14
+
+
+  − Hooks và quản lý trạng thái: Sử dụng các Hook hiện đại như useState, useEffect để
+     quản lý luồng dữ liệu và trạng thái của ứng dụng (như danh sách phim hiện tại, thông
+     tin vé đang đặt) một cách logic và minh bạch.
+
+     b) Typescript
+
+  Thay vì sử dụng JavaScript thuần túy, đồ án lựa chọn TypeScript – một superset của
+JavaScript do Microsoft phát triển, bổ sung thêm tính năng định kiểu tĩnh.
+
+  − Định kiểu chặt chẽ: TypeScript cho phép định nghĩa các interfaces và kiểu dữ liệu cụ
+     thể cho các đối tượng nghiệp vụ như IMovie, IShowtime, ITicket. Việc này đảm bảo
+     dữ liệu nhận được từ Backend qua API luôn khớp với cấu trúc mong đợi của
+     Frontend, giúp giảm thiểu tối đa các lỗi "undefined" thường gặp.
+  − Hỗ trợ phát triển và bảo trì: Nhờ cơ chế kiểm tra lỗi ngay trong quá trình lập trình,
+     TypeScript giúp lập trình viên phát hiện sớm các sai sót logic trước khi ứng dụng
+     được thực thi. Đồng thời, tính năng gợi ý giúp tăng tốc độ viết mã và làm cho dự án
+     dễ hiểu hơn đối với những người cùng tham gia phát triển.
+  − Tối ưu hóa giao tiếp API: Khi kết hợp với thư viện gọi API (như Axios), TypeScript
+     đảm bảo rằng các tham số gửi đi và dữ liệu nhận về luôn tuân thủ đúng quy ước, tạo
+     nên một sự kết nối liền mạch và an toàn giữa React và Spring Boot Backend.
+
+2.1.4. Các giải pháp lưu trữ và cơ sở dữ liệu
+
+  Hệ thống quản lý rạp chiếu phim đòi hỏi sự chính xác tuyệt đối trong việc lưu trữ dữ
+liệu có cấu trúc và hiệu quả trong việc quản trị tài nguyên đa phương tiện. Do đó, đồ án
+lựa chọn sự kết hợp giữa hệ quản trị cơ sở dữ liệu quan hệ MySQL và dịch vụ lưu trữ đám
+mây Cloudinary.
+
+     a) MySQL
+
+  MySQL là một hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) mã nguồn mở, được sử
+dụng để lưu trữ toàn bộ dữ liệu có cấu trúc của hệ thống rạp như thông tin phim, người
+dùng, suất chiếu và chi tiết các giao dịch đặt vé.
+
+  − Đảm bảo tính nhất quán qua ACID: Với đặc tính tuân thủ nghiêm ngặt tính chất
+     ACID (Atomicity, Consistency, Isolation, Durability), MySQL đảm bảo các giao
+     dịch đặt vé và chọn ghế diễn ra chính xác. Điều này giúp loại bỏ hoàn toàn tình trạng
+                                             15
+
+
+     tranh chấp dữ liệu, đảm bảo không bao giờ xảy ra tình trạng hai khách hàng cùng đặt
+     thành công một vị trí ghế trong cùng một suất chiếu.
+  − Tối ưu hóa truy vấn với Indexing: Hệ thống sử dụng các bộ chỉ mục trên các trường
+     dữ liệu quan trọng như showtime_id hay user_email, giúp tăng tốc độ truy xuất thông
+     tin ngay cả khi số lượng bản ghi lên tới hàng triệu.
+  − Quản lý quan hệ phức tạp: Khả năng thiết lập các khóa ngoại chặt chẽ giữa các bảng
+     giúp duy trì tính toàn vẹn dữ liệu, đảm bảo rằng thông tin về vé luôn gắn liền với một
+     suất chiếu và một khách hàng hợp lệ.
+
+     b) Cloudinary
+
+  Đối với một hệ thống rạp phim, việc hiển thị các poster và trailer chất lượng cao là yếu
+tố then chốt để thu hút khách hàng. Thay vì lưu trữ trực tiếp trên máy chủ gây tốn băng
+thông và dung lượng, đồ án tích hợp giải pháp Cloudinary.
+
+  − Lưu trữ đám mây tập trung: Cloudinary cung cấp một kho lưu trữ an toàn cho toàn
+     bộ hình ảnh poster, banner quảng cáo và hình ảnh minh họa suất chiếu. Việc này giúp
+     giảm tải cho Server Backend, giúp hệ thống vận hành nhẹ nhàng hơn.
+  − Tự động tối ưu hóa và chuyển đổi: Cloudinary API cho phép tự động điều chỉnh kích
+     thước và định dạng ảnh phù hợp với thiết bị của người dùng (Mobile hay Desktop).
+     Điều này giúp giảm thời gian tải trang, tăng tốc độ trải nghiệm và tiết kiệm băng
+     thông cho khách hàng.
+  − Quản lý tài nguyên qua URL: Hệ thống chỉ lưu trữ các url hình ảnh trong MySQL.
+     Khi người dùng truy cập, giao diện React sẽ gọi trực tiếp tài nguyên từ CDN của
+     Cloudinary, đảm bảo tốc độ phân phối nội dung ổn định trên toàn cầu.
+
+2.1.5. Kiến trúc RESTful API
+
+  Hệ thống được thiết kế theo kiến trúc REST (Representational State Transfer) để tách
+biệt hoàn toàn Frontend và Backend.
+
+  − Nguyên lý: Sử dụng các phương thức HTTP chuẩn (GET, POST, PUT, DELETE)
+     để tương tác với tài nguyên. Ví dụ: GET /api/movies để lấy danh sách phim, POST
+     /api/bookings để tạo đơn đặt vé mới.
+                                            16
+
+
+  − Định dạng JSON: Dữ liệu trao đổi giữa React và Spring Boot luôn là định dạng JSON
+     (JavaScript Object Notation), giúp truyền tải thông tin nhẹ nhàng và tương thích hoàn
+     hảo với các thư viện hiện đại.
+
+2.1.6. Spring Security và giao thức JWT
+
+  Trong các hệ thống phân quyền phức tạp như rạp chiếu phim (nơi admin, staff và
+customer có quyền hạn khác nhau), việc bảo mật là yếu tố sống còn.
+
+  Spring Security: Là một framework bảo mật mạnh mẽ, cung cấp cả hai tính năng: xác
+thực (Authentication - "Bạn là ai?") và phân quyền (Authorization - "Bạn được làm gì?").
+
+  − Hệ thống sử dụng Security Filter Chain để chặn và kiểm tra mọi request trước khi nó
+     tới được Controller.
+  − Cấu hình Role-based Access Control giúp ngăn chặn Khách hàng truy cập vào trang
+     quản lý lịch chiếu của nhân viên hoặc trang thống kê doanh thu của quản trị viên.
+
+  JSON Web Token (JWT): Thay vì sử dụng Session (lưu trữ trên server gây tốn bộ nhớ),
+hệ thống sử dụng cơ chế token không trạng thái (Stateless).
+
+  − Cấu trúc: Gồm 3 phần chính là Header, Payload, và Signature (chữ ký số để chống
+     giả mạo).
+  − Quy trình: Khi người dùng đăng nhập thành công, Server ký một mã JWT và gửi về
+     Client. Client sẽ lưu mã này và đính kèm vào header Authorization: Bearer <token>
+     cho mọi yêu cầu tiếp theo. Điều này giúp hệ thống mở rộng dễ dàng hơn vì Server
+     không cần nhớ trạng thái đăng nhập của người dùng.
+
+2.1.7. Thư viện giao diện (UI Framework)
+
+  Để xây dựng giao diện trực quan và thân thiện, đặc biệt là sơ đồ chọn ghế và các
+Dashboard thống kê, hệ thống tích hợp sử dụng Tailwind CSS.
+
+  − Thiết kế Responsive: Thư viện này giúp thiết kế giao diện có tính tương thích cao,
+     hiển thị tốt trên cả máy tính và các thiết bị di động, đảm bảo khách hàng có thể đặt
+     vé thuận tiện trên mọi nền tảng.
+  − Tối ưu hóa hiệu năng: Khác với các Framework truyền thống, Tailwind CSS sử dụng
+     phương thức "Utility-first", giúp giảm thiểu kích thước file CSS cuối cùng và tăng
+     tốc độ tải trang cho ứng dụng React.
+                                             17
+
+
+  − Tính tùy biến cao: Cho phép xây dựng các thành phần giao diện đặc thù của rạp phim
+     (như các loại ghế vip, ghế đôi, ghế đã đặt) một cách nhanh chóng và nhất quán về
+     mặt thẩm mỹ.
+
+2.1.8. Cơ chế xác thực Google OAuth2 và Social Login
+
+  Bên cạnh phương thức đăng nhập truyền thống, hệ thống tích hợp giải pháp Social
+Login thông qua giao thức Google OAuth2. Đây là tiêu chuẩn bảo mật hiện đại cho phép
+người dùng sử dụng tài khoản Google sẵn có để truy cập hệ thống rạp phim mà không cần
+qua bước đăng ký thủ công phức tạp.
+
+  − Google OAuth2 (Open Authorization): Là một giao thức ủy quyền cho phép ứng
+     dụng Web thay mặt người dùng tiếp cận thông tin cơ bản (họ tên, email, ảnh đại diện)
+     từ máy chủ Google một cách an toàn. Thay vì chia sẻ mật khẩu trực tiếp, hệ thống sử
+     dụng các mã định danh được Google xác thực.
+  − Thư viện hỗ trợ: Frontend: Sử dụng @react-oauth/google để tạo nút đăng nhập đồng
+     bộ và quản lý luồng phản hồi từ Google Identity Services. Backend: Sử dụng thư
+     viện google-api-client trong Spring Boot để giải mã và xác thực tính hợp lệ của Id
+     Token được gửi từ client.
+
+2.2. Môi trường phát triển hệ thống (IDE)
+
+  Để phát triển một hệ thống kết hợp giữa Java Spring Boot và React, việc lựa chọn công
+cụ lập trình đóng vai trò quan trọng trong việc tăng hiệu suất viết code và kiểm thử.
+
+  Visual Studio Code là một trình soạn thảo mã nguồn mở mạnh mẽ do Microsoft phát
+triển, được cộng đồng lập trình viên ưu tiên sử dụng nhờ tính nhẹ nhàng, tốc độ xử lý
+nhanh và kho tiện ích phong phú. Trong đồ án này, VS Code được sử dụng làm môi trường
+phát triển chính cho cả phần Frontend và Backend. Các tính năng hỗ trợ:
+
+  − Hỗ trợ đa ngôn ngữ: Thông qua các Extension Pack cho Java và Spring Boot, VS
+     Code cung cấp khả năng gợi ý, quản lý các gói thư viện Maven/Gradle và thực hiện
+     Debug trực tiếp trên công cụ.
+  − Quản lý mã nguồn: Tích hợp sẵn Git, giúp theo dõi các thay đổi trong mã nguồn và
+     phối hợp các thành phần trong dự án một cách chặt chẽ.
+                                             18
+
+
+  − Hỗ trợ TypeScript: VS Code có sự tương thích tuyệt vời với TypeScript, giúp tự
+     động kiểm tra lỗi cú pháp và định nghĩa kiểu dữ liệu ngay khi đang soạn thảo, đảm
+     bảo tính ổn định cho giao diện React.
+
+2.3. Thiết kế kiến trúc phần mềm
+
+  Hệ thống được phát triển dựa trên kiến trúc Client-Server hiện đại, thực hiện phân tách
+hoàn toàn giữa giao diện người dùng và logic xử lý dữ liệu. Thay vì sử dụng mô hình
+MVC truyền thống (Server-side Rendering), đồ án áp dụng mô hình Decoupled
+Architecture nhằm tối ưu hóa hiệu năng và khả năng mở rộng.
+
+2.3.1. Mô hình tổng quát (Client-Server)
+
+  Hệ thống được chia thành hai thực thể độc lập giao tiếp với nhau qua giao thức HTTP:
+
+  − Client (Frontend): Được xây dựng bằng ReactJS và TypeScript. Hoạt động như một
+     ứng dụng đơn trang (SPA), chịu trách nhiệm quản lý trạng thái giao diện và hiển thị
+     dữ liệu cho người dùng.
+  − Server (Backend): Được xây dựng bằng Spring Boot. Đóng vai trò là trung tâm xử
+     lý dữ liệu, cung cấp các dịch vụ thông qua RESTful API.
+
+2.3.2. Kiến trúc 3 lớp tại phía Server (Backend)
+
+  Để đảm bảo tính mạch lạc và dễ bảo trì, phần Backend tuân thủ nghiêm ngặt kiến trúc
+3 lớp (3-Tier Architecture):
+
+  − Lớp Controller (Presentation Layer):
+     o    Sử dụng các @RestController để định nghĩa các endpoints của API.
+     o    Nhiệm vụ: Tiếp nhận các yêu cầu từ phía Client, kiểm tra tính hợp lệ của dữ liệu
+          đầu vào và điều hướng đến lớp xử lý nghiệp vụ tương ứng. Kết quả sau đó được
+          đóng gói dưới định dạng JSON để trả về cho Client.
+  − Lớp Service (Business Logic Layer):
+     o    Đây là "trái tim" của hệ thống, nơi thực hiện các tính toán và logic nghiệp vụ.
+     o    Nhiệm vụ: Xử lý quy trình đặt vé, thanh toán và đặc biệt là tích hợp bộ giải AI
+          OptaPlanner để thực hiện tối ưu hóa lịch chiếu phim dựa trên các ràng buộc.
+  − Lớp Repository (Data Access Layer):
+     o    Sử dụng Spring Data JPA kết hợp với Hibernate.
+                                            19
+
+
+     o   Nhiệm vụ: Thực hiện các thao tác truy vấn và cập nhật dữ liệu vào hệ quản trị
+         cơ sở dữ liệu MySQL. Lớp này giúp ánh xạ các thực thể trong mã nguồn thành
+         các bảng trong cơ sở dữ liệu một cách tự động.
+
+  Việc lựa chọn kiến trúc tách biệt thay vì MVC truyền thống mang lại những lợi ích vượt
+trội cho hệ thống rạp phim:
+
+  − Trải nghiệm người dùng: Nhờ cơ chế SPA của React, người dùng có thể chọn ghế,
+     xem phim mà không gặp tình trạng tải lại trang, mang lại cảm giác mượt mà như ứng
+     dụng di động.
+  − Khả năng mở rộng: Backend đóng vai trò là một "Service Provider". Trong tương
+     lai, hệ thống có thể dễ dàng phát triển thêm ứng dụng Mobile (React Native) mà
+     không cần thay đổi logic xử lý tại Server.
+  − Tính bảo mật: Việc tách biệt giúp triển khai các cơ chế bảo mật chuyên sâu như JWT
+     và Spring Security một cách độc lập và chặt chẽ hơn.
+                                              20
+
+
+          CHƯƠNG 3. PHÂN TÍCH THIẾT KẾ HỆ THỐNG
+3.1. Phân tích yêu cầu hệ thống
+
+  Mục tiêu của chương này là xác định rõ các tính năng mà hệ thống cần cung cấp cho
+từng nhóm đối tượng, đảm bảo quy trình vận hành rạp diễn ra trơn tru và tối ưu.
+
+3.1.1. Yêu cầu chức năng
+
+  Hệ thống yêu cầu tất cả người dùng phải đăng nhập để xác thực danh tính và phân quyền
+sử dụng các tính năng tương ứng.
+
+  Đối với khách hàng: khách hàng tương tác với hệ thống qua giao diện Web với các chức
+năng chính:
+
+  − Quản lý thông tin và tìm kiếm: Tìm kiếm phim theo tên, thể loại hoặc rạp chiếu; xem
+     chi tiết nội dung phim, trailer và lịch chiếu.
+  − Chức năng đặt vé và chọn ghế: Xem sơ đồ phòng chiếu trực quan theo thời gian thực,
+     lựa chọn vị trí ghế trống và thực hiện giữ chỗ.
+  − Thanh toán trực tuyến: Tích hợp cổng thanh toán để hoàn tất giao dịch mua vé an
+     toàn.
+  − Quản lý vé điện tử: Lưu trữ và hiển thị lịch sử đặt vé; cung cấp mã QR/mã vé điện
+     tử để thực hiện soát vé tại rạp.
+  − Đánh giá và phản hồi: Gửi nhận xét, chấm điểm phim và chất lượng dịch vụ sau khi
+     trải nghiệm suất chiếu.
+  − Quản lý tài khoản: Cập nhật thông tin cá nhân, thay đổi mật khẩu và theo dõi điểm
+     thưởng thành viên.
+
+  Đối với nhân viên rạp: Nhân viên tại từng chi nhánh chịu trách nhiệm vận hành trực
+tiếp các suất chiếu:
+
+  − Quản lý lịch chiếu chi tiết: Tiếp nhận phim được Admin gán cho rạp; thêm, sửa, xóa
+     hoặc cập nhật trạng thái các suất chiếu tại chi nhánh.
+  − Xếp lịch thông minh: Sử dụng bộ giải OptaPlanner để tự động sắp xếp lịch chiếu tối
+     ưu dựa trên các ràng buộc về phòng máy và thời gian.
+  − Kiểm soát vé: Quản lý trạng thái vé của khách hàng, thực hiện quét mã xác nhận vé
+     khi khách vào phòng chiếu.
+                                             21
+
+
+  − Báo cáo nhanh: Theo dõi tình trạng lấp đầy ghế ngồi của các suất chiếu đang diễn ra
+     tại rạp mình quản lý.
+
+  Đối với quản trị viên hệ thống: Quản trị viên nắm quyền điều phối cao nhất toàn bộ
+chuỗi rạp:
+
+  − Quản lý phim: Đăng tải thông tin phim mới, quản lý poster/trailer qua Cloudinary.
+  − Quản lý hạ tầng rạp: Thêm chi nhánh rạp mới, cấu hình sơ đồ phòng chiếu (số lượng
+     ghế, loại ghế VIP/Thường/Đôi).
+  − Phân bổ phim: Thực hiện gán các đầu phim về cho từng rạp cụ thể để nhân viên tại
+     đó lên lịch.
+  − Quản trị người dùng: Cấp quyền cho tài khoản nhân viên, quản lý danh sách khách
+     hàng và xử lý các sự cố hệ thống.
+  − Thống kê doanh thu: Xem báo cáo tổng hợp doanh thu theo phim, theo rạp hoặc theo
+     khoảng thời gian.
+
+3.1.2. Yêu cầu phi chức năng
+
+  Bên cạnh các tính năng nghiệp vụ, hệ thống cần đảm bảo:
+
+  − Tính sẵn sàng: Hệ thống hoạt động 24/7 để khách hàng có thể đặt vé bất cứ lúc nào.
+  − Hiệu năng: Tốc độ phản hồi khi chọn ghế phải nhanh (dưới 1 giây) để tránh tình
+     trạng hai người cùng chọn một ghế.
+  − Bảo mật: Thông tin thanh toán và mật khẩu người dùng phải được mã hóa; phân
+     quyền chặt chẽ bằng Spring Security & JWT.
+  − Tính trực quan: Giao diện sơ đồ ghế ngồi phải dễ hiểu, dễ tương tác trên cả điện thoại
+     và máy tính.
+
+3.2. Phân tích Use Case
+
+3.2.1. Danh sách các Use Case theo vai trò
+
+  Hệ thống được thiết kế với ba nhóm tác nhân chính, mỗi nhóm có các quyền hạn và
+chức năng riêng biệt để đảm bảo tính bảo mật và chuyên hóa trong vận hành rạp chiếu
+phim.
+                                   22
+
+
+Bảng PHÂN TÍCH THIẾT KẾ HỆ THỐNG.1 Danh sách các Use Case của vai trò
+                              khách hàng
+
+ ID          Tên Use Case                           Mô tả
+
+                                Tạo tài khoản mới qua Form hoặc Google
+UC1.1   Đăng ký
+                                OAuth2.
+
+UC1.2   Đăng nhập/Đăng xuất     Xác thực người dùng và cấp phát JWT.
+
+                                Duyệt danh sách phim, xem trailer và lịch
+UC1.3   Xem phim & Tra cứu
+                                chiếu.
+
+UC1.4   Đặt vé & Chọn ghế       Chọn chỗ ngồi thời gian thực và giữ chỗ.
+
+                                Thanh toán vé qua cổng thanh toán trực
+UC1.5   Thanh toán
+                                tuyến.
+
+UC1.6   Xem vé điện tử          Hiển thị mã QR vé đã đặt trong lịch sử.
+
+
+
+Bảng PHÂN TÍCH THIẾT KẾ HỆ THỐNG.2 Danh sách các Use Case của vai trò
+                              nhân viên
+
+ ID          Tên Use Case                           Mô tả
+
+                                Cập nhật tình trạng sẵn sàng của các phòng
+UC2.1   Quản lý phòng chiếu
+                                máy.
+
+UC2.2   Lập lịch suất chiếu     Sử dụng AI OptaPlanner để tối ưu lịch chiếu.
+
+UC2.3   Bán vé tại quầy         Phục vụ khách mua trực tiếp và in vé cứng.
+
+UC2.4   Soát vé (Check-in)      Quét mã QR để xác nhận khách vào phòng.
+
+UC2.5   Thống kê chi nhánh      Theo dõi doanh thu và tỷ lệ lấp đầy ghế tại rạp.
+                                             23
+
+
+    Bảng PHÂN TÍCH THIẾT KẾ HỆ THỐNG.3 Danh sách các Use Case của vai trò
+                                       quản trị viên
+
+     ID             Tên Use Case                               Mô tả
+
+                                          Thêm/Sửa thông tin các chi nhánh trong hệ
+   UC3.1      Quản lý cụm rạp
+                                          thống.
+
+                                          Đăng tải phim, quản lý hình ảnh trên
+   UC3.2      Quản lý danh mục phim
+                                          Cloudinary.
+
+   UC3.3      Quản lý nhân sự             Cấp tài khoản Staff và gán Staff vào rạp cụ thể.
+
+   UC3.4      Báo cáo tổng hợp            Xem biểu đồ doanh thu toàn chuỗi rạp.
+
+
+
+3.2.2. Biểu đồ Use Case (Diagram)
+
+  Nhằm minh họa một cách trực quan sự tương tác giữa các tác nhân và hệ thống, cấu
+trúc Use Case được phân tách thành hai tầng: biểu đồ tổng quát và các biểu đồ chi tiết theo
+từng vai trò trong hệ thống.
+
+  Biểu đồ Use Case tổng quát đóng vai trò cung cấp cái nhìn toàn cảnh về hệ thống quản
+lý rạp chiếu phim. Sơ đồ này tập trung mô tả các nhóm chức năng trọng tâm mà ba tác
+nhân chính (khách hàng, nhân viên, và quản trị viên) tương tác trực tiếp. Thông qua đó,
+người đọc có thể nhanh chóng nắm bắt được phạm vi hoạt động của ứng dụng, các quyền
+hạn đặc thù của từng vai trò, cũng như luồng giá trị mà hệ thống mang lại cho từng đối
+tượng sử dụng.
+                                             24
+
+
+
+
+     Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.1 Sơ đồ Use Case tổng quan của hệ
+                                          thống
+
+  Trong biểu đồ Use Case tổng quát, hệ thống xác định ba tác nhân chính tham gia vào
+các quy trình nghiệp vụ là: khách hàng, nhân viên rạp và quản trị viên hệ thống. Mỗi tác
+nhân có những vai trò và quyền hạn riêng biệt được mô tả như sau:
+
+  − Tác nhân khách hàng: Có quyền thực hiện các hành động tương tác trực tiếp với dịch
+     vụ của rạp bao gồm: xem và tìm kiếm thông tin phim/suất chiếu, quản lý danh mục
+     yêu thích, thực hiện chọn ghế và đặt vé trực tuyến, thanh toán, quản lý vé điện tử,
+     đánh giá/nhận xét phim và quản lý thông tin tài khoản cá nhân.
+  − Tác nhân nhân viên rạp: Là người trực tiếp vận hành tại chi nhánh với các hành động:
+     quản lý danh sách suất chiếu tại rạp, sử dụng bộ giải AI OptaPlanner để lên lịch chiếu
+                                         25
+
+
+  tối ưu từ danh sách phim được gán, kiểm soát vé điện tử cho khách hàng, theo dõi
+  doanh thu thực tế tại chi nhánh và hỗ trợ giải đáp thắc mắc của khách hàng.
+− Tác nhân quản trị viên hệ thống: Có quyền hạn cao nhất nhằm điều phối toàn bộ hệ
+  thống bao gồm: quản lý danh mục phim tổng quát, quản lý hạ tầng các cụm rạp và
+  sơ đồ phòng chiếu, thực hiện nghiệp vụ gán phim cho từng chi nhánh rạp, quản lý
+  banner quảng cáo, quản trị tài khoản nhân viên và theo dõi báo cáo thống kê doanh
+  thu toàn chuỗi rạp.
+
+  a)Biểu đồ Use Case cho vai trò khách hàng
+
+
+
+
+Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.2 Sơ đồ Use Case của vai trò khách hàng
+                                           26
+
+
+Luồng nghiệp vụ chính:
+
+− Tra cứu và chọn phim: Khách hàng có thể xem danh sách phim đang chiếu/sắp chiếu,
+  xem trailer và thông tin chi tiết để đưa ra quyết định.
+− Đặt vé: Đây là Use Case trung tâm, bao gồm hai bước bắt buộc:
+  o   Chọn ghế (với trạng thái cập nhật theo thời gian thực để tránh trùng lặp nhờ tính
+      chất ACID của MySQL).
+  o   Thanh toán trực tuyến: Thanh toán bằng cách quét mã QR code. Các thông tin
+      của người dùng được hệ thống tự động điền (tên, email, số điện thoại).
+− Quản lý vé điện tử: Sau khi giao dịch thành công, hệ thống cấp mã QR code/vé điện
+  tử. Khách hàng có thể tra cứu lại trong lịch sử đặt vé mà không cần in vé giấy.
+− Ràng buộc: Các chức năng đặt vé và xem lịch sử yêu cầu khách hàng phải đăng nhập
+  hệ thống để định danh và bảo mật thông tin cá nhân.
+                                         27
+
+
+  b)Biểu đồ Use Case cho vai trò nhân viên rạp
+
+
+
+
+ Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.3 Sơ đồ Use Case của vai trò nhân viên
+
+Luồng nghiệp vụ chính:
+
+− Lập lịch suất chiếu: Nhân viên thực hiện sắp xếp các bộ phim vào các khung giờ và
+  phòng chiếu cụ thể. Điểm nhấn là khả năng Tối ưu hóa bằng AI OptaPlanner giúp tự
+  động giải quyết các bài toán hóc búa về khoảng nghỉ giữa các suất, ưu tiên giờ vàng
+  và tối ưu hóa công suất phòng.
+− Soát vé: Sử dụng công nghệ quét mã QR từ vé điện tử của khách hàng để xác thực
+  nhanh chóng tại cửa phòng chiếu, giảm thiểu tình trạng gian lận và ùn tắc.
+                                          28
+
+
+− Quản lý tại chi nhánh: Mọi thao tác của nhân viên (như quản lý trạng thái phòng
+  chiếu) đều bị giới hạn phạm vi trong chi nhánh rạp được phân công, đảm bảo tính
+  bảo mật và phân cấp dữ liệu.
+
+  c)Biểu đồ Use Case cho vai trò quản trị viên
+
+
+
+
+ Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.4 Sơ đồ Use Case của vai trò quản trị
+                                       viên
+
+Luồng nghiệp vụ chính:
+
+− Quản lý master data: Admin chịu trách nhiệm khởi tạo và cập nhật danh mục phim
+  (poster, trailer, thời lượng) và cấu hình hệ thống cụm rạp/phòng chiếu trên toàn quốc.
+  Đây là dữ liệu nền tảng để các chi nhánh có thể hoạt động.
+                                                29
+
+
+  − Quản lý nhân sự & phân quyền: Sử dụng cơ chế RBAC (Role-based Access Control)
+     để cấp tài khoản cho nhân viên, gán nhân viên vào các chi nhánh cụ thể và kiểm soát
+     quyền truy cập hệ thống qua Spring Security.
+  − Báo cáo & thống kê toàn cục: Admin có cái nhìn tổng thể về doanh thu, tỷ lệ lấp đầy
+     phòng chiếu của toàn bộ hệ thống thông qua các biểu đồ trực quan, từ đó đưa ra các
+     quyết định kinh doanh chiến lược.
+
+3.2.3. Đặc tả chi tiết các Use Case tiêu biểu
+
+     a)UC2.2: Lập lịch suất chiếu với AI OptaPlanner
+
+  Tác nhân: Nhân viên rạp.
+
+  Mô tả: Hệ thống tự động phân bổ danh sách phim được gán vào các phòng chiếu và
+khung giờ phù hợp dựa trên các ràng buộc logic.
+
+  Luồng sự kiện chính:
+
+  − Hệ thống hiển thị danh sách phim hiện có và sơ đồ các phòng chiếu khả dụng.
+  − Nhân viên thiết lập các tham số: Ngày cần lập lịch, thời gian giãn cách giữa các suất
+     (dọn dẹp phòng).
+  − Nhân viên kích hoạt Bộ giải OptaPlanner. Hệ thống tính toán dựa trên:
+     o   Ràng buộc cứng: Không trùng phòng, không chồng chéo thời gian, đủ thời gian
+         nghỉ giữa 2 suất.
+     o   Ràng buộc mềm: Ưu tiên phim hành động vào phòng lớn, ưu tiên giờ vàng
+         (18h-21h) cho phim bom tấn.
+  − Hệ thống hiển thị bản thảo lịch chiếu tối ưu.
+  − Nhân viên xác nhận và lưu vào hệ thống.
+
+  Ngoại lệ: Nếu các ràng buộc quá khắt khe không tìm được lời giải, hệ thống sẽ đưa ra
+cảnh báo để nhân viên điều chỉnh lại tham số.
+
+     b)UC1.4: Đặt vé & chọn ghế
+
+  Tác nhân: Khách hàng.
+
+  Mô tả: Khách hàng chọn vị trí ngồi mong muốn trên sơ đồ phòng chiếu và tiến hành
+giữ chỗ để thanh toán.
+
+  Luồng sự kiện chính:
+                                            30
+
+
+  − Khách hàng chọn một suất chiếu cụ thể của phim.
+  − Hệ thống hiển thị sơ đồ ghế ngồi trực quan (ghế trống, ghế đã đặt, ghế đang được
+     chọn).
+  − Khách hàng nhấn chọn các vị trí ghế mong muốn.
+  − Hệ thống thực hiện xử lý thời gian thực: Khóa tạm thời các ghế đã chọn để tránh tình
+     trạng người khác đặt trùng trong lúc thanh toán.
+  − Khách hàng xác nhận danh sách ghế và chuyển sang bước thanh toán.
+
+  Hậu điều kiện: Ghế được chuyển trạng thái từ "Trống" sang "Đang giao dịch" và cuối
+cùng là "Đã đặt" sau khi thanh toán thành công.
+
+     c)UC1.2: Đăng nhập tích hợp Google OAuth2
+
+  Tác nhân: Khách hàng.
+
+  Mô tả: Người dùng sử dụng tài khoản Google để định danh nhanh chóng mà không cần
+đăng ký thủ công.
+
+  Luồng sự kiện chính:
+
+  − Người dùng nhấn chọn "Tiếp tục với Google".
+  − Hệ thống chuyển hướng tới giao diện xác thực của Google.
+  − Sau khi xác thực, Google trả về Id Token.
+  − Backend Spring Boot nhận Token, xác thực chữ ký và lấy thông tin Email.
+  − Hệ thống kiểm tra: Nếu là người dùng mới, tự động tạo tài khoản trong MySQL.
+  − Hệ thống cấp phát JWT (JSON Web Token) để người dùng duy trì phiên làm việc.
+
+  Hậu điều kiện: Người dùng đăng nhập thành công và có thể sử dụng các chức năng cá
+nhân hóa.
+
+     d)UC3.3: Quản lý tài khoản & phân quyền
+
+  Tác nhân: Quản trị viên.
+
+  Mô tả: Khởi tạo tài khoản cho nhân viên và giới hạn quyền hạn thao tác trong phạm vi
+rạp được phân công.
+
+  Luồng sự kiện chính:
+
+  − Admin truy cập Dashboard quản trị nhân sự.
+  − Admin tạo tài khoản mới và gán vai trò ROLE_STAFF.
+                                            31
+
+
+  − Admin thực hiện thao tác gán nhân viên vào cụm rạp cụ thể.
+  − Hệ thống lưu trữ mối quan hệ giữa User_ID và Theater_ID trong MySQL.
+
+  Vai trò kỹ thuật: Khi Staff đăng nhập, Spring Security sẽ kiểm tra Theater _ID này trong
+Token để đảm bảo Staff không thể can thiệp vào lịch chiếu của chi nhánh rạp khác.
+
+     e)UC2.4: Quét mã QR / Xác thực vé điện tử
+
+  Tác nhân: Nhân viên rạp.
+
+  Mô tả: Xác nhận tính hợp lệ của vé khi khách hàng đến rạp xem phim.
+
+  Luồng sự kiện chính:
+
+  − Khách hàng xuất trình mã QR trên ứng dụng hoặc Email.
+  − Nhân viên sử dụng thiết bị quét (hoặc camera ứng dụng) để đọc mã.
+  − Hệ thống giải mã và truy vấn thông tin vé từ MySQL.
+  − Hệ thống kiểm tra điều kiện: Đúng suất chiếu, đúng ngày giờ và vé chưa được sử
+     dụng trước đó.
+  − Hệ thống thông báo "Hợp lệ" và tự động cập nhật trạng thái vé thành "Đã sử dụng".
+  − Hậu điều kiện: Khách hàng vào phòng chiếu, dữ liệu doanh thu thực tế được cập
+     nhật.
+
+3.2.4. Thiết kế sơ đồ quy trình nghiệp vụ
+
+  Mục này mô tả luồng hoạt động chi tiết của các quy trình nghiệp vụ cốt lõi thông qua
+sơ đồ hoạt động, giúp hình dung rõ nét sự tương tác giữa các tác nhân và hệ thống.
+                                            32
+
+
+     a)UC2.2: Quy trình lập lịch suất chiếu với AI OptaPlanner
+
+
+
+
+  Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.5 Sơ đồ hoạt động Use Case lập lịch xuất
+                                         chiếu
+
+  Đây là quy trình phức tạp nhất, mô tả cách nhân viên rạp phối hợp với bộ giải AI để tối
+ưu hóa lịch vận hành.
+
+  Các bước thực hiện:
+
+  − Nhân viên truy cập phân hệ quản lý lịch chiếu và chọn tính năng "Lập lịch thông
+     minh". Hệ thống hiển thị danh sách phim khả dụng và sơ đồ phòng chiếu.
+  − Nhân viên nhập các tham số đầu vào (ngày chiếu, khoảng nghỉ giữa các suất).
+  − Hệ thống gửi yêu cầu tới bộ giải OptaPlanner.
+  − AI tiến hành tính toán, kiểm tra các ràng buộc cứng và ràng buộc mềm.
+  − Nếu tìm thấy lời giải, hệ thống hiển thị bản thảo lịch chiếu; nếu không, hệ thống
+     thông báo lỗi để nhân viên điều chỉnh tham số.
+                                           33
+
+
+  − Nhân viên xem xét bản thảo và nhấn "Xác nhận" để lưu vào cơ sở dữ liệu.
+
+     b)UC1.4: Quy trình đặt vé và chọn ghế thời gian thực
+
+
+
+
+   Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.6 Sơ đồ hoạt động Use Case đặt vé xem
+                                phim và chọn ghế ngồi
+
+  Quy trình này tập trung vào tính chính xác và khả năng xử lý đồng thời khi khách hàng
+thực hiện giao dịch.
+
+  Các bước thực hiện:
+
+  − Khách hàng chọn phim và suất chiếu cụ thể.
+  − Hệ thống truy xuất sơ đồ ghế từ MySQL và hiển thị trạng thái thực tế.
+  − Khách hàng chọn vị trí ghế mong muốn.
+  − Hệ thống thực hiện kiểm tra trạng thái ghế ngay lập tức:
+  − Nếu ghế còn trống: Hệ thống thực hiện lệnh Lock Seat và chuyển sang bước xác
+     nhận.
+                                        34
+
+
+− Nếu ghế đã bị người khác chọn trước: Hệ thống thông báo lỗi và yêu cầu chọn lại.
+− Sau khi xác nhận, hệ thống chuyển sang quy trình thanh toán.
+
+  c)UC1.2: Quy trình đăng nhập tích hợp Google OAuth2
+
+
+
+
+ Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.7 Sơ đồ hoạt động Use Case đăng nhập
+                                  bằng Google
+                                         35
+
+
+Mô tả luồng xác thực hiện đại, giảm thiểu thao tác đăng ký thủ công cho khách hàng.
+
+Các bước thực hiện:
+
+− Khách hàng chọn "Đăng nhập bằng Google" tại giao diện.
+− Hệ thống chuyển hướng yêu cầu xác thực tới Google API.
+− Google trả về Token định danh người dùng.
+− Backend hệ thống xác thực Token; nếu là người dùng mới, hệ thống tự động tạo bản
+  ghi tại bảng Users với vai trò ROLE_CUSTOMER.
+− Hệ thống cấp phát JWT và điều hướng người dùng về trang chủ với trạng thái đã
+  đăng nhập.
+                                        36
+
+
+  d)UC3.3: Quy trình quản lý và phân quyền nhân sự
+
+
+
+
+  Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.8 Sơ đồ hoạt động Use Case quản lý
+                             nhân sự và phân quyền
+
+Quy trình dành cho quản trị viên nhằm đảm bảo tính bảo mật và đúng phạm vi quản lý.
+
+Các bước thực hiện:
+
+− Admin chọn tài khoản nhân viên cần phân quyền.
+− Hệ thống hiển thị danh sách các cụm rạp trong chuỗi.
+− Admin thực hiện gán nhân viên vào một hoặc nhiều rạp cụ thể.
+− Hệ thống cập nhật bảng phân quyền trong MySQL.
+                                             37
+
+
+  − Khi nhân viên đăng nhập, hệ thống sẽ lọc dữ liệu hiển thị (suất chiếu, doanh thu) chỉ
+     thuộc phạm vi rạp đã được gán.
+
+     e)UC2.4: Quy trình kiểm soát vé bằng mã QR
+
+
+
+
+   Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.9 Sơ đồ hoạt động Use Case xác thực vé
+                                         điện tử
+
+  Quy trình kết thúc vòng đời của một giao dịch, xác thực khách hàng tại rạp.
+
+  Các bước thực hiện:
+
+  − Nhân viên kích hoạt camera/máy quét để đọc mã QR trên vé điện tử của khách.
+  − Hệ thống giải mã và truy vấn thông tin vé từ cơ sở dữ liệu.
+  − Hệ thống kiểm tra tính hợp lệ: đúng suất chiếu, đúng ngày giờ và trạng thái vé chưa
+     được sử dụng.
+  − Nếu hợp lệ, hệ thống cập nhật trạng thái vé thành "Đã sử dụng" và thông báo cho
+     nhân viên cho khách vào phòng.
+
+3.2.5. Thiết kế biểu đồ tuần tự
+
+  Biểu đồ tuần tự mô tả chi tiết sự tương tác giữa các đối tượng trong hệ thống theo trình
+tự thời gian, làm rõ luồng dữ liệu giữa giao diện người dùng, logic xử lý và cơ sở dữ liệu.
+                                          38
+
+
+  a)UC2.2: Biểu đồ tuần tự cho chức năng lập lịch suất chiếu với AI
+
+
+
+
+  Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.10 Biểu đồ tuần tự Use Case lập lịch
+                                     xuất chiếu
+
+Mô tả cách thức hệ thống gọi bộ giải AI để xử lý bài toán lập lịch cho nhân viên rạp.
+
+− Staff thực hiện yêu cầu "Optimize" từ giao diện React.
+− SchedulingController nhận yêu cầu và gọi đến OptaSchedulingService.
+− Service truy vấn Repository để lấy dữ liệu về phim, phòng và các ràng buộc hiện có
+  từ MySQL.
+                                          39
+
+
+− Service khởi chạy OptaPlanner để tìm kiếm lời giải tối ưu.
+− OptaPlanner trả về kết quả lịch chiếu tốt nhất.
+− Service phản hồi dữ liệu về Controller để hiển thị bản thảo lịch chiếu lên màn hình
+  của Staff.
+                                           40
+
+
+     b)UC1.4: Biểu đồ tuần tự cho chức năng đặt vé và chọn ghế
+
+
+
+
+   Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.11 Biểu đồ tuần tự Use Case đặt vé xem
+                                phim và chọn ghế ngồi
+
+  Mô tả cơ chế khóa ghế thời gian thực để đảm bảo tính toàn vẹn dữ liệu khi có nhiều
+người cùng đặt vé.
+  − Customer nhấn chọn một vị trí ghế trên sơ đồ phòng chiếu tại Frontend.
+                                         41
+
+
+− BookingController nhận seat_id và gọi BookingService để kiểm tra tính khả dụng.
+− Service gửi truy vấn đến MySQL bằng một Transaction bảo mật.
+− MySQL kiểm tra:
+− Nếu ghế trống: Cập nhật trạng thái thành "Pending" và trả về thành công.
+− Nếu ghế đã bị chọn: Trả về lỗi xung đột.
+− Service phản hồi kết quả về Frontend để cập nhật màu sắc ghế trên giao diện người
+  dùng.
+
+  c)UC1.2: Biểu đồ tuần tự cho chức năng đăng nhập Google OAuth2
+
+
+
+
+Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.12 Biểu đồ tuần tự Use Case đăng nhập
+                                  bằng Google
+
+Mô tả quy trình xác thực đa tầng giữa hệ thống và dịch vụ của Google.
+
+− User nhấn "Login with Google", React nhận về một IdToken từ Google API.
+− React gửi IdToken này xuống AuthController của hệ thống.
+                                        42
+
+
+− Backend sử dụng thư viện Google Verifier để xác thực tính hợp lệ của Token.
+− UserService kiểm tra thông tin Email trong MySQL, nếu chưa tồn tại, hệ thống tự
+  động đăng ký tài khoản mới với vai trò ROLE_CUSTOMER.
+− JwtService tạo mã JWT định danh riêng của hệ thống.
+− Backend trả về JWT cho Frontend để lưu vào bộ nhớ trình duyệt và duy trì trạng thái
+  đăng nhập.
+
+  d)UC3.3: Biểu đồ tuần tự cho chức năng phân quyền nhân sự
+
+
+
+
+  Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.13 Biểu đồ tuần tự Use Case quản lý
+                             nhân sự và phân quyền
+
+Mô tả cách Admin thiết lập phạm vi dữ liệu cho nhân viên chi nhánh.
+
+− Admin thực hiện thao tác gán nhân viên vào một cụm rạp trên Dashboard.
+− AdminController nhận yêu cầu và gọi StaffService.
+                                          43
+
+
+− Service cập nhật bảng liên kết giữa nhân viên và chi nhánh trong MySQL.
+− Khi Staff đăng nhập sau đó, Spring Security sẽ trích xuất thông tin chi nhánh từ mã
+  JWT.
+− Mọi yêu cầu truy vấn dữ liệu (suất chiếu, doanh thu) từ Staff sẽ được lọc tự động
+  theo Theater _ID đã được Admin thiết lập.
+
+  e)UC2.4: Biểu đồ tuần tự cho chức năng kiểm soát vé bằng mã QR
+
+
+
+
+Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.14 Biểu đồ tuần tự Use Case xác thực vé
+                                       điện tử
+
+Mô tả quy trình xác thực vé tại rạp để hoàn tất dịch vụ.
+                                              44
+
+
+  − Staff thực hiện quét mã QR từ vé của khách hàng qua ứng dụng quản lý.
+  − TicketController gửi mã định danh vé xuống TicketService.
+  − Service yêu cầu Repository tìm kiếm thông tin vé trong MySQL.
+  − Service thực hiện đối soát logic: Kiểm tra đúng suất chiếu, đúng ngày và vé đang ở
+     trạng thái "Paid".
+  − Nếu hợp lệ, Service cập nhật trạng thái vé thành "Used" trong MySQL.
+  − Backend trả về thông báo xác nhận cho Staff để cho khách hàng vào phòng chiếu.
+
+3.3. Thiết kế cơ sở dữ liệu
+
+  Hệ thống sử dụng hệ quản trị cơ sở dữ liệu MySQL, tuân thủ mô hình cơ sở dữ liệu
+quan hệ. Lựa chọn này nhằm đảm bảo các tiêu chuẩn ACID, đặc biệt quan trọng đối với
+các nghiệp vụ nhạy cảm về dữ liệu như:
+
+  − Tính toàn vẹn trong giao dịch: Đảm bảo không xảy ra tình trạng đặt trùng ghế thông
+     qua cơ chế khóa.
+  − Tính nhất quán dữ liệu: Duy trì mối quan hệ chặt chẽ giữa phim, phòng chiếu và suất
+     chiếu để phục vụ bộ giải AI OptaPlanner.
+  − Quản lý tập trung: Lưu trữ thông tin phân quyền và chi nhánh rạp giúp Spring
+     Security kiểm soát truy cập chính xác.
+
+3.3.1. Sơ đồ thực thể mối quan hệ (ERD)
+
+  Sơ đồ dưới đây mô tả cấu trúc các bảng và mối tương quan giữa chúng. Các thực thể
+được thiết kế tối ưu hóa đến dạng chuẩn 3 (3NF) để loại bỏ dư thừa dữ liệu và đảm bảo
+tốc độ truy vấn.
+                                           45
+
+
+
+
+    Hình PHÂN TÍCH THIẾT KẾ HỆ THỐNG.15 Sơ đồ thực thể mối quan hệ của hệ
+                                      thống BMS
+
+  Dưới đây là các bảng cốt lõi phục vụ cho logic nghiệp vụ của đồ án:
+
+     a)Bảng Users
+
+  Lưu trữ thông tin định danh cho cả Admin, Staff và Customer. Tích hợp thêm trường
+provider để hỗ trợ Google OAuth2.
+
+  − id: Khóa chính.
+  − email: Tên đăng nhập, duy nhất.
+  − password: Mật khẩu đã mã hóa bằng BCrypt.
+  − role: Vai trò (ADMIN, STAFF, CUSTOMER) để phân quyền Spring Security.
+  − provider: Nguồn đăng nhập (LOCAL, GOOGLE).
+  − theater_id: Khóa ngoại liên kết đến chi nhánh rạp (dành cho Staff).
+
+     b)Bảng Movies
+
+  Quản lý thông tin phim do Admin cập nhật. Hình ảnh được lưu đường dẫn tới
+Cloudinary.
+
+  − id: Khóa chính.
+  − title: Tên phim.
+                                           46
+
+
+− duration: Thời lượng phim (phục vụ OptaPlanner tính toán suất chiếu).
+− poster_url: Đường dẫn ảnh lưu trên Cloudinary.
+
+  c)Bảng Showtimes
+
+Đây là thực thể lập lịch cho bộ giải AI OptaPlanner.
+
+− id: Khóa chính.
+− movie_id: Khóa ngoại tới phim.
+− room_id: Khóa ngoại tới phòng chiếu.
+− start_time: Thời gian bắt đầu.
+− end_time: Thời gian kết thúc (tự động tính dựa trên thời lượng phim).
+
+  d)Bảng Orders OrderDetails
+
+Lưu trữ thông tin tổng quát của một lần giao dịch.
+
+− id: Khóa chính quản lý mã đơn hàng.
+− user_id: Khóa ngoại liên kết với người mua.
+− total_amount: Tổng tiền của toàn bộ đơn hàng.
+− status: Trạng thái đơn hàng (PENDING, COMPLETED, CANCELLED).
+
+  e)OrderDetails
+
+Đây là bảng trung gian dùng để phá vỡ quan hệ (Nhiều - Nhiều) giữa Order và Ticket.
+
+− id: Khóa chính.
+− order_id: Khóa ngoại liên kết đến bảng Orders.
+− ticket_id: Khóa ngoại liên kết đến bảng Tickets.
+− price: Giá của vé tại thời điểm bán.
+
+  f) Bảng Payments
+
+Lưu trữ lịch sử giao dịch tài chính, phục vụ đối soát và quản lý doanh thu.
+
+− id: Khóa chính.
+− order_id: Khóa ngoại tới đơn hàng tương ứng.
+− payment_method: Phương thức (CASH, MOMO, VNPAY).
+− transaction_id: Mã giao dịch trả về từ cổng thanh toán.
+− amount: Số tiền thực tế đã thanh toán.
+                                          47
+
+
+  g)Bảng Rooms
+
+Quản lý hạ tầng rạp và sơ đồ chọn ghế thời gian thực.
+
+− id: Khóa chính.
+− name: Tên phòng (VD: Phòng 01, Phòng IMAX).
+− theater_id: Khóa ngoại liên kết tới rạp tương ứng.
+− capacity: Tổng số ghế của phòng.
+
+  h)Bảng Seats
+
+Lưu trữ sơ đồ ghế cố định của từng phòng.
+
+− id: Khóa chính.
+− room_id: Khóa ngoại liên kết tới phòng chiếu.
+− row_name: Tên hàng (A, B, C...).
+− seat_number: Số ghế (1, 2, 3...).
+− type: Loại ghế (STANDARD, VIP, DOUBLE).
+
+  i) Quy tắc toàn vẹn dữ liệu
+
+Để hỗ trợ các Use Case tiêu biểu, cơ sở dữ liệu áp dụng các quy tắc sau:
+
+− Unique Constraint: Đảm bảo Email không bị trùng lặp khi đăng ký.
+− Transaction Management: Khi khách hàng chọn ghế (UC1.6), hệ thống sử dụng
+  Pessimistic Locking hoặc Optimistic Locking trong MySQL để khóa bản ghi ghế,
+  tránh tình trạng hai người cùng đặt một vị trí.
+− Cascade Delete: Khi xóa một phim hoặc một rạp, các dữ liệu liên quan (suất chiếu,
+  vé) sẽ được xử lý phù hợp để tránh dữ liệu mồ côi.
+                                              48
+
+
+                CHƯƠNG 4. PHÁT TRIỂN SẢN PHẨM
+4.1. Áp dụng cơ sở lý thuyết vào phát triển ứng dụng
+
+  Trong chương này, các cơ sở lý thuyết về công nghệ và kiến trúc đã nêu tại Chương 2
+được hiện thực hóa thành các thành phần cụ thể trong hệ thống quản lý rạp chiếu phim.
+Quá trình phát triển tuân thủ chặt chẽ các mô hình thiết kế nhằm đảm bảo tính ổn định,
+bảo mật và khả năng mở rộng.
+
+4.1.1. Hiện thực hóa kiến trúc hệ thống và quy trình phát triển
+
+  Dựa trên lý thuyết về kiến trúc Client-Server và kiến trúc 3 lớp, ứng dụng được chia
+thành hai phần độc lập:
+
+  − Backend: Triển khai mô hình 3 lớp gồm Controller (tiếp nhận Request), Service (xử
+     lý logic nghiệp vụ) và Repository (tương tác dữ liệu). Việc áp dụng RESTful API
+     giúp Backend cung cấp dữ liệu chuẩn hóa cho phía Frontend và các dịch vụ mở rộng
+     trong tương lai.
+  − Frontend: Sử dụng các components để xây dựng giao diện người dùng động. Các UI
+     Framework giúp đồng bộ hóa phong cách thiết kế và tối ưu hóa trải nghiệm người
+     dùng (UX) trên đa thiết bị.
+
+4.1.2. Ứng dụng AI và thuật toán tối ưu hóa
+
+  Hệ thống đã cụ thể hóa thư viện OptaPlanner để giải quyết bài toán lập lịch suất chiếu
+tự động, nhằm thay thế việc sắp xếp thủ công gây tốn thời gian và dễ xảy ra sai sót. Quá
+trình áp dụng được chia thành các bước kỹ thuật chi tiết sau:
+
+     a)Xây dựng mô hình thực thể
+
+  Dựa trên lý thuyết về tối ưu hóa ràng buộc, hệ thống định nghĩa các thành phần cốt lõi:
+
+  − Thực thể lập lịch: Lớp xuất chiếu được đánh dấu là đối tượng cần lập lịch.
+  − Biến lập lịch: Hệ thống định nghĩa "khung giờ vàng" (ví dụ: 18h00 – 21h00). Một
+     Soft Constraint được cài đặt để gán trọng số cao hơn cho các bộ phim có nhãn "Hot"
+     hoặc "Bom tấn" vào các khung giờ này nhằm tối đa hóa tỷ lệ lấp đầy ghế và doanh
+     thu cho rạp. Ngoài ra còn có các biến số về số xuất chiếu tối đa trong ngày, độ cân
+     bằng giữa các phòng chiếu,....
+                                             49
+
+
+  − Dữ liệu cố định: Danh sách phim và phòng được cung cấp làm tham số đầu vào cố
+     định cho bộ giải.
+
+     b)Cài đặt các ràng buộc
+
+  Hệ thống hiện thực hóa các quy tắc vận hành của rạp phim thông qua Constraint Stream
+API của Java để hướng dẫn AI tìm lời giải:
+
+  − Ràng buộc cứng (Hard Constraints - bắt buộc tuân thủ): Tránh chồng chéo - một
+     phòng chiếu tại một thời điểm chỉ được phép chiếu một bộ phim. Thời gian kết thúc
+     của suất chiếu trước phải cách thời gian bắt đầu của suất chiếu sau ít nhất 15-20 phút
+     (thời gian vệ sinh phòng).
+  − Ràng buộc mềm (Soft Constraints - ưu tiên tối ưu):
+     o   Phân bổ khung giờ vàng - ưu tiên xếp các phim "bom tấn" vào các khung giờ
+         cao điểm (18h - 21h).
+     o   Lấp đầy khoảng trống - giảm thiểu thời gian "chết" của phòng chiếu để tối đa
+         hóa số lượng suất chiếu trong ngày.
+
+     c)Cơ chế xử lý của bộ giải
+
+  Hệ thống sử dụng OptaPlanner (Apache OptaPlanner) kết hợp với Local Search và thuật
+toán Late Acceptance để tìm kiếm phương án lịch chiếu tối ưu. Quy trình hoạt động:
+
+  − Khởi tạo (Construction Heuristic - FIRST_FIT): Gán các suất chiếu vào vị trí hợp lệ
+     đầu tiên tìm được.
+  − Tối ưu hóa (Local Search - Late Acceptance): Cải thiện dần phương án bằng cách
+     đánh giá Score:
+     o   Hard Score: Vi phạm ràng buộc cứng (xung đột phòng, vượt giờ hoạt động).
+     o   Soft Score: Tối ưu các yêu cầu mềm (cân bằng phòng, phân bổ prime time, ưu
+         tiên phim hot).
+  − Kiểm tra kết quả: Chỉ chấp nhận phương án có Hard Score = 0.
+
+4.1.3. Triển khai cơ chế bảo mật và xác thực
+
+  Hệ thống hiện thực hóa các giải pháp bảo mật đã nghiên cứu tại Chương 2.
+                                                50
+
+
+  − Spring Security & JWT: Thiết lập bộ lọc (Security Filter Chain) để bảo vệ các tài
+     nguyên quản trị. Sau khi đăng nhập, hệ thống cấp phát chuỗi JWT cho Client để xác
+     thực các yêu cầu tiếp theo mà không cần lưu Session trên Server (Stateless).
+  − Google OAuth2: Tích hợp quy trình xác thực qua bên thứ ba, cho phép người dùng
+     đăng nhập nhanh chóng bằng tài khoản Google, giúp giảm bớt rào cản trong việc
+     đăng ký tài khoản mới.
+
+4.1.4. Giải pháp lưu trữ và quản lý dữ liệu
+
+  Dựa trên lý thuyết về giải pháp lưu trữ, hệ thống triển khai dữ liệu theo hai hướng:
+
+  − Dữ liệu quan hệ (MySQL): Lưu trữ thông tin có cấu trúc như người dùng, phim, suất
+     chiếu và vé, đảm bảo tính toàn vẹn dữ liệu (ACID) cho các giao dịch đặt vé.
+  − Dữ liệu đa phương tiện (Cloudinary): Lưu trữ toàn bộ hình ảnh poster phim dưới
+     dạng đường dẫn URL, giúp giảm tải cho cơ sở dữ liệu và tăng tốc độ tải trang phía
+     người dùng.
+
+4.2. Các kỹ thuật được áp dụng để tối ưu hệ thống
+
+  Để đảm bảo hệ thống vận hành ổn định với lượng dữ liệu lớn và đáp ứng yêu cầu xử lý
+thời gian thực, nhiều kỹ thuật tối ưu hóa chuyên sâu đã được áp dụng đồng bộ từ tầng cơ
+sở dữ liệu đến tầng logic nghiệp vụ.
+
+4.2.1. Giải thuật tối ưu hóa lập lịch tự động với AI (OptaPlanner)
+
+  Hệ thống sử dụng Apache OptaPlanner - một bộ giải AI chuyên dụng cho bài toán tối
+ưu hóa tổ hợp. OptaPlanner giúp hệ thống tự động sắp xếp lịch chiếu tối ưu thay vì dựa
+vào nhân sự thủ công.
+
+     a)Kiến trúc giải thuật
+
+           Bảng PHÁT TRIỂN SẢN PHẨM.4 Kiến trúc giải thuật lập lịch tự động
+
+ Thành phần                   Cấu hình
+
+ Bộ giải                      OptaPlanner 8.x
+
+ Construction Heuristic       FIRST_FIT - Gán các suất chiếu vào vị trí hợp lệ đầu tiên
+
+ Local Search                 Late Acceptance - Thuật toán tìm kiếm cục bộ
+                                            51
+
+
+Termination               30 giây hoặc đạt Hard Score = 0
+
+
+
+   b)Late Acceptance Algorithm:
+
+ Khác với Tabu Search, Late Acceptance hoạt động bằng cách:
+
+ − Lưu trữ một "late acceptance list" chứa các giải pháp đã đạt được.
+ − Chấp nhận di chuyển đến giải pháp mới nếu score không tệ hơn các giải pháp trong
+   danh sách.
+ − Giúp bộ giải thoát khỏi bẫy tối ưu cục bộ và hội tụ về giải pháp toàn cục tốt nhất.
+ − Hiệu suất: Tìm ra phương án tối ưu trong 2-5 giây với quy mô nhiều phòng chiếu.
+
+   c)Hệ thống ràng buộc
+
+ Hệ thống sử dụng HardSoftScore với 2 tầng đánh giá:
+
+ − Hard Constraints (Ràng buộc cứng - Score Level 0):
+   o    roomOverlapByDuration: Đảm bảo không trùng lặp phòng chiếu (tính cả thời
+        gian dọn dẹp).
+   o    roomConflictSameStart: Không có 2 suất chiếu bắt đầu cùng giờ trong 1 phòng.
+   o    endWithinOperatingHours: Suất chiếu phải kết thúc trước giờ đóng cửa
+   o    missingRoomOrTime: Mỗi suất chiếu phải được gán phòng và giờ.
+ − Soft Constraints (Ràng buộc mềm):
+   o    softPreferHighPriorityAndDemand: Ưu tiên phim có priority/demand cao.
+   o    softBalanceRooms: Cân bằng tải giữa các phòng (tránh quá tải 1 phòng).
+   o    softStaggerSameMovie: Xen kẽ giờ chiếu cùng phim (tránh trùng giờ).
+   o    softBalancedTimeDistribution: Phân bổ hợp lý vào khung giờ vàng (prime
+        time).
+   o    softCoverTimeBuckets: Đảm bảo phủ đủ các khung giờ trong ngày.
+
+   d)Tính toán thời gian kết thúc tự động
+
+ Thời gian kết thúc được tính tự động theo công thức:
+
+                 end_time = start_time + movie.duration + buffer_time
+                                            52
+
+
+  Trong đó:
+
+  − movie.duration: Thời lượng phim (phút).
+  − buffer_time: Thời gian dọn dẹp giữa các suất chiếu (được cấu hình).
+
+  Việc tính toán tự động này giúp:
+
+  − Giảm độ phức tạp của bài toán tối ưu hóa.
+  − Đảm bảo dữ liệu luôn chính xác về mặt logic thời gian thực tế.
+  − Nhân viên chỉ cần chọn giờ bắt đầu, hệ thống tự tính giờ kết thúc.
+
+     e)Quy trình hoàn chỉnh
+
+  − Nhân viên kích hoạt "Lập lịch tự động" → Backend lấy dữ liệu từ MySQL.
+  − OptaPlanner khởi tạo → Gán các suất chiếu vào slot trống (FIRST_FIT).
+  − Tối ưu hóa → Late Acceptance algorithm đánh giá và cải thiện Score.
+  − Kiểm tra kết quả → Chỉ hiển thị phương án có Hard Score = 0 (không vi phạm ràng
+     buộc cứng).
+  − Xác nhận → Lưu vào CSDL.
+
+4.2.2. Kỹ thuật xử lý tranh chấp ghế thời gian thực
+
+  Để giải quyết bài toán nghẽn cổ chai và tình trạng "Double Booking" khi hàng ngàn
+người dùng cùng truy cập vào một suất chiếu "Hot", hệ thống áp dụng các kỹ thuật xử lý
+đồng thời chuyên sâu tại tầng ứng dụng.
+
+  Kiến trúc khóa tại tầng ứng dụng (Application-Level Locking):
+
+  − Hệ thống sử dụng ReentrantLock của Java Concurrency thay vì khóa Database. Cách
+     này có ưu điểm vượt trội:
+     o   Mỗi suất chiếu có một ReentrantLock riêng biệt.
+     o   Khi người dùng giữ ghế, toàn bộ thao tác trên suất chiếu đó sẽ được đồng bộ
+         hóa.
+     o   Các tiến trình tranh chấp sẽ phải chờ cho đến khi lock được giải phóng.
+     o   Loại bỏ hoàn toàn khả năng hai khách hàng cùng đặt thành công một vị trí ghế.
+  − Cơ chế quản lý trạng thái tạm thời (TTL Logic): Hệ thống triển khai In-Memory Seat
+     Hold với Time-to-Live:
+     o   TTL mặc định: 5 phút
+                                            53
+
+
+     o   Cleanup Interval: 30 giây
+
+  Quy trình hoạt động:
+
+  − Người dùng chọn ghế → Hệ thống tạo SeatHold với timestamp hết hạn.
+  − SeatHold được lưu vào ConcurrentHashMap theo showtimeId.
+  − Nếu người dùng không thanh toán trong 5 phút → Ghế tự động giải phóng.
+  − Background thread chạy mỗi 30 giây để dọn dẹp các SeatHold hết hạn.
+
+  Xử lý thông minh:
+
+  − Auto-rollback: Khi TTL hết hạn, ghế tự động giải phóng, không cần can thiệp thủ
+     công.
+  − Tính khả dụng cao: Tránh tình trạng "ghế ảo" làm thất thoát cơ hội bán vé.
+  − Validate chặt chẽ: Trước khi thanh toán, hệ thống kiểm tra ownerKey để đảm bảo
+     ghế thuộc về người đặt.
+
+  Sơ đồ luồng xử lý:
+
+  − User chọn ghế → Acquire Lock → Kiểm tra seat available → Tạo SeatHold
+     (TTL 5p) → Release Lock → User thanh toán → Validate & Confirm → Xóa
+     SeatHold.
+  − (Nếu hết TTL) → Cleanup thread → Xóa SeatHold → Ghế available cho người khác.
+
+4.2.3. Tối ưu hóa truy vấn CSDL
+
+  Hệ thống áp dụng nhiều kỹ thuật để giảm thiểu độ trễ khi truy vấn thông tin:
+
+  − Unique Constraints (Ràng buộc duy nhất): Hệ thống định nghĩa các Unique
+     Constraint tại tầng Entity để đảm bảo tính toàn vẹn dữ liệu và hỗ trợ Index.
+  − Tối ưu truy vấn với JOIN FETCH: Hệ thống sử dụng JOIN FETCH trong JPQL để
+     giảm vấn đề N+1 queries.
+  − Thay thế stream().filter() bằng Indexed Queries: Tại Repository, thay thế cách lọc dữ
+     liệu không hiệu quả.
+
+  Kết quả đạt được:
+
+  − Giảm N+1 queries khi load Showtime + Movie + Room.
+  − Truy vấn có điều kiện được thực hiện tại Database thay vì Application.
+  − Thời gian phản hồi API booking flow cải thiện đáng kể.
+                                            54
+
+
+4.2.4. Kỹ thuật Code Splitting và Lazy Loading (Frontend)
+
+  Nhằm tối ưu hóa tốc độ tải trang đầu tiên (First Load), phía Frontend đã triển khai:
+
+  − React.lazy() & Suspense: Các thành phần nặng như bảng điều khiển hay báo cáo
+     thống kê chỉ được tải về máy khách khi người dùng thực sự truy cập vào các trang
+     đó.
+  − Image Optimization: Sử dụng kỹ thuật tải ảnh chậm (Lazy Loading) và tận dụng cơ
+     chế tự động chuyển đổi định dạng ảnh sang WebP của Cloudinary để giảm dung
+     lượng tải xuống mà không làm giảm chất lượng hiển thị poster phim.
+
+4.2.5. Cơ chế bộ nhớ đệm (Caching với Spring Cache)
+
+  Hệ thống giảm tải cho cơ sở dữ liệu MySQL bằng cách lưu trữ các thông tin ít thay đổi
+vào bộ nhớ đệm:
+
+  − Các danh mục như danh sách tỉnh thành, danh sách rạp và thông tin phim đang chiếu
+     được lưu trữ bằng Spring Cache.
+  − Kỹ thuật này giúp hệ thống phản hồi kết quả gần như ngay lập tức cho các yêu cầu
+     lặp lại từ phía khách hàng, đồng thời tiết kiệm tài nguyên tính toán cho máy chủ.
+                                         55
+
+
+4.3. Hiện thực hóa giao diện hệ thống
+
+4.3.1. Giao diện chung
+
+     a)Giao diện đăng nhập (Google OAuth2)
+
+
+
+
+      Hình PHÁT TRIỂN SẢN PHẨM.16 Giao diện đăng nhập có tích hợp Google
+
+  Trang đăng nhập cho phép người dùng vào hệ thống bằng tài khoản cá nhân hoặc nhấn
+nút "Tiếp tục với Google".
+                                       56
+
+
+  b)Giao diện đăng ký tài khoản
+
+
+
+
+    Hình PHÁT TRIỂN SẢN PHẨM.17 Giao diện màn hình đăng ký tài khoản
+
+Trang đăng ký cho phép người dùng đăng ký tài khoản mới.
+                                  57
+
+
+c)Giao diện trang quên mật khẩu
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.18 Giao diện màn hình quên mật khẩu
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.19 Giao diện mail hướng dẫn đặt lại mật khẩu
+                                          58
+
+
+
+
+            Hình PHÁT TRIỂN SẢN PHẨM.20 Giao diện đặt mật khẩu mới
+
+  Luồng cho phép người dùng đặt lại mật khẩu của mình. Hệ thống sẽ gửi hướng dẫn đặt
+lại mật khẩu qua email mà người dùng đã đăng ký.
+                                     59
+
+
+4.3.2. Giao diện phía khách hàng
+
+     a)Giao diện trang chủ
+
+
+
+
+       Hình PHÁT TRIỂN SẢN PHẨM.21 Giao diện phần header, menu, banner
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.22 Giao diện phần bộ lọc và danh sách phim đang
+                                   chiếu
+                                           60
+
+
+
+
+            Hình PHÁT TRIỂN SẢN PHẨM.23 Giao diện phần đặt vé nhanh
+
+
+
+
+          Hình PHÁT TRIỂN SẢN PHẨM.24 Giao diện phần ưu đãi và sự kiện
+
+  Trang chủ chứa header, menu giúp người dùng điều hướng trang, phần banner quảng
+cáo, danh sách các phim đang chiếu để người dùng chọn. Ngoài ra còn có phần giao diện
+chọn rạp nhanh giúp người dùng đặt vé theo 2 luồng: chọn phim trước và chọn rạp trước.
+                                    61
+
+
+ b)Giao diện đặt vé xem phim
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.25 Giao diện xem chi tiết phim - phần trailer phim
+
+
+
+
+ Hình PHÁT TRIỂN SẢN PHẨM.26 Giao diện xem thông tin giới thiệu về phim
+                                 62
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.27 Giao diện người dùng chọn rạp, suất chiếu
+
+
+
+
+       Hình PHÁT TRIỂN SẢN PHẨM.28 Giao diện layout ghế ngồi
+                           63
+
+
+
+
+  Hình PHÁT TRIỂN SẢN PHẨM.29 Giao diện thông tin đặt vé
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.30 Giao diện thông tin khách hàng
+                                64
+
+
+
+
+        Hình PHÁT TRIỂN SẢN PHẨM.31 Popup hiển thị QR code
+
+c)Giao diện rạp gần bạn
+
+
+
+
+        Hình PHÁT TRIỂN SẢN PHẨM.32 Giao diện rạp ở gần bạn
+                                 65
+
+
+d) Giao diện chọn rạp phim
+
+
+
+
+      Hình PHÁT TRIỂN SẢN PHẨM.33 Giao diện chọn rạp phim trước
+
+e)Giao diện profile
+
+
+
+
+      Hình PHÁT TRIỂN SẢN PHẨM.34 Giao diện profile người dùng
+                                      66
+
+
+     f) Giao diện lịch sử đặt vé
+
+
+
+
+              Hình PHÁT TRIỂN SẢN PHẨM.35 Giao diện lịch sử đặt vé
+
+4.3.3. Giao diện phía nhân viên
+
+     a)Giao diện thông tin rạp
+
+
+
+
+    Hình PHÁT TRIỂN SẢN PHẨM.36 Giao diện thông tin rạp phim phía nhân viên
+                                   67
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.37 Giao diện tổng quan lịch chiếu và phim tại rạp
+
+ b) Giao diện thông báo
+
+
+
+
+     Hình PHÁT TRIỂN SẢN PHẨM.38 Giao diện thông báo của nhân viên
+                                       68
+
+
+  c)Giao diện thống kê của nhân viên
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.39 Giao diện thống kê của nhân viên - phần biểu đồ
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.40 Giao diện thống kê của nhân viên - phần gợi ý
+                                 69
+
+
+d)Giao diện lập lịch tự động
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.41 Giao diện lập lịch tự động - phần cấu hình
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.42 Giao diện thông tin thống kê kết quả
+                                   70
+
+
+
+
+  Hình PHÁT TRIỂN SẢN PHẨM.43 Giao diện suất chiếu được sinh ra (dạng
+                               timeline)
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.44 Giao diện suất chiếu được sinh ra (dạng bảng)
+                                       71
+
+
+e)Giao diện nhân viên quản lý các phim
+
+
+
+
+    Hình PHÁT TRIỂN SẢN PHẨM.45 Giao diện nhân viên quản lý phim
+
+f) Giao diện nhân viên quản lý suất chiếu
+
+
+
+
+  Hình PHÁT TRIỂN SẢN PHẨM.46 Giao diện nhân viên quản lý suất chiếu
+                                           72
+
+
+     g)Giao diện nhân viên theo dõi tình trạng bán vé của 1 suất chiếu
+
+
+
+
+  Hình PHÁT TRIỂN SẢN PHẨM.47 Giao diện nhân viên theo dõi tình trạng bán vé
+của 1 suất chiếu
+                                              73
+
+
+4.3.4. Giao diện phía quản trị viên
+
+     a)Giao diện thống kê của quản trị viên
+
+
+
+
+  Hình PHÁT TRIỂN SẢN PHẨM.48 Giao diện thống kê của quản trị viên - phần biểu
+                                          đồ
+
+
+
+
+     Hình PHÁT TRIỂN SẢN PHẨM.49 Giao diện thống kê của quản trị viên - phần
+                                        gợi ý
+                                       74
+
+
+b)Giao diện quản trị viên quản lý các thể loại phim
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.50 Giao diện quản trị viên quản lý các thể loại
+                                    phim
+                                      75
+
+
+c)Giao diện quản trị viên quản lý rạp phim
+
+
+
+
+ Hình PHÁT TRIỂN SẢN PHẨM.51 Giao diện quản trị viên quản lý rạp phim
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.52 Giao diện quản trị viên xem chi tiết rạp phim
+                                    76
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.53 Giao diện quản trị viên quản lý phòng trong rạp
+
+
+
+
+ Hình PHÁT TRIỂN SẢN PHẨM.54 Giao diện quản trị viên quản lý ghế trong rạp
+                                  77
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.55 Giao diện quản trị viên quản lý gán phim cho
+                                 rạp
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.56 Popup quản trị viên gán phim cho rạp
+                                          78
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.57 Giao diện quản trị viên quản lý nhân viên trong
+                                     rạp
+
+ d)Giao diện quản trị viên quản lý phim
+
+
+
+
+    Hình PHÁT TRIỂN SẢN PHẨM.58 Giao diện quản trị viên quản lý phim
+                                   79
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.59 Giao diện quản trị viên xem thông tin phim (1)
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.60 Giao diện quản trị viên xem thông tin phim (2)
+                                       80
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.61 Giao diện quản trị viên import film từ file csv
+
+ e)Giao diện quản trị viên quản lý banner
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.62 Giao diện quản trị viên quản lý banner
+                                         81
+
+
+  f) Giao diện quản trị viên quản lý tài khoản
+
+
+
+
+   Hình PHÁT TRIỂN SẢN PHẨM.63 Giao diện quản trị viên quản lý tài khoản
+
+  g)Giao diện quản trị viên quản lý các phim đã gán
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.64 Giao diện quản trị viên quản lý các phim đã gán
+                                      82
+
+
+h) Giao diện quản trị viên quản lý các yêu cầu chiếu phim
+
+
+
+
+Hình PHÁT TRIỂN SẢN PHẨM.65 Giao diện quản trị viên quản lý các yêu cầu
+                                chiếu phim
+                                            83
+
+
+                                      KẾT LUẬN
+1. Kết luận
+
+  Sau thời gian nghiên cứu, phân tích và triển khai thực nghiệm, đồ án "Xây dựng hệ
+thống quản lý và đặt vé rạp chiếu phim" đã hoàn thành các mục tiêu đề ra ban đầu. Dự án
+không chỉ dừng lại ở một ứng dụng quản lý vé thông thường mà còn giải quyết được bài
+toán tối ưu hóa vận hành thông qua việc ứng dụng trí tuệ nhân tạo.
+
+  Các kết quả chính đạt được bao gồm:
+
+   − Về mặt kỹ thuật: Xây dựng thành công hệ thống theo kiến trúc hiện đại với Backend
+      bằng Java (Spring Boot), Frontend bằng React & TypeScript. Hệ thống đảm bảo
+      tính bảo mật cao thông qua cơ chế Spring Security, JWT và tích hợp xác thực
+      Google OAuth2.
+   − Về mặt nghiệp vụ: Hiện thực hóa quy trình đặt vé và chọn ghế thời gian thực, quản
+      lý kho phim và rạp tập trung. Hình ảnh được quản lý tối ưu qua nền tảng Cloudinary.
+   − Về AI: Tích hợp thành công bộ giải OptaPlanner để tự động hóa khâu lập lịch chiếu
+      phim cho nhân viên rạp, giúp giải quyết các ràng buộc phức tạp về phòng chiếu và
+      khung giờ, từ đó tối ưu hóa công suất khai thác tại chi nhánh.
+
+  Mặc dù đã đạt được những thành công nhất định trong việc giải quyết vấn đề trung tâm,
+hệ thống vẫn tồn tại một số thách thức cần cải tiến như: giao diện quản trị cho nhân viên
+cần tối ưu hơn để xử lý hàng loạt dữ liệu lớn, hoặc việc mở rộng khả năng tìm kiếm thông
+minh cho quản trị viên để điều phối suất chiếu linh hoạt hơn trong các dịp cao điểm.
+
+2. Hướng phát triển
+
+  Trong tương lai, để nâng cao chất lượng dịch vụ và trải nghiệm người dùng, tôi định
+hướng phát triển hệ thống thêm các tính năng sau:
+
+   − Tích hợp thanh toán đa nền tảng: Kết nối với các cổng thanh toán phổ biến như
+      VNPay, MoMo, ZaloPay để hoàn thiện quy trình giao dịch khép kín.
+   − Hệ thống gợi ý thông minh: Ứng dụng các thuật toán học máy (Machine Learning)
+      để đề xuất phim dựa trên sở thích và hành vi lịch sử của từng khách hàng.
+                                             84
+
+
+                             TÀI LIỆU THAM KHẢO
+
+
+
+[1 “Giới thiệu về thư viện React và ngôn ngữ TypeScript trong phát triển Web,”.
+]   Available: https://viblo.asia/p/gioi-thieu-ve-react-bWrZnNxrZxw.
+
+[2 “React Documentation - The library for web and native user interfaces,”.
+]   Available: https://docs.react.dev/.
+
+[3 “MySQL Documentation - The world's most popular open source database,” .
+]   Available: https://dev.mysql.com/doc/.
+
+[4 “Xây dựng RESTful API với Spring Boot cho ứng dụng Web hiện đại,”.
+]   Available: https://viblo.asia/p/tim-hieu-ve-api-rest-trong-spring-boot.
+
+[5 “Kiến trúc Client-Server và giao tiếp dữ liệu giữa React và Spring Boot,”.
+]   Available: https://medium.com/@fullstack-guide-react-spring.
+
+[6 “Cloudinary Documentation - Image and Video Management API,”. Available:
+]   https://cloudinary.com/documentation.
+
+[7 “Tối ưu hóa lập lịch với bộ giải AI OptaPlanner,”. Available:
+]   https://www.optaplanner.org/learn/documentation.html.
+
+[8 “Spring Security and JWT Authentication for REST APIs,”. Available:
+]   https://spring.io/projects/spring-security.
+
+[9 “Google OAuth2 Authentication for Web Applications,”. Available:
+]   https://developers.google.com/identity/protocols/oauth2.
+

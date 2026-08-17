@@ -19,7 +19,7 @@ Next.js frontend for the SpecHub MVP and operations surface. The app provides ca
 | `/alerts`         | Searchable variant picker plus create/edit/pause/reactivate price-alert flow.                          |
 | `/notifications`  | Authenticated in-app notification center.                                                              |
 | `/billing`        | Public plan cards plus authenticated current-plan, checkout, cancellation, retry, and billing history. |
-| `/admin`          | Role-aware catalog, affiliate, subscription, source, review-queue, and user operations.                |
+| `/admin`          | Role-aware catalog, hardware, affiliate, subscription, scoring, and user operations.                    |
 | `/offline`        | PWA navigation fallback when the app shell is offline.                                                 |
 
 ## Run Locally

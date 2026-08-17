@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -24,8 +27,10 @@ import { AffiliateService } from "./affiliate.service";
 import {
   CreateAffiliateLinkDto,
   QueryAffiliateLinksDto,
+  QueryAffiliatePriceInsightsDto,
 } from "./dto/create-affiliate-link.dto";
 import { CreateAffiliatePartnerDto } from "./dto/create-affiliate-partner.dto";
+import { InspectAffiliateOfferDto } from "./dto/inspect-affiliate-offer.dto";
 import { TrackAffiliateClickDto } from "./dto/track-affiliate-click.dto";
 import { UpdateAffiliateLinkDto } from "./dto/update-affiliate-link.dto";
 import { UpdateAffiliatePartnerDto } from "./dto/update-affiliate-partner.dto";
@@ -68,12 +73,31 @@ export class AffiliateController {
     return this.affiliateService.listLinks(query);
   }
 
+  @Public()
+  @Get("price-insights")
+  @ApiOperation({
+    summary: "Get trusted-store price history and buying signals",
+  })
+  priceInsights(@Query() query: QueryAffiliatePriceInsightsDto) {
+    return this.affiliateService.getPriceInsights(query);
+  }
+
   @Post("links/sync")
   @ApiBearerAuth()
   @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
   @ApiOperation({ summary: "Refresh prices for active marketplace links" })
   syncAllLinks() {
     return this.affiliateService.syncAllLinks();
+  }
+
+  @Post("links/inspect")
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({
+    summary: "Read product image, price and availability from a partner URL",
+  })
+  inspectOffer(@Body() dto: InspectAffiliateOfferDto) {
+    return this.affiliateService.inspectOffer(dto);
   }
 
   @Post("links/:id/sync")
@@ -110,6 +134,15 @@ export class AffiliateController {
     @Body() dto: UpdateAffiliateLinkDto,
   ) {
     return this.affiliateService.updateLink(id, dto);
+  }
+
+  @Delete("links/:id")
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({ summary: "Delete affiliate buy link and related history" })
+  removeLink(@Param("id", ParseUUIDPipe) id: string) {
+    return this.affiliateService.removeLink(id);
   }
 
   @Public()

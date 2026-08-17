@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
@@ -10,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
 } from "class-validator";
 
 export class CreateProductFamilyDto {
@@ -34,10 +36,14 @@ export class CreateProductFamilyDto {
   })
   slug!: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty({
+    description:
+      "Mô tả định vị, nhóm người dùng, đặc điểm nổi bật và phạm vi thế hệ của dòng máy.",
+  })
   @IsString()
-  description?: string;
+  @IsNotEmpty()
+  @MinLength(80)
+  description!: string;
 
   @ApiPropertyOptional()
   @IsOptional()

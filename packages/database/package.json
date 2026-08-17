@@ -18,6 +18,20 @@
     "db:reset": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate reset",
     "db:studio": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js studio",
     "db:seed": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed.ts",
+    "db:seed-snapdragon": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed-snapdragon-catalog.ts",
+    "db:verify-snapdragon": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-snapdragon-catalog.ts",
+    "db:seed-curated-catalog": "SPECHUB_SEED_SCOPE=curated-58 node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed.ts",
+    "db:verify-curated-catalog": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-curated-catalog.ts",
+    "db:verify-module-data": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-module-data.ts",
+    "db:verify-catalog-100": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-catalog-expansion-100.ts",
+    "db:verify-history": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-historic-catalog.ts",
+    "db:seed-standard-catalog": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed-standard-catalog.ts",
+    "db:reset-catalog": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/reset-catalog.ts --confirm-reset",
+    "db:reset-content": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/reset-content-data.ts --confirm-reset",
+    "db:verify-iphones": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/verify-iphone-catalog.ts",
+    "db:seed-wiki": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/seed-wiki.ts",
+    "db:scorecards": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/tsx/dist/cli.mjs prisma/recalculate-scorecards.ts",
+    "test": "node node_modules/tsx/dist/cli.mjs --test prisma/scoring/*.spec.ts",
     "studio": "pnpm db:studio",
     "reset": "node --env-file-if-exists=../../.env --env-file-if-exists=.env node_modules/prisma/build/index.js migrate reset --force",
     "type-check": "tsc --noEmit"
@@ -27,6 +41,7 @@
     "bcryptjs": "2.4.3"
   },
   "devDependencies": {
+    "@spechub/scoring-core": "workspace:*",
     "@spechub/config": "workspace:*",
     "@types/bcryptjs": "2.4.6",
     "@types/node": "^22.10.2",

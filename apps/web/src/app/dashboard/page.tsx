@@ -4,11 +4,11 @@ import Link from "next/link";
 import {
   ArrowRight,
   Bell,
-  BrainCircuit,
   CreditCard,
   GitCompareArrows,
   Heart,
   LogOut,
+  MessageCircle,
   Search,
   ShieldCheck,
   Smartphone,
@@ -23,44 +23,37 @@ import { useAuth } from "@/components/auth-provider";
 const quickActions = [
   {
     href: "/devices",
-    label: "Xem danh mục",
-    description: "Xem các bản ghi mẫu máy và đi đến trang tra cứu chi tiết.",
+    label: "Xem thiết bị",
     icon: Smartphone,
   },
   {
     href: "/compare",
-    label: "Tạo so sánh",
-    description: "Chọn phiên bản và xem các khác biệt song song.",
+    label: "So sánh",
     icon: GitCompareArrows,
   },
   {
     href: "/ai",
     label: "Hỏi AI",
-    description: "Đặt câu hỏi về danh mục đã lập chỉ mục, kèm trích dẫn.",
-    icon: BrainCircuit,
+    icon: MessageCircle,
   },
   {
     href: "/search",
-    label: "Tìm kiếm",
-    description: "Tìm theo từ khóa trên thiết bị và thông số có sẵn.",
+    label: "Tìm thiết bị",
     icon: Search,
   },
   {
     href: "/wishlist",
-    label: "Thiết bị đã lưu",
-    description: "Xem lại các phiên bản đã lưu trong danh sách yêu thích.",
+    label: "Bộ sưu tập",
     icon: Heart,
   },
   {
     href: "/alerts",
-    label: "Cảnh báo giá",
-    description: "Theo dõi mức giá mục tiêu cho các phiên bản có thể mua.",
+    label: "Theo dõi giá",
     icon: Bell,
   },
   {
     href: "/billing",
-    label: "Thanh toán",
-    description: "Xem gói hiện tại và các giới hạn tính năng.",
+    label: "Gói của bạn",
     icon: CreditCard,
   },
 ];
@@ -72,11 +65,10 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="app-page mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <EmptyState
           icon={<UserRound size={20} />}
           title="Đăng nhập để mở trang tổng quan"
-          description="Trang tổng quan kết nối danh mục, so sánh và nghiên cứu AI trong luồng tài khoản."
           action={
             <Link
               href="/login"
@@ -97,8 +89,7 @@ export default function DashboardPage() {
       ? [
           {
             href: "/admin",
-            label: "Không gian quản trị",
-            description: "Quản lý danh mục, đối tác bán lẻ và hàng đợi duyệt.",
+            label: "Quản trị",
             icon: ShieldCheck,
           },
         ]
@@ -106,11 +97,9 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <PageHeader
-        eyebrow="Tổng quan"
-        title={`Chào mừng, ${user.display_name ?? user.username ?? user.email}`}
-        description="Không gian gọn gàng để xem trạng thái tài khoản, điều hướng nhanh và truy cập nghiên cứu đã lưu."
+        title={`Xin chào, ${user.display_name ?? user.username ?? user.email}`}
         action={
           <button
             onClick={signOut}
@@ -123,7 +112,7 @@ export default function DashboardPage() {
       />
 
       <section className="grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <aside className="app-panel p-5">
           <div className="mb-4 flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-md bg-slate-950 text-white">
               <UserRound size={20} />
@@ -151,14 +140,14 @@ export default function DashboardPage() {
           </div>
         </aside>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm md:grid-cols-2">
           {roleAwareActions.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300"
+                className="group border-b border-slate-200 p-5 transition hover:bg-blue-50/50 md:border-r md:[&:nth-child(2n)]:border-r-0"
               >
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="grid h-10 w-10 place-items-center rounded-md bg-slate-100 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-700">
@@ -172,9 +161,6 @@ export default function DashboardPage() {
                 <h3 className="text-base font-semibold text-slate-950">
                   {item.label}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  {item.description}
-                </p>
               </Link>
             );
           })}

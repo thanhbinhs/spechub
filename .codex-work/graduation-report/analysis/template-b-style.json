@@ -1,0 +1,170 @@
+{
+  "input": "/Users/macm1/Project/spechub/.codex-work/graduation-report/templates/21012899_PhamThanhTrung.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 383
+  },
+  "direct_run_formatting_runs": 157,
+  "direct_paragraph_formatting_paragraphs": 205,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 3,
+      "text": "T\u00d3M T\u1eaeT",
+      "style": "Normal"
+    },
+    {
+      "para_index": 9,
+      "text": "L\u1edcI CAM \u0110OAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 17,
+      "text": "L\u1edcI C\u1ea2M \u01a0N",
+      "style": "Normal"
+    },
+    {
+      "para_index": 27,
+      "text": "M\u1ee4C L\u1ee4C",
+      "style": "Normal"
+    },
+    {
+      "para_index": 113,
+      "text": "DANH M\u1ee4C H\u00ccNH \u1ea2NH",
+      "style": "Normal"
+    },
+    {
+      "para_index": 181,
+      "text": "DANH M\u1ee4C B\u1ea2NG BI\u1ec2U",
+      "style": "Normal"
+    },
+    {
+      "para_index": 188,
+      "text": "DANH M\u1ee4C T\u1eea VI\u1ebeT T\u1eaeT",
+      "style": "Normal"
+    },
+    {
+      "para_index": 990,
+      "text": "B\u1ed8 GI\u00c1O D\u1ee4C V\u00c0 \u0110\u00c0O T\u1ea0O",
+      "style": "Normal"
+    },
+    {
+      "para_index": 991,
+      "text": "                              \u0110\u1ea0I H\u1eccC PHENIKAA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 998,
+      "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+      "style": "Normal"
+    },
+    {
+      "para_index": 999,
+      "text": "X\u00c2Y D\u1ef0NG H\u1ec6 TH\u1ed0NG QU\u1ea2N L\u00dd V\u00c0 \u0110\u1eb6T V\u00c9 ",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1000,
+      "text": "XEM PHIM TR\u1ef0C TUY\u1ebeN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1006,
+      "text": "B\u1ed8 GI\u00c1O D\u1ee4C V\u00c0 \u0110\u00c0O T\u1ea0O",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1007,
+      "text": "                              \u0110\u1ea0I H\u1eccC PHENIKAA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1014,
+      "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1015,
+      "text": "X\u00c2Y D\u1ef0NG H\u1ec6 TH\u1ed0NG QU\u1ea2N L\u00dd V\u00c0 \u0110\u1eb6T V\u00c9 ",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1016,
+      "text": "XEM PHIM TR\u1ef0C TUY\u1ebeN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1022,
+      "text": "B\u1ed8 GI\u00c1O D\u1ee4C V\u00c0 \u0110\u00c0O T\u1ea0O",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1023,
+      "text": "\u0110\u1ea0I H\u1eccC PHENIKAA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 1031,
+      "text": "\u0110\u1ed2 \u00c1N T\u1ed0T NGHI\u1ec6P",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 3,
+        "text": "T\u00d3M T\u1eaeT",
+        "style": "Normal"
+      },
+      {
+        "para_index": 8,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 9,
+        "text": "L\u1edcI CAM \u0110OAN",
+        "style": "Normal"
+      },
+      {
+        "para_index": 16,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 17,
+        "text": "L\u1edcI C\u1ea2M \u01a0N",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 3,
+        "run_text": "T\u00d3M T\u1eaeT",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "run_text": "\u1ee8ng d\u1ee5ng \u0111\u01b0\u1ee3c ph\u00e1t tri\u1ec3n mi\u1ec5n ph\u00ed, cung c\u1ea5p m\u1ed9t n\u1ec1n t\u1ea3ng t\u01b0\u01a1ng t\u00e1c hi\u1ec7u qu\u1ea3 gi\u1eefa",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "\u0110i\u1ec3m n\u1ed5i b\u1eadt c\u1ee7a \u0111\u1ed3 \u00e1n l\u00e0 vi\u1ec7c t\u00edch h\u1ee3p h\u1ec7 th\u1ed1ng t\u1ed1i \u01b0u ho\u00e1 l\u1ecbch chi\u1ebfu s\u1eed d\u1ee5ng T",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": " ",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "H\u1ec7 th\u1ed1ng n\u00e0y",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

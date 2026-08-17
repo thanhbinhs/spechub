@@ -21,7 +21,7 @@ export default function EditWikiArticlePage() {
   if (!article.data?.data) return null;
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <Link
         href={`/wiki/${slug}`}
         className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700"
@@ -30,9 +30,7 @@ export default function EditWikiArticlePage() {
         Quay lại bài viết
       </Link>
       <div className="mb-6 mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
-          Đề xuất chỉnh sửa
-        </p>
+        <p className="app-section-label">Đề xuất chỉnh sửa</p>
         <h1 className="mt-1 text-2xl font-semibold text-slate-950">
           {article.data.data.title}
         </h1>

@@ -1,0 +1,1992 @@
+TRƯỜNG ĐẠI HỌC PHENIKAA
+KHOA CÔNG NGHỆ THÔNG TIN
+ĐỒ ÁN TỐT NGHIỆP
+XÂY DỰNG NỀN TẢNG SPECHUB –
+TRA CỨU, SO SÁNH VÀ NGHIÊN CỨU
+THIẾT BỊ THÔNG MINH
+Đơn vị thực hiện: Nhóm phát triển Spechub
+HÀ NỘI – 2026TRƯỜNG ĐẠI HỌC PHENIKAA
+KHOA CÔNG NGHỆ THÔNG TIN
+ĐỒ ÁN TỐT NGHIỆP
+XÂY DỰNG NỀN TẢNG SPECHUB –
+TRA CỨU, SO SÁNH VÀ NGHIÊN CỨU
+THIẾT BỊ THÔNG MINH
+Đơn vị thực hiện: Nhóm phát triển Spechub
+Loại tài liệu: Báo cáo đồ án tốt nghiệp
+HÀ NỘI – 2026i
+TÓM TẮT [[PAGE:summary]]
+Spechub là nền tảng dữ liệu và nghiên cứu thiết bị thông minh, được xây dựng nhằm  
+giải quyết tình trạng thông số phân tán, cách đặt tên không thống nhất và thiếu khả năng  
+truy nguyên nguồn khi người dùng tìm hiểu sản phẩm. Hệ thống hợp nhất danh mục thiết 
+bị, biến thể thương mại, linh kiện phần cứng, điểm đánh giá, lịch sử giá và nội dung Wiki 
+trong một mô hình dữ liệu quan hệ có cấu trúc.
+Giải pháp sử dụng kiến trúc monorepo với giao diện Next.js 15 và React 19, API NestJS 
+11 chạy trên Fastify 5, lớp truy cập dữ liệu Prisma 6, PostgreSQL 16 cùng các mở rộng  
+pgvector, pg_trgm và unaccent. Redis được dùng cho phiên đăng nhập, bộ nhớ đệm và  
+điều phối tác vụ; Meilisearch là lựa chọn tăng cường cho tìm kiếm. Các chức năng chính  
+gồm tra cứu và lọc thiết bị, so sánh, khuyến nghị theo nhu cầu, trợ lý AI dựa trên truy xuất 
+tăng cường có trích dẫn, Wiki cộng tác, danh sách yêu thích, cảnh báo giá, thông báo, quản 
+trị catalog và API B2B.
+Báo cáo trình bày quá trình khảo sát yêu cầu, lựa chọn kiến trúc, phân tích ca sử dụng,  
+thiết kế các luồng tương tác, xây dựng quy trình thu thập–duyệt dữ liệu và thiết kế cơ sở  
+dữ liệu theo bốn miền. Kết quả khảo sát mã nguồn ghi nhận 22 tuyến giao diện, 30 bộ điều 
+khiển API với 186 điểm cuối và 139 mô hình Prisma. Trong lần đánh giá ngày 05/08/2026, 
+36 bộ kiểm thử API gồm 189 ca kiểm thử đều đạt; lược đồ Prisma hợp lệ; PostgreSQL và 
+Redis đáp ứng kiểm tra mức sẵn sàng.
+Kết quả cho thấy Spechub đã hình thành được nền tảng kỹ thuật có khả năng mở rộng  
+theo miền nghiệp vụ, duy trì nguồn gốc dữ liệu và hỗ trợ nhiều nhóm người dùng. Các  
+hướng phát triển quan trọng tiếp theo là hoàn thiện đo tải, kiểm thử giao diện đầu cuối,  
+tăng độ phủ dữ liệu thực tế, xây dựng cơ chế đánh giá chất lượng câu trả lời AI và triển  
+khai giám sát sản xuất theo mục tiêu mức dịch vụ.
+Từ khóa: Spechub; danh mục thiết bị; so sánh; PostgreSQL; RAG; Wiki; cảnh báo giá.ii
+LỜI CAM ĐOAN [[PAGE:declaration]]
+Nhóm thực hiện xin cam đoan báo cáo đồ án tốt nghiệp này là kết quả của quá trình  
+nghiên cứu, phân tích, thiết kế, xây dựng và đánh giá dự án Spechub. Nội dung báo cáo  
+được trình bày trung thực, thống nhất với mã nguồn, lược đồ dữ liệu, cấu hình hệ thống và 
+kết quả kiểm thử tại thời điểm đánh giá.
+Các kiến thức, tài liệu và công nghệ được tham khảo đều được ghi rõ trong phần Tài  
+liệu tham khảo. Những số liệu, hình ảnh giao diện và sơ đồ do nhóm thực hiện xây dựng  
+được sử dụng đúng mục đích học thuật. Nhóm thực hiện chịu trách nhiệm về tính chính  
+xác và trung thực của nội dung báo cáo.
+Hà Nội, tháng 8 năm 2026
+Nhóm phát triển Spechubiii
+LỜI CẢM ƠN [[PAGE:thanks]]
+Nhóm thực hiện xin trân trọng cảm ơn Trường Đại học Phenikaa và Khoa Công nghệ  
+Thông tin đã tạo môi trường học tập, nghiên cứu thuận lợi; đồng thời trang bị những kiến 
+thức cần thiết về kỹ nghệ phần mềm, cơ sở dữ liệu, phát triển ứng dụng web và bảo đảm  
+chất lượng phần mềm.
+Nhóm cũng ghi nhận đóng góp của cộng đồng mã nguồn mở đã phát triển Next.js,  
+React, NestJS, Fastify, Prisma, PostgreSQL, Redis, Meilisearch và các công cụ kiểm thử  
+được sử dụng trong dự án. Mọi góp ý về phạm vi, chất lượng dữ liệu, an toàn hệ thống và 
+trải nghiệm người dùng sẽ là cơ sở quan trọng để Spechub tiếp tục hoàn thiện.iv
+MỤC LỤC [[PAGE:toc]]
+TÓM TẮT........................................................................................................................................................0
+LỜI CAM ĐOAN............................................................................................................................................0
+LỜI CẢM ƠN.................................................................................................................................................0
+DANH MỤC HÌNH ẢNH..............................................................................................................................0
+DANH MỤC BẢNG BIỂU............................................................................................................................0
+DANH MỤC TỪ VIẾT TẮT.........................................................................................................................0
+MỞ ĐẦU..........................................................................................................................................................0
+1. Lý do chọn đề tài...................................................................................................................................0
+2. Mục tiêu................................................................................................................................................0
+3. Đối tượng và phạm vi...........................................................................................................................0
+4. Phương pháp thực hiện.........................................................................................................................0
+5. Đóng góp của đồ án..............................................................................................................................0
+6. Cấu trúc báo cáo....................................................................................................................................0
+CHƯƠNG 1. TỔNG QUAN VỀ ĐỀ TÀI.....................................................................................................0
+1.1. Bối cảnh và bài toán...........................................................................................................................0
+1.2. Khoảng trống của các cách tiếp cận hiện có......................................................................................0
+1.3. Tầm nhìn và phạm vi sản phẩm.........................................................................................................0
+1.4. Các bên liên quan...............................................................................................................................0
+1.5. Yêu cầu chức năng.............................................................................................................................0
+1.6. Yêu cầu phi chức năng.......................................................................................................................0
+1.7. Rủi ro và ràng buộc............................................................................................................................0
+1.8. Kết luận chương.................................................................................................................................0
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ.............................................................................0
+2.1. Nguyên tắc kiến trúc..........................................................................................................................0
+2.2. Monorepo và tổ chức mã nguồn........................................................................................................0
+2.3. Lớp trình bày với Next.js và React....................................................................................................0
+2.4. API với NestJS và Fastify..................................................................................................................0
+2.5. Prisma, PostgreSQL và tìm kiếm dữ liệu..........................................................................................0v
+MỤC LỤC (TIẾP) [[PAGE:toc-cont-28]]
+2.6. Redis, tác vụ nền và khả năng phục hồi............................................................................................0
+2.7. Truy xuất tăng cường và AI có trích dẫn...........................................................................................0
+2.8. Xác thực, phân quyền và bảo mật......................................................................................................0
+2.9. PWA, quan sát hệ thống và triển khai...............................................................................................0
+2.10. Kết luận chương...............................................................................................................................0
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG..........................................................................0
+3.1. Tác nhân và mô hình ca sử dụng.......................................................................................................0
+3.2. Đặc tả ca sử dụng...............................................................................................................................0
+3.3. Thiết kế các luồng tuần tự..................................................................................................................0
+3.4. Thiết kế quy trình nghiệp vụ nền.......................................................................................................0
+3.5. Thiết kế dữ liệu..................................................................................................................................0
+3.6. Thiết kế API và hợp đồng dữ liệu......................................................................................................0
+3.7. Thiết kế an toàn và kiểm soát chất lượng..........................................................................................0
+3.8. Kết luận chương.................................................................................................................................0
+CHƯƠNG 4. PHÁT TRIỂN VÀ KẾT QUẢ................................................................................................0
+4.1. Môi trường và quy trình phát triển....................................................................................................0
+4.2. Hiện thực các mô-đun chính..............................................................................................................0
+4.3. Kết quả giao diện...............................................................................................................................0
+4.4. Kết quả API và dữ liệu......................................................................................................................0
+4.5. Kiểm thử và đánh giá.........................................................................................................................0
+4.6. Đánh giá mức độ đáp ứng..................................................................................................................0
+4.7. Hạn chế..............................................................................................................................................0
+4.8. Kết luận chương.................................................................................................................................0
+KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN....................................................................................................0
+TÀI LIỆU THAM KHẢO..............................................................................................................................0
+PHỤ LỤC A. DANH MỤC API....................................................................................................................0
+PHỤ LỤC B. DANH MỤC MÔ HÌNH DỮ LIỆU......................................................................................0
+PHỤ LỤC C. HƯỚNG DẪN VẬN HÀNH VÀ KIỂM THỬ.....................................................................0
+PHỤ LỤC D. HƯỚNG DẪN SỬ DỤNG TÓM TẮT..................................................................................0vi
+DANH MỤC HÌNH ẢNH [[PAGE:lof]]
+Hình 1.1. Sơ đồ ngữ cảnh hệ thống Spechub...........................................................................................0
+Hình 2.1. Cấu trúc monorepo Spechub.....................................................................................................0
+Hình 2.2. Kiến trúc logic nhiều lớp..........................................................................................................0
+Hình 2.3. Mô hình triển khai tham chiếu..................................................................................................0
+Hình 3.1. ca sử dụng phía người dùng......................................................................................................0
+Hình 3.2. ca sử dụng biên tập và quản trị.................................................................................................0
+Hình 3.3. Trình tự đăng nhập và làm mới phiên......................................................................................0
+Hình 3.4. Trình tự tìm kiếm và so sánh....................................................................................................0
+Hình 3.5. Trình tự trợ lý AI theo RAG.....................................................................................................0
+Hình 3.6. Luồng theo dõi giá và phát cảnh báo........................................................................................0
+Hình 3.7. Luồng thu thập, chuẩn hóa và duyệt dữ liệu............................................................................0
+Hình 3.8. Sơ đồ thực thể–liên kết nhóm danh mục thiết bị......................................................................0
+Hình 3.9. Sơ đồ thực thể–liên kết nhóm phần cứng và chấm điểm.........................................................0vii
+DANH MỤC HÌNH ẢNH (TIẾP) [[PAGE:lof-cont]]
+Hình 3.10. Sơ đồ thực thể–liên kết nhóm nội dung và AI........................................................................0
+Hình 3.11. Sơ đồ thực thể–liên kết nhóm người dùng và thương mại.....................................................0
+Hình 4.1. Trang chủ Spechub...................................................................................................................0
+Hình 4.2. Trang danh mục thiết bị............................................................................................................0
+Hình 4.3. Trang chi tiết thiết bị.................................................................................................................0
+Hình 4.4. Kết quả tìm kiếm thiết bị và phần cứng...................................................................................0
+Hình 4.5. Giao diện chọn thiết bị để so sánh............................................................................................0
+Hình 4.6. Quy trình khuyến nghị theo nhu cầu........................................................................................0
+Hình 4.7. Giao diện trợ lý AI....................................................................................................................0
+Hình 4.8. Giao diện Wiki công nghệ........................................................................................................0
+Hình 4.9. Giao diện đăng nhập.................................................................................................................0viii
+DANH MỤC BẢNG BIỂU [[PAGE:lot]]
+Bảng 1.1. So sánh cách tiếp cận dữ liệu thiết bị.......................................................................................0
+Bảng 1.2. Các bên liên quan.....................................................................................................................0
+Bảng 1.3. Yêu cầu chức năng chính.........................................................................................................0
+Bảng 1.4. Yêu cầu phi chức năng.............................................................................................................0
+Bảng 1.5. Rủi ro và biện pháp giảm thiểu................................................................................................0
+Bảng 2.1. Thành phần công nghệ và phiên bản........................................................................................0
+Bảng 2.2. Biện pháp bảo mật theo lớp......................................................................................................0
+Bảng 2.3. Lựa chọn kiến trúc và đánh đổi................................................................................................0
+Bảng 3.1. Tác nhân hệ thống....................................................................................................................0
+Bảng 3.2. Danh mục ca sử dụng...............................................................................................................0
+Bảng 3.3. Đặc tả UC-01 – Tìm kiếm và lọc thiết bị.................................................................................0
+Bảng 3.4. Đặc tả UC-02 – So sánh thiết bị...............................................................................................0
+Bảng 3.5. Đặc tả UC-03 – Nhận khuyến nghị và hỏi AI..........................................................................0
+Bảng 3.6. Đặc tả UC-04 – Đăng nhập và quản lý phiên..........................................................................0
+Bảng 3.7. Đặc tả UC-05 – Danh sách yêu thích và cảnh báo giá.............................................................0
+Bảng 3.8. Đặc tả UC-06 – Đóng góp và duyệt Wiki................................................................................0ix
+DANH MỤC BẢNG BIỂU (TIẾP) [[PAGE:lot-cont]]
+Bảng 3.9. Đặc tả UC-07 – Thu thập và duyệt catalog..............................................................................0
+Bảng 3.10. Đặc tả UC-08 – Khai thác API B2B......................................................................................0
+Bảng 3.11. Phân nhóm 139 mô hình dữ liệu............................................................................................0
+Bảng 3.12. Quy ước hợp đồng API..........................................................................................................0
+Bảng 4.1. Môi trường phần mềm..............................................................................................................0
+Bảng 4.2. Mô-đun hiện thực chính...........................................................................................................0
+Bảng 4.3. Bản đồ tuyến giao diện.............................................................................................................0
+Bảng 4.4. Thống kê điểm cuối API API...................................................................................................0
+Bảng 4.5. Kết quả kiểm thử và đánh giá...................................................................................................0
+Bảng 4.6. Đánh giá mức độ đáp ứng yêu cầu...........................................................................................0
+Bảng 4.7. Hạn chế và tác động.................................................................................................................0
+Bảng A.1. Danh mục bộ điều khiển và điểm cuối API............................................................................0
+Bảng B.1. Danh sách mô hình Prisma......................................................................................................0
+Bảng C.1. Ma trận lệnh vận hành và mục đích........................................................................................0
+Bảng D.1. Tác vụ người dùng thường gặp...............................................................................................0x
+DANH MỤC TỪ VIẾT TẮT [[PAGE:abbr]]
+Từ viết tắt Tiếng Anh Ý nghĩa
+AI Artificial Intelligence Trí tuệ nhân tạo
+API Application Programming 
+Interface Giao diện lập trình ứng dụng
+B2B Business-to-Business Dịch vụ giữa các tổ chức
+CI Continuous Integration Tích hợp liên tục
+CRUD Create, Read, Update, Delete Các thao tác dữ liệu cơ bản
+CSR Máy khách-Side Rendering Kết xuất phía trình duyệt
+DTO Data Transfer Object Đối tượng truyền dữ liệu
+ERD Entity–Relationship Diagram Sơ đồ thực thể–quan hệ
+FK Foreign Khóa Khóa ngoại
+HTTP(S) Hypertext Transfer Protocol 
+(Secure)
+Giao thức truyền siêu văn 
+bản (bảo mật)
+JWT JSON Web Token Mã thông báo web JSON
+LLM Large Language Mô hình Mô hình ngôn ngữ lớn
+NFR Non-functional Requirement Yêu cầu phi chức năng
+ORM Object–Relational Mapping Ánh xạ đối tượng–quan hệ
+PK Primary Khóa Khóa chính
+PWA Progressive Web 
+Application Ứng dụng web tiến bộ
+RAG Retrieval-Augmented 
+Generation
+Sinh nội dung có truy xuất 
+tăng cường
+RBAC Vai trò-Based Access 
+Control
+Kiểm soát truy cập theo vai 
+trò
+REST Representational State 
+Transfer
+Phong cách kiến trúc dịch vụ 
+web
+SDK Software Development Kit Bộ công cụ phát triển phần 
+mềm
+SLO Dịch vụ Level Objective Mục tiêu mức dịch vụxi
+Từ viết tắt Tiếng Anh Ý nghĩa
+SPA Single-Page Application Ứng dụng đơn trang
+SSR Server-Side Rendering Kết xuất phía máy chủ
+UI/UX User Interface / User 
+Experience
+Giao diện / trải nghiệm 
+người dùng
+UUID Universally Ràng buộc duy 
+nhất Identifier Định danh duy nhất phổ quát1
+MỞ ĐẦU [[PAGE:opening]]
+1. Lý do chọn đề tài [[PAGE:opening-1]]
+Thị trường thiết bị thông minh phát triển nhanh về số lượng mô hình, biến thể bộ nhớ,  
+cấu hình phần cứng và phiên bản phần mềm. Cùng một sản phẩm có thể được mô tả bằng 
+nhiều tên thương mại, đơn vị đo hoặc tập thông số khác nhau giữa trang hãng, cửa hàng  
+và bài đánh giá. Người dùng phải mở nhiều nguồn, tự đối chiếu và thường không biết một 
+con số bắt nguồn từ đâu.
+Các trang thương mại điện tử tối ưu cho giao dịch, trong khi các bảng thông số đơn lẻ  
+thường thiếu quan hệ giữa thiết bị, chipset, CPU, GPU, màn hình, camera và bằng chứng  
+nguồn. Khi bổ sung AI, nếu hệ thống không ràng buộc câu trả lời vào catalog đã chuẩn  
+hóa và trích dẫn, nguy cơ đưa ra thông tin thiếu căn cứ càng tăng. Spechub được lựa chọn 
+để nghiên cứu một nền tảng coi dữ liệu, nguồn gốc và quy trình duyệt là lõi, thay vì chỉ là 
+một giao diện tìm kiếm.
+2. Mục tiêu [[PAGE:opening-2]]
+Mục tiêu tổng quát là xây dựng nền tảng web phục vụ tra cứu, so sánh và nghiên cứu  
+thiết bị thông minh trên một mô hình dữ liệu có cấu trúc, có thể truy nguyên nguồn và mở 
+rộng cho tác vụ AI. Các mục tiêu cụ thể gồm:
+• Chuẩn hóa danh mục mô hình, biến thể, linh kiện và thuộc tính kỹ thuật.
+• Cung cấp tìm kiếm, lọc, xem chi tiết, so sánh và khuyến nghị theo nhu cầu.
+• Thiết kế trợ lý AI/RAG sử dụng ngữ cảnh catalog và trả về trích dẫn.
+• Tổ chức Wiki có phiên bản, kiểm duyệt, bình luận và liên kết nguồn.
+• Hỗ trợ danh sách yêu thích, lịch sử giá, cảnh báo và thông báo theo kênh.
+• Cung cấp công cụ biên tập, nhật ký hoạt động, kiểm tra trạng thái, chỉ số giám sát 
+và API dành cho đối tác có hạn mức.
+• Đánh giá hiện thực bằng kiểm thử tự động, kiểm tra lược đồ và mức sẵn sàng hạ 
+tầng.2
+3. Đối tượng và phạm vi [[PAGE:opening-3]]
+Đối tượng nghiên cứu gồm kiến trúc ứng dụng web nhiều lớp, thiết kế cơ sở dữ liệu  
+danh mục, tìm kiếm toàn văn và véc-tơ, quản lý phiên và phân quyền, quy trình biên tập  
+dữ liệu, RAG có trích dẫn, tác vụ nền và kiểm thử API. Phạm vi thực hiện bao gồm giao  
+diện web, API, tiến trình nền, các gói dùng chung và hạ tầng PostgreSQL/Redis. Việc  
+đánh giá tải lớn trên môi trường Internet và mức độ bao phủ toàn bộ thiết bị trên thị trường 
+không nằm trong phạm vi của đồ án.
+4. Phương pháp thực hiện [[PAGE:opening-4]]
+1. Khảo sát bài toán, xác định đối tượng sử dụng, phạm vi nghiên cứu và các yêu cầu của hệ 
+thống.
+2. Phân tích tài liệu dự án, cấu trúc mã nguồn, các bộ điều khiển API, tuyến giao diện và lược 
+đồ Prisma.
+3. Vận hành hệ thống trong môi trường cục bộ, kiểm tra mức sẵn sàng, ghi nhận giao diện và 
+thực hiện các bộ kiểm thử API.
+4. Mô hình hóa tác nhân, ca sử dụng, biểu đồ tuần tự, quy trình nghiệp vụ và sơ đồ thực thể–
+liên kết theo từng miền dữ liệu.
+5. Đối chiếu kết quả xây dựng với yêu cầu, phân tích các hạn chế và đề xuất hướng phát triển 
+tiếp theo.
+5. Đóng góp của đồ án [[PAGE:opening-5]]
+Đồ án đóng góp một mô hình dữ liệu sâu cho thiết bị thông minh; một kiến trúc  
+monorepo tách ứng dụng triển khai và gói dùng chung; một bề mặt API có phân quyền;  
+luồng AI gắn với dữ liệu và trích dẫn; cùng quy trình biên tập không cho dữ liệu ngoài đi  
+thẳng vào catalog công khai. Báo cáo cũng đưa ra bộ sơ đồ và phụ lục định lượng để các  
+thành viên mới có thể hiểu nhanh hệ thống.
+6. Cấu trúc báo cáo [[PAGE:opening-6]]
+Sau phần mở đầu, Chương 1 trình bày bối cảnh, yêu cầu và ràng buộc; Chương 2 giải  
+thích cơ sở lý thuyết và các lựa chọn công nghệ; Chương 3 đặc tả ca sử dụng, luồng tương 
+tác và dữ liệu; Chương 4 mô tả hiện thực, giao diện và kết quả kiểm thử. Phần cuối tổng  
+kết, nêu hướng phát triển, tài liệu tham khảo và các phụ lục API, mô hình dữ liệu, vận  
+hành và hướng dẫn sử dụng.3
+CHƯƠNG 1. TỔNG QUAN VỀ ĐỀ TÀI [[PAGE:ch1]]
+1.1. Bối cảnh và bài toán [[PAGE:ch1-1]]
+Một quyết định mua thiết bị không chỉ phụ thuộc giá niêm yết. Người dùng cần biết  
+khác biệt giữa các biến thể, cấu hình chipset, chất lượng màn hình, camera, pin, khả năng 
+cập nhật hệ điều hành và mức phù hợp với nhu cầu. Dữ liệu này thường nằm rải rác ở trang 
+hãng, cửa hàng, cơ sở đánh giá chuẩn và bài viết kỹ thuật. Tên trường, đơn vị và mức chi  
+tiết khác nhau khiến việc tổng hợp thủ công tốn thời gian và dễ sai.
+Ở góc độ kỹ thuật, dữ liệu thiết bị có tính quan hệ cao. Một mô hình có nhiều biến thể; 
+một biến thể dùng nhiều thành phần; một linh kiện có thể xuất hiện trên nhiều thiết bị; một 
+giá trị có thể cần nhiều nguồn xác nhận và thay đổi theo thời gian. Nếu lưu toàn bộ dưới  
+dạng văn bản hoặc JSON không được quản trị, việc tìm kiếm, so sánh, chấm điểm và duy 
+trì tính nhất quán sẽ khó mở rộng.
+Spechub xác định ba bài toán trung tâm: chuẩn hóa tri thức thiết bị; cung cấp trải nghiệm 
+khám phá có thể giải thích; và duy trì vòng đời dữ liệu từ thu thập, đối soát, xuất bản đến  
+lập chỉ mục. Các chức năng thương mại như danh sách yêu thích, cảnh báo giá, tiếp thị  
+liên kết và gói API được thiết kế xoay quanh lõi dữ liệu đó.
+Hình 1.1. Sơ đồ ngữ cảnh hệ thống Spechub [[PAGE:fig-1-1]]4
+1.2. Khoảng trống của các cách tiếp cận hiện có [[PAGE:ch1-2]]
+Không có một kiểu sản phẩm đơn lẻ đáp ứng đồng thời chiều sâu dữ liệu, trải nghiệm  
+so sánh, cộng tác nội dung, khả năng truy nguyên và quyền truy cập lập trình. Bảng 1.1  
+tổng hợp sự khác biệt theo mục tiêu sử dụng; đây là phân tích định tính về loại hình giải  
+pháp, không phải xếp hạng một nhà cung cấp cụ thể.
+Bảng 1.1. So sánh cách tiếp cận dữ liệu thiết bị [[PAGE:tab-1-1]]
+Cách tiếp cận Điểm mạnh
+Khoảng trống đối với 
+Spechub
+Trang hãng Thông tin chính thức, hình 
+ảnh chuẩn
+Khó so sánh chéo; dữ liệu 
+thường chỉ tập trung sản phẩm 
+của hãng
+Sàn/cửa hàng Giá và tồn kho gần giao dịch
+Thông số có thể rút gọn, lặp 
+hoặc không đồng nhất giữa 
+người bán
+Trang thông số Tra cứu nhanh nhiều mô 
+hình
+Quan hệ linh kiện, nguồn 
+trích dẫn và quy trình duyệt 
+thường hạn chế
+Bài đánh giá Phân tích sâu, có ngữ cảnh 
+sử dụng
+Khó cấu trúc hóa để lọc, so 
+sánh tự động và cập nhật hàng 
+loạt
+Chatbot tổng quát Hội thoại tự nhiên
+Có nguy cơ trả lời không 
+bám catalog, thiếu trích dẫn và 
+không tái lập
+Spechub Kết hợp catalog, nguồn, 
+Wiki, so sánh, RAG và cảnh báo
+Đòi hỏi đầu tư lớn cho chuẩn 
+hóa, kiểm duyệt và vận hành dữ 
+liệu
+Khoảng trống mà Spechub ưu tiên không phải là số lượng trang, mà là khả năng liên  
+kết dữ liệu có cấu trúc với bằng chứng. Khi một thuộc tính xuất hiện trong kết quả so sánh 
+hoặc câu trả lời AI, hệ thống cần xác định được thực thể liên quan, phiên bản dữ liệu và  
+nguồn tham chiếu phù hợp.
+1.3. Tầm nhìn và phạm vi sản phẩm [[PAGE:ch1-3]]
+Tầm nhìn của Spechub là trở thành lớp tri thức dùng chung cho nghiên cứu thiết bị  
+thông minh. Lớp trải nghiệm phục vụ người dùng cuối; Catalog Studio phục vụ quản trị  
+dữ liệu; API B2B mở quyền truy cập có kiểm soát; còn tiến trình nền duy trì các tác vụ dài 5
+và định kỳ. Phạm vi mã nguồn quan sát được bao gồm 22 tuyến web, 30 bộ điều khiển  
+API, 186 điểm cuối API và 139 mô hình dữ liệu.
+• Catalog: loại thiết bị, hãng/tổ chức, họ sản phẩm, mô hình, biến thể, tên thay thế, 
+dữ liệu đa phương tiện và trạng thái phát hành.
+• Phần cứng: chipset, CPU, GPU, NPU, màn hình, camera, pin, bộ nhớ, lưu trữ, hệ 
+điều hành và đánh giá chuẩn.
+• Khám phá: tìm kiếm, lọc, xem chi tiết, so sánh, chấm điểm và khuyến nghị.
+• Nội dung: nguồn, trích dẫn, Wiki, phiên bản, bình luận, kiểm duyệt và véc-tơ 
+nhúng.
+• Cá nhân hóa: tài khoản, danh sách yêu thích, cảnh báo giá, thông báo và tùy chọn 
+kênh nhận.
+• Thương mại và vận hành: tiếp thị liên kết, lịch sử giá, gói thuê bao, Stripe 
+webhook, khóa API, thống kê sử dụng, nhật ký hoạt động, kiểm tra trạng thái và 
+chỉ số giám sát.
+1.4. Các bên liên quan [[PAGE:ch1-4]]
+Bảng 1.2. Các bên liên quan [[PAGE:tab-1-2]]
+Bên liên quan Nhu cầu chính Tiêu chí thành công
+Khách truy cập Tìm và so sánh nhanh mà 
+không buộc đăng nhập
+Kết quả rõ, có bộ lọc, có 
+nguồn và URL chia sẻ được
+Người dùng Lưu danh sách, theo dõi giá, 
+nhận thông báo
+Dữ liệu cá nhân tách biệt, 
+cảnh báo đúng điều kiện, không 
+gửi lặp
+Biên tập viên Cập nhật catalog và nội dung 
+từ nguồn
+Có hàng đợi duyệt, sai khác, 
+trích dẫn nguồn và nhật ký hoạt 
+động
+Kiểm duyệt viên Đánh giá thay đổi và phiên 
+bản Wiki
+Phê duyệt/từ chối có lý do, 
+phân quyền đúng
+Quản trị viên Quản lý quyền, gói dịch vụ 
+và vận hành
+Có dashboard, trạng thái 
+hoạt động, chỉ số giám sát, nhật 
+ký và cơ chế thu hồi
+Đối tác B2B Truy cập dữ liệu ổn định 
+bằng API
+khóa API có phạm vi quyền, 
+hạn mức, thống kê mức sử dụng 
+và tài liệu hợp đồng6
+Bên liên quan Nhu cầu chính Tiêu chí thành công
+Nhóm phát triển Phát triển nhiều mô-đun 
+trong một kho
+Build/test nhất quán, kiểu dữ 
+liệu dùng chung, lỗi dễ truy vết
+1.5. Yêu cầu chức năng [[PAGE:ch1-5]]
+Yêu cầu chức năng được nhóm theo hành trình người dùng và vòng đời dữ liệu. Mỗi  
+yêu cầu có mã để đối chiếu ở Chương 4.
+Bảng 1.3. Yêu cầu chức năng chính [[PAGE:tab-1-3]]
+Mã Yêu cầu Mức ưu tiên Căn cứ đánh giá
+FR-01
+Tìm kiếm thiết 
+bị/phần cứng theo từ khóa 
+và bộ lọc
+Bắt buộc
+Tuyến /tìm kiếm, bộ 
+điều khiển tìm 
+kiếm/catalog
+FR-02
+Xem mô hình, biến 
+thể, thông số, điểm và 
+nguồn
+Bắt buộc Tuyến /devices/[slug], 
+API catalog
+FR-03 So sánh nhiều thiết bị 
+trên thuộc tính chuẩn hóa Bắt buộc Tuyến /compare, 
+compare dịch vụ
+FR-04 Đề xuất thiết bị theo 
+nhu cầu Cao Tuyến /recommend, 
+AI recommendations
+FR-05 Hỏi AI và nhận câu 
+trả lời có trích dẫn nguồn Cao Tuyến /ai, /ai/ask và 
+/ai/chat
+FR-06 Đăng ký, đăng nhập, 
+làm mới và thu hồi phiên Bắt buộc Auth API, JWT và 
+Redis phiên
+FR-07 Quản lý danh sách 
+yêu thích và cảnh báo giá Cao
+Tuyến /danh sách yêu 
+thích, /alerts và tiến trình 
+nền
+FR-08
+Đọc, soạn, sửa và 
+duyệt Wiki theo phiên 
+bản
+Cao Các tuyến /wiki và 
+API kiểm duyệt
+FR-09
+Thu thập, chuẩn hóa 
+và duyệt dữ liệu danh 
+mục
+Bắt buộc
+Nguồn dữ liệu, trang 
+dữ liệu thô và quy trình 
+kiểm duyệt
+FR-10
+Quản trị quyền, gói 
+thuê bao, nhật ký hoạt 
+động và webhook
+Cao
+Các bộ điều khiển 
+quản trị, thanh toán và 
+nhật ký hoạt động
+FR-11
+Cấp khóa API, phạm 
+vi quyền và theo dõi mức 
+sử dụng B2B
+Trung bình Tuyến /api-access và 
+các bộ điều khiển B2B7
+Mã Yêu cầu Mức ưu tiên Căn cứ đánh giá
+FR-12
+Cung cấp kiểm tra 
+trạng thái, mức sẵn sàng 
+và chỉ số giám sát
+Bắt buộc Bốn điểm cuối kiểm 
+tra trạng thái hoạt động
+1.6. Yêu cầu phi chức năng [[PAGE:ch1-6]]
+Bảng 1.4. Yêu cầu phi chức năng [[PAGE:tab-1-4]]
+Mã Thuộc tính Yêu cầu có thể kiểm chứng
+NFR-01 An toàn
+Validate DTO theo whitelist; 
+từ chối trường lạ; JWT và RBAC; 
+Helmet; CORS giới hạn; không 
+lưu khóa API dạng rõ.
+NFR-02 Tính đúng
+Ràng buộc khóa/unique trong 
+DB; quy trình duyệt; trích dẫn 
+nguồn; kiểm thử dịch vụ/bộ điều 
+khiển; lược đồ Prisma hợp lệ.
+NFR-03 Khả dụng
+Trạng thái hoạt động/trạng 
+thái tiến trình/mức sẵn sàng tách 
+biệt; phụ thuộc DB/Redis được 
+báo rõ; lỗi có mã định danh yêu 
+cầu.
+NFR-04 Hiệu năng
+Phân trang, index, bộ nhớ đệm 
+Redis, tìm kiếm chuyên dụng tùy 
+chọn; tác vụ dài chạy nền.
+NFR-05 Mở rộng
+Mô-đun NestJS theo miền; 
+monorepo; dữ liệu chuẩn hóa; 
+API version /v1.
+NFR-06 Quan sát
+Structured nhật ký, mã định 
+danh yêu cầu, chỉ số giám sát và 
+nhật ký hoạt động cho hành động 
+đặc quyền.
+NFR-07 Trải nghiệm
+Giao diện responsive, 
+PWA/offline, thông báo trạng thái 
+và thao tác chính có thể dùng bàn 
+phím.
+NFR-08 Bảo trì
+TypeScript strict, lược đồ 
+dùng chung, lint/test, tài liệu 
+Swagger trong môi trường phát 
+triển.
+Một số mục như ngưỡng độ trễ theo phân vị, tải đồng thời và mục tiêu mức dịch vụ  
+trong môi trường vận hành chưa có kết quả đo tải trong phạm vi đồ án. Vì vậy, các nội  8
+dung này được trình bày dưới dạng mục tiêu thiết kế và hướng đánh giá tiếp theo, không  
+sử dụng số liệu hiệu năng giả định.
+1.7. Rủi ro và ràng buộc [[PAGE:ch1-7]]
+Bảng 1.5. Rủi ro và biện pháp giảm thiểu [[PAGE:tab-1-5]]
+Rủi ro Khả năng / tác động Biện pháp giảm thiểu
+Nguồn ngoài thay đổi cấu trúc Cao / Cao
+Lưu trang dữ liệu thô, mã băm 
+nội dung, bộ phân tích dữ liệu 
+theo nguồn, hàng đợi kiểm duyệt 
+và cảnh báo thất bại
+Thông số xung đột Cao / Cao
+Chuẩn hóa đơn vị, lưu trích 
+dẫn nguồn, trust score và yêu cầu 
+đối soát trước xuất bản
+AI tạo nội dung thiếu căn cứ Trung bình / Cao
+RAG top-k, chỉ dẫn policy, 
+trích dẫn nguồn ID, bộ nhớ đệm 
+có phiên bản và đánh giá thủ công
+Lộ mã làm mới/khóa API Thấp / Cao
+Cookie bảo mật, mã băm 
+khóa, phiên Redis, phạm vi 
+quyền, giới hạn tần suất và thu 
+hồi
+Tăng trưởng lược đồ Cao / Trung bình
+Chia miền, bảng nối, 
+migration, quy ước đặt tên và phụ 
+lục mô hình
+Phụ thuộc dịch vụ ngoài Trung bình / Trung bình
+Timeout, phương án dự 
+phòng, thử lại có giới hạn, 
+webhook tính lũy đẳng và 
+degrade có kiểm soát
+Thiếu dữ liệu bao phủ Cao / Trung bình
+Ưu tiên chất lượng hơn số 
+lượng, đo độ đầy đủ theo loại 
+thiết bị và mở rộng theo lộ trình
+1.8. Kết luận chương [[PAGE:ch1-8]]
+Chương 1 đã xác định Spechub là bài toán quản trị tri thức thiết bị chứ không chỉ là một 
+website liệt kê sản phẩm. Yêu cầu trọng tâm là cấu trúc dữ liệu sâu, truy nguyên nguồn,  
+khám phá dễ dùng, kiểm soát thay đổi và bề mặt API an toàn. Các yêu cầu và rủi ro này là 
+cơ sở để lựa chọn công nghệ ở Chương 2 và đặc tả thiết kế ở Chương 3.9
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ [[PAGE:ch2]]
+2.1. Nguyên tắc kiến trúc [[PAGE:ch2-1]]
+Kiến trúc Spechub tuân theo các nguyên tắc: phân tách trách nhiệm; hợp đồng dữ liệu  
+rõ; xác thực ở biên và phân quyền ở nghiệp vụ; mọi thay đổi quan trọng có nhật ký hoạt  
+động; dữ liệu ngoài phải qua bước chuẩn hóa/duyệt; tác vụ dài được tách khỏi yêu cầu; và 
+chức năng AI phải có khả năng truy vết về ngữ cảnh.
+Ứng dụng được tổ chức theo nhiều lớp. Web chịu trách nhiệm trình bày và trạng thái  
+tương tác; API thực hiện kiểm tra tính hợp lệ, xác thực và điều phối ca sử dụng; dịch  
+vụ/mô-đun chứa quy tắc nghiệp vụ; Prisma quản lý truy cập quan hệ; còn PostgreSQL,  
+Redis, tìm kiếm và các dịch vụ ngoài đảm nhiệm lưu trữ hoặc năng lực chuyên biệt. Cách 
+phân tách này giúp kiểm thử từng tầng và thay thế phụ thuộc mà không làm thay đổi toàn 
+bộ giao diện.
+Bảng 2.1. Thành phần công nghệ và phiên bản [[PAGE:tab-2-1]]
+Lớp Công nghệ Phiên bản Vai trò
+Môi trường thực thi Node.js >=22.11.0 Thực thi web/API và 
+công cụ
+Quản lý kho mã 
+nguồn pnpm / Turborepo pnpm@9.15.0 / 2.3.3
+Quản lý kho mã 
+nguồn đơn nhất và quy 
+trình xử lý
+Giao diện web Next.js / React 15.1.3 / ^19.0.0 SSR/CSR, App 
+Router và giao diện
+API NestJS / Fastify 11.0.6 / 5.2.0 REST, bộ bảo vệ, pipe 
+và hiệu năng HTTP
+Kiểm tra dữ liệu Zod 3.24.1 Lược đồ dùng chung 
+và kiểm tra dữ liệu
+Truy cập dữ liệu Prisma 6.1.0 ORM, di trú và kiểu 
+dữ liệu
+Cơ sở dữ liệu PostgreSQL 16
+Quan hệ, tìm kiếm 
+toàn văn, véc-tơ và phần 
+mở rộng
+Bộ nhớ đệm/phiên Redis Theo môi trường triển 
+khai
+Phiên, bộ nhớ đệm và 
+điều phối10
+Lớp Công nghệ Phiên bản Vai trò
+Tìm kiếm Meilisearch máy 
+khách 0.46.0 Tìm kiếm chuyên 
+dụng tùy chọn
+Trạng thái phía web TanStack Query 5.62.10 Bộ nhớ đệm và đồng 
+bộ dữ liệu phía web
+2.2. Monorepo và tổ chức mã nguồn [[PAGE:ch2-2]]
+Monorepo dùng pnpm không gian làm việc và Turborepo cho phép web, API, tiến trình 
+nền, database và các gói dùng chung phát triển trong một kho nhưng vẫn có ranh giới triển 
+khai. Kiểu dữ liệu, kiểm tra lược đồ và cấu hình TypeScript/ESLint được chia sẻ để giảm  
+sai khác giữa máy khách và máy chủ. Quy trình xử lý có thể chạy build, test và lint theo  
+đồ thị phụ thuộc, tận dụng bộ nhớ đệm cho phần không thay đổi.
+Hình 2.1. Cấu trúc monorepo Spechub [[PAGE:fig-2-1]]
+Ranh giới gói không thay thế ranh giới nghiệp vụ. Trong API, mỗi miền như catalog,  
+AI, Wiki, alerts, tiếp thị liên kết, thanh toán và admin tiếp tục có mô-đun/bộ điều  
+khiển/dịch vụ riêng. Cách tổ chức hai cấp giúp đội phát triển xác định nơi chứa code, đồng 
+thời hạn chế việc một mô-đun truy cập trực tiếp chi tiết nội bộ của mô-đun khác.11
+2.3. Lớp trình bày với Next.js và React [[PAGE:ch2-3]]
+Next.js App Router tổ chức trang theo tuyến theo cấu trúc thư mục, hỗ trợ kết xuất phía 
+máy chủ cho nội dung cần khả năng lập chỉ mục và kết xuất phía khách cho tương tác giàu 
+trạng thái. React 19 cung cấp mô hình component; TanStack Query quản lý bộ nhớ đệm,  
+trạng thái tải/lỗi và làm mới dữ liệu máy chủ; Tailwind CSS giúp thống nhất token khoảng 
+cách, màu và responsive.
+Danh sách 22 tuyến thể hiện bốn nhóm trải nghiệm: khám phá công khai; tài khoản/cá  
+nhân hóa; nội dung Wiki; và quản trị/thương mại. Thiết kế PWA bổ sung dịch vụ tiến trình 
+nền và trang offline để người dùng có phản hồi rõ khi mất kết nối. Việc phân tách tuyến  
+không đồng nghĩa mọi trang đều công khai: middleware và trạng thái xác thực phải điều  
+hướng hoặc chặn thao tác cần quyền.
+• Kết xuất phía máy chủ phù hợp trang catalog/chi tiết cần siêu dữ liệu và tải lần 
+đầu ổn định.
+• Thành phần phía máy khách dùng cho bộ lọc, chọn so sánh, biểu mẫu nhiều bước 
+và hội thoại AI.
+• TanStack Query giúp tránh tự viết cơ chế bộ nhớ đệm riêng cho từng trang.
+• URL chứa slug và query filter làm trạng thái có thể chia sẻ, quay lại và kiểm thử.
+2.4. API với NestJS và Fastify [[PAGE:ch2-4]]
+NestJS cung cấp dependency injection, mô-đun, bộ điều khiển, pipe, bộ bảo vệ và  
+interceptor. Fastify được chọn làm HTTP adapter để có quy trình xử lý gọn và khả năng  
+xử lý cao. API dùng prefix /api, URI version v1 và DTO được kiểm tra bởi ValidationPipe 
+với whitelist, forbidNonWhitelisted và transform; vì vậy trường không được định nghĩa bị 
+từ chối thay vì âm thầm đi vào nghiệp vụ.
+Guard toàn cục xử lý JWT, vai trò và giới hạn tần suất; decorator công khai cho phép  
+các điểm cuối API đọc như trạng thái hoạt động hoặc tìm kiếm bỏ qua xác thực khi phù  
+hợp. Swagger chỉ bật trong môi trường phát triển để hỗ trợ khám phá hợp đồng mà không 
+mở bề mặt không cần thiết ở môi trường sản xuất. Mã định danh yêu cầu được gắn vào  
+luồng xử lý để liên kết phản hồi lỗi với nhật ký.12
+Thống kê tĩnh ghi nhận 30 bộ điều khiển và 186 điểm cuối API, gồm 91 GET, 57 POST, 
+24 PATCH, 13 DELETE và 1 PUT. Phân bố này phù hợp hệ thống vừa có bề mặt đọc  
+catalog lớn, vừa có quy trình tạo/duyệt nội dung và tác vụ quản trị.
+Hợp đồng phản hồi lỗi tham chiếu
+HTTP/1.1 400 Bad Request
+{
+  "statusCode": 400,
+  "message": ["field must not be empty"],
+  "requestId": "7f6f4e4a-49b4-4c58-a487-3b8ec93260b0"
+}
+2.5. Prisma, PostgreSQL và tìm kiếm dữ liệu [[PAGE:ch2-5]]
+Prisma cung cấp lược đồ khai báo, máy khách có kiểu và quy trình migration. Với 139 
+mô hình, lợi ích quan trọng là hợp đồng dữ liệu được kiểm tra tập trung và quan hệ được  
+biểu diễn rõ trong code. PostgreSQL 16 phù hợp dữ liệu quan hệ nhiều ràng buộc, đồng  
+thời cho phép mở rộng tìm kiếm bằng pg_trgm, unaccent và lưu vector bằng pgvector.
+Tìm kiếm không chỉ là so khớp chuỗi. Truy vấn cần chuẩn hóa dấu, tên thay thế, tên mô 
+hình, hãng, chipset và từ khóa thuộc tính; kết quả phải phân trang, xếp hạng và quay lại  
+thực thể đầy đủ. Kiến trúc cho phép dùng khả năng PostgreSQL làm nền và Meilisearch  
+như bộ máy chuyên dụng tùy chọn. Dù đường tìm kiếm nào được chọn, kết quả cuối vẫn  
+được truy xuất chi tiết từ catalog để duy trì một nguồn sự thật.
+Vector véc-tơ nhúng hỗ trợ truy xuất ngữ nghĩa cho Wiki, thông số và câu hỏi AI.  
+Vector không thay thế quan hệ hay trích dẫn nguồn: nó chỉ giúp chọn ngữ cảnh gần nghĩa. 
+Thực thể gốc, phiên bản, mô hình véc-tơ nhúng và liên kết nguồn cần được lưu để có thể  
+tái tạo hoặc vô hiệu hóa chỉ mục khi dữ liệu thay đổi.
+2.6. Redis, tác vụ nền và khả năng phục hồi [[PAGE:ch2-6]]
+Redis được sử dụng cho phiên đăng nhập, bộ nhớ đệm và các trạng thái ngắn hạn cần  
+truy cập nhanh. Refresh token gắn với phiên UUID lưu trong Redis giúp logout thực sự  
+thu hồi phiên, thay vì chỉ xóa token ở trình duyệt. Bộ nhớ đệm phải có TTL và không gian 
+tên theo phiên bản để tránh trả dữ liệu cũ sau khi catalog được xuất bản.
+Tiến trình nền xử lý cảnh báo giá, đồng bộ nguồn, lập chỉ mục hoặc gửi thông báo—
+những tác vụ không nên giữ yêu cầu HTTP mở. Thiết kế tác vụ cần lũy đẳng, có khóa  13
+chống chạy trùng, thử lại giới hạn và hàng đợi lỗi/ghi lỗi rõ. Kiểm tra mức sẵn sàng kiểm 
+tra DB và Redis giúp bộ điều phối chỉ gửi lưu lượng khi phụ thuộc cốt lõi sẵn sàng.
+2.7. Truy xuất tăng cường và AI có trích dẫn [[PAGE:ch2-7]]
+RAG kết hợp bước truy xuất ngữ cảnh với mô hình sinh nội dung. Câu hỏi được chuẩn 
+hóa, tìm top-k đoạn hoặc thực thể phù hợp, sau đó API xây dựng chỉ dẫn gồm chính sách  
+trả lời, ngữ cảnh và định danh trích dẫn. Mô hình tạo câu trả lời; hệ thống kiểm tra định  
+dạng và trả cả trích dẫn nguồn để giao diện hiển thị liên kết nguồn.
+Ba ranh giới kiểm soát chất lượng là truy xuất, sinh nội dung và trình bày. Retrieval  
+phải lọc theo trạng thái xuất bản và quyền; sinh nội dung không được coi kiến thức ngoài 
+ngữ cảnh là dữ kiện chắc chắn; trình bày cần phân biệt câu trả lời, cảnh báo thiếu bằng  
+chứng và nguồn. Bộ nhớ đệm AI nên gắn với mã băm truy vấn, phiên bản dữ liệu và mô  
+hình để tránh dùng lại kết quả sau thay đổi quan trọng.
+Đánh giá AI không thể chỉ dùng kiểm thử đơn vị. Cần tập câu hỏi chuẩn, đáp án/nguồn 
+mong đợi, thước đo trích dẫn nguồn precision, ngữ cảnh recall, mức phù hợp và kiểm tra  
+an toàn tấn công chèn chỉ dẫn. Phạm vi hiện tại đã có kiến trúc và điểm cuối API, nhưng  
+bộ đánh giá chuẩn định lượng toàn diện là hướng phát triển tiếp theo.
+2.8. Xác thực, phân quyền và bảo mật [[PAGE:ch2-8]]
+Luồng xác thực phát hành mã truy cập ngắn hạn và mã làm mới gắn phiên. Mật khẩu  
+được lưu dưới dạng băm; refresh cookie cần HttpOnly, Secure và SameSite phù hợp.  
+RBAC phân biệt USER, EDITOR, MODERATOR và ADMIN; quyền chỉnh sửa catalog  
+hoặc xuất bản Wiki được kiểm tra ở máy chủ, không dựa vào việc ẩn nút trên giao diện.
+Bảng 2.2. Biện pháp bảo mật theo lớp [[PAGE:tab-2-2]]
+Lớp Rủi ro Biện pháp
+Trình duyệt XSS, đánh cắp token
+Escape nội dung, CSP/Helmet, 
+refresh cookie HttpOnly, không 
+lưu bí mật trong localStorage
+HTTP/API Payload lạ, abuse
+HTTPS, CORS giới hạn, 
+ValidationPipe, giới hạn kích 
+thước và giới hạn tần suất14
+Lớp Rủi ro Biện pháp
+Xác thực Credential stuffing, phiên tồn 
+tại
+Hash mật khẩu, throttle, phiên 
+Redis, luân chuyển/thu hồi refresh
+Phân quyền Leo thang đặc quyền
+JWT bộ bảo vệ, Roles bộ bảo 
+vệ, deny-by-default và kiểm tra 
+quyền sở hữu
+Dữ liệu Injection, mất toàn vẹn
+Prisma parameterization, ràng 
+buộc DB, giao dịch, migration và 
+backup
+Webhook/khóa API Replay, lộ khóa
+Xác minh chữ ký, tính lũy 
+đẳng, lưu mã băm, phạm vi quyền 
+và revoked_at
+AI/RAG Prompt injection, lộ dữ liệu
+Lọc nguồn, tách system 
+policy, không truy xuất tài liệu 
+vượt quyền, trích dẫn nguồn bắt 
+buộc
+Vận hành Thiếu truy vết
+Mã định danh yêu cầu, nhật ký 
+hoạt động nhật ký, chỉ số giám 
+sát, cảnh báo và loại bỏ dữ liệu 
+nhạy cảm khỏi dữ liệu nhạy cảm
+2.9. PWA, quan sát hệ thống và triển khai [[PAGE:ch2-9]]15
+Hình 2.2. Kiến trúc logic nhiều lớp [[PAGE:fig-2-2]]
+PWA cải thiện khả năng cài đặt và phản hồi khi kết nối không ổn định, nhưng bộ nhớ  
+đệm phải được thiết kế cẩn trọng để không làm quá hạn dữ liệu giá hoặc trạng thái tài  
+khoản. Quan sát hệ thống gồm trạng thái hoạt động, trạng thái tiến trình, mức sẵn sàng,  
+chỉ số giám sát, nhật ký có cấu trúc và mã định danh yêu cầu; nhật ký hoạt động nhật ký  
+tập trung vào thay đổi có ảnh hưởng nghiệp vụ. Hai lớp này phục vụ các mục đích khác  
+nhau và không nên trộn lẫn.16
+Hình 2.3. Mô hình triển khai tham chiếu [[PAGE:fig-2-3]]
+Bảng 2.3. Lựa chọn kiến trúc và đánh đổi [[PAGE:tab-2-3]]
+Lựa chọn Lợi ích Đánh đổi / kiểm soát
+Monorepo Chia sẻ kiểu và quy trình xử lý Kho lớn; cần ranh giới gói và 
+bộ nhớ đệm build
+Modular monolith API Giao dịch và triển khai đơn 
+giản
+Cần kỷ luật phụ thuộc để tránh 
+mô-đun chồng chéo
+PostgreSQL trung tâm Toàn vẹn quan hệ và truy vấn 
+linh hoạt
+Lược đồ lớn; cần index, 
+migration và quyền sở hữu rõ
+Redis Phiên/bộ nhớ đệm nhanh Thêm phụ thuộc; phải thiết kế 
+TTL, eviction và phục hồi
+Meilisearch tùy chọn Tìm kiếm xếp hạng tốt Đồng bộ chỉ mục và chế độ 
+phương án dự phòng
+RAG AI bám dữ liệu và có trích dẫn 
+nguồn
+Chi phí, độ trễ và yêu cầu 
+đánh giá chuẩn chất lượng
+Tiến trình nền Tách tác vụ dài khỏi yêu cầu Cần tính lũy đẳng, thử lại, 
+giám sát và xử lý lỗi
+2.10. Kết luận chương [[PAGE:ch2-10]]
+Các công nghệ được lựa chọn tạo thành một kiến trúc TypeScript xuyên suốt, có dữ liệu 
+quan hệ làm nền, bộ nhớ đệm và tìm kiếm là năng lực bổ trợ, còn AI được đặt sau lớp truy 17
+xuất và trích dẫn nguồn. Điểm quan trọng không nằm ở danh sách framework mà ở cách  
+ranh giới và kiểm soát được ghép thành luồng có thể kiểm thử. Chương 3 cụ thể hóa các  
+nguyên tắc này thành tác nhân, ca sử dụng, tuần tự và ERD.18
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG [[PAGE:ch3]]
+3.1. Tác nhân và mô hình ca sử dụng [[PAGE:ch3-1]]
+Phân tích tác nhân dựa trên quyền và mục tiêu nghiệp vụ, không đồng nhất tác nhân với 
+một màn hình. Khách truy cập có thể thực hiện luồng đọc; người dùng kế thừa quyền đọc 
+và có dữ liệu cá nhân; ba vai trò nội bộ có đặc quyền tăng dần; đối tác B2B tương tác bằng 
+khóa API thay vì phiên trình duyệt.
+Bảng 3.1. Tác nhân hệ thống [[PAGE:tab-3-1]]
+Tác nhân Xác thực Khả năng chính Giới hạn
+Khách truy cập Không bắt buộc
+Tìm kiếm, lọc, xem 
+chi tiết, so sánh, khuyến 
+nghị công khai
+Không lưu dữ liệu cá 
+nhân lâu dài
+Người dùng JWT + phiên làm mới
+Danh sách yêu thích, 
+cảnh báo, thông báo, đóng 
+góp Wiki
+Chỉ thao tác dữ liệu 
+của mình; nội dung chờ 
+duyệt
+Biên tập viên JWT, vai trò EDITOR Soạn catalog, quản lý 
+nguồn, đối soát dữ liệu
+Không quản trị người 
+dùng/hệ thống ngoài 
+phạm vi
+Kiểm duyệt viên JWT, vai trò 
+MODERATOR
+Duyệt thay đổi và 
+phiên bản Wiki
+Quyết định được ghi 
+nhật ký hoạt động
+Quản trị viên JWT, vai trò ADMIN
+Quản trị quyền, gói, 
+khóa API, webhook và 
+vận hành
+Thao tác nhạy cảm 
+phải có nhật ký và xác 
+nhận
+Đối tác B2B khóa API + phạm vi 
+quyền
+Đọc dữ liệu theo hợp 
+đồng và hạn mức
+Không dùng điểm 
+cuối API nội bộ; có hạn 
+mức và thu hồi
+Tiến trình nền Danh tính dịch vụ Đồng bộ, cảnh báo, 
+thông báo, lập chỉ mục
+Không nhận tương tác 
+trực tiếp; tác vụ phải lũy 
+đẳng19
+Hình 3.1. ca sử dụng phía người dùng [[PAGE:fig-3-1]]20
+Hình 3.2. ca sử dụng biên tập và quản trị [[PAGE:fig-3-2]]
+Bảng 3.2. Danh mục ca sử dụng [[PAGE:tab-3-2]]
+Mã Tên Tác nhân chính Kết quả
+UC-01 Tìm kiếm và lọc thiết 
+bị Khách/Người dùng Danh sách xếp hạng, 
+phân trang và có bộ lọc
+UC-02 So sánh thiết bị Khách/Người dùng Ma trận thuộc tính 
+chuẩn hóa
+UC-03 Khuyến nghị và hỏi 
+AI Khách/Người dùng Gợi ý/câu trả lời có lý 
+do và trích dẫn nguồn
+UC-04 Đăng nhập và quản lý 
+phiên Người dùng nội bộ Access token và phiên 
+làm mới có thể thu hồi
+UC-05 Danh sách yêu thích 
+và cảnh báo giá Người dùng Theo dõi biến thể và 
+thông báo khi đạt ngưỡng
+UC-06 Đóng góp và duyệt 
+Wiki
+Người dùng/Kiểm 
+duyệt viên
+Phiên bản được xuất 
+bản hoặc từ chối có lý do
+UC-07 Thu thập và duyệt 
+catalog
+Biên tập viên/Kiểm 
+duyệt viên/Tiến trình nền
+Dữ liệu chuẩn hóa có 
+nguồn được xuất bản
+UC-08 Khai thác API B2B Đối tác/Quản trị viên
+Truy cập theo phạm vi 
+quyền, hạn mức và mức 
+sử dụng21
+3.2. Đặc tả ca sử dụng [[PAGE:ch3-2]]
+Tám ca sử dụng dưới đây đại diện cho hành trình đọc, cá nhân hóa, cộng tác, quản trị  
+dữ liệu và tích hợp. Luồng được viết ở mức nghiệp vụ; đường dẫn API cụ thể có thể thay  
+đổi nhưng tiền/hậu điều kiện và kiểm soát phải được giữ.22
+Bảng 3.3. Đặc tả UC-01 – Tìm kiếm và lọc thiết bị [[PAGE:tab-3-3]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-01
+Mục tiêu Tìm nhanh thiết bị hoặc phần cứng phù hợp 
+theo từ khóa, loại, hãng và thuộc tính.
+Tác nhân Khách truy cập; Người dùng.
+Tiền điều kiện
+Catalog có dữ liệu đã xuất bản; dịch vụ tìm 
+kiếm ở chế độ PostgreSQL hoặc Meilisearch sẵn 
+sàng.
+Kích hoạt Tác nhân nhập từ khóa, chọn bộ lọc hoặc mở 
+URL có query parameter.
+Luồng chính
+1) Web chuẩn hóa dữ liệu đầu vào và gửi GET 
+tìm kiếm.
+2) API kiểm tra tham số, giới hạn trang và sort.
+3) Tìm kiếm tìm ID xếp hạng theo text/tên thay 
+thế.
+4) Catalog truy xuất chi tiết mô hình, biến thể, dữ 
+liệu đa phương tiện và facet.
+5) API trả DTO phân trang.
+6) Web hiển thị kết quả, bộ lọc và trạng thái URL.
+Luồng thay thế / ngoại lệ
+A1) Từ khóa rỗng: trả danh mục theo filter.
+A2) Không có kết quả: gợi ý bỏ bớt filter hoặc tên 
+thay thế gần đúng.
+E1) Tìm kiếm chuyên dụng lỗi: phương án dự 
+phòng sang PostgreSQL nếu cấu hình cho phép.
+E2) Tham số sai: trả 400 cùng mã định danh yêu 
+cầu.
+Hậu điều kiện Không thay đổi catalog; có thể ghi tìm kiếm 
+nhật ký và độ trễ mà không lưu dữ liệu nhạy cảm.
+Dữ liệu và kiểm soát
+Whitelist filter; giới hạn page size; chỉ trả bản 
+ghi đã xuất bản; query được parameter hóa; bộ 
+nhớ đệm theo query chuẩn hóa.23
+Bảng 3.4. Đặc tả UC-02 – So sánh thiết bị [[PAGE:tab-3-4]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-02
+Mục tiêu Đặt từ hai đến một số hữu hạn thiết bị cạnh 
+nhau trên cùng hệ thuộc tính.
+Tác nhân Khách truy cập; Người dùng.
+Tiền điều kiện Các slug hợp lệ và mô hình có ít nhất một biến 
+thể được xuất bản.
+Kích hoạt Tác nhân chọn nút So sánh từ danh sách/chi 
+tiết hoặc mở URL compare.
+Luồng chính
+1) Web duy trì danh sách slug không trùng.
+2) API nhận danh sách và kiểm tra số lượng.
+3) Dịch vụ tải mô hình, biến thể và phần cứng liên 
+quan.
+4) Thuộc tính được ánh xạ vào lược đồ so sánh 
+theo loại thiết bị.
+5) Giá trị được chuẩn hóa đơn vị và đánh dấu 
+thiếu dữ liệu.
+6) Web hiển thị ma trận, điểm khác biệt và nguồn 
+khi có.
+Luồng thay thế / ngoại lệ
+A1) Chỉ có một thiết bị: yêu cầu chọn thêm.
+A2) Khác loại thiết bị không tương thích: dùng 
+tập thuộc tính chung hoặc cảnh báo.
+E1) Slug không tồn tại: bỏ mục lỗi và thông báo.
+E2) Dữ liệu thiếu: hiển thị 'Chưa có dữ liệu', 
+không suy diễn.
+Hậu điều kiện URL chứa lựa chọn có thể chia sẻ; không thay 
+đổi dữ liệu người dùng nếu chưa lưu.
+Dữ liệu và kiểm soát
+Giới hạn số mô hình; thứ tự ổn định; chuẩn 
+hóa đơn vị; trích dẫn nguồn gắn thuộc tính; tránh 
+N+1 bằng include/batch.24
+Bảng 3.5. Đặc tả UC-03 – Nhận khuyến nghị và hỏi AI [[PAGE:tab-3-5]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-03
+Mục tiêu
+Chuyển nhu cầu tự nhiên hoặc bộ tiêu chí 
+thành gợi ý có thể giải thích và câu trả lời có 
+nguồn.
+Tác nhân Khách truy cập; Người dùng; AI dịch vụ.
+Tiền điều kiện Catalog/Wiki đã lập chỉ mục; chính sách chỉ 
+dẫn và cấu hình mô hình hợp lệ.
+Kích hoạt Tác nhân hoàn thành biểu mẫu khuyến nghị 
+hoặc gửi câu hỏi.
+Luồng chính
+1) API kiểm tra tính hợp lệ nhu cầu/câu hỏi.
+2) Bộ truy xuất tạo query và lấy k ngữ cảnh phù 
+hợp nhất theo quyền.
+3) Catalog tải dữ kiện/trích dẫn nguồn tương ứng.
+4) AI dịch vụ tạo chỉ dẫn ràng buộc.
+5) LLM trả nội dung có tham chiếu ID.
+6) API kiểm tra, lưu nhật ký/bộ nhớ đệm phù hợp 
+và trả câu trả lời cùng trích dẫn nguồn.
+7) Web hiển thị kết quả, lý do và liên kết nguồn.
+Luồng thay thế / ngoại lệ
+A1) Không đủ ngữ cảnh: trả lời giới hạn và đề 
+nghị làm rõ.
+A2) Mô hình ngoài danh mục: nêu rõ không tìm 
+thấy.
+E1) Dịch vụ LLM lỗi: trả thông báo có thể thử lại, 
+không giả câu trả lời.
+E2) Trích dẫn nguồn không hợp lệ: loại phần 
+không kiểm chứng hoặc đánh dấu.
+Hậu điều kiện
+Có bản ghi đo chất lượng/độ trễ nếu chính 
+sách cho phép; catalog không bị sửa bởi câu trả 
+lời.
+Dữ liệu và kiểm soát
+Giới hạn độ dài; lọc tấn công chèn chỉ dẫn; chỉ 
+ngữ cảnh đã xuất bản; thời gian chờ; bộ nhớ đệm 
+theo phiên bản; trích dẫn nguồn bắt buộc cho dữ 
+kiện.25
+Bảng 3.6. Đặc tả UC-04 – Đăng nhập và quản lý phiên [[PAGE:tab-3-6]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-04
+Mục tiêu Xác thực an toàn và cho phép thu hồi phiên 
+độc lập với mã truy cập.
+Tác nhân Người dùng; Biên tập viên; Kiểm duyệt viên; 
+Quản trị viên.
+Tiền điều kiện Tài khoản hoạt động; PostgreSQL và Redis 
+sẵn sàng.
+Kích hoạt Tác nhân gửi email/mật khẩu hoặc mã truy cập 
+hết hạn cần làm mới.
+Luồng chính
+1) API kiểm tra tính hợp lệ credential.
+2) Tìm user và so mật khẩu băm.
+3) Tạo phiên UUID trong Redis với TTL.
+4) Phát mã truy cập ngắn hạn và mã làm mới.
+5) Web nhận hồ sơ và lưu trạng thái.
+6) Khi refresh, API xác minh chữ ký và phiên.
+7) Logout xóa/thu hồi phiên và cookie.
+Luồng thay thế / ngoại lệ
+E1) Sai credential: phản hồi chung, không tiết 
+lộ email tồn tại.
+E2) Phiên hết hạn/thu hồi: yêu cầu đăng nhập lại.
+E3) Tài khoản khóa: từ chối và nhật ký hoạt động.
+E4) Redis không sẵn sàng: mức sẵn sàng fail; 
+không cấp phiên không thể quản lý.
+Hậu điều kiện
+Phiên hợp lệ được lưu có TTL hoặc đã bị thu 
+hồi; sự kiện đăng nhập đặc quyền có thể được 
+nhật ký hoạt động.
+Dữ liệu và kiểm soát
+Rate limit; mã băm mật khẩu; cookie 
+HttpOnly/Secure; luân chuyển token; RBAC phía 
+máy chủ; loại bỏ dữ liệu nhạy cảm khỏi token 
+khỏi nhật ký.26
+Bảng 3.7. Đặc tả UC-05 – Danh sách yêu thích và cảnh báo giá [[PAGE:tab-3-7]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-05
+Mục tiêu Lưu biến thể quan tâm và nhận thông báo khi 
+giá đạt điều kiện.
+Tác nhân Người dùng; Tiến trình nền; Thông báo dịch 
+vụ.
+Tiền điều kiện Người dùng đăng nhập; biến thể tồn tại; kênh 
+thông báo được cấu hình.
+Kích hoạt Người dùng thêm danh sách yêu thích hoặc đặt 
+mức giá mục tiêu.
+Luồng chính
+1) API kiểm tra quyền sở hữu, biến thể, tiền tệ 
+và ngưỡng.
+2) Lưu danh sách yêu thích/cảnh báo duy nhất.
+3) Tiến trình nền định kỳ đọc giá mới.
+4) So khớp điều kiện và chống gửi lặp.
+5) Tạo thông báo và lần gửi.
+6) Gửi qua kênh được bật.
+7) Ghi trạng thái lần gửi và lần kích hoạt.
+Luồng thay thế / ngoại lệ
+A1) Giá đã dưới ngưỡng tại lúc tạo: thông báo 
+ngay theo chính sách.
+A2) Người dùng tắt cảnh báo: tiến trình nền bỏ 
+qua.
+E1) Kênh gửi lỗi: thử lại giới hạn, ghi failed.
+E2) Giá thiếu/quá hạn: không kích hoạt, ghi lý do.
+Hậu điều kiện Cảnh báo có trạng thái và last_triggered_at; 
+lần gửi có lịch sử để chống lặp và hỗ trợ.
+Dữ liệu và kiểm soát
+Ràng buộc duy nhất user+biến thể; số thập 
+phân/tiền tệ chuẩn; tính lũy đẳng khóa; khung giờ 
+không làm phiền; tùy chọn và hủy đăng ký.27
+Bảng 3.8. Đặc tả UC-06 – Đóng góp và duyệt Wiki [[PAGE:tab-3-8]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-06
+Mục tiêu Cho phép cộng tác nội dung mà vẫn duy trì 
+lịch sử, nguồn và quyền xuất bản.
+Tác nhân Người dùng; Biên tập viên; Kiểm duyệt viên.
+Tiền điều kiện Tác nhân đăng nhập; bài viết hoặc quyền tạo 
+mới hợp lệ.
+Kích hoạt Tác nhân tạo/sửa bài Wiki và gửi duyệt.
+Luồng chính
+1) Web tải phiên bản hiện hành và trích dẫn 
+nguồn.
+2) Tác nhân soạn nội dung, thêm nguồn.
+3) API kiểm tra tính hợp lệ và tạo phiên bản bản 
+nháp.
+4) Gửi phiên bản vào hàng đợi kiểm duyệt.
+5) Kiểm duyệt viên xem sai khác, nguồn và bình 
+luận.
+6) Phê duyệt tạo phiên bản hiện hành mới hoặc từ 
+chối có lý do.
+7) Sự kiện xuất bản làm mới tìm kiếm/véc-tơ 
+nhúng.
+Luồng thay thế / ngoại lệ
+A1) Xung đột phiên bản: yêu cầu hợp nhất 
+trên phiên bản mới.
+A2) Yêu cầu bổ sung nguồn: trả về bản nháp.
+E1) Trích dẫn nguồn không hợp lệ: không cho 
+xuất bản.
+E2) Tác nhân thiếu vai trò: trả 403 và nhật ký hoạt 
+động.
+Hậu điều kiện
+Mọi phiên bản được giữ; bài đã xuất bản trỏ 
+phiên bản hiện hành; quyết định kiểm duyệt có tác 
+nhân và thời gian.
+Dữ liệu và kiểm soát
+Kiểm soát đồng thời lạc quan; làm sạch văn 
+bản định dạng; RBAC; nhật ký hoạt động; không 
+sửa trực tiếp phiên bản đã xuất bản.28
+Bảng 3.9. Đặc tả UC-07 – Thu thập và duyệt catalog [[PAGE:tab-3-9]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-07
+Mục tiêu Đưa dữ liệu nguồn vào catalog qua quy trình 
+xử lý có kiểm soát và truy nguyên.
+Tác nhân Tiến trình nền; Biên tập viên; Kiểm duyệt 
+viên.
+Tiền điều kiện Nguồn dữ liệu được đăng ký, có chính sách 
+thu thập và bộ phân tích dữ liệu phù hợp.
+Kích hoạt Lịch tác vụ, webhook hoặc thao tác đồng bộ 
+thủ công.
+Luồng chính
+1) Tiến trình nền thu thập và lưu trang dữ liệu 
+thô/mã băm nội dung.
+2) Bộ phân tích dữ liệu trích xuất dữ liệu đề xuất.
+3) Chuẩn hóa tên thay thế, đơn vị và quan hệ.
+4) So với phiên bản catalog, tạo sai khác kèm 
+trích dẫn nguồn.
+5) Biên tập viên đối soát và chỉnh dữ liệu đề xuất.
+6) Kiểm duyệt viên phê duyệt/từ chối.
+7) Giao dịch xuất bản, nhật ký hoạt động và phát 
+sự kiện lập chỉ mục lại.
+Luồng thay thế / ngoại lệ
+A1) Content mã băm không đổi: kết thúc 
+không tạo sai khác.
+A2) Nguồn xung đột: giữ dữ liệu đề xuất và yêu 
+cầu nguồn thứ hai.
+E1) Bộ phân tích dữ liệu lỗi: lưu trang dữ liệu 
+thô/nhật ký, không tác động catalog.
+E2) Giao dịch lỗi: hoàn tác toàn bộ.
+Hậu điều kiện Catalog chỉ thay đổi khi được duyệt; nguồn, 
+trang dữ liệu thô, sai khác và quyết định được lưu.
+Dữ liệu và kiểm soát
+Rate/robots policy; mã băm; kiểm tra lược đồ; 
+giao dịch; tính lũy đẳng; nhật ký hoạt động và 
+quyền theo vai trò.29
+Bảng 3.10. Đặc tả UC-08 – Khai thác API B2B [[PAGE:tab-3-10]]
+Thuộc tính Nội dung
+Mã ca sử dụng UC-08
+Mục tiêu Cho đối tác truy cập dữ liệu theo phạm vi 
+quyền, gói và hạn mức có thể theo dõi.
+Tác nhân Đối tác B2B; Quản trị viên.
+Tiền điều kiện Đối tác có gói thuê bao/khóa API hoạt động và 
+phạm vi quyền phù hợp.
+Kích hoạt Đối tác gửi yêu cầu có khóa API tới điểm cuối 
+API cho phép.
+Luồng chính
+1) Cổng API/bộ bảo vệ băm khóa và tìm bản 
+ghi.
+2) Kiểm tra revoked_at, gói thuê bao, phạm vi 
+quyền và hạn mức.
+3) Validate tham số và gọi dịch vụ catalog.
+4) Trả DTO được quản lý phiên bản.
+5) Ghi mức sử dụng theo đơn vị và tuyến.
+6) Trả phần đầu phản hồi hạn mức/mã định danh 
+yêu cầu.
+7) Quản trị viên xem mức sử dụng hoặc thu 
+hồi/luân chuyển khóa.
+Luồng thay thế / ngoại lệ
+E1) Khóa sai/thu hồi: 401.
+E2) Thiếu phạm vi quyền: 403.
+E3) Vượt hạn mức: 429 và thử lại hướng dẫn.
+E4) Gói hết hạn: chặn và phát sự kiện thanh toán 
+nếu cần.
+Hậu điều kiện Mức sử dụng được cộng lũy đẳng; không lưu 
+khóa dạng rõ; đối tác có thể quan sát hạn mức.
+Dữ liệu và kiểm soát
+Khóa chỉ hiển thị một lần; lưu mã băm; phạm 
+vi quyền tối thiểu; giới hạn tần suất; nhật ký hoạt 
+động luân chuyển/revoke; API quản lý phiên bản.
+3.3. Thiết kế các luồng tuần tự [[PAGE:ch3-3]]
+Biểu đồ tuần tự tập trung vào ranh giới tin cậy và nơi dữ liệu được kiểm tra. Luồng đăng 
+nhập cho thấy mã làm mới không tự đủ để cấp phiên mới; phiên Redis là điều kiện bắt  
+buộc. Luồng tìm kiếm tách xếp hạng ID khỏi truy xuất chi tiết thực thể. Luồng AI tách  
+truy xuất, catalog và sinh nội dung để giữ trích dẫn nguồn.30
+Hình 3.3. Trình tự đăng nhập và làm mới phiên [[PAGE:fig-3-3]]31
+Hình 3.4. Trình tự tìm kiếm và so sánh [[PAGE:fig-3-4]]32
+Hình 3.5. Trình tự trợ lý AI theo RAG [[PAGE:fig-3-5]]
+Điểm chung của ba luồng là Web không truy cập dữ liệu nền trực tiếp. API chịu trách  
+nhiệm kiểm tra tính hợp lệ, kiểm tra quyền và tạo DTO; các dịch vụ hạ tầng trả dữ liệu kỹ 
+thuật, còn quyết định nghiệp vụ nằm trong mô-đun. Nhờ đó, máy khách không cần biết  
+cấu trúc 139 bảng và không thể bỏ qua quy tắc bằng cách gọi DB/tìm kiếm trực tiếp.
+3.4. Thiết kế quy trình nghiệp vụ nền [[PAGE:ch3-4]]
+Hai quy trình nền có tính trạng thái và cần chống thực hiện lặp. Cảnh báo giá phải phân 
+biệt giá hiện tại với sự kiện đạt ngưỡng, tôn trọng tùy chọn và lưu lần gửi. Quy trình xử lý 
+dữ liệu phải giữ trang dữ liệu thô ngay cả khi parse thất bại, vì đây là bằng chứng để sửa  
+bộ phân tích dữ liệu và tái chạy.33
+Hình 3.6. Luồng theo dõi giá và phát cảnh báo [[PAGE:fig-3-6]]34
+Hình 3.7. Luồng thu thập, chuẩn hóa và duyệt dữ liệu [[PAGE:fig-3-7]]
+3.5. Thiết kế dữ liệu [[PAGE:ch3-5]]
+Lược đồ Prisma được phân tích có 139 mô hình. Một ERD duy nhất với toàn bộ bảng  
+sẽ không đọc được trên khổ A4, vì vậy báo cáo chia thành bốn miền và chỉ hiển thị thực  
+thể/thuộc tính tiêu biểu. Danh sách vật lý đầy đủ được đưa vào Phụ lục B. Các bảng dùng 
+snake_case và quan hệ được định nghĩa rõ trong Prisma.
+Nguyên tắc thiết kế là giữ thuộc tính cốt lõi ở cột có kiểu, dùng bảng nối cho quan hệ  
+N–N, tách dữ liệu lịch sử/phiên bản khỏi bản hiện hành, và tách trích dẫn nguồn khỏi thực 
+thể để một nguồn có thể chứng minh nhiều mệnh đề. JSON chỉ phù hợp siêu dữ liệu linh  
+hoạt, không thay thế khóa ngoại cho quan hệ cần truy vấn hoặc ràng buộc.
+Bảng 3.11. Phân nhóm 139 mô hình dữ liệu [[PAGE:tab-3-11]]
+Miền Nhóm thực thể Mục đích
+Catalog lõi
+organizations, categories, 
+families, models, variants, tên thay 
+thế, dữ liệu đa phương tiện, trạng 
+thái, tiền tệ
+Định danh sản phẩm và biến thể 
+chuẩn hóa
+Phần cứng/điểm
+chipset, CPU, GPU, NPU, 
+display, camera, battery, memory, 
+storage, OS, score, đánh giá chuẩn
+Mô tả cấu hình và kết quả đo35
+Miền Nhóm thực thể Mục đích
+Nguồn/nội dung/AI
+data source, trang dữ liệu thô, 
+source, trích dẫn nguồn, Wiki, 
+phiên bản, comment, véc-tơ nhúng, 
+bộ nhớ đệm, tìm kiếm nhật ký
+Truy nguyên, cộng tác và truy 
+xuất ngữ nghĩa
+Người dùng/thương mại
+user, danh sách yêu thích, cảnh 
+báo, thông báo, gói thuê bao, khóa 
+API, mức sử dụng, tiếp thị liên kết, 
+webhook, nhật ký hoạt động
+Cá nhân hóa, doanh thu và vận 
+hành36
+Hình 3.8. Sơ đồ thực thể–liên kết nhóm danh mục thiết bị [[PAGE:fig-3-8]]
+Catalog tách mô hình khỏi biến thể vì tên sản phẩm và thông tin tiếp thị có thể dùng  
+chung, trong khi SKU, màu, RAM, lưu trữ, kích thước và giá thuộc biến thể. Tên thay thế 
+cho phép tìm theo tên khác mà không nhân bản mô hình; dữ liệu đa phương tiện có alt text 
+để phục vụ truy cập và tái sử dụng.37
+Hình 3.9. Sơ đồ thực thể–liên kết nhóm phần cứng và chấm điểm [[PAGE:fig-3-9]]
+Thành phần phần cứng có thể tái sử dụng giữa nhiều biến thể và một biến thể có nhiều  
+camera hoặc bộ nhớ. Bảng nối giữ vai trò/vị trí và siêu dữ liệu của lần gắn. Score profile  
+tách trọng số khỏi scorecard, nhờ đó có thể tính điểm theo nhu cầu mà không ghi đè một  
+con số duy nhất.38
+Hình 3.10. Sơ đồ thực thể–liên kết nhóm nội dung và AI [[PAGE:fig-3-10]]
+Wiki phiên bản là bản bất biến; article chỉ trỏ phiên bản hiện hành. Trích dẫn nguồn  
+được nối với phiên bản để biết chính xác nguồn nào hỗ trợ phiên bản nào. Embedding  
+tham chiếu subject_type/id và lưu mô hình/dimensions, cho phép tái tạo chỉ mục có kiểm  
+soát khi đổi mô hình véc-tơ nhúng.39
+Hình 3.11. Sơ đồ thực thể–liên kết nhóm người dùng và thương mại [[PAGE:fig-3-11]]
+Thông báo là ý định thông báo; lần gửi là từng lần gửi qua một kênh. Tách hai bảng cho 
+phép thử lại và thống kê mà không tạo thông báo lặp. khóa API lưu mã băm, mức sử dụng 
+tham chiếu khóa, gói thuê bao biểu diễn quyền thương mại, còn nhật ký hoạt động ghi  
+hành động thay đổi trạng thái quan trọng.
+3.6. Thiết kế API và hợp đồng dữ liệu [[PAGE:ch3-6]]
+API sử dụng URI version v1 để cho phép thay đổi hợp đồng có kiểm soát. Resource  
+path ưu tiên danh từ; POST dùng cho tạo hoặc action có side effect; PATCH cho cập nhật 
+một phần; DELETE cho thu hồi/xóa theo chính sách. DTO không lộ trực tiếp cấu trúc  
+Prisma và chỉ trả trường cần thiết theo quyền.
+Bảng 3.12. Quy ước hợp đồng API [[PAGE:tab-3-12]]
+Khía cạnh Quy ước Lý do
+Đường dẫn cơ sở /api/v1 Tách hạ tầng và phiên bản 
+URI
+Dữ liệu đầu vào DTO + ValidationPipe; 
+whitelist/forbid/transform
+Không cho trường lạ đi vào 
+lớp dịch vụ40
+Khía cạnh Quy ước Lý do
+Xác thực JWT/phiên hoặc khóa API; 
+@Public khi cần
+Mặc định yêu cầu xác thực, 
+ngoại lệ được khai báo rõ
+Phân quyền ADMIN / EDITOR / 
+MODERATOR
+Thực hiện kiểm soát tại máy 
+chủ
+Phân trang page/pageSize hoặc cursor có 
+giới hạn
+Tránh tải tập dữ liệu không 
+giới hạn
+Lỗi Mã trạng thái HTTP + thông 
+báo + mã định danh yêu cầu
+Máy khách xử lý nhất quán và 
+hỗ trợ truy vết
+Tính lũy đẳng Khóa hoặc trạng thái duy nhất 
+cho webhook/tác vụ/thao tác
+Chống thực hiện lặp khi thử 
+lại
+Quan sát Độ trễ, trạng thái, mẫu tuyến; 
+không ghi bí mật vào nhật ký
+Đo vận hành mà vẫn bảo vệ 
+dữ liệu
+3.7. Thiết kế an toàn và kiểm soát chất lượng [[PAGE:ch3-7]]
+Mô hình đe dọa tập trung vào bốn nhóm tài sản: tài khoản và phiên đăng nhập; dữ liệu  
+danh mục có nguồn; khóa API và dữ liệu sử dụng; ngữ cảnh và câu trả lời AI. Biên tin cậy 
+xuất hiện giữa trình duyệt với API, API với dịch vụ ngoài, tiến trình nền với nguồn dữ liệu 
+và webhook với hệ thống thanh toán. Tại mỗi biên cần xác thực nguồn, giới hạn dữ liệu  
+đầu vào, quy định thời gian chờ và ghi nhật ký sự kiện.
+• Quyền sở hữu: người dùng chỉ được sửa danh sách yêu thích và cảnh báo của 
+mình; biên tập viên không mặc nhiên có quyền quản trị tài khoản.
+• Tính toàn vẹn: sử dụng giao dịch cơ sở dữ liệu khi xuất bản nhiều bảng; phiên 
+bản đã xuất bản là bất biến; webhook bảo đảm tính lũy đẳng.
+• Tính bí mật: mật khẩu, khóa API và mã xác thực chỉ được lưu dưới dạng băm 
+hoặc bí mật; nhật ký phải loại bỏ dữ liệu nhạy cảm.
+• Tính khả dụng: giới hạn tần suất, kích thước trang và tải tin; tiến trình nền thử lại 
+theo khoảng lùi và kiểm tra mức sẵn sàng của phụ thuộc.
+• Chất lượng dữ liệu: lưu mã băm nội dung, trích dẫn nguồn, trạng thái kiểm duyệt, 
+nhật ký hoạt động và thống kê trường còn thiếu.
+• Chất lượng AI: chỉ dùng ngữ cảnh đã xuất bản, kiểm tra trích dẫn nguồn, quy 
+định thời gian chờ, có phương án dự phòng và bộ câu hỏi đánh giá chuẩn.41
+Kiểm soát chất lượng được đặt trước và sau hiện thực: lint/typecheck/kiểm tra lược đồ  
+ngăn lỗi cấu trúc; kiểm thử đơn vị kiểm tra quy tắc; mức sẵn sàng kiểm tra kết nối; ảnh  
+giao diện xác nhận luồng; còn đo tải, E2E và kiểm thử bảo mật động là các lớp cần bổ  
+sung trước sản xuất.
+3.8. Kết luận chương [[PAGE:ch3-8]]
+Chương 3 đã chuyển các yêu cầu thành tám ca sử dụng, ba luồng tuần tự, hai quy trình 
+nền và bốn sơ đồ thực thể–liên kết theo miền. Thiết kế nhấn mạnh ranh giới quyền, dữ liệu 
+đã xuất bản, tính lũy đẳng, trích dẫn nguồn và khả năng truy vết. Chương 4 trình bày quá  
+trình hiện thực các thành phần này trong mã nguồn, giao diện và kết quả đánh giá.42
+CHƯƠNG 4. PHÁT TRIỂN VÀ KẾT QUẢ [[PAGE:ch4]]
+4.1. Môi trường và quy trình phát triển [[PAGE:ch4-1]]
+Dự án yêu cầu Node.js từ phiên bản 22.11, pnpm 9.15 cùng PostgreSQL và Redis. Quy 
+trình phát triển gồm cài đặt các thư viện phụ thuộc tại thư mục gốc, cấu hình biến môi  
+trường từ tệp mẫu, khởi động hạ tầng, thực hiện di trú và tạo dữ liệu mẫu khi cần, sau đó  
+chạy giao diện web, API và tiến trình nền bằng Turborepo. Mỗi ứng dụng vẫn có lệnh  
+riêng để hỗ trợ gỡ lỗi độc lập.
+Mã nguồn TypeScript được kiểm tra quy tắc viết mã và kiểu dữ liệu; bộ kiểm thử đơn  
+vị của API được thực thi bằng Jest; công cụ dòng lệnh Prisma kiểm tra lược đồ dữ liệu.  
+Swagger hỗ trợ tra cứu API trong môi trường phát triển. Các điểm kiểm tra trạng thái tổng 
+hợp, trạng thái tiến trình, mức sẵn sàng và chỉ số giám sát được tách riêng để phân biệt  
+tiến trình đang chạy với khả năng tiếp nhận lưu lượng.
+Bảng 4.1. Môi trường phần mềm [[PAGE:tab-4-1]]
+Thành phần Yêu cầu / cấu hình Mục đích đánh giá
+Node.js >= 22.11.0
+Môi trường thực thi thống 
+nhất cho Next.js, NestJS và chuỗi 
+công cụ
+pnpm 9.15.0 Cài đặt kho mã nguồn và tệp 
+khóa có thể tái lập
+PostgreSQL 16 + 
+pgvector/pg_trgm/unaccent
+Lược đồ quan hệ, tìm kiếm và 
+véc-tơ nhúng
+Redis Kết nối bằng biến môi trường Phiên, bộ nhớ đệm và điều 
+phối
+Web 127.0.0.1:3000 khi kiểm tra 
+cục bộ 22 tuyến giao diện và PWA
+API 127.0.0.1:4000, cơ sở /api/v1
+186 điểm cuối, kiểm tra trạng 
+thái và Swagger trong môi trường 
+phát triển
+Kiểm thử Jest trong phạm vi API 36 bộ / 189 ca kiểm thử trong 
+lần đánh giá
+Prisma kiểm tra/tạo mã/di trú Kiểm tra lược đồ và trình 
+khách Prisma43
+4.2. Hiện thực các mô-đun chính [[PAGE:ch4-2]]
+Kết quả khảo sát mã nguồn cho thấy hệ thống không dồn toàn bộ chức năng vào một  
+API tổng quát. Các mô-đun được tổ chức theo miền nghiệp vụ và sử dụng lớp dịch vụ để  
+phối hợp Prisma, Redis, chức năng tìm kiếm hoặc dịch vụ bên ngoài. Bảng 4.2 tóm tắt các 
+chức năng đã được cài đặt; Phụ lục A liệt kê toàn bộ bộ điều khiển API.
+Bảng 4.2. Mô-đun hiện thực chính [[PAGE:tab-4-2]]
+Mô-đun Chức năng Kỹ thuật nổi bật
+Catalog/Hardware
+Mô hình, biến thể, linh kiện, dữ 
+liệu đa phương tiện, tên thay thế, 
+score
+Prisma relation, slug, filter, 
+DTO
+Tìm kiếm/Compare Tìm text/facet và dựng ma trận 
+so sánh
+pg_trgm/unaccent; Meilisearch 
+tùy chọn; batch truy xuất chi tiết
+Auth/User Register/login/refresh/me/
+logout và hồ sơ
+JWT, password mã băm, Redis 
+phiên, RBAC
+AI Ask, chat, recommendation, 
+ngữ cảnh/trích dẫn nguồn
+Retrieval, véc-tơ nhúng, bộ nhớ 
+đệm, bộ điều hợp mô hình
+Wiki/Moderation Article, phiên bản, trích dẫn 
+nguồn, comment và kiểm duyệt
+Versioning, sai khác, trạng thái 
+và vai trò
+Danh sách yêu thích/Alerts Theo dõi biến thể, ngưỡng giá 
+và thông báo
+Quyền sở hữu, tiến trình nền, 
+tính lũy đẳng, lần gửi
+Affiliate/Price Đối tác, link, click, lịch sử và 
+insight
+Sync, inspect, nhật ký hoạt 
+động và attribution
+Thanh toán/B2B Gói thuê bao, webhook, khóa 
+API và mức sử dụng
+Stripe, signature, mã băm khóa, 
+phạm vi quyền/hạn mức
+Quản trị viên/Observability
+Dashboard, nhật ký hoạt động, 
+trạng thái hoạt động và chỉ số giám 
+sát
+Guard, mã định danh yêu cầu, 
+mức sẵn sàng và nhật ký
+Một nguyên tắc hiện thực đáng chú ý là công khai điểm cuối API và vai trò không được 
+suy ra từ tên đường dẫn. Decorator/bộ bảo vệ trên máy chủ xác định quyền; đối với các  
+thao tác chỉnh sửa hoặc quản trị, dịch vụ vẫn phải kiểm tra quyền sở hữu/trạng thái nghiệp 
+vụ. Điều này tránh tình huống một điểm cuối API có URL công khai nhưng vô tình cho  
+phép hành động đặc quyền.44
+4.3. Kết quả giao diện [[PAGE:ch4-3]]
+Giao diện được đánh giá ở độ phân giải 1440 × 900 trên hệ thống vận hành cục bộ với  
+dữ liệu hiện có. Các hình dưới đây được chụp trực tiếp từ ứng dụng và minh họa những  
+chức năng chính. Tại thời điểm ngày 05/08/2026, trang danh mục hiển thị 282 mẫu thiết  
+bị, 39 hãng và 8 loại thiết bị; các số liệu này phản ánh trạng thái dữ liệu tại thời điểm đánh 
+giá.
+Bảng 4.3. Bản đồ tuyến giao diện [[PAGE:tab-4-3]]
+Tuyến Vai trò Tuyến Vai trò
+/ Trang chủ/điều hướng 
+khám phá /login Đăng nhập
+/admin Catalog Studio và quản 
+trị /notifications Thông báo
+/ai Trợ lý AI /offline Trạng thái PWA offline
+/alerts Cảnh báo giá /recommend Khuyến nghị
+/api-access khóa API và mức sử 
+dụng /register Đăng ký
+/billing Gói thuê bao /search Tìm kiếm
+/compare So sánh /wiki Danh mục Wiki
+/dashboard Bảng điều khiển cá 
+nhân /wiki/[slug] Chi tiết Wiki
+/devices Danh mục thiết bị /wiki/[slug]/edit Sửa Wiki
+/devices/[slug] Chi tiết mô hình /wiki/new Tạo Wiki
+/hardware/[kind]/[slug] Chi tiết phần cứng /wishlist Danh sách yêu thích45
+Hình 4.1. Trang chủ Spechub [[PAGE:fig-4-1]]
+Trang chủ ưu tiên hai hành động: bắt đầu tìm kiếm và đi vào các thiết bị nổi bật. Hero  
+diễn đạt giá trị cốt lõi theo ngôn ngữ người dùng; thanh điều hướng giữ các đích Tìm kiếm, 
+Devices, Compare, Recommend, AI và Wiki ở mức dễ thấy.46
+Hình 4.2. Trang danh mục thiết bị [[PAGE:fig-4-2]]
+Trang danh mục kết hợp số liệu tổng quan, lọc và danh sách thẻ. Phân trang/lọc ở máy  
+chủ giúp URL có thể chia sẻ; trạng thái rỗng và lỗi cần được phân biệt để người dùng biết 
+nên đổi bộ lọc hay thử lại.47
+Hình 4.3. Trang chi tiết thiết bị [[PAGE:fig-4-3]]
+Trang chi tiết gom thông tin mô hình, dữ liệu đa phương tiện, biến thể và phần cứng  
+vào một ngữ cảnh. Việc hiển thị điểm cần đi kèm profile/trọng số hoặc diễn giải; nguồn  
+nên đặt gần thuộc tính thay vì chỉ ở cuối trang để tăng khả năng kiểm chứng.48
+Hình 4.4. Kết quả tìm kiếm thiết bị và phần cứng [[PAGE:fig-4-4]]
+Kết quả tìm kiếm không giới hạn ở mô hình mà có thể đưa ra thực thể phần cứng,  
+giúp người nghiên cứu đi từ tên thương mại tới chipset hoặc linh kiện. Nhãn loại kết quả  
+và slug rõ ràng giúp tránh nhầm lẫn giữa mô hình, biến thể và component.49
+Hình 4.5. Giao diện chọn thiết bị để so sánh [[PAGE:fig-4-5]]
+Giao diện so sánh bắt đầu bằng lựa chọn có kiểm soát thay vì hiển thị bảng trống. Sau  
+khi đủ mô hình, ma trận cần ghim cột tên, nhóm thuộc tính, làm nổi khác biệt và không  
+điền giá trị suy đoán cho trường thiếu.50
+Hình 4.6. Quy trình khuyến nghị theo nhu cầu [[PAGE:fig-4-6]]
+Khuyến nghị dùng biểu mẫu ba bước để chuyển mục tiêu trừu tượng thành tiêu chí có  
+cấu trúc trước khi gọi dịch vụ. Cách này giảm độ mơ hồ, giúp giải thích vì sao một thiết  
+bị được chọn và tạo phương án dự phòng khi dịch vụ LLM không sẵn sàng.51
+Hình 4.7. Giao diện trợ lý AI [[PAGE:fig-4-7]]
+Giao diện AI cần dành không gian cho trích dẫn nguồn, cảnh báo giới hạn và nút mở  
+thực thể catalog. Nội dung hội thoại không được che khuất nguồn; câu trả lời nên hỗ trợ  
+truy vấn tiếp theo nhưng không biến trạng thái chat thành nguồn sự thật cho lần truy xuất  
+khác.52
+Hình 4.8. Giao diện Wiki công nghệ [[PAGE:fig-4-8]]
+Ảnh chụp Wiki đang ở trạng thái chưa có bài xuất bản trong các bộ đếm hiển thị. Điều 
+này được giữ nguyên như kết quả quan sát thực tế thay vì điền dữ liệu minh họa. Luồng  
+tạo/sửa/duyệt đã có tuyến và mô hình; độ phong phú nội dung là công việc dữ liệu tiếp  
+theo.53
+Hình 4.9. Giao diện đăng nhập [[PAGE:fig-4-9]]
+Biểu mẫu đăng nhập tối giản, nhưng kiểm soát an toàn nằm ở API: kiểm tra tính hợp lệ, 
+giới hạn tần suất, kiểm tra băm, tạo phiên Redis và cookie. Thông báo sai thông tin cần đủ 
+hữu ích nhưng không tiết lộ tài khoản có tồn tại.
+4.4. Kết quả API và dữ liệu [[PAGE:ch4-4]]
+Kết quả phân tích tĩnh các bộ điều khiển xác định 186 điểm cuối API, bao gồm chức  
+năng công khai, chức năng dành cho người dùng và chức năng quản trị. Số lượng này thể 
+hiện phạm vi chức năng của API, nhưng không được sử dụng như tiêu chí duy nhất để  
+đánh giá mức độ hoàn thiện. Trong mã nguồn, 45 điểm cuối được gắn vai trò ADMIN, 33 
+điểm cuối được gắn vai trò EDITOR và 3 điểm cuối được gắn vai trò MODERATOR; các 
+điểm cuối còn lại sử dụng cơ chế xác thực chung, kiểm tra quyền sở hữu hoặc khai báo  
+truy cập công khai.
+Bảng 4.4. Thống kê điểm cuối API API [[PAGE:tab-4-4]]
+Nhóm Số lượng Diễn giải
+Bộ điều khiển 30 Nhóm điểm cuối API theo 
+miền
+Điểm cuối API tổng 186 Tuyến handler được phát hiện54
+Nhóm Số lượng Diễn giải
+GET 91 Đọc catalog, trạng thái hoạt 
+động, dashboard và tra cứu
+POST 57 Tạo, đăng nhập, action, chat 
+và đồng bộ
+PATCH 24 Cập nhật một phần và chuyển 
+trạng thái
+DELETE 13 Xóa/thu hồi resource
+PUT 1 Thay thế/cập nhật toàn phần ở 
+trường hợp riêng
+Vai trò ADMIN 45 Điểm cuối API có decorator 
+ADMIN
+Vai trò EDITOR 33 Điểm cuối API có decorator 
+EDITOR
+Vai trò MODERATOR 3 Điểm cuối API có decorator 
+MODERATOR
+Lược đồ Prisma có 139 mô hình và không khai báo enum Prisma; các trạng thái chủ  
+yếu được biểu diễn bằng bảng tham chiếu hoặc trường chuỗi có kiểm soát ở tầng ứng dụng. 
+Ưu điểm là dữ liệu tham chiếu có thể mở rộng; nhược điểm là cần bảo đảm kiểm tra tính  
+hợp lệ và khóa ngoại để tránh giá trị trạng thái tùy ý.
+4.5. Kiểm thử và đánh giá [[PAGE:ch4-5]]
+Việc đánh giá được thực hiện trên phiên bản mã nguồn ngày 05/08/2026. Toàn bộ kho  
+mã nguồn được kiểm tra quy tắc viết mã, kiểu dữ liệu và khả năng biên dịch; bộ kiểm thử 
+đơn vị của API được thực thi bằng Jest; gói chấm điểm được kiểm thử bằng Node test  
+runner; lược đồ Prisma được kiểm tra bằng công cụ dòng lệnh Prisma. Mức sẵn sàng của  
+API được ghi nhận khi PostgreSQL và Redis đang hoạt động trước khi đóng các cổng phát 
+triển. Kết quả chỉ được sử dụng trong đúng phạm vi phép thử: khi chưa thực hiện kiểm thử 
+tải thì chưa kết luận về hiệu năng trong môi trường vận hành; khi chưa có kiểm thử đầu  
+cuối toàn tuyến thì kết quả kiểm thử đơn vị chưa đại diện cho toàn bộ luồng giao diện.55
+Bảng 4.5. Kết quả kiểm thử và đánh giá [[PAGE:tab-4-5]]
+Hạng mục Kết quả Phạm vi kết luận
+Kiểm tra quy tắc mã Đạt; 2 tác vụ lint hoàn tất Mã API và web không phát sinh 
+lỗi từ cấu hình ESLint hiện hành
+Kiểm tra kiểu dữ liệu Đạt; 7 tác vụ hoàn tất
+API, web, tiến trình nền, AI 
+dịch vụ, database và gói chấm điểm 
+được TypeScript chấp nhận
+Biên dịch toàn dự án Đạt; 5 tác vụ build hoàn tất
+Next.js, NestJS, tiến trình nền, 
+AI dịch vụ và gói chấm điểm biên 
+dịch thành công
+Kiểm thử API 36 bộ đạt; 189 ca đạt; 0 thất bại Quy tắc, bộ điều khiển và dịch 
+vụ có kiểm thử trong apps/api
+Kiểm thử chấm điểm 4 ca đạt; 0 thất bại Mốc tham chiếu, dữ liệu đo và 
+tổng trọng số hồ sơ điểm
+Prisma kiểm tra tính hợp lệ Lược đồ hợp lệ Cú pháp, quan hệ và cấu hình 
+Prisma được CLI chấp nhận
+Trạng thái hoạt động tổng trạng thái = ok Tiến trình API phản hồi trạng 
+thái hoạt động
+Kiểm tra mức sẵn sàng database ok API kết nối PostgreSQL trong 
+môi trường kiểm tra
+Kiểm tra mức sẵn sàng Redis ok API kết nối Redis trong môi 
+trường kiểm tra
+Kiểm tra nhanh giao diện 9 màn hình chính được mở và 
+chụp
+Tuyến render với dữ liệu hiện 
+có; không thay thế khẳng định kiểm 
+thử đầu cuối
+Thống kê mã nguồn
+22 tuyến giao diện; 30 bộ điều 
+khiển; 186 điểm cuối API; 139 mô 
+hình
+Độ rộng mã nguồn tại phiên bản 
+mã nguồn đang phân tích
+Tóm tắt kết quả đánh giá
+Kiểm tra quy tắc mã, kiểu dữ liệu và biên dịch: đạt
+Kiểm thử API: 36 bộ đạt / 189 ca đạt / 0 ca thất bại
+Kiểm thử gói chấm điểm: 4 ca đạt / 0 ca thất bại
+Lược đồ Prisma: hợp lệ
+Trạng thái API: hoạt động bình thường
+Mức sẵn sàng: PostgreSQL đạt; Redis đạt
+Dữ liệu giao diện: 282 mẫu thiết bị / 39 hãng / 8 loại thiết bị56
+4.6. Đánh giá mức độ đáp ứng [[PAGE:ch4-6]]
+Bảng 4.6. Đánh giá mức độ đáp ứng yêu cầu [[PAGE:tab-4-6]]
+Nhóm yêu cầu Mức đáp ứng Kết quả / nhận xét
+Catalog và chi tiết Đạt ở mức hiện thực
+Tuyến, API, lược đồ và giao 
+diện chi tiết; cần tiếp tục tăng độ 
+phủ dữ liệu
+Tìm kiếm và so sánh Đạt ở mức hiện thực Tuyến/API/sequence và UI; cần 
+đánh giá chuẩn relevance và tải
+Khuyến nghị/AI Đạt kiến trúc và bề mặt
+Điểm cuối API, UI và RAG 
+design; cần bộ đánh giá chất lượng 
+có chuẩn
+Auth/RBAC Đạt ở mức hiện thực
+JWT, phiên làm mới Redis, bộ 
+bảo vệ, vai trò và kiểm thử đơn vị; 
+cần kiểm thử xâm nhập
+Wiki/kiểm duyệt Đạt mô hình và luồng
+Tuyến/lược đồ/bộ điều khiển; 
+ảnh chụp chưa có nội dung đã xuất 
+bản đáng kể
+Danh sách yêu thích/cảnh báo Đạt mô hình và luồng
+Tuyến, API, tiến trình 
+nền/thông báo design; cần E2E theo 
+thời gian
+B2B/thanh toán Có nền tảng
+khóa API, mức sử dụng, gói 
+thuê bao, Stripe/webhook; cần thử 
+nghiệm đối tác thật
+Vận hành Đạt mức cơ bản
+Kiểm tra trạng thái, mức sẵn 
+sàng, chỉ số giám sát và mã định 
+danh yêu cầu; chưa có SLO và kết 
+quả đo tải trong môi trường vận 
+hành
+4.7. Hạn chế [[PAGE:ch4-7]]
+Bảng 4.7. Hạn chế và tác động [[PAGE:tab-4-7]]
+Hạn chế Tác động Ưu tiên xử lý
+Chưa có đánh giá chuẩn tải 
+trong báo cáo
+Không thể công bố p95/p99 
+hoặc số người dùng đồng thời
+Cao: k6/Artillery theo tìm kiếm, 
+compare, AI và auth
+Độ phủ dữ liệu thay đổi theo 
+seed/nguồn
+Một số loại thiết bị/Wiki có thể 
+ít nội dung
+Cao: KPI completeness và quy 
+trình xử lý nguồn
+Chưa có kiểm thử đầu cuối toàn 
+tuyến được dẫn chứng
+Unit test không phát hiện mọi 
+lỗi trình duyệt–API
+Cao: Playwright cho hành trình 
+chính57
+Hạn chế Tác động Ưu tiên xử lý
+AI chưa có bộ chấm chuẩn Khó định lượng độ đúng/trích 
+dẫn nguồn
+Cao: bộ dữ liệu đánh giá chuẩn, 
+RAG chỉ số giám sát và đánh giá 
+của chuyên gia
+Nhiều mô hình dữ liệu Migration và quyền sở hữu 
+phức tạp
+Trung bình: từ điển dữ liệu, 
+domain owner và migration policy
+Dịch vụ ngoài có chế độ tùy 
+chọn
+Hành vi khác nhau theo môi 
+trường
+Trung bình: contract test và 
+phương án dự phòng matrix
+Chưa chứng minh triển khai đa 
+vùng
+Khả dụng/khôi phục thảm họa 
+chưa được đánh giá
+Sau MVP: backup restore drill, 
+RPO/RTO và chaos test
+Các hạn chế được trình bày nhằm phân biệt rõ giữa kết quả đã đạt được và mục tiêu  
+phát triển tiếp theo. Mỗi hạn chế cần được chuyển thành phép đo, ca kiểm thử hoặc tiêu  
+chí nghiệm thu cụ thể trong các giai đoạn tiếp theo.
+4.8. Kết luận chương [[PAGE:ch4-8]]
+Chương 4 đã đối chiếu thiết kế với mã nguồn, giao diện và kết quả kiểm thử. Spechub  
+đã xây dựng được phạm vi chức năng tương đối rộng, mô hình dữ liệu chi tiết và các thành 
+phần vận hành cơ bản. Kiểm tra quy tắc mã, kiểu dữ liệu và biên dịch đều đạt; toàn bộ 189 
+ca kiểm thử API và 4 ca kiểm thử chấm điểm đều đạt; lược đồ Prisma hợp lệ; PostgreSQL 
+và Redis đáp ứng kiểm tra mức sẵn sàng. Tuy nhiên, mức độ sẵn sàng triển khai thực tế  
+còn phụ thuộc vào kết quả kiểm thử tải, kiểm thử đầu cuối, đánh giá chất lượng AI, chất  
+lượng dữ liệu và cơ chế giám sát theo mục tiêu mức dịch vụ.58
+KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN [[PAGE:conclusion]]
+1. Kết luận [[PAGE:conclusion-1]]
+Đồ án đã phân tích và tài liệu hóa một nền tảng nghiên cứu thiết bị có cấu trúc từ lớp  
+trải nghiệm đến dữ liệu. Spechub giải quyết mối liên hệ giữa mô hình, biến thể, phần cứng, 
+nội dung, nguồn, người dùng và giá bằng 139 mô hình Prisma; cung cấp 22 tuyến web và 
+186 điểm cuối API API theo các miền catalog, tìm kiếm, AI, Wiki, alerts, commerce và  
+vận hành.
+Kiến trúc sử dụng Next.js/React, NestJS/Fastify, Prisma/PostgreSQL, Redis và tiến  
+trình nền trong monorepo. Các quyết định quan trọng gồm tách đã xuất bản khỏi bản  
+nháp/raw, trích dẫn nguồn khỏi nội dung, thông báo khỏi lần gửi, phiên khỏi token và truy 
+xuất khỏi sinh nội dung. Những ranh giới này giúp hệ thống có khả năng truy vết, kiểm  
+thử và mở rộng tốt hơn.
+Kết quả đánh giá cho thấy kiểm tra quy tắc mã, kiểu dữ liệu và biên dịch đều đạt; 36 bộ 
+với 189 ca kiểm thử API và 4 ca kiểm thử chấm điểm đều đạt; lược đồ Prisma hợp lệ;  
+PostgreSQL và Redis đáp ứng kiểm tra mức sẵn sàng. Các giao diện chính có thể truy cập 
+và hiển thị dữ liệu tại thời điểm đánh giá. Những kết quả này chưa thay thế cho kiểm thử  
+tải, kiểm thử đầu cuối, kiểm thử xâm nhập hoặc đánh giá định lượng chất lượng AI, nhưng 
+tạo được mốc tham chiếu cho các giai đoạn hoàn thiện tiếp theo.
+2. Hướng phát triển [[PAGE:conclusion-2]]
+1. Xây dựng bộ KPI chất lượng catalog: độ đầy đủ theo loại thiết bị, độ cập nhật, tỷ lệ xung đột, độ 
+phủ trích dẫn và thời gian kiểm duyệt.
+2. Bổ sung kiểm thử đầu cuối bằng Playwright cho đăng nhập, tìm kiếm, so sánh, khuyến nghị, Wiki 
+kiểm duyệt và cảnh báo giá; chạy trong CI với dữ liệu seed ổn định.
+3. Thiết lập kiểm thử tải và SLO cho tìm kiếm, device detail, compare, auth refresh và AI; theo dõi 
+p50/p95/p99, error rate và saturation.
+4. Tạo bộ dữ liệu đánh giá chuẩn cho AI/RAG, đo ngữ cảnh recall, trích dẫn nguồn precision, 
+faithfulness và chất lượng khuyến nghị; có đánh giá con người định kỳ.
+5. Hoàn thiện quy trình xử lý ingestion theo từng nguồn với bộ phân tích dữ liệu contract test, cảnh 
+báo thay đổi DOM, ưu tiên nguồn chính thức và chính sách tuân thủ.
+6. Nâng cấp an toàn bằng rà soát mô hình đe dọa, quét lỗ hổng thư viện phụ thuộc, quét thông tin bí 
+mật, kiểm thử xâm nhập, diễn tập sao lưu và khôi phục và diễn tập thu hồi khóa; đồng thời mở rộng 
+API B2B và Catalog Studio từ phản hồi của đối tác và biên tập viên thực tế.59
+TÀI LIỆU THAM KHẢO [[PAGE:references]]
+[1] Kho mã nguồn Spechub, tệp README và tài liệu kiến trúc nội bộ của dự án, truy cập ngày 05/08/2026.
+[2] Next.js Documentation, https://nextjs.org/docs, truy cập ngày 05/08/2026.
+[3] React Documentation, https://react.dev/, truy cập ngày 05/08/2026.
+[4] NestJS Documentation, https://docs.nestjs.com/, truy cập ngày 05/08/2026.
+[5] Fastify Documentation, https://fastify.dev/docs/latest/, truy cập ngày 05/08/2026.
+[6] Prisma ORM Documentation, https://www.prisma.io/docs/orm, truy cập ngày 05/08/2026.
+[7] PostgreSQL 16 Documentation, https://www.postgresql.org/docs/16/, truy cập ngày 05/08/2026.
+[8] pgvector Documentation, https://github.com/pgvector/pgvector, truy cập ngày 05/08/2026.
+[9] Redis Documentation, https://redis.io/docs/latest/, truy cập ngày 05/08/2026.
+[10] Meilisearch Documentation, https://www.meilisearch.com/docs, truy cập ngày 05/08/2026.
+[11] OWASP Application Security Verification Standard, https://owasp.org/www-project-application-security-
+verification-standard/, truy cập ngày 05/08/2026.
+[12] OWASP API Security Top 10, https://owasp.org/www-project-api-security/, truy cập ngày 05/08/2026.
+[13] OpenAI, Retrieval and model prompting documentation, https://platform.openai.com/docs/, truy cập ngày 
+05/08/2026.
+[14] Stripe Documentation – Webhooks and subscriptions, https://docs.stripe.com/, truy cập ngày 05/08/2026.
+[15] W3C, Web Content Accessibility Guidelines (WCAG) 2.2, https://www.w3.org/TR/WCAG22/, truy cập  
+ngày 05/08/2026.60
+PHỤ LỤC A. DANH MỤC API [[PAGE:appendix-a]]
+Bảng A.1 được tổng hợp từ các bộ điều khiển trong mã nguồn. Trường hợp tiền tố rỗng 
+hoặc bộ điều khiển không có hàm xử lý trực tiếp vẫn được giữ lại để phản ánh đúng cấu  
+trúc mô-đun. Thông tin chi tiết về từng điểm cuối API có thể được tra cứu bằng Swagger  
+trong môi trường phát triển.
+Bảng A.1. Danh mục bộ điều khiển và điểm cuối API [[PAGE:tab-a-1]]
+STT Bộ điều khiển Tiền tố
+Số điểm cuối 
+API
+Phân bố phương 
+thức
+1 app (gốc) 0 –
+2 health health 4 GET:4
+3 admin-dashboard admin/dashboard 1 GET:1
+4 affiliate affiliate 13
+DELETE:1, 
+GET:4, PATCH:2, 
+POST:6
+5 ai ai 10 GET:2, POST:8
+6 alerts alerts 5
+DELETE:1, 
+GET:1, PATCH:1, 
+POST:2
+7 api-keys api-keys 4 DELETE:1, 
+GET:1, POST:2
+8 auth auth 5 GET:1, POST:4
+9 b2b b2b 3 GET:3
+10 battery-units battery-units 3 GET:3
+11 camera-modules camera-modules 3 GET:3
+12 catalog-studio admin/catalog-
+studio 17
+GET:7, 
+PATCH:1, POST:8, 
+PUT:1
+13 chipsets chipsets 3 GET:3
+14 citations citations 7 GET:3, 
+PATCH:2, POST:2
+15 data-ingestion data-ingestion 8 GET:4, 
+PATCH:2, POST:2
+16 device-categories device-categories 7
+DELETE:1, 
+GET:4, PATCH:1, 
+POST:161
+STT Bộ điều khiển Tiền tố
+Số điểm cuối 
+API
+Phân bố phương 
+thức
+17 device-models device-models 7
+DELETE:1, 
+GET:4, PATCH:1, 
+POST:1
+18 device-variants device-variants 10
+DELETE:1, 
+GET:6, PATCH:1, 
+POST:2
+19 display-units display-units 3 GET:3
+20 admin-hardware-
+catalog admin/hardware 5 DELETE:1, 
+PATCH:1, POST:3
+21 hardware-catalog hardware 11 GET:11
+22 notifications notifications 5 GET:2, 
+PATCH:2, POST:1
+23 organizations organizations 6
+DELETE:1, 
+GET:3, PATCH:1, 
+POST:1
+24 product-families product-families 6
+DELETE:1, 
+GET:3, PATCH:1, 
+POST:1
+25 search search 1 GET:1
+26 subscriptions subscriptions 12 GET:5, 
+PATCH:2, POST:5
+27 webhooks subscriptions/
+webhooks 1 POST:1
+28 users users 9 DELETE:1, 
+GET:4, PATCH:4
+29 wiki wiki 9
+DELETE:1, 
+GET:4, PATCH:1, 
+POST:3
+30 wishlists wishlists 8
+DELETE:2, 
+GET:1, PATCH:1, 
+POST:4
+Các nhóm điểm cuối API có bề mặt lớn gồm tiếp thị liên kết/price, AI, catalog,  
+Wiki/kiểm duyệt, thông báo, admin và thanh toán. Khi mở rộng, cần ưu tiên tính nhất quán 
+của DTO, mã trạng thái, phân trang và quyền hơn là tăng số tuyến.62
+PHỤ LỤC B. DANH MỤC MÔ HÌNH DỮ LIỆU [[PAGE:appendix-b]]
+Lược đồ vật lý có 139 mô hình Prisma. Bảng B.1 liệt kê toàn bộ tên mô hình theo thứ  
+tự xuất hiện trong lược đồ và nhóm phân tích gần đúng. Nhóm chỉ phục vụ đọc báo cáo;  
+quan hệ thật được định nghĩa trong Prisma.
+Bảng B.1. Danh sách mô hình Prisma [[PAGE:tab-b-1]]
+STT Tên mô hình Nhóm phân tích
+1 languages Catalog / tham chiếu
+2 translations Catalog / tham chiếu
+3 release_statuses Catalog / tham chiếu
+4 currencies Catalog / tham chiếu
+5 sources Nội dung / AI / nguồn
+6 citations Nội dung / AI / nguồn
+7 media_assets Catalog / tham chiếu
+8 entity_media Catalog / tham chiếu
+9 module_field_coverage Catalog / tham chiếu
+10 tags Catalog / tham chiếu
+11 entity_tags Catalog / tham chiếu
+12 units Catalog / tham chiếu
+13 organizations Catalog / tham chiếu
+14 organization_roles Catalog / tham chiếu
+15 organization_role_assignments Catalog / tham chiếu
+16 device_categories Catalog / tham chiếu
+17 regions Catalog / tham chiếu
+18 product_families Catalog / tham chiếu
+19 device_models Catalog / tham chiếu
+20 device_variants Catalog / tham chiếu
+21 device_model_aliases Catalog / tham chiếu
+22 device_editorial_sections Catalog / tham chiếu
+23 variant_price_history Người dùng / thương mại63
+STT Tên mô hình Nhóm phân tích
+24 variant_physical_specs Catalog / tham chiếu
+25 variant_io_specs Catalog / tham chiếu
+26 variant_thermal_specs Catalog / tham chiếu
+27 model_lineage Catalog / tham chiếu
+28 model_similarity Catalog / tham chiếu
+29 technology_families Catalog / tham chiếu
+30 architectures Catalog / tham chiếu
+31 process_nodes Catalog / tham chiếu
+32 camera_roles Phần cứng / điểm
+33 display_technologies Phần cứng / điểm
+34 battery_chemistries Phần cứng / điểm
+35 network_generations Catalog / tham chiếu
+36 chipsets Phần cứng / điểm
+37 cpus Phần cứng / điểm
+38 cpu_clusters Phần cứng / điểm
+39 gpus Phần cứng / điểm
+40 npus Phần cứng / điểm
+41 modems Catalog / tham chiếu
+42 camera_sensors Phần cứng / điểm
+43 camera_modules Phần cứng / điểm
+44 display_units Phần cứng / điểm
+45 battery_units Phần cứng / điểm
+46 memory_standards Phần cứng / điểm
+47 storage_standards Phần cứng / điểm
+48 operating_systems Phần cứng / điểm
+49 os_versions Catalog / tham chiếu
+50 os_ui_layers Catalog / tham chiếu
+51 os_ui_layer_versions Catalog / tham chiếu
+52 cellular_bands Catalog / tham chiếu64
+STT Tên mô hình Nhóm phân tích
+53 wifi_bands Catalog / tham chiếu
+54 certifications Catalog / tham chiếu
+55 cpu_capabilities Phần cứng / điểm
+56 cpu_capability_links Phần cứng / điểm
+57 gpu_apis Phần cứng / điểm
+58 gpu_api_support Phần cứng / điểm
+59 npu_precision_capabilities Phần cứng / điểm
+60 camera_features Phần cứng / điểm
+61 camera_module_feature_links Phần cứng / điểm
+62 camera_video_modes Phần cứng / điểm
+63 camera_module_video_modes Phần cứng / điểm
+64 hdr_standards Catalog / tham chiếu
+65 display_hdr_support Phần cứng / điểm
+66 color_gamuts Catalog / tham chiếu
+67 display_color_gamut_support Phần cứng / điểm
+68 charging_protocols Catalog / tham chiếu
+69 battery_charging_protocols Phần cứng / điểm
+70 connectivity_features Catalog / tham chiếu
+71 chipset_cpu_links Phần cứng / điểm
+72 chipset_gpu_links Phần cứng / điểm
+73 chipset_npu_links Phần cứng / điểm
+74 chipset_modem_links Phần cứng / điểm
+75 camera_module_sensor_links Phần cứng / điểm
+76 variant_chipsets Phần cứng / điểm
+77 variant_cpus Phần cứng / điểm
+78 variant_gpus Phần cứng / điểm
+79 variant_npus Phần cứng / điểm
+80 variant_modems Catalog / tham chiếu
+81 variant_displays Phần cứng / điểm65
+STT Tên mô hình Nhóm phân tích
+82 variant_batteries Catalog / tham chiếu
+83 variant_camera_systems Phần cứng / điểm
+84 variant_camera_modules Phần cứng / điểm
+85 variant_memory_configs Phần cứng / điểm
+86 variant_storage_configs Phần cứng / điểm
+87 variant_wifi_bands Catalog / tham chiếu
+88 variant_operating_systems Phần cứng / điểm
+89 variant_software_profiles Catalog / tham chiếu
+90 variant_connectivity_support Catalog / tham chiếu
+91 variant_module_scores Phần cứng / điểm
+92 variant_score_metric_inputs Phần cứng / điểm
+93 variant_scorecards Phần cứng / điểm
+94 variant_scorecard_modules Phần cứng / điểm
+95 scoring_profiles Catalog / tham chiếu
+96 scoring_profile_modules Catalog / tham chiếu
+97 scoring_profile_metrics Catalog / tham chiếu
+98 variant_cellular_band_support Catalog / tham chiếu
+99 variant_certifications Catalog / tham chiếu
+100 variant_region_availability Catalog / tham chiếu
+101 software_features Catalog / tham chiếu
+102 variant_software_features Catalog / tham chiếu
+103 feature_definitions Catalog / tham chiếu
+104 device_variant_features Catalog / tham chiếu
+105 benchmarks Phần cứng / điểm
+106 benchmark_runs Phần cứng / điểm
+107 device_variant_benchmarks Phần cứng / điểm
+108 chipset_benchmarks Phần cứng / điểm
+109 cpu_benchmarks Phần cứng / điểm
+110 gpu_benchmarks Phần cứng / điểm66
+STT Tên mô hình Nhóm phân tích
+111 npu_benchmarks Phần cứng / điểm
+112 catalog_drafts Catalog / tham chiếu
+113 catalog_draft_versions Catalog / tham chiếu
+114 catalog_entity_versions Catalog / tham chiếu
+115 users Người dùng / thương mại
+116 wiki_articles Nội dung / AI / nguồn
+117 wiki_revisions Nội dung / AI / nguồn
+118 wiki_article_citations Nội dung / AI / nguồn
+119 comments Nội dung / AI / nguồn
+120 embeddings Nội dung / AI / nguồn
+121 ai_query_cache Nội dung / AI / nguồn
+122 search_logs Nội dung / AI / nguồn
+123 data_sources Nội dung / AI / nguồn
+124 raw_pages Nội dung / AI / nguồn
+125 affiliate_partners Người dùng / thương mại
+126 affiliate_links Người dùng / thương mại
+127 affiliate_price_history Người dùng / thương mại
+128 affiliate_clicks Người dùng / thương mại
+129 subscription_plans Người dùng / thương mại
+130 subscriptions Người dùng / thương mại
+131 billing_audit_logs Người dùng / thương mại
+132 billing_webhook_events Người dùng / thương mại
+133 wishlists Người dùng / thương mại
+134 wishlist_items Người dùng / thương mại
+135 price_alerts Người dùng / thương mại
+136 notifications Người dùng / thương mại
+137 notification_deliveries Người dùng / thương mại
+138 api_keys Người dùng / thương mại
+139 api_key_usage Người dùng / thương mại67
+PHỤ LỤC C. HƯỚNG DẪN VẬN HÀNH VÀ KIỂM THỬ [[PAGE:appendix-c]]
+Các lệnh dưới đây mang tính quy trình; tên script cụ thể phải đối chiếu gói.json tại thời 
+điểm chạy. Không đưa bí mật hoặc giá trị môi trường vận hành vào tài liệu. Tệp .env chỉ  
+được tạo từ mẫu và quản lý ngoài kiểm soát phiên bản.
+Bảng C.1. Ma trận lệnh vận hành và mục đích [[PAGE:tab-c-1]]
+Bước Lệnh tham chiếu Mục đích / kết quả mong đợi
+Cài đặt pnpm install --frozen-lockfile Cài đúng lockfile trong không 
+gian làm việc
+Hạ tầng pnpm docker:up hoặc docker 
+compose up
+Khởi động PostgreSQL, Redis 
+và dịch vụ tùy chọn
+Prisma pnpm --filter database prisma 
+validate
+Lược đồ hợp lệ trước 
+generate/migrate
+Generate pnpm --filter database prisma 
+generate
+Tạo Prisma máy khách đúng 
+lược đồ
+Migration Prisma migrate theo môi trường
+Áp migration có kiểm duyệt; 
+không dùng reset trên dữ liệu cần 
+giữ
+Seed Script seed của 
+packages/database
+Tạo dữ liệu phát triển có thể tái 
+lập
+Dev pnpm dev
+Chạy quy trình xử lý 
+web/API/tiến trình nền theo cấu 
+hình
+Test API pnpm --filter api test Chạy Jest và báo suite/test thất 
+bại
+Typecheck pnpm typecheck Kiểm tra kiểu toàn không gian 
+làm việc
+Lint pnpm lint Kiểm tra quy ước và lỗi tĩnh
+Trạng thái hoạt động GET /api/v1/health/ready DB/Redis phải báo ready trước 
+nhận lưu lượng
+Backup Quy trình pg_dump/restore đã 
+phê duyệt
+Kiểm tra khả năng phục hồi, 
+không chỉ tạo bản sao
+C.1. Checklist trước khi triển khai [[PAGE:appendix-c-1]]
+• Tất cả migration đã kiểm duyệt, backup có thể phục hồi và biến môi trường bắt 
+buộc đã được kiểm tra.68
+• Test, typecheck, lint và build đều đạt trên cùng commit; image/container có 
+version bất biến.
+• CORS, cookie, JWT secret, webhook secret, khóa API hashing và giới hạn tần 
+suất đúng môi trường.
+• Trạng thái hoạt động/mức sẵn sàng/chỉ số giám sát, nhật ký redaction, mã định 
+danh yêu cầu, dashboard và cảnh báo đã hoạt động.
+• Chỉ mục tìm kiếm và véc-tơ nhúng được quản lý phiên bản; tiến trình nền bảo 
+đảm tính lũy đẳng; cơ chế thử lại và hàng đợi lỗi được giám sát.
+• Có kế hoạch hoàn tác, người chịu trách nhiệm và tiêu chí dừng triển khai.69
+PHỤ LỤC D. HƯỚNG DẪN SỬ DỤNG TÓM TẮT [[PAGE:appendix-d]]
+Hướng dẫn này mô tả hành trình ở mức người dùng và không yêu cầu hiểu cấu trúc kỹ 
+thuật.
+Bảng D.1. Tác vụ người dùng thường gặp [[PAGE:tab-d-1]]
+Tác vụ Cách thực hiện Lưu ý
+Tìm thiết bị Mở Tìm kiếm/Devices, nhập từ 
+khóa, chọn loại/hãng và bộ lọc
+Bỏ bớt filter nếu không có kết 
+quả; kiểm tra tên thay thế
+Xem chi tiết Chọn thẻ mô hình để xem biến 
+thể, phần cứng, điểm và nguồn
+Phân biệt mô hình với biến thể; 
+trường thiếu không phải giá trị 0
+So sánh Thêm từ hai thiết bị vào 
+Compare
+Ưu tiên cùng loại thiết bị; mở 
+nguồn khi giá trị mâu thuẫn
+Nhận khuyến nghị Hoàn thành các bước nhu 
+cầu/ngân sách/ưu tiên
+Kết quả là hỗ trợ quyết định, 
+không thay thế kiểm tra thực tế
+Hỏi AI Đặt câu hỏi cụ thể và xem trích 
+dẫn nguồn
+Không coi câu không có nguồn 
+là dữ kiện đã xác minh
+Danh sách yêu thích/cảnh báo Đăng nhập, lưu biến thể và đặt 
+mức giá mục tiêu
+Kiểm tra tiền tệ, kênh nhận và 
+tùy chọn thông báo
+Đóng góp Wiki Tạo/sửa phiên bản, thêm nguồn 
+và gửi duyệt
+Bản sửa không xuất bản ngay; 
+có thể được yêu cầu bổ sung
+Dùng API
+Tạo khóa API theo gói, lưu 
+khóa an toàn và gọi điểm cuối API 
+trong phạm vi quyền
+Khóa chỉ hiển thị rõ một lần; 
+theo dõi hạn mức/mức sử dụng
+D.1. Xử lý sự cố cơ bản [[PAGE:appendix-d-1]]
+• Nếu trang báo offline: kiểm tra kết nối, thử tải lại; dữ liệu bộ nhớ đệm có thể 
+không phải giá mới nhất.
+• Nếu đăng nhập hết hạn: thực hiện đăng nhập lại; không gửi token hoặc ảnh chụp 
+token cho người khác.
+• Nếu kết quả sai: mở trích dẫn nguồn, ghi URL, thuộc tính và biến thể liên quan, 
+sau đó gửi phản hồi kèm nguồn kiểm chứng.
+• Nếu cảnh báo không đến: kiểm tra cảnh báo active, ngưỡng, kênh nhận, khung 
+giờ không làm phiền và trạng thái thông báo.
+• Nếu API trả 429: đọc phần đầu phản hồi hạn mức/thử lại, giảm tần suất và không 
+tạo thêm khóa để né hạn mức.

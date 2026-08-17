@@ -4,11 +4,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import type { FastifyRequest } from "fastify";
-import { ApiKeysService, type AuthenticatedApiKey } from "./api-keys.service";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { ApiKeysService, type AuthorizedApiKey } from "./api-keys.service";
 
 export type ApiKeyRequest = FastifyRequest & {
-  apiKey?: AuthenticatedApiKey;
+  apiKey?: AuthorizedApiKey;
 };
 
 @Injectable()
@@ -22,7 +22,21 @@ export class ApiKeyAuthGuard implements CanActivate {
       throw new UnauthorizedException("X-API-Key header is required");
     }
 
-    request.apiKey = await this.apiKeysService.authorize(header, "catalog:read");
+    const apiKey = await this.apiKeysService.authorize(header, "catalog:read");
+    request.apiKey = apiKey;
+
+    const reply = context.switchToHttp().getResponse<FastifyReply>();
+    const secondsUntilReset = Math.max(
+      0,
+      Math.ceil((apiKey.rate_limit_reset_at.getTime() - Date.now()) / 1_000),
+    );
+    reply
+      .header("RateLimit-Limit", String(apiKey.rate_limit_per_minute))
+      .header("RateLimit-Remaining", String(apiKey.rate_limit_remaining))
+      .header("RateLimit-Reset", String(secondsUntilReset));
+    if (apiKey.monthly_quota !== null && apiKey.monthly_quota_remaining !== undefined) {
+      reply.header("X-Monthly-Quota-Remaining", String(apiKey.monthly_quota_remaining));
+    }
     return true;
   }
 }

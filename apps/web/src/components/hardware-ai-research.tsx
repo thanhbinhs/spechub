@@ -37,9 +37,15 @@ export function HardwareAiResearch({
     research?.device_assessments.filter(
       (assessment) => assessment.status === "measured",
     ) ?? [];
+  const modeled =
+    research?.device_assessments.filter(
+      (assessment) => assessment.status === "modeled",
+    ) ?? [];
+  const ranked = measured.length ? measured : modeled;
   const unranked =
     research?.device_assessments.filter(
-      (assessment) => assessment.status !== "measured",
+      (assessment) =>
+        assessment.status !== "measured" && assessment.status !== "modeled",
     ) ?? [];
   const compareHref =
     research && research.compare_variant_ids.length >= 2
@@ -54,13 +60,13 @@ export function HardwareAiResearch({
         title="Đánh giá hiệu quả sử dụng mô-đun"
         meta={
           research
-            ? `${assessmentStatusLabel(research.assessment_status)} · ${result.meta.generated_by === "hybrid" ? "AI giải thích bằng chứng" : "Engine benchmark"}`
+            ? `${assessmentStatusLabel(research.assessment_status)} · ${result.meta.generated_by === "hybrid" ? "AI giải thích bằng chứng" : "Bộ máy đánh giá"}`
             : "Chưa thể tải dữ liệu đánh giá"
         }
         action={
           <span className="inline-flex items-center gap-1 rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700">
             <Sparkles size={13} />
-            Evidence-first
+            Ưu tiên bằng chứng
           </span>
         }
       />
@@ -116,7 +122,7 @@ export function HardwareAiResearch({
                     className="mt-4 inline-flex h-9 items-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800"
                   >
                     <GitCompareArrows size={14} />
-                    So sánh các phiên bản đã đo
+                    So sánh các phiên bản đã chấm
                   </Link>
                 ) : null}
               </div>
@@ -149,13 +155,13 @@ export function HardwareAiResearch({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
               <ResearchMetric
                 label="Phiên bản dùng mô-đun"
                 value={String(research.coverage.linked_device_count)}
               />
               <ResearchMetric
-                label="Có benchmark phù hợp"
+                label="Có phép đo phù hợp"
                 value={`${research.coverage.benchmarked_device_count}/${research.coverage.linked_device_count}`}
               />
               <ResearchMetric
@@ -163,29 +169,40 @@ export function HardwareAiResearch({
                 value={String(research.coverage.comparable_device_count)}
               />
               <ResearchMetric
+                label="Có dữ liệu cấu hình"
+                value={String(research.coverage.modeled_device_count)}
+              />
+              <ResearchMetric
                 label="Nhóm phép đo chung"
                 value={String(research.coverage.comparable_metric_count)}
               />
             </div>
 
-            {measured.length ? (
+            {ranked.length ? (
               <section>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-950">
-                      Thiết bị có đủ bằng chứng đối chiếu
+                      {measured.length
+                        ? "Thiết bị có đủ bằng chứng đối chiếu"
+                        : "Thiết bị đã liên kết dữ liệu cấu hình"}
                     </h3>
                     <p className="mt-1 text-xs text-slate-500">
-                      Điểm 100 là kết quả tốt nhất trong từng nhóm benchmark
-                      tương thích, không phải điểm tuyệt đối của sản phẩm.
+                      {measured.length
+                        ? "Kết quả bên dưới giữ nguyên điểm gốc và chỉ đối chiếu khi cùng benchmark, phiên bản và hạng mục."
+                        : "Dữ liệu cấu hình chỉ mô tả cách tích hợp; hệ thống không tạo điểm hiệu năng thay benchmark."}
                     </p>
                   </div>
-                  <span className="text-xs font-medium text-emerald-700">
-                    {measured.length} phiên bản được xếp hạng
+                  <span
+                    className={`text-xs font-medium ${
+                      measured.length ? "text-emerald-700" : "text-blue-700"
+                    }`}
+                  >
+                    {ranked.length} phiên bản có dữ liệu
                   </span>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2">
-                  {measured.map((assessment) => (
+                  {ranked.map((assessment) => (
                     <DeviceAssessmentCard
                       key={assessment.device.variant_id}
                       assessment={assessment}
@@ -202,13 +219,11 @@ export function HardwareAiResearch({
                   />
                   <div>
                     <div className="font-semibold text-amber-950">
-                      Chưa có cơ sở để xếp hạng hiệu quả
+                      Chưa có benchmark để đối chiếu
                     </div>
                     <p className="mt-1 text-sm leading-6 text-amber-800">
-                      Cần ít nhất hai phiên bản dùng mô-đun này có cùng
-                      benchmark, subscore và điều kiện thử nghiệm tương thích.
-                      Hệ thống sẽ không lấy độ mới hay số lượng sản phẩm để thay
-                      thế bằng chứng đo.
+                      Cần ít nhất hai phiên bản có cùng benchmark, phiên bản,
+                      hạng mục và điều kiện thử nghiệm tương thích.
                     </p>
                   </div>
                 </div>
@@ -297,13 +312,17 @@ function DeviceAssessmentCard({
   const brand =
     assessment.device.product_line?.brand.short_name ??
     assessment.device.product_line?.brand.name;
+  const primaryBenchmark = assessment.benchmark_results.find(
+    (result) => result.comparable,
+  );
 
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-wide text-violet-700">
-            Xếp hạng #{assessment.rank} {brand ? `· ${brand}` : ""}
+            {primaryBenchmark ? "Kết quả benchmark" : "Ngữ cảnh cấu hình"}
+            {brand ? ` · ${brand}` : ""}
           </div>
           <Link
             href={`/devices/${assessment.device.slug}`}
@@ -318,28 +337,58 @@ function DeviceAssessmentCard({
         </div>
         <div className="shrink-0 text-right">
           <div className="text-2xl font-semibold text-slate-950">
-            {assessment.effectiveness_score}
+            {primaryBenchmark
+              ? formatResearchScore(primaryBenchmark.score)
+              : assessment.effectiveness_score !== null
+                ? formatResearchScore(assessment.effectiveness_score)
+                : "—"}
           </div>
           <div className="text-[11px] uppercase text-slate-500">
-            chỉ số tương đối
+            {primaryBenchmark
+              ? localizeResearchUnit(primaryBenchmark.benchmark.unit?.symbol)
+              : assessment.effectiveness_score !== null
+                ? "chỉ số cấu hình"
+                : "chưa có dữ liệu"}
           </div>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
         <ResearchMetric
-          label="Phép đo chung"
-          value={String(assessment.metrics.comparable_metric_count)}
+          label={
+            assessment.score_basis === "benchmark"
+              ? "Phép đo chung"
+              : "Nguồn dữ liệu"
+          }
+          value={
+            assessment.score_basis === "benchmark"
+              ? String(assessment.metrics.comparable_metric_count)
+              : "Cấu hình"
+          }
           compact
         />
         <ResearchMetric
-          label="Chất lượng evidence"
-          value={evidenceQualityLabel(assessment.evidence_quality)}
+          label={
+            assessment.score_basis === "benchmark"
+              ? "Chất lượng bằng chứng"
+              : "Loại đánh giá"
+          }
+          value={
+            assessment.score_basis === "benchmark"
+              ? evidenceQualityLabel(assessment.evidence_quality)
+              : "Mô hình cấu hình"
+          }
           compact
         />
         <ResearchMetric
-          label="Throttle"
-          value={String(assessment.metrics.throttled_result_count)}
+          label={
+            assessment.score_basis === "benchmark" ? "Giảm xung" : "Trạng thái"
+          }
+          value={
+            assessment.score_basis === "benchmark"
+              ? String(assessment.metrics.throttled_result_count)
+              : "Đã chấm"
+          }
           compact
         />
       </div>
@@ -362,7 +411,9 @@ function DeviceAssessmentCard({
                   <div className="text-xs font-semibold text-slate-900">
                     {result.benchmark.name}
                     {result.benchmark.subscore_name
-                      ? ` · ${result.benchmark.subscore_name}`
+                      ? ` · ${localizeResearchSubscore(
+                          result.benchmark.subscore_name,
+                        )}`
                       : ""}
                   </div>
                   <div className="mt-1 text-xs text-slate-500">
@@ -373,8 +424,10 @@ function DeviceAssessmentCard({
                     · so với {result.comparison_size} phiên bản
                   </div>
                 </div>
-                <span className="text-sm font-semibold text-violet-700">
-                  {result.relative_score}/100
+                <span className="text-right text-[11px] font-semibold text-violet-700">
+                  {result.benchmark.higher_is_better
+                    ? "Cao hơn tốt hơn"
+                    : "Thấp hơn tốt hơn"}
                 </span>
               </div>
               <BenchmarkContext result={result} />
@@ -466,7 +519,7 @@ function UnrankedDeviceRow({ assessment }: { assessment: DeviceAssessment }) {
         }`}
       >
         {isPartial ? <FlaskConical size={12} /> : <MinusCircle size={12} />}
-        {isPartial ? "Có phép đo riêng lẻ" : "Chưa có benchmark"}
+        {isPartial ? "Có phép đo riêng lẻ" : "Chưa có phép đo chuẩn"}
       </span>
       <p className="text-xs leading-5 text-slate-600">
         {assessment.assessment}
@@ -501,8 +554,35 @@ function ResearchMetric({
 
 function assessmentStatusLabel(status: HardwareEvidenceStatus) {
   if (status === "measured") return "Có dữ liệu đối chiếu";
+  if (status === "modeled") return "Có dữ liệu cấu hình";
   if (status === "partial") return "Có dữ liệu nhưng chưa thể đối chiếu";
   return "Chưa đủ bằng chứng";
+}
+
+function formatResearchScore(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function localizeResearchUnit(value?: string | null) {
+  if (!value || /^(points?|pts?)$/i.test(value)) return "điểm";
+  return value;
+}
+
+function localizeResearchSubscore(value: string) {
+  const labels: Record<string, string> = {
+    overall: "Tổng",
+    total: "Tổng",
+    single_core: "Đơn nhân",
+    multi_core: "Đa nhân",
+    cpu: "CPU",
+    gpu: "GPU",
+    opencl: "OpenCL",
+    memory: "Bộ nhớ",
+    ux: "Trải nghiệm",
+  };
+  return labels[value.toLowerCase()] ?? value;
 }
 
 function evidenceQualityLabel(quality: HardwareEvidenceQuality) {
@@ -514,8 +594,8 @@ function evidenceQualityLabel(quality: HardwareEvidenceQuality) {
 function researchMissingLabel(value: string) {
   const labels: Record<string, string> = {
     comparable_benchmark_conditions:
-      "benchmark chung với điều kiện thử nghiệm tương thích",
-    device_benchmark_coverage: "độ phủ benchmark thiết bị",
+      "phép đo chung với điều kiện thử nghiệm tương thích",
+    device_benchmark_coverage: "độ phủ phép đo thiết bị",
     documented_test_conditions: "điều kiện thử nghiệm được ghi đầy đủ",
     power_or_energy_measurements: "phép đo công suất hoặc năng lượng",
   };

@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useDeferredValue, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -15,6 +21,7 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { LoadingPanel } from "@/components/loading-panel";
 import { PageHeader } from "@/components/page-header";
+import { SearchableSelect } from "@/components/searchable-select";
 import { useAuth } from "@/components/auth-provider";
 import { api } from "@/lib/api";
 
@@ -26,8 +33,22 @@ export default function AlertsPage() {
   const deferredVariantSearch = useDeferredValue(variantSearch.trim());
   const [variantId, setVariantId] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
+  const [currencyCode, setCurrencyCode] = useState("VND");
+  const [regionCode, setRegionCode] = useState("VN");
   const [draftPrices, setDraftPrices] = useState<Record<string, string>>({});
+  const [draftCurrencies, setDraftCurrencies] = useState<
+    Record<string, string>
+  >({});
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setVariantId(params.get("variant") ?? "");
+    setTargetPrice(params.get("target") ?? "");
+    setCurrencyCode(params.get("currency")?.toUpperCase() ?? "VND");
+    setRegionCode(params.get("region")?.toUpperCase() ?? "VN");
+    setVariantSearch(params.get("device") ?? "");
+  }, []);
 
   const variants = useQuery({
     queryKey: ["device-variants", "alert-picker", deferredVariantSearch],
@@ -47,18 +68,39 @@ export default function AlertsPage() {
       api.listPriceAlerts(accessToken!).then((result) => result.data),
     enabled: Boolean(accessToken),
   });
+  const currencies = useQuery({
+    queryKey: ["currencies"],
+    queryFn: () => api.listCurrencies(),
+    enabled: Boolean(user),
+  });
   const selectedVariant = useMemo(
     () => variants.data?.find((variant) => variant.id === variantId),
     [variantId, variants.data],
   );
+  const currencyOptions = useMemo(() => {
+    const available = currencies.data?.length
+      ? currencies.data
+      : [
+          { code: "VND", symbol: "₫" },
+          { code: "USD", symbol: "$" },
+          { code: "EUR", symbol: "€" },
+          { code: "JPY", symbol: "¥" },
+        ];
+    return available.map((currency) => ({
+      value: currency.code,
+      label: currency.code,
+      meta: currency.symbol ? `Ký hiệu ${currency.symbol}` : undefined,
+    }));
+  }, [currencies.data]);
   const createAlert = useMutation({
     mutationFn: () =>
       api.createPriceAlert(
         {
           device_variant_id: variantId,
           target_price: Number(targetPrice),
-          currency_code: selectedVariant?.currency?.code ?? "USD",
-          region_code: "US",
+          currency_code:
+            currencyCode || selectedVariant?.currency?.code || "VND",
+          region_code: regionCode,
         },
         accessToken!,
       ),
@@ -78,22 +120,30 @@ export default function AlertsPage() {
     mutationFn: ({
       id,
       target_price,
+      currency_code,
       is_active,
     }: {
       id: string;
       target_price?: number;
+      currency_code?: string;
       is_active?: boolean;
     }) =>
       api.updatePriceAlert(
         id,
         {
           ...(target_price !== undefined && { target_price }),
+          ...(currency_code !== undefined && { currency_code }),
           ...(is_active !== undefined && { is_active }),
         },
         accessToken!,
       ),
     onSuccess: (_result, variables) => {
       setDraftPrices((current) => {
+        const next = { ...current };
+        delete next[variables.id];
+        return next;
+      });
+      setDraftCurrencies((current) => {
         const next = { ...current };
         delete next[variables.id];
         return next;
@@ -113,27 +163,18 @@ export default function AlertsPage() {
 
   if (isLoading) return <LoadingPanel label="Đang tải cảnh báo" />;
   if (!user) {
-    return (
-      <AuthRequired
-        title="Đăng nhập để quản lý cảnh báo giá"
-        description="Cảnh báo được liên kết với tài khoản và tính năng của gói dịch vụ."
-      />
-    );
+    return <AuthRequired title="Đăng nhập để quản lý cảnh báo giá" />;
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-      <PageHeader
-        eyebrow="Cảnh báo"
-        title="Cảnh báo giá"
-        description="Chọn phiên bản, đặt giá mục tiêu và để worker kiểm tra các liên kết mua hàng theo lịch đã cấu hình."
-      />
+    <div className="app-page mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <PageHeader title="Cảnh báo giá" />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="app-panel p-5">
         <h2 className="text-base font-semibold text-slate-950">Tạo cảnh báo</h2>
         <form
           onSubmit={submit}
-          className="mt-4 grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)_180px_auto]"
+          className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-[210px_minmax(280px,1fr)_120px_180px_auto]"
         >
           <label className="relative">
             <span className="sr-only">Tìm phiên bản</span>
@@ -148,27 +189,39 @@ export default function AlertsPage() {
               className="h-10 w-full rounded-md border border-slate-300 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
             />
           </label>
-          <label>
-            <span className="sr-only">Phiên bản thiết bị</span>
-            <select
-              value={variantId}
-              onChange={(event) => setVariantId(event.target.value)}
-              disabled={variants.isLoading}
-              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-500 disabled:bg-slate-50"
-            >
-              <option value="">
-                {variants.isLoading
-                  ? "Đang tải phiên bản..."
-                  : "Chọn phiên bản thiết bị"}
-              </option>
-              {variants.data?.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                  {variant.device_model?.name ?? "Thiết bị"} ·{" "}
-                  {variant.variant_name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SearchableSelect
+            label="Phiên bản thiết bị"
+            labelClassName="sr-only"
+            controlClassName="h-10 rounded-md"
+            value={variantId}
+            onChange={setVariantId}
+            disabled={variants.isLoading}
+            placeholder={
+              variants.isLoading
+                ? "Đang tải phiên bản..."
+                : "Chọn phiên bản thiết bị"
+            }
+            searchPlaceholder="Tìm tên máy, phiên bản hoặc màu..."
+            options={(variants.data ?? []).map((variant) => ({
+              value: variant.id,
+              label: variant.device_model?.name ?? "Thiết bị",
+              meta: variant.variant_name,
+              keywords: variant.color_name ?? "",
+            }))}
+            required
+          />
+          <SearchableSelect
+            label="Tiền tệ"
+            labelClassName="sr-only"
+            controlClassName="h-10 rounded-md"
+            value={currencyCode || selectedVariant?.currency?.code || "VND"}
+            onChange={setCurrencyCode}
+            options={currencyOptions}
+            placeholder="Tiền tệ"
+            searchPlaceholder="Tìm mã tiền tệ..."
+            clearable={false}
+            required
+          />
           <input
             value={targetPrice}
             onChange={(event) => setTargetPrice(event.target.value)}
@@ -177,7 +230,7 @@ export default function AlertsPage() {
             min="0.01"
             step="0.01"
             inputMode="decimal"
-            placeholder={`Giá mục tiêu (${selectedVariant?.currency?.code ?? "USD"})`}
+            placeholder="Giá mục tiêu"
             className="h-10 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-500"
           />
           <button
@@ -203,7 +256,7 @@ export default function AlertsPage() {
         ) : null}
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="app-panel">
         <div className="border-b border-slate-100 p-4">
           <h2 className="text-base font-semibold text-slate-950">
             Cảnh báo hiện tại
@@ -215,7 +268,7 @@ export default function AlertsPage() {
             {alerts.data.map((alert) => (
               <div
                 key={alert.id}
-                className="grid gap-3 p-4 lg:grid-cols-[minmax(0,1fr)_180px_120px_auto] lg:items-center"
+                className="grid gap-3 p-4 lg:grid-cols-[minmax(0,1fr)_180px_120px_120px_auto] lg:items-center"
               >
                 <div>
                   {alert.device_variant?.device_model?.slug ? (
@@ -235,27 +288,34 @@ export default function AlertsPage() {
                 </div>
                 <label>
                   <span className="sr-only">Giá mục tiêu</span>
-                  <div className="flex h-9 items-center rounded-md border border-slate-200 bg-white focus-within:border-blue-500">
-                    <input
-                      value={
-                        draftPrices[alert.id] ?? String(alert.target_price)
-                      }
-                      onChange={(event) =>
-                        setDraftPrices((current) => ({
-                          ...current,
-                          [alert.id]: event.target.value,
-                        }))
-                      }
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      className="h-full min-w-0 flex-1 rounded-md px-3 text-sm outline-none"
-                    />
-                    <span className="pr-3 text-xs font-medium text-slate-500">
-                      {alert.currency_code}
-                    </span>
-                  </div>
+                  <input
+                    value={draftPrices[alert.id] ?? String(alert.target_price)}
+                    onChange={(event) =>
+                      setDraftPrices((current) => ({
+                        ...current,
+                        [alert.id]: event.target.value,
+                      }))
+                    }
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    className="h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500"
+                  />
                 </label>
+                <SearchableSelect
+                  label={`Tiền tệ của ${alert.device_variant?.variant_name ?? "cảnh báo"}`}
+                  labelClassName="sr-only"
+                  controlClassName="h-9 rounded-md"
+                  value={draftCurrencies[alert.id] ?? alert.currency_code}
+                  onChange={(nextCurrency) =>
+                    setDraftCurrencies((current) => ({
+                      ...current,
+                      [alert.id]: nextCurrency,
+                    }))
+                  }
+                  options={currencyOptions}
+                  clearable={false}
+                />
                 <div className="text-sm text-slate-600">
                   {alert.is_active
                     ? "Đang theo dõi"
@@ -267,14 +327,20 @@ export default function AlertsPage() {
                   <button
                     disabled={
                       updateAlert.isPending ||
-                      !draftPrices[alert.id] ||
-                      !Number.isFinite(Number(draftPrices[alert.id])) ||
-                      Number(draftPrices[alert.id]) <= 0
+                      (!draftPrices[alert.id] && !draftCurrencies[alert.id]) ||
+                      (Boolean(draftPrices[alert.id]) &&
+                        (!Number.isFinite(Number(draftPrices[alert.id])) ||
+                          Number(draftPrices[alert.id]) <= 0))
                     }
                     onClick={() =>
                       updateAlert.mutate({
                         id: alert.id,
-                        target_price: Number(draftPrices[alert.id]),
+                        ...(draftPrices[alert.id] && {
+                          target_price: Number(draftPrices[alert.id]),
+                        }),
+                        ...(draftCurrencies[alert.id] && {
+                          currency_code: draftCurrencies[alert.id],
+                        }),
                       })
                     }
                     className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-40"
@@ -308,7 +374,6 @@ export default function AlertsPage() {
             <EmptyState
               icon={<Bell size={20} />}
               title="Chưa có cảnh báo nào"
-              description="Tìm và chọn một phiên bản thiết bị ở biểu mẫu phía trên để bắt đầu theo dõi giá."
             />
           </div>
         ) : null}
@@ -317,19 +382,12 @@ export default function AlertsPage() {
   );
 }
 
-function AuthRequired({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function AuthRequired({ title }: { title: string }) {
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <EmptyState
         icon={<UserRound size={20} />}
         title={title}
-        description={description}
         action={
           <Link
             href="/login"

@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
@@ -10,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
 } from "class-validator";
 
 export class CreateOrganizationDto {
@@ -58,13 +60,21 @@ export class CreateOrganizationDto {
 
   @ApiPropertyOptional({ example: "https://cdn.spechub.io/logos/apple.svg" })
   @IsOptional()
-  @IsUrl()
+  @IsUrl({
+    protocols: ["http", "https"],
+    require_protocol: true,
+    require_tld: false,
+  })
   logo_url?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty({
+    description:
+      "Mô tả chuẩn hóa về lĩnh vực, vai trò, sản phẩm và công nghệ nổi bật của tổ chức.",
+  })
   @IsString()
-  description?: string;
+  @IsNotEmpty()
+  @MinLength(80)
+  description!: string;
 
   @ApiPropertyOptional({ default: true })
   @IsOptional()

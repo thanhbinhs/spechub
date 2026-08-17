@@ -18,6 +18,7 @@
     "MEILI_API_KEY",
     "MEILI_DEVICE_MODELS_INDEX",
     "AI_PROVIDER",
+    "AI_CHAT_BASE_URL",
     "AI_EMBEDDING_PROVIDER",
     "AI_OPENAI_MODEL",
     "AI_OPENAI_EMBEDDING_MODEL",
@@ -25,11 +26,16 @@
     "AI_TEMPERATURE",
     "AI_MAX_TOKENS",
     "AI_EMBEDDING_DIMENSIONS",
+    "AI_REQUEST_TIMEOUT_MS",
     "ANTHROPIC_API_KEY",
     "OPENAI_API_KEY",
     "PRICE_ALERTS_SCHEDULE_ENABLED",
     "PRICE_ALERTS_WORKER_ENABLED",
     "PRICE_ALERTS_INTERVAL_MINUTES",
+    "AFFILIATE_PRICE_SYNC_ENABLED",
+    "AFFILIATE_PRICE_SYNC_MAX_AGE_MINUTES",
+    "AFFILIATE_PRICE_SYNC_BATCH_SIZE",
+    "AFFILIATE_PRICE_SYNC_CONCURRENCY",
     "CRAWLER_WORKER_ENABLED",
     "CRAWLER_INTERVAL_MINUTES",
     "CRAWLER_ALLOW_HTTP",
@@ -55,7 +61,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^db:generate"]
+      "dependsOn": ["^build", "^db:generate"]
     },
     "lint": {
       "dependsOn": ["^lint"]

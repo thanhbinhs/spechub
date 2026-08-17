@@ -46,6 +46,9 @@ const WIKI_ARTICLE_SELECT = {
   article_type: true,
   tags: true,
   cover_image_url: true,
+  cover_image_alt: true,
+  cover_image_caption: true,
+  cover_image_credit: true,
   reading_time_minutes: true,
   citations: {
     orderBy: { citation: { published_at: "desc" } },
@@ -98,16 +101,68 @@ const WIKI_REVISION_SELECT = {
   },
 } satisfies Prisma.wiki_revisionsSelect;
 
-export type WikiArticleItem = Prisma.wiki_articlesGetPayload<{
+const WIKI_ARTICLE_LIST_SELECT = {
+  id: true,
+  entity_table: true,
+  entity_id: true,
+  title: true,
+  slug: true,
+  summary: true,
+  status: true,
+  view_count: true,
+  published_at: true,
+  created_at: true,
+  updated_at: true,
+  language: {
+    select: {
+      code: true,
+      name: true,
+    },
+  },
+  author: {
+    select: {
+      id: true,
+      username: true,
+      display_name: true,
+      avatar_url: true,
+    },
+  },
+  article_type: true,
+  tags: true,
+  cover_image_url: true,
+  cover_image_alt: true,
+  cover_image_caption: true,
+  cover_image_credit: true,
+  reading_time_minutes: true,
+  _count: {
+    select: {
+      revisions: true,
+    },
+  },
+} satisfies Prisma.wiki_articlesSelect;
+
+type WikiArticleItemRaw = Prisma.wiki_articlesGetPayload<{
   select: typeof WIKI_ARTICLE_SELECT;
 }>;
+
+type WikiArticleListItemRaw = Prisma.wiki_articlesGetPayload<{
+  select: typeof WIKI_ARTICLE_LIST_SELECT;
+}>;
+
+export type WikiArticleItem = Omit<WikiArticleItemRaw, "view_count"> & {
+  view_count: string;
+};
+
+export type WikiArticleListItem = Omit<WikiArticleListItemRaw, "view_count"> & {
+  view_count: string;
+};
 
 export type WikiRevisionItem = Prisma.wiki_revisionsGetPayload<{
   select: typeof WIKI_REVISION_SELECT;
 }>;
 
 export type WikiArticleListResult = {
-  data: WikiArticleItem[];
+  data: WikiArticleListItem[];
   meta: PaginationMeta;
 };
 
@@ -122,6 +177,9 @@ type ArticleWriteData = {
   article_type?: string;
   tags?: string[];
   cover_image_url?: string | null;
+  cover_image_alt?: string | null;
+  cover_image_caption?: string | null;
+  cover_image_credit?: string | null;
   reading_time_minutes?: number;
   status?: string;
   published_at?: Date | null;
@@ -167,13 +225,19 @@ export class WikiService {
       data: { view_count: { increment: 1 } },
     });
 
-    return { data: article };
+    return { data: this.serializeArticle(article) };
   }
 
   async create(
     dto: CreateWikiArticleDto,
     actor: Pick<AuthUser, "id" | "role"> | string,
   ): Promise<{ data: WikiArticleItem }> {
+    this.validateCoverImageMetadata(
+      dto.cover_image_url,
+      dto.cover_image_alt,
+      dto.cover_image_caption,
+      dto.cover_image_credit,
+    );
     const authorUserId = typeof actor === "string" ? actor : actor.id;
     const isTrusted =
       typeof actor === "string" || ["admin", "editor"].includes(actor.role);
@@ -194,6 +258,9 @@ export class WikiService {
           article_type: dto.article_type ?? "guide",
           tags: this.normalizeTags(dto.tags),
           cover_image_url: dto.cover_image_url,
+          cover_image_alt: dto.cover_image_alt,
+          cover_image_caption: dto.cover_image_caption,
+          cover_image_credit: dto.cover_image_credit,
           summary: dto.summary,
           body_markdown: dto.body_markdown,
           reading_time_minutes: this.readingTime(dto.body_markdown),
@@ -228,7 +295,7 @@ export class WikiService {
       });
     });
 
-    return { data: article };
+    return { data: this.serializeArticle(article) };
   }
 
   async update(
@@ -244,6 +311,37 @@ export class WikiService {
       dto.citations === undefined
         ? undefined
         : await this.validateCitationLinks(dto.citations);
+    const coverImageUrl =
+      dto.cover_image_url !== undefined
+        ? dto.cover_image_url
+        : existing.cover_image_url;
+    const coverImageChanged =
+      dto.cover_image_url !== undefined &&
+      dto.cover_image_url !== existing.cover_image_url;
+    const coverImageAlt =
+      dto.cover_image_alt !== undefined
+        ? dto.cover_image_alt
+        : coverImageChanged
+          ? null
+          : existing.cover_image_alt;
+    const coverImageCaption =
+      dto.cover_image_caption !== undefined
+        ? dto.cover_image_caption
+        : coverImageChanged
+          ? null
+          : existing.cover_image_caption;
+    const coverImageCredit =
+      dto.cover_image_credit !== undefined
+        ? dto.cover_image_credit
+        : coverImageChanged
+          ? null
+          : existing.cover_image_credit;
+    this.validateCoverImageMetadata(
+      coverImageUrl,
+      coverImageAlt,
+      coverImageCaption,
+      coverImageCredit,
+    );
 
     const article = await this.prisma.$transaction(async (tx) => {
       const latestRevision = await tx.wiki_revisions.findFirst({
@@ -267,6 +365,15 @@ export class WikiService {
         ...(dto.tags !== undefined && { tags: this.normalizeTags(dto.tags) }),
         ...(dto.cover_image_url !== undefined && {
           cover_image_url: dto.cover_image_url,
+        }),
+        ...((dto.cover_image_alt !== undefined || coverImageChanged) && {
+          cover_image_alt: coverImageAlt,
+        }),
+        ...((dto.cover_image_caption !== undefined || coverImageChanged) && {
+          cover_image_caption: coverImageCaption,
+        }),
+        ...((dto.cover_image_credit !== undefined || coverImageChanged) && {
+          cover_image_credit: coverImageCredit,
         }),
         ...(dto.summary !== undefined && { summary: dto.summary }),
         ...(dto.body_markdown !== undefined && {
@@ -309,7 +416,7 @@ export class WikiService {
       });
     });
 
-    return { data: article };
+    return { data: this.serializeArticle(article) };
   }
 
   async submitRevision(
@@ -399,7 +506,7 @@ export class WikiService {
       });
     });
 
-    return { data: article };
+    return { data: this.serializeArticle(article) };
   }
 
   async archive(id: string): Promise<{ data: { id: string; archived: true } }> {
@@ -425,6 +532,8 @@ export class WikiService {
       ? await this.resolveLanguage(query.language_code)
       : undefined;
     const q = query.q?.trim();
+    const searchPhrases = q ? this.searchPhrases(q) : [];
+    const searchTags = q ? this.searchTags(q) : [];
     const where: Prisma.wiki_articlesWhereInput = {
       deleted_at: null,
       ...(publishedOnly
@@ -439,17 +548,60 @@ export class WikiService {
       ...(language && { language_id: language.id }),
       ...(q && {
         OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { summary: { contains: q, mode: "insensitive" } },
-          { body_markdown: { contains: q, mode: "insensitive" } },
+          ...searchPhrases.flatMap((phrase) => [
+            { title: { contains: phrase, mode: "insensitive" as const } },
+            { summary: { contains: phrase, mode: "insensitive" as const } },
+            {
+              body_markdown: {
+                contains: phrase,
+                mode: "insensitive" as const,
+              },
+            },
+          ]),
+          ...(searchTags.length > 0 ? [{ tags: { hasSome: searchTags } }] : []),
         ],
       }),
     };
 
+    if (q) {
+      const matchedItems = await this.prisma.wiki_articles.findMany({
+        where,
+        select: WIKI_ARTICLE_LIST_SELECT,
+        take: 1_000,
+      });
+      const rankedItems = matchedItems.sort((left, right) => {
+        const scoreDelta =
+          this.searchScore(right, q, searchPhrases, searchTags) -
+          this.searchScore(left, q, searchPhrases, searchTags);
+        if (scoreDelta !== 0) return scoreDelta;
+        if (query.sort === "popular") {
+          return Number(right.view_count - left.view_count);
+        }
+        if (query.sort === "shortest") {
+          return left.reading_time_minutes - right.reading_time_minutes;
+        }
+        if (query.sort === "az") {
+          return left.title.localeCompare(right.title, "vi");
+        }
+        return (
+          (right.published_at?.getTime() ?? right.updated_at.getTime()) -
+          (left.published_at?.getTime() ?? left.updated_at.getTime())
+        );
+      });
+      const paginatedItems = rankedItems.slice(
+        (page - 1) * pageSize,
+        page * pageSize,
+      );
+      return {
+        data: paginatedItems.map((item) => this.serializeArticle(item)),
+        meta: createPaginationMeta(rankedItems.length, page, pageSize),
+      };
+    }
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.wiki_articles.findMany({
         where,
-        select: WIKI_ARTICLE_SELECT,
+        select: WIKI_ARTICLE_LIST_SELECT,
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: this.articleOrder(query.sort, publishedOnly),
@@ -457,7 +609,10 @@ export class WikiService {
       this.prisma.wiki_articles.count({ where }),
     ]);
 
-    return { data: items, meta: createPaginationMeta(total, page, pageSize) };
+    return {
+      data: items.map((item) => this.serializeArticle(item)),
+      meta: createPaginationMeta(total, page, pageSize),
+    };
   }
 
   private async findArticle(id: string) {
@@ -469,6 +624,10 @@ export class WikiService {
         body_markdown: true,
         status: true,
         published_at: true,
+        cover_image_url: true,
+        cover_image_alt: true,
+        cover_image_caption: true,
+        cover_image_credit: true,
       },
     });
 
@@ -548,6 +707,24 @@ export class WikiService {
     ).slice(0, 8);
   }
 
+  private validateCoverImageMetadata(
+    url?: string | null,
+    alt?: string | null,
+    caption?: string | null,
+    credit?: string | null,
+  ) {
+    if (
+      !url &&
+      [alt, caption, credit].some(
+        (value) => value !== undefined && value !== null,
+      )
+    ) {
+      throw new BadRequestException(
+        "Cover image metadata requires cover_image_url",
+      );
+    }
+  }
+
   private readingTime(markdown?: string | null) {
     const words = markdown?.trim().split(/\s+/).filter(Boolean).length ?? 0;
     return Math.max(1, Math.ceil(words / 220));
@@ -560,8 +737,113 @@ export class WikiService {
     if (sort === "popular") return [{ view_count: "desc" as const }];
     if (sort === "updated") return [{ updated_at: "desc" as const }];
     if (sort === "oldest") return [{ published_at: "asc" as const }];
+    if (sort === "shortest") {
+      return [
+        { reading_time_minutes: "asc" as const },
+        { published_at: "desc" as const },
+      ];
+    }
+    if (sort === "az") return [{ title: "asc" as const }];
     return publishedOnly
       ? [{ published_at: "desc" as const }, { updated_at: "desc" as const }]
       : [{ updated_at: "desc" as const }];
+  }
+
+  private searchPhrases(query: string) {
+    const normalized = this.normalizeSearchText(query);
+    const aliases: Array<[string, string[]]> = [
+      ["man hinh", ["màn hình", "display"]],
+      ["hieu nang", ["hiệu năng", "benchmark"]],
+      ["sac nhanh", ["sạc nhanh", "pin sạc"]],
+      ["thoi luong pin", ["thời lượng pin", "pin"]],
+      ["may tinh bang", ["máy tính bảng", "tablet"]],
+      ["dien thoai", ["điện thoại", "smartphone"]],
+      ["may doc sach", ["máy đọc sách", "e ink"]],
+      ["tai nghe", ["tai nghe", "âm thanh"]],
+      ["ket noi", ["kết nối", "wifi", "bluetooth"]],
+      ["do ben", ["độ bền", "kháng nước"]],
+    ];
+    const phrases = new Set([query.trim()]);
+
+    for (const [needle, values] of aliases) {
+      if (normalized.includes(needle)) {
+        values.forEach((value) => phrases.add(value));
+      }
+    }
+
+    return [...phrases].filter(Boolean).slice(0, 8);
+  }
+
+  private searchTags(query: string) {
+    const normalized = this.normalizeSearchText(query);
+    return Array.from(
+      new Set([
+        normalized.replace(/\s+/g, "-"),
+        ...normalized.split(/\s+/).filter((part) => part.length >= 3),
+      ]),
+    ).slice(0, 8);
+  }
+
+  private normalizeSearchText(value: string) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  private searchScore(
+    article: {
+      title: string;
+      summary: string | null;
+      tags: string[];
+    },
+    query: string,
+    phrases: string[],
+    tags: string[],
+  ) {
+    const normalizedQuery = this.normalizeSearchText(query);
+    const title = this.normalizeSearchText(article.title);
+    const summary = this.normalizeSearchText(article.summary ?? "");
+    const normalizedTags = article.tags.map((tag) =>
+      this.normalizeSearchText(tag).replace(/\s+/g, "-"),
+    );
+    let score = 0;
+
+    if (title === normalizedQuery) score += 160;
+    else if (title.includes(normalizedQuery)) score += 100;
+    if (summary.includes(normalizedQuery)) score += 35;
+
+    for (const phrase of phrases) {
+      const normalizedPhrase = this.normalizeSearchText(phrase);
+      if (!normalizedPhrase || normalizedPhrase === normalizedQuery) continue;
+      if (title.includes(normalizedPhrase)) score += 70;
+      if (summary.includes(normalizedPhrase)) score += 20;
+    }
+
+    for (const tag of tags) {
+      if (normalizedTags.includes(tag)) score += 45;
+    }
+
+    return score;
+  }
+
+  private serializeArticle<
+    T extends {
+      view_count: bigint;
+    },
+  >(article: T): Omit<T, "view_count"> & { view_count: string } {
+    if (typeof article.view_count !== "bigint") {
+      return article as unknown as Omit<T, "view_count"> & {
+        view_count: string;
+      };
+    }
+    return {
+      ...article,
+      view_count: article.view_count.toString(),
+    };
   }
 }

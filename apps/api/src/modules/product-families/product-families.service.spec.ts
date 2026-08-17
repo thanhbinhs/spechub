@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { ProductFamiliesService } from './product-families.service'
 
 describe('ProductFamiliesService', () => {
@@ -16,6 +16,10 @@ describe('ProductFamiliesService', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    device_models: {
+      count: jest.fn(),
     },
     $transaction: jest.fn((operations: Promise<unknown>[]) =>
       Promise.all(operations),
@@ -62,5 +66,35 @@ describe('ProductFamiliesService', () => {
     await expect(service.findById('missing')).rejects.toBeInstanceOf(
       NotFoundException,
     )
+  })
+
+  it('prevents deleting a family used by device models', async () => {
+    prisma.product_families.findFirst.mockResolvedValue(family)
+    prisma.device_models.count.mockResolvedValue(3)
+
+    await expect(service.remove('family-1')).rejects.toBeInstanceOf(
+      ConflictException,
+    )
+    expect(prisma.product_families.update).not.toHaveBeenCalled()
+  })
+
+  it('soft-deletes a family without linked device models', async () => {
+    prisma.product_families.findFirst.mockResolvedValue(family)
+    prisma.device_models.count.mockResolvedValue(0)
+    prisma.product_families.update.mockResolvedValue({
+      ...family,
+      is_active: false,
+    })
+
+    await service.remove('family-1')
+
+    expect(prisma.product_families.update).toHaveBeenCalledWith({
+      where: { id: 'family-1' },
+      data: {
+        deleted_at: expect.any(Date),
+        is_active: false,
+      },
+      select: expect.any(Object),
+    })
   })
 })

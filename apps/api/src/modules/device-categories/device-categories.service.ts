@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { Prisma } from '@spechub/database'
 import {
   createPaginationMeta,
@@ -117,14 +121,26 @@ export class DeviceCategoriesService {
   }
 
   async create(dto: CreateDeviceCategoryDto): Promise<DeviceCategoryItem> {
-    return this.prisma.device_categories.create({
-      data: {
-        ...dto,
-        display_order: dto.display_order ?? 0,
-        is_active: dto.is_active ?? true,
-      },
-      select: DEVICE_CATEGORY_SELECT,
-    })
+    try {
+      return await this.prisma.device_categories.create({
+        data: {
+          ...dto,
+          display_order: dto.display_order ?? 0,
+          is_active: dto.is_active ?? true,
+        },
+        select: DEVICE_CATEGORY_SELECT,
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Tên hoặc slug danh mục thiết bị đã tồn tại.',
+        )
+      }
+      throw error
+    }
   }
 
   async update(

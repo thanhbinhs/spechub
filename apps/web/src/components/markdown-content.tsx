@@ -1,11 +1,25 @@
 import type { ComponentPropsWithoutRef } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { extractWikiHeadings, wikiHeadingId } from "@/lib/wiki-markdown";
 
 export function MarkdownContent({ markdown }: { markdown: string }) {
+  const headingIdsByLine = new Map(
+    extractWikiHeadings(markdown).map((heading) => [heading.line, heading.id]),
+  );
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
+      urlTransform={(url, key) => {
+        if (
+          key === "src" &&
+          /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(url)
+        ) {
+          return url;
+        }
+        return defaultUrlTransform(url);
+      }}
       components={{
         h1: (props) => (
           <h1
@@ -13,17 +27,29 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
             {...props}
           />
         ),
-        h2: (props) => (
+        h2: ({ children, node, ...props }) => (
           <h2
-            className="mb-3 mt-8 text-xl font-semibold text-slate-950"
+            id={
+              headingIdsByLine.get(node?.position?.start.line ?? -1) ??
+              wikiHeadingId(readableText(children))
+            }
+            className="mb-3 mt-10 scroll-mt-24 border-t border-slate-200 pt-8 text-xl font-semibold text-slate-950"
             {...props}
-          />
+          >
+            {children}
+          </h2>
         ),
-        h3: (props) => (
+        h3: ({ children, node, ...props }) => (
           <h3
-            className="mb-2 mt-6 text-lg font-semibold text-slate-950"
+            id={
+              headingIdsByLine.get(node?.position?.start.line ?? -1) ??
+              wikiHeadingId(readableText(children))
+            }
+            className="mb-2 mt-7 scroll-mt-24 text-lg font-semibold text-slate-950"
             {...props}
-          />
+          >
+            {children}
+          </h3>
         ),
         p: (props) => (
           <p className="my-4 leading-8 text-slate-700" {...props} />
@@ -33,6 +59,18 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
         ),
         ol: (props) => (
           <ol className="my-4 list-decimal space-y-2 pl-6" {...props} />
+        ),
+        li: (props) => (
+          <li
+            className="leading-7 text-slate-700 marker:text-slate-400"
+            {...props}
+          />
+        ),
+        strong: (props) => (
+          <strong className="font-semibold text-slate-950" {...props} />
+        ),
+        em: (props) => (
+          <em className="text-sm leading-6 text-slate-500" {...props} />
         ),
         blockquote: (props) => (
           <blockquote
@@ -44,7 +82,9 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
           <a
             href={safeHref(href)}
             target={href?.startsWith("http") ? "_blank" : undefined}
-            rel={href?.startsWith("http") ? "noreferrer" : undefined}
+            rel={
+              href?.startsWith("http") ? "noopener noreferrer" : undefined
+            }
             className="font-medium text-blue-700 underline decoration-blue-200 underline-offset-2 hover:text-blue-800"
             {...props}
           />
@@ -81,10 +121,20 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
         img: (props: ComponentPropsWithoutRef<"img">) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            className="my-5 max-h-[520px] rounded-lg object-contain"
+            className="my-7 max-h-[620px] w-full rounded-xl border border-slate-200 bg-slate-50 object-contain shadow-sm"
             loading="lazy"
+            decoding="async"
             {...props}
             alt={props.alt ?? ""}
+          />
+        ),
+        hr: (props) => (
+          <hr className="my-10 border-0 border-t border-slate-200" {...props} />
+        ),
+        input: (props) => (
+          <input
+            className="mr-2 h-4 w-4 translate-y-0.5 rounded border-slate-300 accent-blue-600"
+            {...props}
           />
         ),
       }}
@@ -92,6 +142,21 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
       {markdown}
     </ReactMarkdown>
   );
+}
+
+function readableText(value: unknown): string {
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(readableText).join("");
+  }
+  if (value && typeof value === "object" && "props" in value) {
+    return readableText(
+      (value as { props?: { children?: unknown } }).props?.children,
+    );
+  }
+  return "";
 }
 
 function safeHref(href?: string) {

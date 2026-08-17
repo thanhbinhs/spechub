@@ -1,4 +1,5 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
+import { Prisma } from '@spechub/database'
 import { DeviceCategoriesService } from './device-categories.service'
 
 describe('DeviceCategoriesService', () => {
@@ -19,6 +20,7 @@ describe('DeviceCategoriesService', () => {
     device_categories: {
       findMany: jest.fn(),
       count: jest.fn(),
+      create: jest.fn(),
       findFirst: jest.fn(),
     },
     $transaction: jest.fn((operations: Promise<unknown>[]) =>
@@ -81,5 +83,21 @@ describe('DeviceCategoriesService', () => {
     await expect(service.findBySlug('missing')).rejects.toBeInstanceOf(
       NotFoundException,
     )
+  })
+
+  it('returns a clear conflict when a category name or slug already exists', async () => {
+    prisma.device_categories.create.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: 'test',
+      }),
+    )
+
+    await expect(
+      service.create({
+        name: 'Smartphone',
+        slug: 'smartphone',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException)
   })
 })

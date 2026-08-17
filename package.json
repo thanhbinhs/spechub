@@ -7,6 +7,7 @@
     "dev:web": "turbo dev --filter=@spechub/web",
     "dev:api": "turbo dev --filter=@spechub/api",
     "dev:worker": "turbo dev --filter=@spechub/worker",
+    "start": "pnpm --filter @spechub/api --filter @spechub/web --parallel run start",
     "start:worker": "pnpm --filter @spechub/worker start",
     "build": "turbo build",
     "lint": "turbo lint",

@@ -30,6 +30,10 @@ describe("HardwareResearchService", () => {
     name: "LPDDR5X",
     slug: "lpddr5x",
     description: null,
+    image_url: null,
+    image_source_url: null,
+    image_is_module: false,
+    image_device: null,
     organization: null,
     specs: {
       memory_type: "LPDDR",
@@ -37,6 +41,7 @@ describe("HardwareResearchService", () => {
       max_data_rate_mtps: 8533,
       bandwidth_gbps: null,
     },
+    field_coverage: {},
     devices,
     research: {
       variant_count: 3,
@@ -64,6 +69,9 @@ describe("HardwareResearchService", () => {
     device_variant_benchmarks: {
       findMany: jest.fn(),
     },
+    variant_module_scores: {
+      findMany: jest.fn(),
+    },
   };
 
   let service: HardwareResearchService;
@@ -73,6 +81,7 @@ describe("HardwareResearchService", () => {
     hardwareCatalogService.findByKindAndSlug.mockResolvedValue(hardwareModule);
     aiProvider.generateAnswer.mockResolvedValue(null);
     prisma.device_variant_benchmarks.findMany.mockResolvedValue([]);
+    prisma.variant_module_scores.findMany.mockResolvedValue([]);
     service = new HardwareResearchService(
       hardwareCatalogService as unknown as HardwareCatalogService,
       aiProvider as unknown as AiProviderService,
@@ -102,7 +111,58 @@ describe("HardwareResearchService", () => {
     expect(aiProvider.generateAnswer).not.toHaveBeenCalled();
   });
 
+  it("shows and ranks stored configuration scores when benchmarks are unavailable", async () => {
+    prisma.variant_module_scores.findMany.mockResolvedValue([
+      moduleScore("variant-a", 84),
+      moduleScore("variant-b", 91),
+      moduleScore("variant-c", 78),
+    ]);
+
+    const result = await service.research("memory-standard", "lpddr5x", {});
+
+    expect(result.data.assessment_status).toBe("modeled");
+    expect(result.data.coverage.modeled_device_count).toBe(3);
+    expect(
+      result.data.device_assessments.map((assessment) => ({
+        variant: assessment.device.variant_id,
+        rank: assessment.rank,
+        score: assessment.effectiveness_score,
+        basis: assessment.score_basis,
+      })),
+    ).toEqual([
+      {
+        variant: "variant-b",
+        rank: 1,
+        score: 91,
+        basis: "configuration_model",
+      },
+      {
+        variant: "variant-a",
+        rank: 2,
+        score: 84,
+        basis: "configuration_model",
+      },
+      {
+        variant: "variant-c",
+        rank: 3,
+        score: 78,
+        basis: "configuration_model",
+      },
+    ]);
+    expect(result.data.summary).toContain("chưa xếp hạng hiệu năng");
+    expect(result.data.compare_variant_ids).toEqual([
+      "variant-b",
+      "variant-a",
+      "variant-c",
+    ]);
+  });
+
   it("ranks device variants only from comparable higher-is-better results", async () => {
+    prisma.variant_module_scores.findMany.mockResolvedValue([
+      moduleScore("variant-a", 99),
+      moduleScore("variant-b", 70),
+      moduleScore("variant-c", 98),
+    ]);
     prisma.device_variant_benchmarks.findMany.mockResolvedValue([
       benchmarkRecord("variant-a", 40),
       benchmarkRecord("variant-b", 50),
@@ -124,6 +184,11 @@ describe("HardwareResearchService", () => {
       { variant: "variant-a", rank: 2, score: 80 },
       { variant: "variant-c", rank: 3, score: 50 },
     ]);
+    expect(
+      result.data.device_assessments.every(
+        (assessment) => assessment.score_basis === "benchmark",
+      ),
+    ).toBe(true);
     expect(result.data.compare_variant_ids).toEqual([
       "variant-b",
       "variant-a",
@@ -250,6 +315,7 @@ describe("HardwareResearchService", () => {
         id: modelId,
         name: modelName,
         slug: modelName.toLowerCase().replaceAll(" ", "-"),
+        cover_image_url: null,
         generation_label: null,
         release_date: new Date("2025-01-01T00:00:00.000Z"),
         product_family: family,
@@ -309,6 +375,17 @@ describe("HardwareResearchService", () => {
         base_url: "https://example.com",
         trust_level: 4,
       },
+    };
+  }
+
+  function moduleScore(variantId: string, score: number) {
+    return {
+      device_variant_id: variantId,
+      score: new Prisma.Decimal(score),
+      score_source: "configuration_model",
+      score_version: "benchmark-first-config-fallback-v2",
+      rationale: "Điểm cấu hình mẫu.",
+      factors: { integration_coverage: { value: 90, weight: 20 } },
     };
   }
 });

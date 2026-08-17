@@ -41,36 +41,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_440px] lg:px-8">
-      <section className="flex items-center">
-        <div className="max-w-2xl">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            Tài khoản
-          </div>
-          <h1 className="text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">
-            Tạo tài khoản SpecHub cho không gian làm việc.
-          </h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
-            Sau khi đăng ký bạn sẽ được đăng nhập ngay, để trang tổng quan là
-            điểm bắt đầu cho nghiên cứu đã lưu, cảnh báo và công cụ theo vai
-            trò.
-          </p>
-        </div>
-      </section>
-
-      <form
-        onSubmit={submit}
-        className="self-center rounded-xl border border-slate-200 bg-white p-5 shadow-md sm:p-6"
-      >
+    <div className="app-page mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-md place-items-center px-4 py-8 sm:px-6">
+      <form onSubmit={submit} className="app-panel w-full p-5 sm:p-6">
         <div className="mb-5 flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-lg bg-slate-950 text-white">
             <UserPlus size={18} />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">
+            <h1 className="text-xl font-semibold text-slate-950">
               Tạo tài khoản
-            </h2>
-            <div className="text-sm text-slate-500">Tài khoản SpecHub</div>
+            </h1>
           </div>
         </div>
         <div className="space-y-3">
@@ -83,7 +63,7 @@ export default function RegisterPage() {
               type="email"
               required
               autoComplete="email"
-              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="form-control"
             />
           </label>
           <label className="block">
@@ -93,17 +73,14 @@ export default function RegisterPage() {
             <input
               name="username"
               autoComplete="username"
-              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="form-control"
             />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700">
               Tên hiển thị
             </span>
-            <input
-              name="display_name"
-              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            />
+            <input name="display_name" className="form-control" />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700">
@@ -115,13 +92,13 @@ export default function RegisterPage() {
               minLength={8}
               required
               autoComplete="new-password"
-              className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="form-control"
             />
           </label>
         </div>
         <button
           disabled={mutation.isPending}
-          className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
+          className="app-button-primary mt-5 w-full"
         >
           {mutation.isPending ? "Đang tạo" : "Tạo tài khoản"}
           <ArrowRight size={16} />

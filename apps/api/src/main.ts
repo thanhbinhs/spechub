@@ -9,7 +9,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyCookie from '@fastify/cookie'
+import fastifyStatic from '@fastify/static'
+import { mkdirSync } from 'node:fs'
 import { AppModule } from './app.module'
+import { StorageSigningService } from './modules/catalog-studio/storage-signing.service'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
@@ -24,6 +27,12 @@ async function bootstrap() {
   )
 
   const config = app.get(ConfigService)
+  const fastify = app.getHttpAdapter().getInstance()
+
+  fastify.addContentTypeParser(
+    /^(?:image|video)\/|^application\/octet-stream$/,
+    (_request, payload, done) => done(null, payload),
+  )
 
   await app.register(fastifyHelmet as any, {
     contentSecurityPolicy: false,
@@ -32,6 +41,19 @@ async function bootstrap() {
   await app.register(fastifyCookie as any, {
     secret: config.get<string>('AUTH_SECRET'),
   })
+
+  const localStorage = app.get(StorageSigningService).localServingConfig()
+  if (localStorage) {
+    mkdirSync(localStorage.root, { recursive: true })
+    await app.register(fastifyStatic as any, {
+      root: localStorage.root,
+      prefix: '/media/',
+      decorateReply: false,
+      setHeaders(response: { setHeader(name: string, value: string): void }) {
+        response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+      },
+    })
+  }
 
   app.setGlobalPrefix('api')
   app.enableVersioning({
@@ -60,7 +82,6 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
   })
 
-  const fastify = app.getHttpAdapter().getInstance()
   fastify.addHook('onRequest', (request, reply, done) => {
     reply.header('x-request-id', request.id)
     done()

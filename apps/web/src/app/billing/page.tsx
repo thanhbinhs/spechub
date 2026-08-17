@@ -85,12 +85,8 @@ export default function BillingPage() {
   ].find(Boolean)?.message;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-      <PageHeader
-        eyebrow="Thanh toán"
-        title="Gói dịch vụ và giới hạn tính năng"
-        description="Quản lý gói, trạng thái thanh toán và hoạt động thanh toán gần đây."
-      />
+    <div className="app-page mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <PageHeader title="Gói dịch vụ" />
 
       {checkoutState === "success" ? (
         <StatusNotice
@@ -191,7 +187,7 @@ export default function BillingPage() {
         </section>
       ) : null}
 
-      <section className="grid gap-5 md:grid-cols-3">
+      <section className="grid overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm md:grid-cols-3 md:divide-x md:divide-slate-200">
         {plans.data?.map((plan) => {
           const isCurrentPlan = current.data?.plan.code === plan.code;
           const isActiveCurrentPlan =
@@ -200,7 +196,7 @@ export default function BillingPage() {
           return (
             <div
               key={plan.id}
-              className="flex min-h-72 flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+              className="flex min-h-72 flex-col border-b border-slate-200 p-5 last:border-b-0 md:border-b-0"
             >
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">
@@ -247,7 +243,7 @@ export default function BillingPage() {
       </section>
 
       {user ? (
-        <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section className="app-panel overflow-hidden">
           <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4 text-sm font-semibold text-slate-950">
             <History size={17} />
             Hoạt động thanh toán gần đây

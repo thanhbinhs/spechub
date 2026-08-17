@@ -1,15 +1,81 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
   IsDate,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
   IsUUID,
   Matches,
   MaxLength,
+  MinLength,
+  ValidateNested,
 } from "class-validator";
+
+export class DeviceModelAliasDto {
+  @ApiProperty()
+  @IsString()
+  @MaxLength(180)
+  alias!: string;
+
+  @ApiPropertyOptional({ example: "marketing" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  alias_type?: string;
+
+  @ApiPropertyOptional({ example: "VN" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  region_code?: string;
+}
+
+export class DeviceEditorialSectionDto {
+  @ApiProperty({
+    enum: [
+      "overview",
+      "design",
+      "performance",
+      "camera",
+      "battery",
+      "display",
+      "software",
+      "highlights",
+      "drawbacks",
+      "audience",
+    ],
+  })
+  @IsString()
+  @Matches(/^[a-z0-9]+(?:[_-][a-z0-9]+)*$/)
+  @MaxLength(40)
+  section_key!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MaxLength(160)
+  title!: string;
+
+  @ApiProperty()
+  @IsString()
+  body_markdown!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  display_order?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  is_published?: boolean;
+}
 
 export class CreateDeviceModelDto {
   @ApiProperty()
@@ -69,13 +135,42 @@ export class CreateDeviceModelDto {
   @MaxLength(40)
   generation_label?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty({
+    description: "Tóm tắt ngắn dành cho card và kết quả tìm kiếm.",
+  })
   @IsString()
-  description?: string;
+  @IsNotEmpty()
+  @MinLength(80)
+  @MaxLength(600)
+  summary!: string;
+
+  @ApiProperty({
+    description:
+      "Mô tả đầy đủ điểm nổi bật, thiết kế, hiệu năng, camera, pin, phần mềm, hạn chế và đối tượng phù hợp.",
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(240)
+  description!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUrl({ require_tld: false })
   cover_image_url?: string;
+
+  @ApiPropertyOptional({ type: [DeviceModelAliasDto] })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => DeviceModelAliasDto)
+  aliases?: DeviceModelAliasDto[];
+
+  @ApiPropertyOptional({ type: [DeviceEditorialSectionDto] })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @ValidateNested({ each: true })
+  @Type(() => DeviceEditorialSectionDto)
+  editorial_sections?: DeviceEditorialSectionDto[];
 }

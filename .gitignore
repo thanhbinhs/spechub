@@ -28,6 +28,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+.local-storage/
 
 # Prisma
 packages/database/generated/
@@ -38,6 +39,9 @@ coverage/
 
 # Production-only
 docker-compose.override.yml
+
+# Local recoverable database backups
+/backups/*.dump
 
 
 apps/*/src/**/*.js

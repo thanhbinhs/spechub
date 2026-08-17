@@ -1,0 +1,2849 @@
+Bùi Vương Trưởng
+                                       BỘ GIÁO DỤC VÀ ĐÀO TẠO
+                                           ĐẠI HỌC PHENIKAA
+
+
+
+
+                                    ĐỒ ÁN TỐT NGHIỆP
+
+
+                        XÂY DỰNG WEBSITE GAMETECH ĐA DỊCH VỤ
+
+
+
+
+  CÔNG NGHỆ THÔNG TIN
+                         Sinh viên: Bùi Vương Trưởng
+                         Mã số sinh viên: 21011230            Khóa: Khóa 15
+                         Ngành: Công nghệ thông tin           Hệ: Đại học chính quy
+                         Giảng viên hướng dẫn: TS. Đặng Thị Thuý An
+
+
+
+
+                                              Hà Nội – 2026
+               BỘ GIÁO DỤC VÀ ĐÀO TẠO
+
+                  ĐẠI HỌC PHENIKAA
+
+
+
+
+             ĐỒ ÁN TỐ T NGHIỆP
+
+
+
+XÂY DỰNG WEBSITE GAMETECH ĐA DỊCH VỤ
+
+
+
+Sinh viên: Bùi Vương Trưởng
+
+Mã số sinh viên: 21011230             Khóa: Khóa 15
+
+Ngành: Công nghệ Thông tin            Hệ: Chính quy
+
+Giảng viên hướng dẫn: TS. Đặng Thị Thúy An
+Hà Nội – Năm 2026
+                                   TÓM TẮT
+       Đồ án tập trung vào việc xây dựng website GameTech đa dịch vụ giúp người
+dùng thuê tài khoản game, xem tin tức công nghệ, đồng thời có thể kết nối với nhau để
+giao lưu chơi cùng nhau, chia sẻ các bài viết về game và chatbot tương tác với người
+dùng. Dự án còn áp dụng thuật toán Recommend System để đề xuất sản phẩm thích hợp
+với mong muốn, sở thích người dùng. Dự án hướng tới giải quyết các vấn đề mà những
+cửa hàng bán tài khoản game hiện nay thường gặp phải như: quản lý danh
+mục game và tài khoản Steam, theo dõi đơn hàng và giao dịch, tối ưu trải nghiệm tìm
+kiếm- lựa chọn sản phẩm cho người dùng trong bối cảnh số lượng game ngày càng lớn.
+Hệ thống được phát triển miễn phí cho người dùng, cung cấp một nền tảng giúp người
+dùng có thể nạp tiền, mua tài khoản game, đánh giá sản phẩm, đồng thời giúp quản
+trị viên quản lý sản phẩm, tài khoản Steam, đơn hàng, giao dịch và các thống kê doanh
+thu một cách tập trung.
+       Điểm nổi bật của đồ án là việc tích hợp hệ thống gợi ý sản phẩm thông
+minh dựa trên Trí tuệ nhân tạo (AI). Hệ thống tận dụng dữ liệu tương tác của người
+dùng (xem sản phẩm, thêm giỏ hàng, mua, đánh giá…) để xây dựng hồ sơ hành vi, từ
+đó đề xuất các sản phẩm phù hợp, cá nhân hóa theo sở thích và lịch sử giao dịch của
+từng    người    dùng.    Cơ    chế gợi    ý được thiết kế theo hướng     kết   hợp,
+khai thác cả thông tin sản phẩm và hành vi cộng đồng để tăng độ chính xác và khả
+năng khám phá sản phẩm mới.
+       Về mặt công nghệ, dự án sử dụng ngôn ngữ PHP với framework Laravel,
+kết hợp cơ sở dữ liệu quan hệ, các bảng ghi nhận tương tác và đánh giá để huấn luyện
+mô hình gợi ý, đồng thời tích hợp cổng thanh toán VNPAY cho chức năng nạp tiền và
+thanh toán đơn hàng. Toàn bộ hệ thống được thiết kế theo hướng module hóa, đảm
+bảo khả năng mở rộng và bảo trì cho các tính năng AI Recommendation trong tương
+lai.
+                                  LỜI CAM ĐOAN
+
+Tên tôi là: Bùi Vương Trưởng
+
+Mã sinh viên: 21011230                                 Lớp: K15 CNTT1
+
+Ngành: Công nghệ Thông tin
+
+     Tôi đã thực hiện đồ án tốt nghiệp với đề tài: Xây dựng website GameTech đa dịch
+vụ
+
+     Tôi xin cam đoan đây là đề tài nghiên cứu của riêng tôi và được sự hướng dẫn
+của: cô TS. Đặng Thị Thuý An.
+
+     Các nội dung nghiên cứu, kết quả trong đề tài này là trung thực và chưa được các
+tác giả khác công bố dưới bất kỳ hình thức nào. Nếu phát hiện có bất kỳ hình thức
+gian lận nào tôi xin hoàn toàn chịu trách nhiệm trước pháp luật.
+
+
+
+                                                    Hà Nội, ngày … tháng … năm 2026
+
+           GIẢNG VIÊN HƯỚNG DẪ N                               SINH VIÊN
+
+                (ký, ghi rõ họ tên)                         (ký, ghi rõ họ tên)
+                                  LỜI CẢM ƠN
+      Lời đầu tiên, tôi xin được gửi lời tri ân sâu sắc nhất đến Ban giám hiệu cùng
+quý Thầy, Cô khoa Công nghệ Thông tin – Trường Đại học Phenikaa. Bốn năm học
+tập dưới mái trường không chỉ trang bị cho tôi những nền tảng tri thức vững chắc, mà
+còn là hành trình giúp tôi trưởng thành hơn trong tư duy và bản lĩnh. Đồ án tốt nghiệp
+lần này chính là dấu mốc quan trọng, là thành quả của sự nỗ lực và những kinh nghiệm
+quý báu mà tôi đã may mắn tích lũy được dưới sự dìu dắt của quý Thầy Cô.
+      Tôi xin đặc biệt bày tỏ lòng biết ơn đến Cô Đặng Thị Thúy An. Em cảm ơn Cô
+đã luôn dành thời gian, tâm huyết và sự kiên nhẫn để hướng dẫn, uốn nắn cho từng
+bước đi của đồ án. Những lời góp ý sâu sát và sự khích lệ của Cô chính là động lực lớn
+lao giúp tôi vượt qua những giai đoạn khó khăn nhất để hoàn thiện sản phẩm này.
+      Dẫu đã dồn hết tâm sức và sự nghiêm túc để thực hiện, nhưng do giới hạn về
+kiến thức và kinh nghiệm thực tế, đồ án chắc chắn không tránh khỏi những thiếu sót
+ngoài ý muốn. Tôi rất mong nhận được những lời chỉ dẫn, góp ý từ hội đồng chuyên
+môn để bản thân có cơ hội học hỏi, hoàn thiện hơn nữa những lỗ hổng kiến thức và
+vững vàng hơn trên con đường sự nghiệp phía trước.
+      Một lần nữa, tôi xin chân thành cảm ơn!
+                                                           MỤC LỤC
+TÓM TẮT.................................................................................................................................. 1
+
+LỜI CAM ĐOAN...................................................................................................................... 1
+
+LỜI CẢM ƠN............................................................................................................................ 1
+
+MỞ ĐẦU....................................................................................................................................1
+
+CHƯƠNG 1: TỔNG QUAN ĐỀ TÀI........................................................................................2
+
+   1.1. Đặt vấn đề....................................................................................................................... 2
+
+   1.2. Mục tiêu nghiên cứu........................................................................................................3
+
+   1.3. Đối tượng nghiên cứu......................................................................................................4
+
+   1.4. Phạm vi nghiên cứu.........................................................................................................5
+
+   1.5. Định hướng giải pháp......................................................................................................6
+
+   1.6. Khảo sát hiện trạng..........................................................................................................7
+
+       1.6.1. Đánh giá các mô hình phân phối tài khoản game hiện nay....................................7
+
+       1.6.2. Phân tích các vai trò tham gia hệ thống..................................................................8
+
+       1.6.3. Khảo sát quy trình nghiệp vụ lõi..............................................................................8
+
+       1.6.4. Tổng hợp các chức năng chính..............................................................................10
+
+CHƯƠNG 2: CƠ SỞ LÝ THUYẾT........................................................................................ 12
+
+   2.1. Công nghệ sử dụng phát triển Web...............................................................................12
+
+       2.1.1. Ngôn ngữ lập trình PHP.........................................................................................12
+
+       2.1.2. Framework Laravel................................................................................................. 13
+
+       2.1.3. Hệ quản trị Cơ sở dữ liệu và Môi trường phát triển XAMPP................................15
+
+       2.1.4. Nền tảng lưu trữ và quản lý đa phương tiện Cloudinary......................................17
+
+       2.1.5. Thiết kế Kiến trúc Phương pháp tiếp cận RESTful API.........................................18
+
+   2.2. Trình biên dịch (IDE & Text Editor)............................................................................20
+
+       2.2.1. Giới thiệu chung về Visual Studio Code................................................................20
+
+       2.2.2. Vai trò và Tiện ích của VS Code trong phát triển Đồ án.......................................20
+  2.3. Thiết kế kiến trúc phần mềm.........................................................................................22
+
+     2.3.1. Tổng quan về mô hình kiến trúc MVC..................................................................22
+
+     2.3.2. Mở rộng Hệ thống - Kiến trúc Phân tầng Dịch vụ (Service Layer).......................24
+
+     2.3.3. Module hỗ trợ: Middleware và Authentication......................................................25
+
+  2.4. Giới thiệu tổng quan về hệ thống gợi ý (Recommendation System)............................26
+
+     2.4.1. Tổng quan về hệ thống gợi ý sản phẩm.................................................................26
+
+     2.4.2. Giới thiệu thuật toán Content-Based Filtering......................................................27
+
+     2.4.3. Giới thiệu thuật toán Collaborative Filtering.........................................................29
+
+     2.4.4. Giới thiệu phương pháp phân tích hành vi thời gian thực (Real-time Behavior
+     Weighting)....................................................................................................................... 31
+
+     2.4.5. Giới thiệu phương pháp gợi ý phổ biến (Popularity Fallback)..............................34
+
+     2.4.6. Cơ sở hình thành mô hình lai (Hybrid)..................................................................35
+
+CHƯƠNG 3: PHÂN TÍCH THIẾT KẾ HỆ THỐNG..............................................................37
+
+  3.1. Phân tích yêu cầu hệ thống............................................................................................37
+
+     3.1.1. Yêu cầu chức năng..................................................................................................37
+
+     3.1.2. Yêu cầu phi chức năng............................................................................................39
+
+  3.2. Phân tích Use case.........................................................................................................40
+
+     3.2.1. Biểu đồ Use case tổng quát.....................................................................................40
+
+     3.2.2. Biểu đồ phân rã Use case........................................................................................42
+
+  3.3. Thiết kế sơ đồ quy trình nghiệp vụ...............................................................................54
+
+     3.3.1. Quy trình nghiệp vụ đăng ký, đăng nhập..............................................................54
+
+     3.3.2. Quy trình nghiệp vụ nạp tiền.................................................................................56
+
+     3.3.3. Quy trình mua và nhận tài khoản game................................................................57
+
+     3.3.4. Quy trình gửi yêu cầu hỗ trợ..................................................................................58
+
+     3.3.5. Quy trình chat với AI chatbot................................................................................59
+
+     3.3.6. Quy trình huấn luyện AI gợi ý...............................................................................61
+
+  3.4. Thiết kế cơ sở dữ liệu....................................................................................................63
+CHƯƠNG 4: PHÁT TRIỂN SẢN PHẨM...............................................................................65
+
+   4.1. Xây dựng ứng dụng.......................................................................................................65
+
+      4.1.1. Môi trường Phát triển.............................................................................................65
+
+      4.1.2. Nền tảng Kiến trúc (MVC & Laravel Framework).................................................65
+
+      4.1.3. Cơ sở Dữ liệu & Lưu trữ Đám mây (MySQL & Cloudinary)..................................66
+
+      4.1.4. Lõi Trí tuệ - Hệ thống Gợi ý (AI Recommendation System).................................66
+
+   4.2. Tích hợp hệ thống AI gợi ý sản phẩm vào ứng dụng....................................................67
+
+      4.2.1. Thu thập và chuẩn bị dữ liệu.................................................................................. 68
+
+      4.2.2. Xây dựng mô hình gợi ý.........................................................................................71
+
+   4.3. Kết quả triển khai.......................................................................................................... 76
+
+KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN............................................................................. 102
+
+   1. Kết luận.......................................................................................................................... 102
+
+   2. Hướng phát triển trong tương lai....................................................................................103
+
+DANH MỤC THAM KHẢO.................................................................................................104
+                                            DANH MỤC HÌNH ẢNH
+
+Hình 2. 1: Phương thức RESful API.................................................................................... 19
+
+Hình 2. 2: Mô hình MVC......................................................................................................23
+
+Hình 2. 3: Các thành phần trong mô hình MVC...............................................................24
+
+Hình 2. 4: Content-Based Filtering..................................................................................... 28
+
+Hình 3. 1: Use Case tổng quát hệ thống.............................................................................40
+
+Hình 3. 2: Use Case đăng ký................................................................................................42
+
+Hình 3. 3: Use Case đăng nhập............................................................................................43
+
+Hình 3. 4:Use Case quản lý hồ sơ cá nhân.........................................................................44
+
+Hình 3. 5: Use Case khám phá và nhận gợi ý game.........................................................45
+
+Hình 3. 6: Use Case quản lý tin tức.....................................................................................46
+
+Hình 3. 7: Use Case quản lý cộng đồng..............................................................................47
+
+Hình 3. 8: Use Case quản lý hỗ trợ.....................................................................................48
+
+Hình 3. 9: Use Case quản lý ví tiền.....................................................................................49
+
+Hình 3. 10: Use Case tương tác mạng xã hội và nhắn tin................................................50
+
+Hình 3. 11: Use Case quản lý đơn hàng.............................................................................51
+
+Hình 3. 12: Use Case quản lý hệ thống..............................................................................52
+
+Hình 3. 13:Use Case quản lý sản phẩm và kho Steam.....................................................53
+
+Hình 3. 14: Sơ đồ nghiệp vụ đăng ký, đăng nhập.............................................................54
+
+Hình 3. 15: Sơ đồ nghiệp vụ nạp tiền.................................................................................56
+
+Hình 3. 16: Sơ đồ nghiệp vụ mua và nhận tài khoản game.............................................57
+
+Hình 3. 17: Sơ đồ nghiệp vụ yêu cầu hỗ trợ......................................................................58
+
+Hình 3. 18: Sơ đồ nghiệp vụ chat với AI chatbot..............................................................59
+
+Hình 3. 19: Sơ đồ nghiệp vụ huấn luyện AI gợi ý.............................................................61
+
+Hình 3. 20: Sơ đồ thiết kế cơ sở dữ liệu..............................................................................63
+Hình 3. 21:Sơ đồ mô hình hệ thống gợi ý cho người dùng mới......................................67
+
+Hình 3. 22:Sơ đồ mô hình hệ thống gợi ý cho người dùng cũ........................................68
+
+Hình 3. 23: Giao diện trang chủ.......................................................................................... 77
+
+Hình 3. 24: Giao diện đăng ký.............................................................................................78
+
+Hình 3. 25: Giao diện đăng nhập.........................................................................................78
+
+Hình 3. 26: Giao diện trang khám phá............................................................................... 79
+
+Hình 3. 27: Giao diện trang Game Offline.........................................................................79
+
+Hình 3. 28: Giao diện trang Game Online.........................................................................80
+
+Hình 3. 29: Giao diện trang dành cho bạn.........................................................................80
+
+Hình 3. 30: Giao diện trang ưu đãi......................................................................................81
+
+Hình 3. 31: Giao diện trang tin tức..................................................................................... 81
+
+Hình 3. 32: Giao diện trang cộng đồng.............................................................................. 82
+
+Hình 3. 33: Giao diện trang hỗ trợ......................................................................................84
+
+Hình 3. 34: giao diện trang cá nhân....................................................................................85
+
+Hình 3. 35: Giao diện bạn bè................................................................................................85
+
+Hình 3. 36: Giao diện trang tài khoản offline....................................................................86
+
+Hình 3. 37: Giao diện trang tài khoản online.................................................................... 87
+
+Hình 3. 38: Giao diện trang ví tiền......................................................................................88
+
+Hình 3. 39: Giao diện trang chi tiết sản phẩm..................................................................90
+
+Hình 3. 40: Giao diện tin nhắn............................................................................................ 90
+
+Hình 3. 41: Giao diện chatbot AI.........................................................................................91
+
+Hình 3. 42: Giao diện giỏ hàng............................................................................................ 91
+
+Hình 3. 43: Giao diện quản lý người dùng.........................................................................92
+
+Hình 3. 44: Giao diện quản lý sản phẩm............................................................................ 93
+
+Hình 3. 45: Giao diện quản lý tin tức.................................................................................94
+Hình 3. 46: Giao diện quản lý cộng đồng..........................................................................95
+
+Hình 3. 47: Giao diện quản lý ưu đãi.................................................................................. 96
+
+Hình 3. 48: Giao diện quản lý mã ưu đãi........................................................................... 96
+
+Hình 3. 49: Giao diện quản lý yêu cầu hỗ trợ...................................................................96
+
+Hình 3. 50: Giao diện quản lý đánh giá..............................................................................97
+
+Hình 3. 51: Giao diện quản lý đơn hàng............................................................................98
+
+Hình 3. 52: Giao diện quản lý tài khoản game..................................................................99
+
+Hình 3. 53: Giao diện quản lý giao dịch...........................................................................100
+
+Hình 3. 54: Giao diện quản lý và huấn luyện hệ thống gợi ý.......................................101
+                                           1
+
+
+                                      MỞ ĐẦU
+       Trong bối cảnh nền kinh tế số phát triển mạnh mẽ, ngành công nghiệp trò chơi
+điện tử đang trở thành một lĩnh vực giải trí khổng lồ, thu hút mọi tầng lớp tham gia [1].
+Sự phổ biến của các nền tảng game bản quyền toàn cầu như Steam [2] đã thay đổi
+hoàn toàn thói quen tiêu dùng, dịch chuyển từ hình thức mua đĩa vật lý sang mua sắm
+và sở hữu tài khoản game trực tuyến. Tuy nhiên, cùng với sự phát triển này là những
+yêu cầu ngày càng khắt khe của cộng đồng game thủ: họ không chỉ cần một nơi giao
+dịch an toàn mà còn mong muốn một nền tảng tổng hợp để cập nhật thông tin và
+tương tác cộng đồng.
+       Thực tế tại thị trường Việt Nam hiện nay, việc mua bán tài khoản game bản
+quyền đa phần diễn ra nhỏ lẻ trên các hội nhóm, mạng xã hội, tiềm ẩn rủi ro lừa đảo
+cao. Đối với khách hàng, họ thường gặp nguy cơ mất tài khoản, khó khăn khi cần hỗ
+trợ mở khóa mã Steam Guard (do thiếu kênh hỗ trợ chuyên biệt) và cũng mất rất nhiều
+thời gian để tìm kiếm tựa game phù hợp trong thư viện khổng lồ. Về phía nhà quản
+lý, việc vận hành rời rạc giữa việc cấp phát tự động hàng ngàn cấu hình tài khoản số,
+giám sát dòng tiền (nạp ví điện tử) và chăm sóc khách hàng thủ công là những “lỗ
+hổng” làm giảm thiểu đáng kể hiệu suất kinh doanh.
+       Nhận thức rõ những thiếu sót đó của thị trường, tôi đã quyết định thực hiện đề
+tài: “Xây dựng Website Đa Dịch Vụ” gồm phân phối tài khoản game, tin tức công nghệ
+và tích hợp hệ thống AI Recommendation System”. Vượt ra khỏi mô hình bán hàng
+truyền thống, dự án hướng tới việc xây dựng một hệ sinh thái cung cấp đồng thời 4
+tiện ích cốt lõi: 1. Thương mại điện tử; 2. Trang tin tức chuyên ngành; 3. Mạng xã hội
+thu nhỏ giúp game thủ giao lưu; 4. Hệ thống hỗ trợ khách hàng chuyên nghiệp để giải
+quyết triệt để rủi ro giao dịch.
+       Đặc biệt, nhằm nâng tầm trải nghiệm cá nhân hóa, hệ thống tích hợp công
+nghệ trí tuệ nhân tạo để gợi ý sản phẩm. Thông qua việc thu thập và phân tích dữ liệu
+lớn từ lịch sử giao dịch mua sắm, hành vi đọc tin tức và các lượt tương tác trong cộng
+đồng, AI sẽ tự động học hỏi và đề xuất những tựa game sát với sở thích và tài chính
+của từng cá nhân [3]. Điều này không chỉ giúp người dùng tiết kiệm thời gian tìm
+kiếm mà còn là công cụ đắc lực để nền tảng tối ưu hóa lợi nhuận.
+                                          2
+
+
+                     CHƯƠNG 1: TỔNG QUAN ĐỀ TÀI
+
+1.1. Đặt vấn đề
+
+      Sự bùng nổ của kỷ nguyên số đã làm thay đổi hoàn toàn thói quen tiêu dùng
+giải trí. Việc sở hữu các tài khoản game bản quyền trên những nền tảng lớn (như
+Steam) đã trở thành một nhu cầu thiết yếu của giới trẻ. Mặc dù nhu cầu thị trường là
+cực kỳ lớn, song môi trường kinh doanh các sản phẩm nội dung số tại Việt Nam hiện
+nay vẫn còn tồn đọng rất nhiều hạn chế, rời rạc và thiếu tính đồng bộ.
+      Từ góc độ người tiêu dùng (Khách hàng): Hiện nay, phần lớn các giao dịch mua
+bán tài khoản game vẫn mang tính tự phát, chủ yếu diễn ra qua các hội nhóm mạng
+xã hội với rủi ro lừa đảo, chiếm đoạt tài sản cực kỳ cao. Người mua luôn trong trạng
+thái bất an và thường xuyên phải đối mặt với tình trạng "đem con bỏ chợ" khi tài
+khoản phát sinh lỗi bảo mật mà không có một kênh hỗ trợ chính quy để giải quyết.
+Hơn thế nữa, một game thủ hiện đại không chỉ có nhu cầu "mua xong rồi đi". Họ gặp
+khó khăn trong việc lựa chọn giữa hàng chục ngàn tựa game, họ cần đọc tin tức công
+nghệ/đánh giá game uy tín và đặc biệt khát khao một diễn đàn an toàn để giao lưu,
+tìm kiếm đồng đội chơi cùng. Một trang web thuần túy bán hàng không thể thỏa mãn
+được hệ sinh thái nhu cầu này.
+      Từ góc độ nhà quản trị nền tảng (Admin): Việc vận hành một cửa hàng số theo
+phương pháp thủ công đang bộc lộ những điểm yếu nghiêm trọng. Quản lý hệ thống
+dữ liệu đồ sộ gồm: cấu hình tài khoản game ẩn, bảo mật mật khẩu, đối soát dòng tiền
+nạp vào ví điện tử và phản hồi khách hàng bằng sức người không chỉ tốn kém mà còn
+dễ gây ra sai lầm. Quan trọng hơn, tỷ lệ giữ chân khách hàng sẽ cực kỳ thấp nếu nền
+tảng không có không gian cộng đồng để tương tác. Đặc biệt, việc bỏ lãng phí khối
+lượng lớn dữ liệu hành vi (lịch sử nạp tiền, thể loại game yêu thích) mà không có các
+thuật toán trí tuệ nhân tạo (AI) can thiệp phân tích để kích cầu mua sắm là một sự
+thất thoát lớn về mặt doanh thu.
+      Từ những "nỗi đau" và khoảng trống rõ rệt của cả hai phía cung và cầu, bài
+toán cấp bách được đặt ra là phải xây dựng một nền tảng vận hành tự động và đa
+chiều. Việc thực hiện dự án "Website GameTech đa dịch vụ” gồm giải pháp thương
+mại game, tin tức cộng đồng và AI hóa ra đời chính là lời giải thiết thực, loại bỏ hoàn
+                                           3
+
+
+toàn các rủi ro giao dịch thủ công và mang đến một không gian "All-in-one" trọn
+vẹn cho người dùng.
+
+1.2. Mục tiêu nghiên cứu
+
+        Mục tiêu cốt lõi của đề tài là nghiên cứu, thiết kế và triển khai một nền tảng
+thương mại điện tử đa dịch vụ chuyên biệt cho lĩnh vực trò chơi điện tử trực tuyến.
+Không chỉ dừng lại ở quy trình mua bán thông thường, hệ thống được định hướng trở
+thành một hệ sinh thái toàn diện (All-in-one), tích hợp sâu các tiện ích phục vụ cộng
+đồng game thủ. Để hiện thực hóa tầm nhìn đó, đề tài tập trung giải quyết 5 mục tiêu
+cụ thể sau:
+        1. Tự động hóa hoàn toàn quy trình phân phối sản phẩm số: Xây dựng
+module E-commerce chuyên sâu có khả năng tự động xử lý đơn hàng. Khi người dùng
+giao dịch một tựa game, hệ thống sẽ tự động tìm kiếm trong kho dữ liệu ẩn, xuất và
+giải mã thông tin tài khoản Steam tương ứng một cách an toàn nhất. Đi kèm với đó là
+cổng thanh toán tích hợp ví điện tử nội bộ, giúp quản lý minh bạch dòng tiền.
+        2. Tối ưu trải nghiệm cá nhân hóa bằng Trí tuệ Nhân tạo (AI): Nghiên cứu
+và triển khai thành công hệ thống gợi ý sản phẩm thông minh (AI Recommendation
+System). Thuật toán AI sẽ thu thập và học hỏi từ kho dữ liệu hành vi vô giá của người
+dùng bao gồm: lịch sử giao dịch mua sắm, hành vi người dùng, mức độ quan tâm đến
+các bài viết tin tức và hoạt động tương tác cộng đồng. Từ đó, đưa ra các đề xuất tựa
+game chính xác, phù hợp nhất với sở thích và khả năng tài chính của từng tập khách
+hàng.
+        3. Kiến tạo không gian Mạng xã hội và Tin tức chuyên ngành: Thiết lập
+trang Tin tức và Diễn đàn cộng đồng hoạt động như một tiểu mạng xã hội. Tính năng
+này cho phép người dùng đọc tin tức, đăng tải bài viết kèm đa phương tiện, bình luận,
+và tìm kiếm đồng đội có cùng sở thích chơi game. Mục đích của tính năng này là gia
+tăng tỷ lệ giữ chân và tạo ra môi trường tương tác lành mạnh song song với hoạt động
+mua sắm.
+        4. Xây dựng kênh Hỗ trợ Khách hàng chuyên nghiệp: Cung cấp giải pháp
+bảo vệ quyền lợi người mua thông qua hệ thống tiếp nhận khiếu nại và giải đáp thắc
+mắc (ví dụ: lỗi đăng nhập, mã xác thực Steam Guard). Quy trình này đi kèm hệ thống
+                                               4
+
+
+thông báo báo cáo trạng thái xử lý theo thời gian thực (Real-time Notifications), qua
+đó tái thiết lập lại niềm tin của khách hàng đối với thị trường giao dịch sản phẩm số.
+           5. Cung cấp bộ công cụ quản trị toàn diện: Phân quyền hệ thống rõ ràng
+(Admin/Editor/Buyer), trao cho ban quản trị bộ công cụ mạnh mẽ để: giám sát tức thời
+tình trạng kho tài khoản Steam, theo dõi vòng quay vốn, bảo duyệt nội dung bài đăng
+trên cộng đồng/tin tức và phân tích các báo cáo thống kê đa chiều nhằm đưa ra chiến
+lược kinh doanh thức thời.
+
+1.3. Đối tượng nghiên cứu
+
+           Đối tượng nghiên cứu của đề tài là một hệ thống website thương mại điện tử
+đa dịch vụ và các thành phần cấu trúc ứng dụng liên quan. Hệ thống hoạt động như
+một nền tảng phức hợp nối kết các hoạt động mua bán số, cung cấp tin tức và tương
+tác cộng đồng. Việc nghiên cứu phân tích hệ thống được chia thành 2 nhóm đối tượng
+cốt lõi:
+           1. Đối tượng sử dụng hệ thống:
+           -   Khách hàng: Đối tượng trọng tâm trải nghiệm các dịch vụ đa diện: tìm kiếm,
+               thêm vào giỏ hàng, nạp tiền ví điện tử và mua tựa game bản quyền. Đây
+               cũng là nhóm người theo dõi tin tức công nghệ, tham gia thảo luận trên
+               mạng xã hội thu nhỏ, đánh giá sản phẩm và tạo yêu cầu hỗ trợ.
+           -   Người quản trị nội dung: Đóng vai trò kiểm duyệt và xây dựng môi trường
+               thông tin bằng việc: xuất bản tin bài, kiểm duyệt các chủ đề cộng đồng và
+               tiếp nhận xử lý khiếu nại mức cơ bản.
+           -   Quản trị viên: Người nắm toàn quyền vận hành quản lý số dư hệ thống,
+               giám sát kho tài khoản Steam, quản lý đơn hàng giao dịch số, tùy chỉnh cấu
+               hình phân quyền và giám sát báo cáo doanh thu tài chính.
+           2. Đối tượng công nghệ và nghiệp vụ tự động hóa:
+           -   Hệ thống phân phối sản phẩm ẩn: Giải pháp quản lý tồn kho tài khoản với
+               tính bảo mật cao.
+           -   Hệ thống gợi ý thông minh: Thuật toán máy học đóng vai trò phân tích
+               hành vi của Buyer, "học" từ lịch sử tương tác, đánh giá, loại game và tin tức
+               họ quan tâm để đưa ra các gợi ý cá nhân hóa.
+                                          5
+
+
+      -   Nền tảng thanh toán điện tử: Quy trình lưu chuyển dòng tiền điện tử từ quỹ
+          ví của người mua sang quy trình thanh toán hoặc hoàn tiền qua một cổng
+          thanh toán tự động, đảm bảo tính toàn vẹn dư nợ và minh bạch giao dịch.
+
+1.4. Phạm vi nghiên cứu
+
+      Để đảm bảo tính khả thi và tập trung giải quyết triệt để bài toán đặt ra trong
+khoảng thời gian cho phép, nội dung nghiên cứu và triển khai của đề tài được quy
+định trong các giới hạn cụ thể như sau:
+      1. Phạm vi về nền tảng và công nghệ:
+      -   Hệ thống lõi (Backend): Sử dụng Framework Laravel (PHP) để xây dựng hệ
+          thống quản lý cơ sở dữ liệu (MySQL), xử lý logic nghiệp vụ và phát triển các
+          API RESTful.
+      -   Giao diện (Frontend): Ứng dụng công nghệ Blade Template kết hợp các thư
+          viện thiết kế hiện đại (Tailwind CSS) để phát triển giao diện Web đáp ứng
+          (Responsive), hoạt động ổn định trên cả máy tính (PC) và thiết bị di động
+          (Mobile Web).
+      -   Hệ thống gợi ý (AI System): Triển khai thuật toán AI Recommendation
+          System mức độ cơ bản (Dựa trên lịch sử giao dịch, hành vi tương tác và dữ
+          liệu mua/đánh giá sản phẩm của người dùng).
+      -   Bảo mật: Sử dụng cơ chế mã hóa (Laravel Encryption) cho mọi thông tin
+          đăng nhập tài khoản sản phẩm số và xác thực truy cập qua Laravel Sanctum.
+      2. Phạm vi về nghiệp vụ hệ thống Đa Dịch Vụ:
+      -   Module thương mại điện tử: Tập trung phân phối tự động loại hình tài
+          khoản Steam ẩn. Hệ thống chỉ cung cấp thông tin đăng nhập tự động sau
+          khi khách hàng hoàn tất thanh toán.
+      -   Module Tương tác & Cộng đồng: Xây dựng trang Tin tức dạng Blog (đọc,
+          bình luận, thả tim) và Diễn đàn cộng đồng mạng xã hội (đăng bài kèm ảnh,
+          video, chọn sở thích game) ở mức cơ bản.
+      -   Module Chăm sóc khách hàng: Thiết lập quy trình yêu cầu hỗ trợ đơn giản
+          để tiếp nhận, phân loại trạng thái xử lý và phản hồi khiếu nại của khách
+          hàng.
+                                           6
+
+
+1.5. Định hướng giải pháp
+
+       Để giải quyết triệt để các hạn chế của mô hình giao dịch game truyền thống và
+thỏa mãn yêu cầu xây dựng một hệ sinh thái đa dịch vụ (Thương mại, Tin tức, Cộng
+đồng và Hỗ trợ), tôi định hướng ứng dụng công nghệ thông tin vào việc số hóa toàn
+diện quy trình vận hành. Nền tảng được thiết kế với kiến trúc phức hợp, tự động hóa
+cao và tích hợp trí tuệ nhân tạo (AI), mang lại những cải thiện rõ rệt trong trải nghiệm
+người dùng cuối lẫn hiệu năng quản trị. Các giải pháp trọng tâm bao gồm:
+       1. Tự động hóa thương mại:
+       Gạt bỏ quy trình trao đổi thủ công qua tin nhắn, giải pháp là thiết kế cơ sở dữ
+liệu tách biệt giữa thông tin game hiển thị (View) và tài khoản Steam chứa game thật.
+Khi khách hàng chọn mua game và thanh toán thành công, hệ thống sẽ chạy vòng lặp
+ngầm: tìm kiếm tài khoản Steam có game tương ứng, trích xuất dữ liệu, giải mã thuật
+toán (Laravel Encryption) và gửi cấu hình đăng nhập tự động cho người mua. Quy
+trình này khử bỏ hoàn toàn rủi ro nhầm lẫn, tăng tốc độ xử lý đơn hàng và bảo mật
+tuyệt đối tồn kho.
+       2. Giải pháp luân chuyển tài nguyên điện tử khép kín:
+       Thay vì tích hợp qua lại nhiều ví điện tử bên ngoài, giải pháp là vận hành một
+quỹ ví điện tử nội bộ khép kín. Việc đồng bộ hóa số dư bằng công nghệ Transaction
+Database bảo đảm khách hàng có thể nạp tiền điện tử nhanh chóng.
+       3. Thuộc tính Đa Dịch Vụ:
+       Giải pháp giữ chân người dùng: Hệ thống thoát khỏi cái mác chỉ bán hàng
+thông qua hai phân hệ: Tin tức công nghệ có chuyên mục đánh giá game và Mạng xã
+hội thu nhỏ. Kiến trúc dữ liệu mở rộng cho phép người dùng đăng bài thảo luận và
+tìm kiếm bạn chơi có chung sở thích game. Đây là giải pháp hữu hiệu để tạo một cộng
+đồng bền vững. Bên cạnh đó, để hỗ trợ quy trình sau bán hàng, hỗ trợ khách hàng bài
+bản được triển khai để tiếp nhận và giải quyết triệt để các rủi ro vận hành.
+       4. Ứng dụng AI Recommendation System vào cá nhân hoá trải nghiệm:
+       Nguồn dữ liệu vô giá từ đặc trưng của mô hình đa dịch vụ (Lịch sử giao dịch
+mua hàng, tần suất nạp tiền ví điện tử, sở thích đọc tin công nghệ, và lượt tương tác
+mạng xã hội) là "nguyên liệu" lý tưởng cho năng lực học máy. Giải pháp là thiết kế
+                                         7
+
+
+một luồng xử lý riêng biệt: Hệ thống AI sẽ tổng hợp và xây dựng các ma trận hành vi
+người dùng (Collaborative Filtering, Content-Based Filtering, Real-Time, Fallback
+Popularity, Hybrid), từ đó đưa ra các danh sách gợi ý tựa game cực kì cá nhân hóa.
+Điều này làm trải nghiệm trở nên thú vị hơn và là đòn bẩy trực tiếp thúc đẩy doanh
+thu bán hàng.
+      Để hiện thực hóa toàn bộ định hướng trên, hệ thống sử dụng Laravel
+Framework (PHP) làm kiến trúc lõi quản lý dữ liệu, xử lý qua RESTful API, và đảm
+bảo giao diện thích ứng mượt mà trên nhiều thiết bị hiển thị bằng Blade Template kết
+hợp CSS hiện đại. Cấu trúc MVC kết hợp luồng xử lý bất đồng bộ (Background Jobs)
+đảm nhiệm hiệu năng ổn định kể cả khi lượng truy cập từ cộng đồng tăng đột biến.
+
+1.6. Khảo sát hiện trạng
+
+      Qua quá trình tìm hiểu, khảo sát thực tế tại thị trường kinh doanh tài khoản
+game bản quyền và phân tích các cộng đồng game thủ tại Việt Nam, có thể nhận thấy
+bức tranh toàn cảnh về nhu cầu giao dịch nội dung số đang phát triển rất mạnh mẽ.
+Tuy nhiên, hình thức vận hành của phần lớn các nền tảng hiện tại vẫn còn rất nhiều
+điểm nghẽn, rời rạc và chưa đáp ứng được khái niệm "hệ sinh thái đa dịch vụ".
+
+1.6.1. Đánh giá các mô hình phân phối tài khoản game hiện nay
+
+   Hiện nay, việc mua bán tài khoản Steam chứa game bản quyền chủ yếu diễn ra
+dưới hai hình thức:
+      -   Giao dịch tự phát trên mạng xã hội (Facebook Groups, Discord): Đây
+          là hình thức phổ biến nhất nhưng cũng chứa đựng rủi ro cao nhất. Khách
+          hàng dễ bị lừa đảo chuyển tiền nhưng không nhận được tài khoản, hoặc
+          nhận tài khoản bị khóa/thu hồi sau một thời gian sử dụng. Các giao dịch
+          này hoàn toàn không có tổ chức đứng ra bảo vệ quyền lợi người mua.
+      -   Các website bán tài khoản/code game quy mô nhỏ: Các trang web này
+          cung cấp quy trình mua bán chuyên nghiệp hơn. Tuy nhiên, đa số chỉ dừng
+          lại ở chức năng thương mại điện tử đơn thuần (giỏ hàng, thanh toán qua
+          chuyển khoản ngân hàng thủ công). Khi khách hàng gặp sự cố về tài khoản
+          (như lỗi mã Steam Guard), họ phải liên hệ qua Fanpage hoặc Zalo, dẫn đến
+          quy trình hỗ trợ chậm trễ, không có hệ thống quản lý yêu cầu hỗ trợ để theo
+                                          8
+
+
+          dõi tiến độ. Hơn nữa, các website này hoàn toàn bỏ ngỏ chức năng tương
+          tác cộng đồng và tin tức, khiến người dùng hiếm khi quay lại website nếu
+          không có nhu cầu mua sắm tiếp theo.
+      Từ những hiện trạng đó, việc xây dựng một hệ thống đa dịch vụ quy tụ trọn
+vẹn: quy trình bán hàng tự động, quỹ ví điện tử nội bộ, kênh hỗ trợ chuyên nghiệp,
+cùng không gian báo chí - mạng xã hội là yêu cầu tất yếu để tạo ra sự khác biệt.
+
+1.6.2. Phân tích các vai trò tham gia hệ thống
+
+      Trong mô hình tích hợp Đa dịch vụ (Bán hàng, Tin tức, Cộng đồng, Hỗ trợ)
+được đề xuất, hệ thống xác định 3 vai trò chính tham gia vào nền tảng:
+      a) Vai trò khách hàng: Là trung tâm của hệ thống, khách hàng sở hữu tài
+khoản và ví điện tử trên nền tảng. Khách hàng có nhu cầu nạp tiền, tìm kiếm, xem
+thông tin chi tiết các tựa game và thực hiện mua tài khoản Steam chứa game bản
+quyền tự động. Sau khi mua, họ có thể đánh giá sản phẩm, gửi yêu cầu hỗ trợ khi gặp
+lỗi vật lý của tài khoản. Ở khía cạnh giải trí, khách hàng đọc tin tức công nghệ, tham
+gia diễn đàn cộng đồng (đăng bài viết, hình ảnh, tìm đồng đội) và nhận các đề xuất
+game phù hợp từ hệ thống AI (AI Recommendation).
+      b) Vai trò biên tập viên: Là những người quản lý nội dung số của hệ thống.
+Biên tập viên chịu trách nhiệm viết bài, đăng tải các bản tin tức công nghệ, đánh giá
+phần cứng và game mới ra mắt. Ngoài ra, họ có vai trò kiểm duyệt nội dung do người
+dùng đăng tải trên mạng xã hội thu nhỏ để đảm bảo môi trường giao lưu lành mạnh,
+không vi phạm tiêu chuẩn cộng đồng.
+      c) Vai trò quản trị viên: Là người nắm quyền kiểm soát cao nhất toàn bộ
+luồng vận hành của hệ thống đa dịch vụ. Admin trực tiếp nhập liệu và quản lý kho
+(đảm bảo bảo mật thông tin tài khoản đăng nhập), quản lý danh mục sản phẩm game.
+Tổng hợp các báo cáo thống kê doanh thu, và trực tiếp phân công hoặc giải quyết các
+yêu cầu hỗ trợ phức tạp.
+
+1.6.3. Khảo sát quy trình nghiệp vụ lõi
+
+      Để đảm bảo hệ thống "All-in-one" hoạt động trơn tru, các quy trình nghiệp vụ
+được thiết kế với độ tự động hóa cao nhất. Cụ thể:
+         Quy trình nạp tiền và mua tài khoản tự động:
+                                    9
+
+
+    Bước 1: Khách hàng tạo yêu cầu nạp tiền vào ví điện tử nội bộ thông qua
+    các phương thức thanh toán trực tuyến. Sau khi thanh toán thành công số
+    tiền sẽ được cập nhật vào ví người dùng.
+    Bước 2: Khách hàng lướt web, tham khảo danh sách game (được AI hỗ trợ
+    gợi ý) và chọn mua tựa game mong muốn.
+    Bước 3: Hệ thống kiểm tra số dư ví. Nếu hợp lệ, trừ tiền và ngay lập tức
+    chạy thuật toán ngầm tìm kiếm 1 "Tài khoản Steam" có chứa tựa game đó
+    trong kho dữ liệu ẩn.
+    Bước 4: Hệ thống giải mã thông tin tài khoản (tài khoản, mật khẩu, mã
+    Steam, Email và mật khẩu email nếu là tài khoản online) và gửi trực tiếp
+    vào lịch sử đơn hàng của người mua. Giao dịch hoàn tất trong vài giây.
+   Quy trình Hỗ trợ khách hàng:
+    Bước 1: Khách hàng gặp sự cố với tài khoản vừa mua sẽ mở một yêu cầu
+    trên hệ thống, đính kèm hình ảnh lỗi mô tả chi tiết.
+    Bước 2: Hệ thống ghi nhận, gửi thông báo đến Admin/Editor.
+    Bước 3: Quản trị viên trao đổi trực tiếp với khách hàng trong khung chat
+    của cấu trúc yêu cầu hỗ trợ, cung cấp chuỗi mã Steam Guard hoặc đổi tài
+    khoản khác. Khi sự cố được khắc phục, yêu cầu đó sẽ được đóng lại.
+   Quy trình hệ sinh thái Cộng đồng:
+    Bước 1: Editor đăng tải bài viết công nghệ mới.
+    Bước 2: Khách hàng sử dụng tính năng cộng đồng để đăng tải status (kèm
+    ảnh/video), đính kèm thẻ (Tag) tên tựa game họ muốn tìm đồng đội chơi
+    cùng. Các bài viết hiển thị trên bài viết chung của nền tảng tạo luồng tương
+    tác giống hệt một mạng xã hội thu nhỏ.
+   Quy trình trích xuất Dữ liệu AI:
+    Bước 1: Trong khi người dùng thực hiện các nghiệp vụ trên, hệ thống âm
+    thầm lưu vết mọi dữ liệu: Tổng tiền đã nạp, game đã mua, điểm đánh giá
+    1-5 sao, bài báo công nghệ đã đọc, thể loại game đang tìm bạn chơi trong
+    mục cộng đồng, các câu hỏi về game trong chatbot.
+                                         10
+
+
+          Bước 2: Thuật toán phân tích định kỳ khối dữ liệu này, phân tách ma trận
+          người dùng (Collaborative Filtering) để tìm ra các tệp khách hàng có chung
+          sở thích.
+          Bước 3: Hệ thống trả kết quả về Web, hiển thị các tựa game "Gợi ý dành
+          riêng cho bạn" ngay trang chủ của mỗi khách hàng.
+
+1.6.4. Tổng hợp các chức năng chính
+
+      Từ các công việc và các quy trình nghiệp vụ đã liệt kê, ứng dụng của tôi sẽ có
+các chức năng chính là:
+      Đối với Người mua:
+          Quản lý xem và tìm kiếm sản phẩm
+          Quản lý giỏ hàng
+          Quản lý thanh toán và đặt hàng
+          Quản lý thông tin đơn hàng
+          Quản lý tin nhắn với bạn bè
+          Quản lý đánh giá và nhận xét
+          Quản lý tài khoản
+          Quản lý bài viết
+          Quản lý trang cá nhân
+      Đối với Người biên tập viên:
+          Quản lý tin tức
+          Quản lý sản phẩm
+          Quản lý thảo luận về sản phẩm
+          Quản lý ưu đãi, mã giảm giá
+      Đối với Người quản trị viên:
+          Quản lý người dùng
+          Quản lý sản phẩm
+          Quản lý tin tức
+          Quản lý đơn hàng
+                                11
+
+
+ Quản lý đánh giá
+ Quản lý giao dịch
+ Quản lý tài khoản sản phẩm
+ Quản lý thảo luận
+ Quản lý yêu cầu hỗ trợ
+ Quản lý cộng đồng
+ Quản lý ưu đãi, mã giảm giá
+ Quản lý hệ thống gợi ý sản phẩm
+                                         12
+
+
+
+
+                         CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
+
+2.1. Công nghệ sử dụng phát triển Web
+
+      Trong phạm vi của đồ án "Website GameTech đa dịch vụ” gồm phân phối tài
+khoản game, tin tức công nghệ và tích hợp AI Recommendation, việc lựa chọn giải
+pháp công nghệ là yếu tố quyết định để hệ thống có thể đảm bảo 4 mục tiêu: vận hành
+thương mại tự động, lưu trữ khối dữ liệu đa phương tiện lớn, bảo mật dòng tiền người
+dùng, và tính toán học máy nội bộ. Nền tảng được phát triển theo kiến trúc hướng đối
+tượng trên hệ sinh thái Web Server, ưu tiên tốc độ, tính bảo mật và khả năng cung cấp
+giao diện lập trình mở (API).
+
+2.1.1. Ngôn ngữ lập trình PHP
+
+      PHP (Hypertext Preprocessor) là một ngôn ngữ lập trình kịch bản mã nguồn
+mở, chạy ở phía máy chủ và được thiết kế chuyên biệt để phát triển các ứng dụng Web
+phức hợp [4]. Trải qua hơn hai thập kỷ phát triển kể từ khi ra mắt, PHP đã lột xác
+hoàn toàn từ một ngôn ngữ tạo trang web động đơn giản thành một nền tảng lập trình
+hướng đối tượng (OOP) đồ sộ, mạnh mẽ ở cấp độ doanh nghiệp. Đặc biệt, kể từ thế hệ
+PHP 8.x, những cải tiến mang tính cách mạng về hiệu năng thực thi đã giúp ngôn ngữ
+này giữ vững vị thế là "xương sống" của phần lớn Internet.
+      Trong Đồ án "Website Đa dịch vụ", từ hệ thống định tuyến (Routing), logic lõi
+của mô hình Thương mại điện tử (E-commerce Business Logic), quản lý dòng tiền điện
+tử nội bộ (Balance/Transactions), cho đến phân hệ Trí tuệ Nhân tạo (AI
+Recommendation System) đều vạch ra từ những dòng code PHP.
+      a) Điểm mạnh kỹ thuật cốt lõi của PHP 8.x áp dụng vào hệ thống:
+       JIT Compiler (Biên dịch Just-In-Time): PHP 8.0 ra mắt trình biên dịch
+          JIT, cho phép dịch mã trực tiếp thành mã máy và lưu trên cache. Đây là yếu
+          tố sống còn giúp hệ thống tự thực thi thuật toán AI (Hybrid
+          Recommendation System) ngay bằng PHP thay vì dùng Python. JIT giúp xử
+          lý hàng trăm nghìn dòng dữ liệu và các phép toán phức tạp (nhân ma trận,
+                                          13
+
+
+          Cosine Similarity) cực nhanh, đảm bảo hiệu suất huấn luyện mà không gây
+          quá tải máy chủ.[4]
+       Lập trình hướng đối tượng toàn diện: Hệ thống quản lý các thực thể đặc
+          thù như User (phân quyền Admin/Buyer/Editor), kho Steam ẩn và đơn hàng
+          thông qua tính kế thừa, đa hình và Traits. Việc tách biệt các khối nghiệp vụ
+          giúp mã nguồn có tính tái sử dụng cao, dễ dàng mở rộng và tích hợp thêm
+          các dịch vụ mới trong tương lai mà không làm vỡ cấu trúc hiện tại.
+       Quản lý cấu trúc kiểu nghiêm ngặt: Nhằm đảm bảo an toàn cho hệ thống
+          tiền ảo nội bộ, PHP 8.x cho phép định nghĩa chặt chẽ kiểu dữ liệu đầu vào
+          và trả về. Điều này loại bỏ hoàn toàn các sai sót do ép kiểu dữ liệu gây thất
+          thoát tài chính, đồng thời chặn đứng các lỗ hổng bảo mật bị hacker khai
+          thác qua việc thay đổi kiểu biến.
+       Quản lý bộ nhớ tự động: Khi hệ thống chịu tải lớn từ hàng ngàn giao dịch
+          đặt hàng và truy cập mạng xã hội cùng lúc, cơ chế sẽ tự động kích hoạt để
+          giải phóng RAM ngay khi tiến trình đóng lại. Điều này giúp Server vận
+          hành trơn tru, tránh tình trạng phình bộ nhớ và duy trì sự ổn định dưới áp
+          lực lưu lượng truy cập cao.
+
+2.1.2. Framework Laravel
+
+      Bên cạnh sức mạnh cội nguồn của PHP, yếu tố quyết định sự chuyên nghiệp
+của dự án chính là Laravel. Laravel là một Framework Web mã nguồn mở, được xây
+dựng dựa trên các gói Symfony vững chắc, tuân thủ nghiêm ngặt theo kiến trúc MVC
+(Model - View - Controller) [5]. Triết lý của Laravel là cung cấp sẵn một hệ sinh thái
+mạnh mẽ (từ bảo mật, định tuyến, cho tới kết nối Databse) với cú pháp cực kỳ "thanh
+lịch", giúp các lập trình viên không phải phát minh lại "bánh xe" mà tập trung toàn lực
+vào xử lý logic nghiệp vụ.
+      Trong hệ thống đa dịch vụ này, Laravel giữ vai trò vận hành mọi tính năng, với
+những thành phần kỹ thuật cốt lõi sau:
+      a) Kiến trúc MVC và sức mạnh biểu đạt Dữ liệu:
+         Model (Lớp dữ liệu) cùng Eloquent ORM: Mọi thao tác quản lý cơ sở dữ
+          liệu đồ sộ của Website đều được xử lý thông qua hệ thống ánh xạ đối tượng-
+                                    14
+
+
+    quan hệ (ORM) có tên gọi là Eloquent [6]. Thay vì viết những câu lệnh SQL
+    nguyên thủy dài hàng trang giấy tiềm ẩn nguy cơ bảo mật, Eloquent biến
+    SQL thành các chuỗi hàm lập trình. Hệ thống quy định rõ các mối Quan hệ
+    đa chiều như: Một người dùng có nhiều đơn hàng, một đơn hàng chỉ mua
+    được một sản phẩm, hay mối quan hệ nhiều-nhiều thông qua bảng trung
+    gian Pivot. Nhờ vậy, việc móc nối thông tin người mua, tài khoản Steam cấp
+    phát, và lịch sử giao dịch diễn ra vô cùng mạch lạc và trơn tru.
+   Controller (Lớp điều khiển) & Request Validation: Controller là
+    "những gã bảo vệ" tiếp nhận các yêu cầu từ phía client (như bấm Nút Thanh
+    toán, Gửi Bình luận cộng đồng). Laravel cung cấp công cụ FormRequest
+    Validation để kiểm tra độ chính xác của dữ liệu đầu vào (ví dụ kiểm tra định
+    dạng email, kiểm tra số dư ví phải lớn hơn số tiền muốn mua) [7]. Nếu dữ
+    liệu từ phía người dùng gửi lên không hợp lệ, Controller lập tức khóa luồng
+    và trả về lỗi, chặn đứng việc đẩy rác vào cơ sở dữ liệu.
+   View (Giao diện) với Blade Template Engine: Blade là engine biên dịch
+    giao diện xuất sắc của Laravel. Trái ngược nhược điểm nặng nề của các
+    Framework Client-side (như React/Vue đối với các Web ít tương tác phức
+    tạp), Blade theo chuẩn kết xuất từ máy chủ. Nó biên dịch các đoạn mã PHP
+    và thẻ HTML thành mã tĩnh nhằm giúp tốc độ tải trang chủ, trang tin tức
+    nhanh như chớp. Blade cũng giải quyết thông minh khái niệm kế thừa
+    Master Layout, cho phép "lắp ghép" header, footer vào nhiều trang khác
+    nhau mà không phải viết lặp lại mã nguồn. [8]
+b) Các cơ chế đặc thù được cấu hình trong Hệ thống:
+   Cơ chế mã hóa an ninh mạng (Laravel Encryption & Hashing): Dự án
+    xử lý một lượng lớn tài sản thực tế là tài khoản Steam ẩn. Không một ai
+    được phép biết nội dung cấu hình này trước khi tài khoản được giao dịch
+    thành công. Laravel cung cấp bộ mã hóa 2 chiều AES-256-CBC. Khi nhập
+    File Steam lên, toàn bộ cấu trúc: Mật khẩu, mã email đều biến thành các
+    chuỗi băm (Hash) dài vô nghĩa lưu trong database. Chỉ khi đơn hàng đạt
+    trạng thái “hoàn thành”, bản thân thuật toán hệ thống mã hóa bí mật nội bộ
+                                           15
+
+
+           mới dịch ngược chuỗi ra định dạng ban đầu tại bảng biểu ở giao diện khách
+           hàng.
+          Luồng xử lý bất đồng bộ (Queues & Background Jobs): Thuật toán AI
+           đưa ra danh sách game "Gợi ý dành riêng cho bạn" là một tiến trình tốn thời
+           gian tính toán. Nếu ép trình duyệt của khách hàng phải chờ thuật toán phân
+           tích xong mới hiển thị web thì sẽ gây đứt gãy trải nghiệm. Laravel cung cấp
+           hệ thống hàng đợi. quá trình phân tích hành vi khổng lồ sẽ được đẩy vào
+           Background. Điều này giúp website vẫn phản hồi người dùng mượt mà
+           trong khi AI vẫn liên tục cập nhật dữ liệu.
+          Hệ thống Middleware và phân quyền: Laravel tích hợp hệ thống kiểm
+           tra cấp độ quyền nghiêm ngặt. Hệ thống sử dụng Middleware làm trạm
+           kiểm soát vé. Nếu khách hàng thông thường cố tình truy cập vào đường dẫn
+           API xóa dữ liệu cộng đồng, Middleware sẽ đánh bật request đó lại và báo
+           lỗi 403 Forbidden. Việc sử dụng thẻ định danh cấp cao của Laravel giúp tính
+           phân quyền (Admin, Editor, Buyer) được bảo vệ tường tận.
+
+2.1.3. Hệ quản trị Cơ sở dữ liệu và Môi trường phát triển XAMPP
+
+       Với bản chất là một hệ sinh thái đa dịch vụ, Website phải xử lý đồng thời lượng
+dữ liệu khổng lồ và phức tạp: từ việc lưu trữ hệ thống tài khoản game (với thông tin
+ẩn mã hóa), lưu vết lịch sử giao dịch nạp tiền điện tử, cho đến kho dữ liệu tin tức công
+nghệ và hàng triệu bản ghi hành vi tương tác trên mạng xã hội thu nhỏ. Để đáp ứng
+yêu cầu lưu trữ và truy xuất siêu tốc này, đồ án sử dụng mô hình cơ sở dữ liệu quan
+hệ thông qua MySQL, được triển khai và quản lý trên môi trường phát triển tích
+hợp XAMPP.
+       a) Vai trò của XAMPP trong cấu trúc hệ thống:
+       XAMPP là một gói phần mềm phân phối mã nguồn mở, hoàn toàn miễn phí,
+tích hợp đầy đủ các giải pháp máy chủ thông dụng nhất bao gồm: Apache (Máy chủ
+HTTP), MySQL (Hệ quản trị CSDL), cùng với bộ thông dịch PHP và Perl. Quá trình
+phát triển và kiểm thử đồ án hoàn toàn dựa trên môi trường Localhost giả lập của
+XAMPP.[9]
+                                           16
+
+
+         Apache HTTP Server: Trong kiến trúc hệ thống, Apache đóng vai trò là
+          "Cổng giao tiếp đầu tiên". Nó chịu trách nhiệm tiếp nhận các luồng yêu
+          cầu HTTP/HTTPS từ trình duyệt của người dùng (như việc gọi trang mua
+          sắm, tải Feed cộng đồng), sau đó phân phối các yêu cầu này vào thư
+          mục public của Laravel. Khả năng thiết lập ảo hóa Host của Apache giúp
+          định tuyến toàn bộ luồng dữ liệu RESTful API diễn ra trơn tru trên môi
+          trường kiểm thử.
+         phpMyAdmin: XAMPP tích hợp sẵn công cụ quản trị CSDL trực quan trên
+          nền tảng Web là phpMyAdmin. Thay vì phải gõ lệnh qua giao diện dòng
+          lệnh (Command Line Interface - CLI), phpMyAdmin cung cấp một bảng điều
+          khiển đồ họa. Tại đây, quản trị viên có thể dễ dàng kiểm soát hơn 15 bảng
+          quan hệ, kiểm tra tính toàn vẹn của dữ liệu chuỗi mã hóa mật khẩu Steam
+          (Laravel Encrypted String), xử lý các điểm nghẽn truy vấn và sao lưu cơ sở
+          dữ liệu một cách nhanh chóng.
+      b) Cấu trúc Quản trị cơ sở dữ liệu (MySQL / MariaDB):
+      Trái tim lưu trữ của hệ thống là hệ quản trị MySQL, sở hữu những tính năng
+vượt trội được thiết kế riêng cho đồ án:
+         Hỗ trợ cấu trúc dữ liệu qan hệ (Relational DB Design): Dự án xây dựng một
+          sơ đồ thiết kế Thực thể - Mối liên kết (ERD) vô cùng chi tiết và toàn diện.
+          MySQL quản lý các mối quan hệ (Relationships) đa chiều như:
+             -   Quan hệ 1-N (One-to-Many): Một người dùng có thể sỡ hữu nhiều đơn
+                 hàng, thực hiện nhiều giao dịch ví điện tử, hoặc viết nhiều bài báo.
+             -   Quan hệ N-N (Many-to-Many): Một Tài khoản Steam ẩn có thể chứa
+                 nhiều tựa game; ngược lại một tựa game cũng xuất hiện trong nhiều
+                 Tài khoản Steam khác nhau. MySQL giải quyết bài toán này thông
+                 qua bảng trung gian Pivot Table , giúp truy vấn "Tài khoản nào đang
+                 giữ Game X" chỉ mất vài mili-giây.
+         Tính toàn vẹn Dữ liệu Khóa ngoại: Bằng cách sử dụng quy tắc Khóa ngoại
+          (Foreign Keys) với Ràng buộc ON DELETE CASCADE và ON DELETE SET
+          NULL, MySQL bảo vệ hệ thống khỏi rủi ro dữ liệu mồ côi. Chẳng hạn, nếu
+          quản trị viên xóa một tài khoản người dùng đã bị cấm, toàn bộ lịch sử thao
+                                         17
+
+
+          tác, lịch sử đăng bài, đánh giá của user đó trong các bảng khác sẽ tự động
+          được xóa sổ theo, giúp hệ thống luôn sạch sẽ. Thêm vào đó, việc dùng Soft
+          Deletes (Xóa mềm - ẩn hiển thị chứ không xóa vật lý) giúp dự án có khả
+          năng khôi phục bất cứ giao dịch hay tài khoản game nào nếu có sự cố nhầm
+          lẫn.[10]
+         Tối ưu hóa Indexing cho Thuật toán AI: Đồ án kết hợp AI để đề xuất sản
+          phẩm dựa theo lịch sử đọc tin tức, điểm rating và lịch sử mua hàng. Để thuật
+          toán gợi ý thực thi nhanh, MySQL cho phép lập chỉ mục phụ trên các cột
+          truy xuất thường xuyên. Các trường giá trị mang tính phân mảnh dữ liệu
+          như trạng thái của đơn hàng (status: pending/completed), Cột phân mảnh
+          vai trò (role: admin|buyer|editor) và đặc biệt là ID sản phẩm được đánh dữ
+          liệu từ đầu. Thiết kế này giúp tốc độ quét hàng vạn bản ghi dữ liệu thúc đẩy
+          quá trình xuất kết quả gợi ý game cá nhân hóa ngay lập tức.
+
+2.1.4. Nền tảng lưu trữ và quản lý đa phương tiện Cloudinary
+
+      Trong bối cảnh đồ án được thiết kế dưới dạng một nền tảng đa dịch vụ, hệ
+thống không chỉ dừng lại ở các giao dịch mua bán văn bản thuần túy, mà còn chứa
+một lượng khổng lồ các tệp tin đa phương tiện. Cụ thể: Hình ảnh bìa của hàng trăm
+tựa game, ảnh đại diện của người dùng, hình ảnh nội dung của các bài báo công nghệ,
+hình ảnh bằng chứng trong các khiếu nại, và đặc biệt là hệ thống mạng xã hội thu nhỏ
+cho phép hàng ngàn tài khoản đăng tải trạng thái kèm ảnh/video mỗi ngày.[11]
+      Việc lưu trữ toàn bộ dữ liệu media này trên ổ cứng vật lý của Web Server sẽ
+nhanh chóng gây ra hiện tượng phình to dung lượng, tiêu hao băng thông máy chủ,
+và làm chậm tốc độ tải trang trầm trọng đối với người dùng ở xa máy chủ gốc.
+      Để giải quyết bài toán kiến trúc hệ thống, đồ án đã loại bỏ phương thức lưu trữ
+truyền thống và tích hợp thành công nền tảng quản lý truyền thông đám
+mây Cloudinary.
+      a) Cơ chế hoạt động của Cloudinary trong hệ thống:
+         Tách bạch Máy chủ Ứng dụng và Máy chủ Lưu trữ: Thông qua gói tích
+          hợp API SDK dành riêng cho nền tảng PHP/Laravel, quy trình upload thư
+          viện đồ họa được thay đổi hoàn toàn. Khi người dùng hoặc Editor (Biên tập
+                                   18
+
+
+    viên) tải lên một bức ảnh qua ứng dụng Web, file vật lý sẽ không được di
+    chuyển vào các thư mục public/images của Source code. Thay vào đó,
+    Backend Laravel sẽ tạo một đường hầm bảo mật gửi trực tiếp file đó lên máy
+    chủ đám mây của Cloudinary. Sau khi xử lý và lưu trữ thành công,
+    Cloudinary sẽ lập tức gởi trả về cho Laravel một chuỗi siêu liên kết an toàn
+    và nhỏ gọn.
+   Tối ưu hóa Cơ sở dữ liệu bằng mảng JSON: Chuỗi URL trả về từ
+    Cloudinary (ví dụ: https://res.cloudinary.com/.../image.jpg) được Laravel
+    lưu giữ trực tiếp vào trường dữ liệu images của Database MySQL dưới định
+    dạng chuỗi văn bản hoặc Mảng JSON. Phương pháp này giúp Cơ sở dữ liệu
+    duy trì dung lượng cực nhẹ (chỉ tốn vài bytes so với vài Megabytes nếu lưu
+    ảnh dạng nhị phân BLOB), đồng thời tăng tốc độ sao lưu/phục hồi dữ liệu
+    đáng kể.
+b) Các tính năng đột phá Cloudinary cung cấp cho dự án:
+   Tự động chuyển đổi định dạng kế thừa: Cloudinary tự động nhận diện
+    thiết bị trình duyệt của khách hàng (Safari, Chrome Mobile, PC Desktop) để
+    chuyển đổi cấu trúc tập tin từ .PNG/.JPG sang các định dạng thế hệ mới
+    như .WebP hoặc .AVIF dựa vào mức độ hỗ trợ. Chức năng này giúp tiết kiệm
+    đến 50% băng thông đường truyền mà không hề làm suy giảm chất lượng
+    hình ảnh mạng xã hội/sản phẩm, mang lại tốc độ hiển thị giao diện mượt
+    mà theo tiêu chuẩn của Google PageSpeed.
+   Mạng phân phối nội dung toàn cầu: File ảnh được Cloudinary nhân bản
+    và lưu thế thân tại hàng trăm trung tâm dữ liệu phân tán trên toàn thế giới
+    thông qua nền tảng Akamai và Fastly. Bất cứ khách hàng nào truy cập vào
+    trang cộng đồng , các bài post chia sẻ ảnh/video sẽ được ưu tiên tải xuống
+    từ các Node mạng gần vị trí địa lý của khách nhất (Ví dụ: Trung tâm dữ liệu
+    tại Đông Nam Á), giảm từ hàng nghìn mili-giây xuống chỉ còn vài chục mili-
+    giây độ trễ.
+                                         19
+
+
+2.1.5. Thiết kế Kiến trúc Phương pháp tiếp cận RESTful API
+
+      Một phần không thể tách rời quyết định tính chuyên nghiệp của hệ thống chính
+là sự lựa chọn kiến trúc giao tiếp. Để liên kết linh hoạt giữa các thành phần Backend
+đồ sộ và đáp ứng nhu cầu mở rộng kết nối với Frontend. Đồ án được thiết kế hoàn
+toàn dựa trên bộ nguyên tắc chuẩn hóa lõi RESTful API (Representational State
+Transfer Application Programming Interface).[12]
+      RESTful định nghĩa một giao diện lập trình ứng dụng hoạt động thông qua giao
+thức truyền tải siêu văn bản (HTTP). Hệ thống đóng vai trò như một môi trường trung
+gian bảo mật, cho phép phía "Khách" (Client) tra cứu hoặc thực thi các nghiệp vụ trên
+"Chủ" (Server) thông qua các điểm cuối API (Endpoints) mà không mang theo bất kì
+rắc rối hay khác biệt nền tảng nào.
+
+
+
+
+                         Hình 2. 1: Phương thức RESful API
+      a) Cấu trúc triển khai hệ thống RESTful API:
+      Đồ án sở hữu thiết kế API quy chuẩn, tổ chức logic kinh doanh khổng lồ thành
+hơn 6 khối tài nguyên chính (Resources), minh họa chi tiết qua cấu trúc URL:
+         /api/users (Dữ liệu quản lý người dùng)
+         /api/steam-accounts (Hệ thống kho sản phẩm số bảo mật)
+         /api/orders (Cổng vận hành hóa đơn giao dịch, Trích tinh sản phẩm ẩn)
+         /api/community (Luồng mạng xã hội thu nhỏ)
+         /api/transactions (Ngân hàng thanh toán nội bộ, Quỹ nạp Balance)
+         /api/reviews (Lớp đánh giá tín nhiệm của gọc máy hệ thống/sản phẩm)
+                                         20
+
+
+      Việc ánh xạ quy tắc vận hành cơ sở dữ liệu tương ứng với 4 động từ truyền
+thống tiêu chuẩn (Các nhóm giao thức của HTTP Methods) đã tạo ra sự đồng bộ cực
+cao trong nghiệp vụ xử lý:
+         Giao thức GET
+      (Read/Fetch): Sử dụng để yêu cầu truy vấn tài nguyên công khai. Ví dụ: Máy
+khách gọi chuỗi truy vấn GET lên cụm API /api/community/posts?page=1 để tự động
+kéo 10 bài viết mới nhất trên cộng đồng đính kèm dữ liệu phân trang.
+         Giao thức POST
+      (Create/Process): Thực thi các thao tác khởi tạo hoặc mua sắm (Ghi dữ liệu mới
+vào cơ sở dữ liệu). Ví dụ: Yêu cầu nạp tiền, Đăng bài cộng đồng với tệp ảnh, đặt lệnh
+mua tài khoản Game.
+         Giao thức PUT/PATCH
+      (Update/Modify): Dùng riêng cho quản trị viên thay đổi một thuộc tính của tài
+nguyên đang tồn tại. Ví dụ: Chuyển đổi trạng thái một khiếu nại từ Pending (Đang
+chờ) thành Completed (Đã xử lý).
+         Giao thức DELETE
+      (Remove): Quyền kiểm duyệt của hệ thống (Ví dụ: Editor thanh lọc/xóa các Bài
+thảo luận tiêu cực hoặc Spams).
+
+2.2. Trình biên dịch (IDE & Text Editor)
+
+      Để hiện thực hóa một dự án có quy mô từ mã hóa cấu trúc dữ liệu, thuật toán
+(Backend), thiết kế giao diện (Frontend) đến giao tiếp bộ lập trình giao diện ứng dụng
+(RESTful API), việc lựa chọn một môi trường phát triển mã nguồn (IDE/Text Editor)
+phù hợp là rất quan trọng. Trong đồ án này, phần mềm Visual Studio Code
+(VSCode) được sử dụng làm trình biên dịch và soạn thảo mã nguồn chủ đạo.[13]
+
+2.2.1. Giới thiệu chung về Visual Studio Code
+
+      Visual Studio Code, thường được gọi tắt là VSCode, là một trình soạn thảo mã
+nguồn gọn nhẹ nhưng vô cùng mạnh mẽ do Microsoft phát triển đa nền tảng
+(Windows, Linux, macOS). Kể từ khi ra mắt, nhờ kiến trúc dựa trên nền tảng
+framework Electron, VSCode đã tái định nghĩa lại cách các lập trình viên làm việc. Hệ
+thống không chỉ cung cấp không gian gõ mã tĩnh mà còn là một bộ công cụ hỗ trợ gỡ
+                                         21
+
+
+lỗi toàn diện (Debugging), điều hướng mã thông minh (IntelliSense) và tích hợp sẵn
+hệ thống quản lý phiên bản (Version Control) như Git.
+       Đặc biệt, khác với các IDE đồ sộ (như PhpStorm hay Eclipse) tiêu tốn rất nhiều
+tài nguyên hệ thống (RAM), VSCode sở hữu tốc độ khởi động nhanh chóng. Yếu tố
+này giúp giảm thiểu rủi ro treo máy tính khi nhà phát triển phải chạy song song nhiều
+luồng tác vụ giả lập như: Môi trường Apache (XAMPP), bộ xử lý Job Queue của hệ
+thống, và thuật toán huấn luyện AI.
+
+2.2.2. Vai trò và Tiện ích của VS Code trong phát triển Đồ án
+
+       Trong quá trình xây dựng hệ thống website thương mại điện tử đa dịch vụ tích
+hợp mạng xã hội, VSCode đóng vai trò cốt lõi thông qua 4 tiện ích mở rộng hệ sinh
+thái sau:
+       a) Trình thông dịch mã nguồn thông minh:
+       Đồ án sử dụng kết hợp nhiều loại ngôn ngữ kịch bản khác nhau như PHP 8.x,
+SQL, Blade/HTML, Tailwind CSS , và Javascript. VS Code tự động nhận dạng, chuyển
+đổi màu sắc cú pháp theo đúng định dạng biên dịch. Kết hợp với các Extension chuyên
+biệt như PHP Intelephense, hệ thống có khả năng tự động gợi ý hoàn thiện mã, khai
+báo các thuộc tính lớp của đối tượng model hoặc tự động import không gian tên khi
+khai báo các lớp. Chức năng này loại bỏ triệt để lỗi chính tả cú pháp khi viết hàng
+ngàn dòng code.
+       b) Gỡ lỗi hệ thống đa luồng:
+       Một trong những thách thức lớn của dự án là việc xử lý vòng lặp thuật toán trí
+tuệ nhân tạo. Việc tự biên dịch thuật toán này bằng PHP yêu cầu duyệt qua các mảng
+lịch sử người dùng mua game, tương tác của người dùng trên trang cộng đồng, tính
+toán ma trận tương tác. Công cụ này cho phép nhà phát triển đặt các điểm dừng tĩnh
+ngay tại một dòng lệnh cụ thể, sau đó theo dõi sự thay đổi bộ đệm giá trị của các biến
+số học trong thời gian thực. Bằng cách này, việc tối ưu hóa tỷ lệ gợi ý chính xác của
+thuật toán học máy diễn ra nhạy bén hơn.
+       c) Tích hợp dòng lệnh Terminal (Integrated CLI):
+       Khác với các ứng dụng Web thuần túy, Framework Laravel được sử dụng trong
+đồ án luôn đòi hỏi phải chạy các dòng lệnh (CLI - Command Line Interface) liên tục
+để: tạo cấu trúc bảng cơ sở dữ liệu, chạy máy chủ ảo hóa cục bộ, khởi chạy bộ công
+                                          22
+
+
+nhân nền để tiếp nhận xử lý cấp phát tài khoản game tự động, hoặc cấp quyền luồng
+dữ liệu ảo. VSCode tích hợp sẵn hệ thống terminal ngay bên trong giao diện lập trình,
+giúp lược bỏ thao tác phải chuyển đổi qua lại giữa trình soạn thảo và bảng dòng lệnh
+của hệ điều hành, làm quy trình thiết kế, triển khai trở nên khép kín, tối ưu thời gian.
+       d) Hệ sinh thái mở rộng Extensions linh hoạt:
+       Điều biến VSCode thành trình biên dịch hoàn hảo cho dự án là dàn công cụ
+tiện ích mạnh mẽ được cộng đồng xây dựng hỗ trợ trực tiếp chuẩn Laravel và
+Frontend:
+           Laravel Blade Snippets: Trình biên dịch nhanh các thẻ (directives)
+            như @foreach, @extends(layout) giúp quá trình chuyển đổi HTML tĩnh
+            thành View động tốc độ cao.
+           Tailwind CSS IntelliSense: Gợi ý ngay lập tức các cấu trúc định dạng lớp
+            CSS tiện ích, giúp giao diện người dùng và giao diện chức năng của mạng
+            xã hội/sản phẩm bắt mắt, phản hồi siêu nhanh.
+           Prettier / PHP CS Fixer: Công cụ quét, canh chỉnh và làm đẹp các thụt lề
+            mã, giúp source code tuân thủ tuyệt đối các quy chuẩn kỹ nghệ phần mềm
+            PSR-12, đem đến thiết kế mã nguồn thân thiện, chuyên nghiệp tại hội đồng
+            bảo vệ đánh giá.
+
+2.3. Thiết kế kiến trúc phần mềm
+
+       Đối với một nền tảng phân phối sản phẩm số mang quy mô "Đa dịch vụ", cấu
+trúc mã nguồn nếu viết theo mô hình lập trình tuyến tính truyền thống sẽ nhanh
+chóng rơi vào trạng thái quá tải, khó bảo trì và không thể nâng cấp.
+       Do đó, toàn bộ kiến trúc lõi của hệ thống được thiết kế và quy hoạch nghiêm
+ngặt dựa trên nền tảng mẫu thiết kế nổi tiếng: Mô hình MVC (Model - View -
+Controller), kết hợp cùng kiến trúc phân tầng dịch vụ (Service Layer
+Architecture) nhằm cô lập các thuật toán trí tuệ nhân tạo (AI Machine Learning) và
+các tác vụ tính toán chuyên sâu ra khỏi luồng xử lý Web thông thường.
+
+2.3.1. Tổng quan về mô hình kiến trúc MVC
+
+       Mô hình Model-View-Controller (MVC) là một mẫu kiến trúc phần mềm kinh
+điển giúp phân tách ứng dụng thành 3 thành phần logic chính: Mô hình dữ liệu
+                                           23
+
+
+(Model), giao diện hiển thị (View) và bộ điều khiển trung tâm (Controller). Mục đích
+cốt lõi của MVC là "chia để trị": bóc tách rõ ràng giữa thuật toán nghiệp vụ máy chủ
+và giao diện trực quan của người dùng. [14]
+
+
+
+
+                               Hình 2. 2: Mô hình MVC
+       Trong dự án đa dịch vụ này, Framework Laravel quản lý kiến trúc MVC một
+cách tối ưu như sau:
+       a) Tầng Model (Mô hình Dữ liệu) - Eloquent ORM: Model là tầng thấp nhất,
+chịu trách nhiệm giao tiếp trực tiếp với hệ quản trị cơ sở dữ liệu. Tại đây, mọi cấu trúc
+bảng đều được định nghĩa thành các lớp đối tượng thông qua hệ thống bản đồ quan
+hệ - đối tượng (ORM - Object Relational Mapping) có tên là Eloquent.
+          Nhiệm vụ: Xử lý các nghiệp vụ truy vấn, chèn, xóa, cập nhật (CRUD) dựa
+           vào các truy vấn mã hóa.
+          Ứng dụng đồ án: Định nghĩa các Model đồ sộ vươn ra nhiều nhánh giao
+           tiếp. Ví dụ: Lớp User cấu hình đa liên kết với lớp đơn hàng (Order), lớp tương
+           tác mạng xã hội (CommunityPost), lớp bình luận tin tức (ArticleComment).
+           Tại Model Order, toàn bộ thuật toán trích dẫn cấu trúc cấp mật khẩu game
+           được đóng gói bảo mật hoàn toàn.
+       b) Tầng View (Giao diện hiển thị) - Blade / JSON API: Tầng View nhận dữ
+liệu từ Controller và tiến hành dàn trang thành giao diện HTML thuần túy hoặc cấu
+trúc dữ liệu thô (JSON) phản hồi cho Client.
+          Đối với trải nghiệm Web trực tiếp: Đồ án sử dụng Engine kết xuất
+           tĩnh Blade Template. Blade phân rã giao diện thành các Component (Thành
+                                          24
+
+
+          phần) độc lập để tái sử dụng. Chẳng hạn, thanh điều hướng
+          (NavBar/Header) chung với hộp hiỏ hàng (Cart).
+         Đối với các điểm cuối API: Tầng View được chuẩn hóa kiến trúc RESTful
+          bằng việc kết xuất đối tượng model dưới định dạng JSON Payload. Mô hình
+          này mở ra khả năng hệ thống hoạt động độc lập bất kể giao diện tương lai
+          có thể được nâng cấp thành App Mobile (Flutter/React Native).
+      c) Tầng Controller (Bộ điều khiển): Là cầu nối (Middleman) chỉ huy nhịp độ
+hệ thống. Lớp Controller sẽ nhận các mệnh lệnh (Request) hoặc sự kiện nhấn nút
+thanh toán (Submit) từ Client/View.
+         Nhiệm vụ: Trước khi chuyển lệnh vào Lớp Model, Controller sẽ làm công
+          tác vệ sinh dữ liệu. Chẳng hạn, khi Client yêu cầu nạp ví điện tử với số tiền
+          -500.000 (Một giá trị âm), TransactionController sẽ từ chối Request và ném
+          lỗi 422 trở lại View, ngăn hệ thống cơ sở dữ liệu ghi nhận hóa đơn sai phạm.
+
+
+
+
+                   Hình 2. 3: Các thành phần trong mô hình MVC
+2.3.2. Mở rộng Hệ thống - Kiến trúc Phân tầng Dịch vụ (Service Layer)
+
+      Một trong những giới hạn chí mạng của mô hình MVC cơ bản là rủi ro hiện
+tượng "Fat Controller" (Bộ điều khiển bị phình to). Giao diện Controller theo chuẩn
+mực phần mềm chỉ nên chịu trách nhiệm "chỉ đạo", chứ không được phép chứa đựng
+các vòng lặp tính toán khổng lồ.[15]
+      Trong Đồ án, bài toán đặt ra là: Hệ thống AI Recommendation System (Thuật
+toán Gợi ý Sản phẩm) phải thực hiện các tác vụ tính toán khoảng cách Cosine (Cosine
+                                         25
+
+
+Similarity) đối chiếu hàng ngàn dữ liệu sở thích thẻ game, lịch sử hóa đơn, điểm đánh
+giá của người mua. Nếu viết thẳng thuật toán này vào lớp RecommendationController,
+khi hàm được kích hoạt, máy chủ (Server/HTTP Process) sẽ bị nghẽn mạch do tiêu
+tốn quá nhiều giây để xử lý, khiến toàn bộ giao diện của khách hàng bị treo.
+   Giải pháp đột phá cho cấu trúc là ứng dụng mô hình MVC + Service Layer Pattern:
+         Đồ án tách chiết các hạng mục nghiệp vụ chuyên sâu thành các khối dịch
+          vụ độc lập, cụ thể là lớp RecommendationService. Tại đây, thuật toán học
+          máy cơ bản (Machine Learning - Hybrid Algorithms bao gồm: Collaborative
+          Filtering, Content-Based và Popularity) được nhúng toàn bộ logic bằng PHP
+          8.x.
+         Luồng xử lý bất đồng bộ (Asynchronous Background Jobs): Tầng
+          Service thực thi thuật toán không được gọi thủ công bằng trải nghiệm
+          Client. Lớp RecommendationService được đẩy vào một hàng đợi công việc
+          cấu hình thông qua Cron. Khi "Công nhân vệ tinh" huấn luyện mô hình AI
+          và sinh ra kết quả gợi ý ở chế độ nền, kết quả sẽ được ghi lưu đệm. Khi
+          Khách hàng lướt Web cửa hàng, Controller (RecommendationController)
+          chỉ việc lấy đệm kết quả AI nhanh như chớp từ Database thả ném ra mặt
+          View. Thiết kế vòng lặp kiến trúc này chặn đứng hoàn toàn hiện tượng trì
+          trệ máy chủ, đảm bảo khách hàng có thể mua game, chém gió trên cộng
+          đồng mượt mà với 60 khung hình/giây.
+
+2.3.3. Module hỗ trợ: Middleware và Authentication
+
+   Để kiện toàn mạng lưới kiến trúc MVC đa dịch vụ, tầng cấu trúc "Trạm kiểm soát"
+(Middleware) được bổ sung.
+         Middleware hoạt động như một lớp giáp đứng chắn chặn ngay trước
+          Controller. Toàn bộ các định tuyến đường trọng yếu can thiệp sâu vào túi
+          tiền và sản phẩm game (VD: Thao tác Nạp thẻ / Xuất kho mã Game đăng
+          nhập STEAM) đều bị bao bọc bởi auth:sanctum (Chuẩn Token bảo mật API).
+          Nếu Request từ View không chứa thẻ mật mã cấp quyền thỏa mãn, Layer
+          này sẽ đá Request đó thẳng ra ngoài, bảo vệ hoàn toàn 100% Cấu trúc lõi
+                                             26
+
+
+             Model. Kiến trúc mạng lưới phân cấp bảo vệ này (Gate/Policy) được tùy biến
+             chia tách rõ ranh giới quyền lực (Roles) 3 tầng: Admin / Editor / Buyer.
+
+2.4. Giới thiệu tổng quan về hệ thống gợi ý (Recommendation System)
+
+2.4.1. Tổng quan về hệ thống gợi ý sản phẩm
+
+         Hệ thống gợi ý (Recommendation System) là một dạng thuật toán chắt lọc
+thông tin (Information Filtering System) được thiết kế nhằm dự đoán và đề xuất các
+sản phẩm, dịch vụ hoặc nội dung phù hợp nhất với sở thích và nhu cầu của từng người
+dùng cụ thể. Trong bối cảnh thương mại điện tử, khi số lượng sản phẩm quá lớn dẫn
+đến hiện tượng quá tải thông tin, hệ thống gợi ý đóng vai trò như một người "nhân
+viên tư vấn ảo". Nó tự động phân tích hành vi trong quá khứ (như lịch sử mua hàng,
+đánh giá, lượt xem) để chủ động đưa ra các lựa chọn tối ưu, qua đó giúp cải thiện trải
+nghiệm mua sắm, tăng mức độ trung thành của khách hàng và thúc đẩy doanh thu
+cho doanh nghiệp.[3]
+         Các thuật toán áp dụng trong dự án
+         Thay vì chỉ phụ thuộc vào một phương pháp đơn lẻ, dự án sử dụng kiến trúc lai
+(Hybrid) kết hợp nhiều thuật toán khác nhau để tận dụng ưu điểm và khắc phục nhược
+điểm của từng phương pháp. Dưới đây là các cơ chế tính toán được tích hợp trong hệ
+thống:
+            Lọc dựa trên nội dung (Content-Based Filtering)
+             Phương pháp này tập trung phân tích đặc trưng của bản thân sản phẩm
+   thay vì hành vi người dùng. Hệ thống sẽ gom nhóm và phân tách dữ liệu của game
+   (như thể loại, thẻ Tags, loại game Online/Offline, mức giá) để tìm ra các sản phẩm
+   có thuộc tính giống nhau. Thuật toán này rất hiệu quả để gợi ý các game "tương
+   tự" với tựa game mà người dùng đang xem hoặc đã từng mua, đồng thời giải quyết
+   tốt vấn đề khó khăn khi hệ thống có game mới chưa ai mua.[16]
+            Lọc cộng tác (Collaborative Filtering):
+             Đây là thuật toán dựa trên nguyên lý "những người có hành vi giống nhau
+   trong quá khứ sẽ hình thành sở thích giống nhau trong tương lai". Cụ thể, hệ thống
+   (theo mô hình User-based) sẽ phân tích lịch sử tương tác (mua hàng, đánh giá) để
+   tìm ra những người dùng có "khẩu vị" chơi game tương đồng với người dùng hiện
+                                          27
+
+
+   tại, từ đó đề xuất chéo các tựa game mà nhóm người dùng tương đồng này đã đánh
+   giá cao. [17]
+         Phân tích hành vi thời gian thực (Real-time Behavior Weighting)
+      Theo dõi các tương tác xảy ra ngay tại thời điểm hiện tại. Hệ thống ghi nhận
+   các danh mục game người dùng vừa nhấn xem liên tục trong khoảng thời gian rất
+   ngắn (ví dụ 2 giờ qua) và coi đó là tín hiệu (signal) thể hiện "sự mong muốn tức
+   thời". Những sản phẩm thuộc danh mục "nóng" này ngay lập tức được hệ thống ưu
+   tiên cộng điểm trọng số cực cao để lọt vào vị trí hiển thị ưu tiên. [18]
+         Gợi ý phổ biến (Popularity Fallback)
+      Thuật toán dựa trên triết lý "sản phẩm bán chạy và được đánh giá tốt thì khả
+   năng làm hài lòng người dùng mới sẽ cao". Hệ thống dùng một công thức tổng hợp
+   lượt mua, điểm review và lượt xem để xếp hạng sản phẩm. Vai trò chính của cơ chế
+   này là làm phương án dự phòng giải quyết bài toán User Cold-Start: khi một khách
+   hàng mới tạo tài khoản và chưa có bất kỳ dữ liệu hành vi nào, họ sẽ được hiển thị
+   các game phổ biến nhất.[19]
+         Mô hình lai (Hybrid Recommendation)
+      Đây là kiến trúc cốt lõi kết hợp sức mạnh của toàn bộ các thuật toán kể trên để
+   đưa ra danh sách gọi ý cuối cùng. Bằng cách tính toán độc lập từng phương pháp
+   (Collaborative, Content-based, Real-time) và kết hợp chúng bằng một hệ thống
+   chấm điểm trọng số tổng hợp, mô hình Hybrid mang lại kết quả đề xuất vượt trội
+   so với các mô hình đơn lẻ: độ cá nhân hóa sâu sắc của Collaborative, độ nhận diện
+   sản phẩm chi tiết của Content-based, tính linh hoạt ngay lập tức của Real-time và
+   sự an toàn tuyệt đối từ Popularity Fallback.[19]
+
+2.4.2. Giới thiệu thuật toán Content-Based Filtering
+
+      Lọc dựa trên nội dung (Content-Based Filtering - CBF) là một kỹ thuật gợi ý
+vận hành độc lập hoàn toàn với thông tin từ các người dùng khác trong hệ thống. Hệ
+thống sẽ chủ động phân tích những sản phẩm mà người dùng đã từng tương tác tích
+cực (mua hàng, đánh giá cao, xem nhiều lần) ở quá khứ, sau đó đề xuất các sản phẩm
+mới có cùng "nội dung" hoặc "đặc trưng" tương tự.
+                                          28
+
+
+      Trong dự án thương mại điện tử chuyên cung cấp tài khoản game điện tử, "nội
+dung" của một tựa game được hiểu là các đặc trưng như: thể loại trò chơi, thẻ từ khóa,
+mức giá, hay tính chất kết nối mạng (online/offline).
+
+
+
+
+                         Hình 2. 4: Content-Based Filtering
+2.4.2.2 Ưu điểm và hạn chế
+      Ưu điểm:
+         Độc lập người dùng: Gợi ý của người dùng A không bị ảnh hưởng bởi
+          hành vi của hàng ngàn người dùng khác, giúp duy trì tính cá nhân hóa bảo
+          mật và độ chính xác ở mức độ vi mô.
+         Giải quyết tốt Item Cold-Start: Đây là "vũ khí" lợi hại nhất của CBF. Khi
+          quản trị viên vừa đăng tải một tựa game hoàn toàn mới lên gian hàng (chưa
+          có bất kỳ ai mua hoặc đánh giá), thuật toán Collaborative Filtering truyền
+          thống sẽ bị tê liệt. Tuy nhiên, CBF vẫn có thể lập tức đưa game mới này vào
+          danh sách gợi ý cho người dùng nếu nó có hệ thống Tags và Category khớp
+          với hồ sơ của họ.
+         Dễ minh bạch giải thích: Rất dễ để giải thích cho người dùng hiểu tại sao
+          họ được gợi ý tựa game này (vd: "Vì bạn đã từng mua một tựa game Hành
+          động RGP với mức giá khoảng 500,000đ").
+      Hạn chế:
+         Hiện tượng bong bóng lọc: Thuật toán mang tính bảo thủ cao. Nếu một
+          người dùng chỉ chơi game đua xe trước đây, hệ thống sẽ liên tục đổ về hàng
+                                         29
+
+
+           loạt game đua xe tương tự. Nó không bao giờ chủ động gợi ý một tựa game
+           Bắn súng đình đám, làm mất đi tính "đa dạng hóa" và tước đi cơ hội khám
+           phá điều mới mẻ của người dùng.
+          Chiết xuất đặc trưng khó khăn: Độ chính xác của thuật toán phụ thuộc
+           100% vào việc người nhập liệu có gắn Tags và Category đầy đủ, chuẩn xác
+           cho từng sản phẩm hay không. Nếu dữ liệu đặc trưng bị thiếu, thuật toán
+           coi như vô tác dụng.
+2.4.2.3. Vấn đề User Cold-Start và giới hạn trong thực tế
+       Mặc dù CBF giải quyết hoàn hảo vấn đề Item Cold-Start (Sản phẩm mới), nhưng
+nó lại vấp phải bài toán cho người dùng mới. Khi một tài khoản vừa được đăng ký mới
+tinh, họ chưa hề xem hay mua bất kì tựa game nào, dẫn tới "Hồ sơ người dùng" hoàn
+toàn trống rỗng. Thuật toán CBF đứng im vì không có điểm khởi đầu để đối chiếu tìm
+kiếm. Đó chính là nguyên nhân dự án không sử dụng CBF đơn lẻ, mà buộc phải áp
+dụng kiến trúc mô hình Lai (Hybrid): Dùng các bài toán Popularity (Gợi ý game xu
+hướng chung) để giải quyết User Cold-Start, và chỉ kích hoạt mạnh CBF khi hệ thống
+đã góp nhặt đủ profile lịch sử của khách hàng.
+
+2.4.3. Giới thiệu thuật toán Collaborative Filtering
+
+       Lọc cộng tác (Collaborative Filtering - CF) là thuật toán nền tảng trong lĩnh
+vực hệ thống gợi ý (Recommender Systems). Khác với phương pháp Lọc dựa trên Nội
+dung (Content-Based) chỉ phân tích thuộc tính sản phẩm, CF bỏ qua hoàn toàn nội
+dung của tựa game. Thuật toán hoạt động theo nguyên lý: Nếu hai người dùng từng
+có lịch sử tương tác giống nhau trong quá khứ, họ sẽ tiếp tục có chung sở thích ở hiện
+tại và tương lai.
+       Trong kiến trúc của hệ thống phân phối tài khoản game, thuật toán này tự động
+tìm kiếm và ráp nối hàng ngàn game thủ thành một mạng lưới liên kết ngầm định.
+Qua đó, hệ thống sẽ sử dụng lịch sử mua sắm của nhóm người chơi này để tư vấn danh
+sách game cho nhóm người chơi khác có độ tương đồng cao.
+2.4.3.1. Các phương pháp lọc cộng tác
+       Hệ thống Lọc cộng tác trong lĩnh vực học máy phân tách thành hai trường phái
+chính, mỗi trường phái mang một góc nhìn phân tích dữ liệu riêng:
+                                          30
+
+
+      a) Lọc cộng tác dựa trên người dùng (User-Based Collaborative
+          Filtering)
+      Đây là phương pháp phân tích xoay quanh trọng tâm là người dùng. Tư duy
+giải quyết bài toán đặt ra câu hỏi: "Ai là người giống với vị khách hàng này nhất?".
+         Cơ chế: Hệ thống tính toán độ tương đồng giữa người dùng mục tiêu
+          (Target User) và tất cả những người dùng khác trong cơ sở dữ liệu (thông
+          qua điểm Cosine). Sau khi tìm được một tệp hàng xóm (Top Similar Users),
+          hệ thống sẽ tổng hợp tất cả những tựa game mà nhóm Hàng xóm này đã
+          mua hoặc đánh giá cao, từ đó đề xuất trực tiếp cho Người dùng mục tiêu.
+      b) Lọc cộng tác dựa trên sản phẩm (Item-Based Collaborative Filtering)
+      Đây là phương pháp phân tích xoay quanh trọng tâm là Sản phẩm (Items) nhằm
+khắc phục một số điểm yếu của User-Based khi lượng người dùng tăng đột biến. Tư
+duy bài toán đặt ra: "Những sản phẩm nào thường xuyên được khách hàng mua cùng
+với nhau?".
+         Cơ chế: Thay vì tìm người dùng giống nhau, hệ thống xây dựng một mạng
+          lưới liên kết giữa các đồ vật. Ví dụ: Nếu phân tích dữ liệu cho thấy 85% người
+          mua game Tomb Raider cũng sẽ thanh toán luôn game Uncharted, hệ thống
+          sẽ gắn nhãn tương đồng cho hai Items này. Khi một khách hàng vừa
+          bỏ Tomb Raider vào giỏ hàng, thuật toán lập tức đẩy Uncharted vào mục gợi
+          ý (Thường thấy ở nhãn "Khách hàng mua sản phẩm này cũng mua...").
+2.4.3.2. Ưu điểm và Nhược điểm sâu xa của thuật toán
+      Ưu điểm:
+         Hấp dẫn bởi yếu tố bất ngờ: CF phá vỡ "Bong bóng thông tin" (Filter
+          Bubble) của Content-Based một cách triệt để. CF có thể tự tin gợi ý một
+          game Bắn súng cho tay chơi game thể thao, miễn là thuật toán tìm thấy một
+          "người hàng xóm" ngoài đời cũng chơi tốt cả 2 thể loại này. Đây là sức mạnh
+          cross-sell mãnh liệt vô danh nhất.
+         Miễn nhiễm với thông tin chuyên ngành: Đội ngũ vận hành website
+          không cần phải là chuyên gia về game. Dù tựa game không được gắn đúng
+          thẻ (Tags) hay sai thể loại (Category), hệ thống lọc cộng tác vẫn gợi ý chính
+                                          31
+
+
+          xác vì nó ăn trực tiếp "Hành vi người dùng", phớt lờ hoàn toàn nhãn dán
+          thông tin.
+      Khuyết điểm:
+         Vấn đề người dùng mới: Cơn ác mộng lớn nhất của CF. Một user đăng ký
+          mới tinh (Không có bất kỳ Item cũ nào) sẽ không bao giờ tạo thành Vector
+          Cosine, do đó không có ai làm "Hàng xóm" để tham chiếu. Một game mới
+          cũng sẽ "đóng băng" dưới kho vì không được user profile nào ghi nhận điểm
+          số.
+         Trạng thái ma trận cực thưa: Giả sử website kinh doanh 10,000 tựa game.
+          Một người dùng trung bình chỉ tải 5 game lặt vặt. Như vậy một người dùng
+          có 9,995 ô trống (Zero) trong số 10,000 ô đánh giá (Sparsity Rate = 99.95%).
+          Việc tìm ra điểm giao thoa tích vô hướng trong Cosine là cực nhọc và có
+          nguy cơ xuất hiện sai số do thiếu điểm mốc.
+         Ngưỡng chịu đựng mở rộng: Trong mô hình User-Based, độ phức tạp của
+          bài toán vươn lên tới mức đồ thị O ( n2 ) . Nếu ứng dụng có 100,000 tài khoản,
+          hệ thống sẽ chìm vào khủng hoảng tính toán nếu gọi hàm mỗi khi load
+          trang web.
+
+2.4.4. Giới thiệu phương pháp phân tích hành vi thời gian thực (Real-time
+Behavior Weighting)
+
+      Bên cạnh các thuật toán phân tích dài hạn truyền thống như Lọc Cộng Tác (CF)
+hay lọc nội dung (CBF), hệ thống gợi ý hiện đại đòi hỏi tốc độ phản ứng ngay tức khắc
+với những thay đổi trong nhu cầu của khách hàng. Trong nhiều trường hợp, một người
+chơi vốn dĩ chỉ thích game thể thao (hồ sơ dài hạn) đột nhiên có nhu cầu tìm mua một
+tựa game nhập vai (RPG) để tặng bạn bè. Nếu chỉ dựa vào lịch sử phân tích cũ định kỳ
+hàng đêm, hệ thống sẽ tiếp tục đẩy game Thể thao một cách cứng nhắc, dẫn đến trải
+nghiệm tồi tệ.
+      Để khắc phục rào cản này, dự án đã nghiên cứu và phát triển module Phân tích
+hành vi thời gian thực (Real-time Behavior Weighting). Phương pháp này phân tích
+chính xác từng luồng nhấp chuột của người dùng ngay tại thời điểm họ đang lướt web
+                                             32
+
+
+(Real-time), từ đó tiêm một lượng điểm trọng số ưu tiên cực lớn nhằm nhấc bổng các
+sản phẩm/danh mục mà họ đang tập trung chú ý lên hàng đầu.
+2.4.4.1.Nguyên lý và cơ chế hoạt động
+      Thuật toán thời gian thực không tự tạo ra một danh sách gợi ý mới hoàn
+toàn, mà nó đóng vai trò là một "Hệ thống tái xếp hạng" vô cùng mạnh mẽ. Quá trình
+này được thực thi theo 3 giai đoạn tinh vi sau:
+      a) Thu thập và phân loại tín hiệu
+      Khi hệ thống nhận được yêu cầu gợi ý, nó gửi truy vấn trực tiếp vào cơ sở dữ
+liệu để bóc tách 2 luồng tín hiệu hành vi:
+         Tín hiệu tức thời (Real-time Signals - 2 giờ qua): Dữ liệu thu thập các
+          danh mục game và sản phẩm mà người dùng vừa mới tương tác trong 2 giờ
+          gần nhất. Tín hiệu này phản ánh nhu cầu và khát khao ngay lúc này của
+          khách hàng và được hệ thống ấn định khung điểm thưởng cao nhất (điểm
+          gốc lên tới 150 điểm). Cộng thêm điểm thưởng lũy tiến cho các game được
+          xem đi xem lại nhiều lần.
+         Tín hiệu lịch sử ngắn hạn (Historical Signals - 30 ngày qua): Lớp dữ
+          liệu phòng hờ dùng để ghi nhớ hành vi của những khách hàng đã lâu chưa
+          đăng nhập lại. Điểm số cơ sở của luồng này sẽ thấp hơn một chút (điểm gốc
+          khoảng 120 điểm), nhường quyền ưu tiên tuyệt đối cho tín hiệu tức thời nếu
+          có sự xung đột xảy ra.
+      b) Trích xuất sở thích danh mục
+      Không chỉ đo lường trên từng tựa game, thuật toán tiến hành phân tích ở cấp
+độ cao hơn: Thể loại game. Hệ thống tiến hành đếm số lượt view và tổng hợp điểm
+tương tác của tất cả các game mà khách hàng đã lướt qua trong 2 giờ đó. Nếu phát
+hiện khách hàng bấm vào 4 tựa game liên tiếp đều thuộc danh mục "Hành Động",
+thuật toán lập tức dán nhãn "Hành Động" là danh mục đang nóng của riêng user đó.
+      c) Tái phân bổ trọng số điểm thưởng
+      Sau khi có trong tay danh sách thời gian thực, hệ thống sẽ đem trộn nó với các
+sản phẩm được đề xuất từ lọc cộng tác và lọc nội dung. Công thức cộng trọng số:
+                                          33
+
+
+         Cộng thẳng (Direct Bonus): Nếu một tựa game nằm trong danh mục
+          đang nóng của 2 tiếng vừa rồi, nó lập tức được ưu tiên vượt mặt các sản
+          phẩm khác.
+         Cộng gộp (Hybrid Boost): Một tựa game được gợi ý từ Lọc Cộng Tác ban
+          đầu chỉ có điểm cơ sở khoảng 40 điểm. Tuy nhiên, nếu thuật toán phát hiện
+          tựa game đó tình cờ nằm đúng trong danh mục đang nóng, nó sẽ được cộng
+          dồn thêm 25% - 30% điểm thưởng từ điểm cộng danh mục, đẩy tựa game đó
+          leo thẳng lên Top 1 hiển thị.
+2.4.4.2. Khả năng bao quát đa tầng
+      Trong quá trình code, module thời gian thực không bỏ lỡ bất cứ ngõ ngách tâm
+lý nào của người dùng. Hệ thống xử lý rà soát song song 4 lớp sản phẩm:
+         Sản phẩm nổi bật gần đây: Các món đồ người dùng vừa mở ra lặp lại
+          nhiều lần trong 6 tiếng (cực kỳ thích nhưng chưa mua). Đẩy lên đầu.
+         Sản phẩm chủ chốt của danh mục : Chủ động tìm thêm các game "Hot"
+          trên trang web miễn sao nó thuộc về cái danh mục mà người dùng vừa lướt
+          xem.
+         Xem gần đây: Ngay cả khi người dùng chỉ vô tình lướt qua một game 1 lần
+          duy nhất trong 24h, điểm thưởng nhẹ vẫn được áp dụng nhằm thăm dò sự
+          quay lại của họ.
+         Tương tự: Lấy ngay những tựa game giống hệt (Tương tự bằng Content-
+          Based) với tựa game mà khách hàng vừa xem nhiều lần để bày ra làm mồi
+          nhử thay thế.
+2.4.4.3. Ưu điểm và Giải quyết bài toán thực tế
+      Ưu điểm:
+         Phản ứng siêu nhạy bén: Nếu khách hàng đang lướt mục Game Bắn Súng
+          rồi đột ngột ấn sang tìm kiếm mục game đua xe. Gần như ngay giây phút tải
+          lại trang, danh sách gợi ý đã tự động ngập tràn các tựa game đua xe. Sự
+          thông minh cực hạn này mang lại cảm giác "Website thực sự hiểu tôi đang
+          muốn gì" cho người trải nghiệm.
+                                           34
+
+
+           Biến yếu điểm của Batch Training thành vũ khí: Các thuật toán CF hay
+            CBF gặp tử huyệt là mất hằng tiếng đồng hồ chạy ngầm mới thay đổi được
+            kết quả gợi ý. Tuy nhiên, bằng cách áp dụng thêm lớp Real-time Weighting
+            (tính toán nhanh trọng số điểm với dữ liệu nhỏ cục bộ ngay trên Server), dự
+            án đã giữ lại được cái hay của Batch Training, vừa có được tốc độ thời gian
+            thực tinh xảo ngang ngửa các sàn thương mại điện tử lớn.
+      Hạn chế:
+           Chi phí truy vấn cơ sở dữ liệu: Để tính toán thời gian thực, thuật toán
+            buộc phải thực thi liên tục hàng dải câu lệnh truy xuất trực tiếp vào cơ sở
+            dữ liệu bảng tương tác chỉ trong vòng khoảnh khắc mili-giây. Để giải quyết,
+            dự án đã thiết lập thời gian sống (TTL) bộ đệm cho thuật toán này là Cache:
+            30 giây. Con số này đủ nhỏ để hệ thống bắt nhịp sự thay đổi hành vi tức thì,
+            nhưng lại đủ lớn để chặn đứng hiện tượng "Ngập lụt Database" (DDoS nội
+            bộ) do cùng một hàm lấy gợi ý bị gọi liên tục mỗi lần khách hàng cuộn
+            trang.
+
+2.4.5. Giới thiệu phương pháp gợi ý phổ biến (Popularity Fallback)
+
+      Bên cạnh các cơ chế phân tích sâu sắc như lọc cộng tác (Collaborative Filtering),
+lọc nội dung (Content-Based) hay trọng số thời gian thực (Real-time Weighting), mọi
+hệ thống gợi ý chuẩn cấp độ doanh nghiệp đều phải cài đặt một lớp phòng thủ cuối
+cùng. Lớp phòng thủ đó chính là thuật toán gợi ý phổ biến (Popularity Fallback).
+      Nguyên lý của thuật toán này dựa trên hiệu ứng tâm lý bầy đàn (Bandwagon
+Effect): Sản phẩm thu hút được nhiều sự chú ý và đánh giá cao từ số đông thì xác suất
+làm hài lòng một khách hàng mới bất kỳ là cao nhất. Khác với ba thuật toán cá nhân
+hoá ở trên phải "đo ni đóng giày" cho từng người dùng, gợi ý phổ biến là một bảng
+xếp hạng toàn cầu mang tính chất đại chúng.
+2.4.5.1. Bài toán khởi động lạnh và vai trò của cứu cánh
+      Mục đích tồn tại lớn nhất của thuật toán này trong dự án không phải là để cá
+nhân hoá, mà là để vá một lỗ hổng chí mạng của khoa học dữ liệu: Bài toán người
+dùng mới.
+                                           35
+
+
+        Khi một khách hàng mới toanh vừa khởi tạo tài khoản thành công và truy cập
+vào trang chủ:
+           Hệ thống lọc cộng tác bị mù hoàn toàn vì người này chưa có lịch sử mua
+            hàng, do đó không định hình được hàng xóm.
+           Hệ thống lọc nội dung bị vô hiệu hoá vì hồ sơ rỗng, không biết họ thích thể
+            loại hay thẻ trò chơi nào.
+           Trọng số thời gian thực chưa kịp thu thập đủ luồng nhấp chuột để kích hoạt.
+        Hậu quả là chức năng "Có thể bạn sẽ thích" trên website sẽ bị trắng xóa, gây
+đứt gãy trải nghiệm UI/UX nghiêm trọng. Ngay lúc này, luồng Fallback (Rẽ nhánh dự
+phòng) lập tức được hệ thống kích hoạt. Nó sẽ tự động rót danh sách Top N sản phẩm
+phổ biến nhất ra ngoài màn hình thay thế để thu hút sự chú ý đầu tiên của "người dùng
+mới".
+2.4.5.2 Ưu điểm, nhược điểm
+        Ưu điểm:
+           Tuyệt đối an toàn: Đảm bảo hệ thống có khả năng đưa ra được câu trả lời
+            trong mọi hoàn cảnh khắc nghiệt nhất, bất chấp lịch sử dữ liệu của khách
+            hàng bị hỏng, bị xóa, hoặc hoàn toàn trống trơn.
+           Thúc đẩy khám phá ban đầu: Việc cho khách hàng mới xem những tựa
+            game đỉnh cao nhất của cửa hàng, điều hướng họ nhấp chuột tương tác. Từ
+            những click đầu tiên đó, cỗ máy Real-time Weighting sẽ có đủ dữ liệu để
+            thu thập và bắt tay vào việc cá nhân hoá chuyên sâu.
+        Nhược điểm:
+           Thiếu tính cá nhân hoá: Mọi khách hàng mới đều nhìn thấy chung một
+            danh sách cửa hàng giống hệt nhau. Điều này bỏ qua hoàn toàn sự nguyên
+            bản về nhân khẩu học hay tâm lý cá nhân, dẫn đến việc gợi ý có thể hoàn
+            toàn sai lệch với ý định truy cập thực sự của khách hàng.
+
+2.4.6. Cơ sở hình thành mô hình lai (Hybrid)
+
+        Sự phát triển của công nghệ máy học đã cho ra đời nhiều thuật toán cốt lõi
+như lọc cộng tác (CF - phân tích tư duy đám đông) và lọc nội dung (CBF - phân tích
+                                          36
+
+
+đặc trưng sản phẩm). Mặc dù mỗi thuật toán nền tảng đều sở hữu những lợi thế vượt
+trội, nhưng chúng đồng thời cũng tồn tại lỗi không thể tự khắc phục:
+          CF: Bất lực hoàn toàn trước bài toán khi có người dùng hoặc sản phẩm mới.
+           Hơn nữa, chất lượng phân tích của CF giảm sút mạnh khi dữ liệu bị phân
+           mảnh thưa thớt.
+          CBF: Tuy giải quyết được khâu sản phẩm mới, nhưng lại đẩy người dùng
+           vào trạng thái "Bong bóng thông tin", khiến họ vĩnh viễn không thể tiếp cận
+           những thể loại game mới mẻ ngoài vùng an toàn.
+          Phân tích thời gian thực (Real-time): Chỉ hoạt động tốt ở bề mặt hiện
+           tại, thiếu đi chiều sâu để thấu hiểu nhân khẩu học hay tâm lý dài hạn của
+           người chơi.
+          Gợi ý Phổ biến (Popularity): Tuy cực kỳ an toàn nhưng lại đánh mất
+           hoàn toàn linh hồn của hệ thống: Tính cá nhân hoá (Personalization).
+       Để kiến tạo một hệ sinh thái thương mại điện tử hoàn hảo, dự án đã lựa chọn
+từ bỏ việc sử dụng các mô hình đơn lẻ độc lập. Thay vào đó, kiến trúc đỉnh cao hệ
+thống gợi ý lai được thiết kế và triển khai nhằm "chắp vá" nhược điểm cục bộ và
+khuếch đại sức mạnh tập thể của toàn bộ 4 giải pháp trên.
+2.4.6.1. Tóm lược ưu điểm
+       Mô hình Gợi ý Lai thiết lập một vị thế kiên cố trong dự án với ba mũi nhọn chủ
+lực sau:
+          Xóa bỏ mọi điểm mù thuật toán: Khống chế tuyệt đối vấn đề User Cold-
+           Start bằng Switching Popularity, và hủy diệt hoàn toàn Item Cold-Start nhờ
+           luồng CBF trộn trong lõi dữ liệu. Khách hàng mới và sản phẩm mới đều có
+           cửa ải riêng để trọn vẹn gia nhập cuộc chơi thương mại.
+          Tiến hóa độ chuẩn xác: Trí tuệ tổng hợp theo kiểu Weighted Hybrid liên
+           tục hiệu chỉnh và gọt dũa độ nhiễu. Điểm số tương đồng là kết tinh từ nhiều
+           phương diện phản chiếu khác nhau (hành vi, lịch sử, thông tin cấu trúc)
+           thay vì góc nhìn một chiều.
+          Vá víu tốc độ băng thông: Việc biết cách tách biệt các khâu tính toán nặng
+           bóp nghẹt Server (chia cho Background Jobs chạy ban đêm) kết hợp với các
+           luồng tính điểm ưu tiên chớp nhoáng (Real-time áp dụng Cache) giúp hệ
+                                           37
+
+
+             thống Hybrid này hội tụ mọi phẩm chất cấu trúc xuất sắc để triển khai
+             thành phẩm thực tế. Đảm bảo UI mượt mà, UX thăng hoa, và đáp ứng tức
+             thời trong kỷ nguyên E-commerce.
+
+
+
+
+               CHƯƠNG 3: PHÂN TÍCH THIẾT KẾ HỆ THỐ NG
+
+3.1. Phân tích yêu cầu hệ thống
+
+3.1.1. Yêu cầu chức năng
+
+         Yêu cầu chức năng mô tả các hành động mang tính nghiệp vụ mà hệ thống
+phần mềm phải thực hiện được, tương tác trực tiếp với các định vai tham gia vào hệ
+thống.
+3.1.1.1. Đối với người dùng
+   1. Quản lý tài khoản & xác thực:
+            Đăng ký và đăng nhập.
+            Quản lý thông tin cá nhân (đổi mật khẩu, cập nhật ảnh đại diện, chỉnh sửa
+             thông tin liên lạc).
+            Xem lịch sử đăng nhập để đảm bảo an toàn bảo mật.
+   2. Khám phá & tìm kiếm sản phẩm:
+            Xem danh sách sản phẩm được phân định rõ ràng theo danh mục, thẻ, hoặc
+             loại hình (Trực tuyến/Ngoại tuyến).
+            Tìm kiếm sản phẩm thông qua từ khóa tự do, lọc và sắp xếp theo mức giá,
+             thể loại hoặc độ phổ biến.
+            Nhận các danh sách đề xuất sản phẩm cá nhân hóa thông qua hệ thống gợi
+             ý dựa trên thói quen, mức điểm tương tác và các tựa game đã xem trong quá
+             khứ.
+                                           38
+
+
+   3. Quản lý giỏ hàng & nạp quỹ:
+         Thao tác thêm, bớt hoặc xóa sản phẩm khỏi giỏ hàng điện tử một cách nhanh
+          chóng.
+         Nạp tiền vào số dư ví nội bộ trang web thông qua các cổng thanh toán kỹ
+          thuật số tích hợp (ví dụ: VNPay).
+         Thực hiện thanh toán mua hàng tự động khấu trừ từ số dư nội bộ.
+   4. Quản lý đơn hàng & lịch sử hình thành:
+         Theo dõi chi tiết các hóa đơn đã giao dịch và trạng thái đơn hàng.
+         Lưu trữ và hiển thị thông tin đăng nhập của tài khoản game (bao gồm tài
+          khoản, mật khẩu, mã Steam; và bổ sung Email, mật khẩu Email nếu là tài
+          khoản online) sau khi đơn hàng được ghi nhận hoàn tất.
+   5. Tương tác & cộng đồng:
+         Đánh giá chất lượng bằng mức xếp hạng (từ 1 đến 5 sao) và để lại bình luận
+          cho trải nghiệm sản phẩm đã mua để làm dữ liệu cho hệ thống lọc cộng tác
+          học hỏi.
+         Gửi yêu cầu hỗ trợ để khiếu nại đơn hàng bị lỗi, tài khoản sai mật khẩu hoặc
+          trục trặc trong khâu nạp tiền.
+3.1.1.2. Đối với quản trị viên
+   1. Quản lý bảng điều khiển:
+         Giám sát biểu đồ tổng quan về doanh thu, số lượng đơn mua, lượng tài
+          khoản đăng ký mới theo thời gian thực (ngày, tuần, tháng).
+         Theo dõi các thông số giám sát hệ thống gợi ý.
+   2. Quản lý thông tin sản phẩm:
+         Đăng tải văn bản miêu tả, hình ảnh bìa, ấn định thể loại, tags và đặt giá
+          thành cho từng tựa game.
+         Theo dõi trạng thái (Mở bán, Hết hàng).
+   3. Quản lý kho tài khoản khách:
+         Nhập liệu và mã hóa khối lượng lớn tài khoản cho từng tựa game tương
+          ứng.
+                                           39
+
+
+         Phân luồng tài khoản chỉ chơi offline hay tài khoản có đầy đủ chủ quyền
+          Email cấp kết nối online.
+         Thu hồi hoặc khóa các dòng tài khoản đã báo cáo hỏng.
+   4. Quản lý giao dịch & đơn hàng:
+         Trích xuất danh sách các dòng tiền nạp vào hệ thống.
+         Đọc chi tiết các hóa đơn bán ra.
+         Hỗ trợ thao tác hoàn tiền hoặc cấp bù tài khoản khác nếu khách hàng đưa
+          ra yêu cầu khiếu nại hợp lý.
+   5. Quản lý khách hàng & hỗ trợ:
+         Khóa người dùng nếu phát hiện thấy biểu hiện gian lận hoặc phá hoại dịch
+          vụ.
+         Tiếp nhận, theo dõi dòng chảy phản hồi và xử lý các yêu cầu hỗ trợ để đem
+          lại trải nghiệm chăm sóc khách hàng tốt nhất.
+   6. Điều hành hệ thống gợi ý:
+         Tính năng kích hoạt ép buộc máy chủ tiến hành huấn luyện lại tập mô hình
+          dữ liệu gợi ý.
+         Quản trị việc xóa bộ đệm thủ công.
+
+3.1.2. Yêu cầu phi chức năng
+
+      Yêu cầu phi chức năng mô tả các tiêu chuẩn về chất lượng, hiệu năng và kiến
+trúc nhằm đánh giá một hệ thống có vận hành tốt trong thực tế hay không.
+   1. Hiệu năng & tốc độ đáp ứng:
+         Máy chủ Web phải chịu tải mượt mà không bị nghẽn đứt khi có lượng dòng
+          truy cập lớn xảy ra đồng thời.
+         Đặc biệt, khối lượng API liên quan đến hệ thống gợi ý phải trả về danh sách
+          dưới độ trễ 100ms, đạt được bằng cách tận dụng kho dữ liệu nội suy tính sẵn
+          và bộ nhớ đệm tốc độ cực cao tĩnh.
+   2. Nguyên tắc bảo mật:
+         Chuỗi mật khẩu cá nhân của khách hàng phải bị mã hóa một chiều nhằm
+          không thể đảo ngược chiều giải mã bẻ khóa, ngay cả khi cơ sở dữ liệu bị
+          đánh cắp.[20]
+                                        40
+
+
+      Bộ sưu tập hàng ngàn tài khoản game trong kho ứng dụng phải bảo vệ bằng
+       mã hóa hai chiều, khóa giải mã chỉ được kích hoạt nằm trên server tại thời
+       điểm trích xuất cho người đã thanh toán.[21]
+      Cung cấp lớp giáp bảo vệ website tích hợp chống lại các dạng tấn công điển
+       hình: CSRF, XSS và truy vấn tiêm nhiễm SQL.
+      Dịch vụ cổng thanh toán luôn luôn xác thực cơ chế chữ ký mã hóa chống
+       làm giả việc nạp tiền.
+3. Độ sẵn sàng & chịu lỗi:
+      Triển khai tính sẵn sàng duy trì đạt mốc cao nhất có thể.
+      Thiết kế nguyên tắc "Không đứt gãy luồng". Đặc biệt áp dụng khi trạm phân
+       tích khách hàng cá nhân rớt gói, hoặc với tệp người mới đến, chức năng
+       ngay tức khắc quay vòng sang luồng cứu hộ dự phòng gợi ý phổ biến toàn
+       cục giúp che đậy hoàn toàn gián đoạn.
+4. Trải nghiệm người dùng:
+      Tổ chức luồng bản đồ cấu trúc Website mượt mà, tông màu làm bật được
+       thông điệp của trang thương mại điện tử dịch vụ giải trí.
+      Tính đáp ứng toàn phần thiết kế quy chuẩn bảo đảm giao diện không bị xé
+       vỡ dù thiết bị hiển thị là PC màn hình ngang rộng, máy tính bảng hay thiết
+       bị Điện thoại di động khổ dọc.
+5. Tính bảo trì & nâng cấp:
+      Lọc phân định và tách từng service riêng biệt trên mô hình chuẩn Model-
+       View-Controller (MVC) của bộ khung nền tảng mã nguồn phần mềm.
+      Tối đa hoá chi chép hệ hành vi nhật ký vào cơ sở giám sát riêng cho 100%
+       các biến động luân chuyển tiền bạc và tiến trình chạy máy học làm căn cứ
+       đối soát cho vận hành sau này.
+                                          41
+
+
+3.2. Phân tích Use case
+
+3.2.1. Biểu đồ Use case tổng quát
+
+
+
+
+                       Hình 3. 1: Use Case tổng quát hệ thống
+      Hệ thống được thiết kế với cơ chế bảo mật xác thực tập trung, trong đó hầu hết
+các nghiệp vụ cốt lõi đều yêu cầu người dùng phải thông qua bước đăng nhập (trừ tính
+năng xem và khám phá game công khai).
+         Đối với khách hàng: Người dùng có thể duyệt tìm, nhận gợi ý game từ AI
+          một cách tự do. Khi đã đăng nhập, khách hàng được cấp quyền tham gia
+          mạng xã hội (kết bạn, nhắn tin, đăng bài), quản lý ví tiền điện tử, thực hiện
+          thanh toán mua game/tài khoản Steam, quản lý đơn hàng, đánh giá sản
+          phẩm và được hỗ trợ trực tiếp từ bot AI hoặc gửi yêu cầu khiếu nại.
+         Đối với quản trị viên: Đóng vai trò vận hành toàn bộ vòng đời sản phẩm,
+          từ việc quản lý kho game/tài khoản Steam, phê duyệt giao dịch tài chính,
+          thiết lập chiến dịch khuyến mãi, đến kiểm duyệt nội dung cộng đồng, phân
+          tích tổng quan và cao cấp nhất là quản lý, khởi chạy các mô hình máy học
+          để cá nhân hóa gợi ý cho người dùng.
+                                          42
+
+
+           Mối quan hệ: Tính năng Đăng ký được thiết kế như một luồng mở rộng bổ
+            trợ cho việc Đăng nhập, giúp người dùng mới dễ dàng gia nhập hệ thống
+            trước khi khai thác các tính năng chuyên sâu.
+
+3.2.2. Biểu đồ phân rã Use case
+
+   a. Biểu đồ phân rã Use case đăng ký
+
+
+
+
+                             Hình 3. 2: Use Case đăng ký
+  Người dùng phải thực hiện đăng ký tài khoản thì mới có thể đăng nhập vào hệ
+thống, để có thể đăng ký tài khoản thì người dùng phải điền đủ các trường thông tin
+được yêu cầu.
+   b. Biểu đồ phân rã Use case đăng nhập
+
+
+
+
+                            Hình 3. 3: Use Case đăng nhập
+        Người dùng phải thực hiện đăng nhập để vào hệ thống, để có thể đăng nhập
+vào hệ thống thì người dùng phải điền đúng tên email tài khoản và mật khẩu của
+mình.
+   c. Biểu đồ phân rã Use case quản lý và xem trang cá nhân
+                                         43
+
+
+
+
+                     Hình 3. 4:Use Case quản lý hồ sơ cá nhân
+      Người dùng xem thông tin hồ sơ cá nhân và quản lý toàn diện định danh cá
+nhân trên hệ thống. Hệ thống sẽ truy xuất đồng thời thông tin cơ bản, bảng danh bạ
+bạn bè và lịch sử các bài viết đã được người đó đóng góp trên mạng xã hội.
+   d. Biểu đồ phân rã Use case xem và tìm kiếm sản phẩm
+
+
+
+
+               Hình 3. 5: Use Case khám phá và nhận gợi ý game
+                                          44
+
+
+       Người dùng có thể xem danh sách sản phẩm, xem theo danh mục, tìm kiếm
+các sản phẩm và xem thông tin chi tiết, sau khi đăng nhập sẽ được hệ thống gợi ý các
+sản phẩm nổi bật, thu thập hành vi và giao dịch để cá nhân hoá các sản phẩm cho
+người dùng.
+   e. Biểu đồ phân rã Usecase xem và quản lý tin tức
+
+
+
+
+                          Hình 3. 6: Use Case quản lý tin tức
+       Quản trị viên sẽ đăng và quản lý các tin tức trên trang web (chỉnh sửa hoặc
+xoá), sau đó người dùng sẽ có thể đọc các tin tức đó
+   f. Biểu đồ phân rã Use case cộng đồng
+
+
+
+
+                        Hình 3. 7: Use Case quản lý cộng đồng
+       Người dùng sau khi đăng nhập có thể đăng tải bài viết của mình lên cộng đồng
+và quản lý bài viết (chỉnh sửa hoặc xoá), nếu người dùng mua game online sẽ được hệ
+thống thêm vào nhóm của game đó như một cộng đồng nhỏ. Quản trị viên có thể quản
+lý bài viết và các bình luận
+   g. Biểu đồ phân rã Use case hỗ trợ
+                                         45
+
+
+
+
+                         Hình 3. 8: Use Case quản lý hỗ trợ
+      Người dùng có thể vào phần hỗ trợ hoặc chat với AI để có thể hiểu hơn về
+website, khi gặp vấn đề, lỗi thì khách hàng gửi yêu cầu hỗ trợ cho quản trị viên. Nếu
+gửi thành công sẽ nhận được tin nhắn tự động của quản trị viên trong phần tin nhắn,
+các phản hồi sẽ được gửi và trao đổi trong phần tin nhắn này.
+   h. Biểu đồ phân rã Use case nạp tiền và quản lý ví tiền
+
+
+
+
+                         Hình 3. 9: Use Case quản lý ví tiền
+      Người dùng sau khi đăng nhập sẽ có thể nạp tiền thôi qua ngân hàng, thanh
+toán thành công số tiền sẽ được lưu trong ví tiền để mua các sản phẩm. Quản trị viên
+quản lý các giao dịch và thông kê doanh thu.
+   i. Biểu đồ phân rã usecase tin nhắn
+                                        46
+
+
+
+
+              Hình 3. 10: Use Case tương tác mạng xã hội và nhắn tin
+      Người dùng sau khi đăng nhập có thể kết bạn trên cộng đồng, chấp nhận lời
+mới kết bạn trên trang cá nhân và quản lý bạn bè của mình. Khách hàng có thể nhắn
+tin cho bạn bè của mình.
+   j. Biểu đồ phân rã use case quản lý đơn hàng
+                                        47
+
+
+                       Hình 3. 11: Use Case quản lý đơn hàng
+      Người dùng sau khi đăng nhập và mua hàng thành công, thông tin đơn hàng
+sẽ được lưu trong đơn hàng của người dùng. Sau khi mua hàng khách hàng có thể
+đánh giá sản phẩm trong phần chi tiết sản phẩm.
+   k. Biểu đồ use case phân rã quản lý hệ thống
+
+
+
+
+                       Hình 3. 12: Use Case quản lý hệ thống
+      Hệ thống dành cho quản trị viên, bao gồm: xem thống kê, quản lý người dùng
+(phân quyền, khóa/mở khóa tài khoản), quản lý danh mục Game, quản lý phương thức
+thanh toán và xem cấu trúc bảng dữ liệu. Toàn bộ chức năng yêu cầu đăng nhập với
+quyền quản trị viên.
+   l. Biểu đồ use case phân rã quản lý sản phẩm và kho Steam
+                                      48
+
+
+
+
+               Hình 3. 13:Use Case quản lý sản phẩm và kho Steam
+      Quản trị viên có quyền quản lý các sản phẩm game gồm thêm, sửa và xoá sản
+phẩm sau đó quản lý tài khoản Steam chứa các sản phẩm game tương ứng để gửi đơn
+hàng cho khách hàng đúng nhất.
+                                          49
+
+
+3.3. Thiết kế sơ đồ quy trình nghiệp vụ
+
+3.3.1. Quy trình nghiệp vụ đăng ký, đăng nhập
+
+
+
+
+                  Hình 3. 14: Sơ đồ nghiệp vụ đăng ký, đăng nhập
+      Quy trình đăng ký:
+      Hệ thống hỗ trợ người dùng tạo tài khoản qua hai phương thức:
+         Đăng ký: Người dùng cung cấp họ tên, email và mật khẩu (tối thiểu 8 ký
+          tự). Hệ thống sẽ kiểm tra tính hợp lệ, sự tồn tại của email và độ khớp mật
+          khẩu. Nếu hợp lệ, tài khoản được tạo với vai trò "buyer", trạng thái "active"
+          và số dư 0.
+         Google OAuth: Người dùng xác thực qua Google. Hệ thống tự động thu thập
+          họ tên, email, ảnh đại diện để tạo tài khoản mà không cần nhập liệu thủ
+          công.
+                                           50
+
+
+      Quy trình đăng nhập:
+      Hệ thống hỗ trợ truy cập qua hai phương thức:
+         Đăng nhập: Người dùng nhập Email và Mật khẩu. Hệ thống xác thực thông
+          tin từ cơ sở dữ liệu và kiểm tra trạng thái tài khoản. Nếu sai thông tin hoặc
+          tài khoản bị "banned", hệ thống sẽ từ chối và hiển thị thông báo lỗi.
+         Google OAuth: Người dùng xác thực qua Google. Nếu Email đã tồn tại, hệ
+          thống cho phép đăng nhập trực tiếp; nếu chưa, một tài khoản mới sẽ tự động
+          được khởi tạo.
+
+3.3.2. Quy trình nghiệp vụ nạp tiền
+
+
+
+
+                           Hình 3. 15: Sơ đồ nghiệp vụ nạp tiền
+                                         51
+
+
+      Bước 1: Khởi tạo và Chuyển hướng: Khách hàng nhập số tiền hợp lệ. Hệ
+thống tạo giao dịch trạng thái "đang xử lý", tạo URL thanh toán có chữ ký bảo mật và
+chuyển hướng người dùng sang VNPay.
+      Bước 2: Thanh toán: Khách hàng thực hiện giao dịch với ngân hàng trên giao
+diện của VNPay.
+      Bước 3: Tiếp nhận kết quả: VNPay gửi thông báo kết quả qua hai kênh: hiển
+thị giao diện cho khách và cập nhật ngầm giữa hai server.
+      Bước 4: Xác minh và cập nhật: Hệ thống kiểm tra tính toàn vẹn dữ liệu qua
+chữ ký bảo mật (hash). Nếu hợp lệ và giao dịch thành công, hệ thống cộng tiền vào ví,
+chuyển trạng thái sang "hoàn thành" và lưu mã đối soát.
+      Bước 5: Hoàn tất: Hệ thống hiển thị thông báo kết quả cuối cùng và số dư mới
+cho khách hàng.
+
+3.3.3. Quy trình mua và nhận tài khoản game
+                                           52
+
+
+               Hình 3. 16: Sơ đồ nghiệp vụ mua và nhận tài khoản game
+       Bước 1: Lựa chọn và kiểm tra: Khách hàng chọn sản phẩm còn hàng. Hệ
+thống xác thực đăng nhập và kiểm tra số dư ví. Nếu số dư thấp hơn giá sản phẩm, hệ
+thống yêu cầu nạp thêm tiền.
+       Bước 2: Áp dụng ưu đãi (Tùy chọn): Khách hàng nhập mã giảm giá. Hệ thống
+kiểm tra điều kiện (hạn dùng, lượt dùng, giá tối thiểu) để tính toán lại giá trị đơn hàng.
+       Bước 3: Xử lý giao dịch: Hệ thống trừ tiền ví, gán tài khoản Steam vào đơn
+hàng, cập nhật trạng thái "đã bán" để giảm tồn kho và tạo bản ghi đơn hàng
+"completed".
+       Bước 4: Nhận tài khoản: Khách hàng xem thông tin đăng nhập (tài khoản,
+mật khẩu, mã bảo mật) trong chi tiết đơn hàng. Dữ liệu này được mã hóa trong cơ sở
+dữ liệu và chỉ giải mã khi khách hàng yêu cầu hiển thị.
+
+3.3.4. Quy trình gửi yêu cầu hỗ trợ
+                                   53
+
+
+                Hình 3. 17: Sơ đồ nghiệp vụ yêu cầu hỗ trợ
+Giai đoạn 1: Gửi yêu cầu hỗ trợ (Khách hàng → Hệ thống)
+   Khởi tạo: Khách hàng điền Form (Tiêu đề, Mô tả, Email) tại trang hỗ trợ.
+   Xác thực và lưu trữ: Hệ thống kiểm tra dữ liệu, lưu ticket với trạng thái
+    "open".
+   Thông báo tự động: Hệ thống đồng thời gửi xác nhận qua tin nhắn cho
+    khách và thông báo có yêu cầu mới cho quản trị viên.
+Giai đoạn 2: Xử lý yêu cầu hỗ trợ (Quản trị viên ↔ Hệ thống)
+   Tiếp nhận: Admin xem danh sách ticket theo ưu tiên và gửi phản hồi.
+   Phản hồi và cập nhật: Hệ thống lưu câu trả lời, đồng thời tự động trích dẫn
+    nội dung phản hồi gửi đến tin nhắn của khách hàng.
+   Hoàn tất: Quá trình trao đổi tiếp tục cho đến khi vấn đề được giải quyết
+    triệt để.
+                                          54
+
+
+3.3.5. Quy trình chat với AI chatbot
+
+
+
+
+                   Hình 3. 18: Sơ đồ nghiệp vụ chat với AI chatbot
+      Giai đoạn 1: Khởi tạo phiên chat
+         Quản lý phiên: Hệ thống kiểm tra và tải lại lịch sử hội thoại cũ hoặc khởi
+          tạo phiên chat mới với mã định danh duy nhất.
+         Gợi ý: Hiển thị danh sách câu hỏi thường gặp để người dùng lựa chọn
+          nhanh.
+      Giai đoạn 2: Hỏi — Đáp (Vòng lặp)
+         Tiếp nhận: Người dùng gửi câu hỏi tự do hoặc chọn từ gợi ý.
+         Xử lý AI: Module AI thực hiện:
+             1. Phân tích ý định.
+             2. Truy vấn dữ liệu thực tế (giá, tồn kho, mô tả game).
+             3. Sinh câu trả lời và lưu trữ vào cơ sở dữ liệu.
+         Phản hồi: Hệ thống hiển thị câu trả lời ngay lập tức trên giao diện.
+                                         55
+
+
+      Giai đoạn 3: Đánh giá và kết thúc
+         Phản hồi người dùng: Khách hàng có thể đánh giá "Hữu ích" hoặc "Không
+          hữu ích" (tùy chọn) để cải thiện chất lượng AI.
+         Kết thúc: Người dùng tiếp tục hỏi hoặc đóng cửa sổ chat để hoàn thành
+          quy trình.
+
+3.3.6. Quy trình huấn luyện AI gợi ý
+
+
+
+
+                  Hình 3. 19: Sơ đồ nghiệp vụ huấn luyện AI gợi ý
+      Giai đoạn 1: Khởi tạo (Admin)
+      Quản trị viên theo dõi thông số tổng quan tại bảng điều kiển AI và kích hoạt
+lệnh "Huấn luyện". Hệ thống tạo bản ghi mới và chuyển trạng thái sang "Đang huấn
+luyện".
+      Giai đoạn 2: Xử lý AI (AI Engine)
+                                          56
+
+
+       1. Thu thập dữ liệu: Tổng hợp hành vi người dùng (click, mua, đánh giá) và
+          đặc trưng sản phẩm (thể loại, giá, loại tài khoản).
+       2. Tính toán thuật toán:
+              o   Collaborative Filtering (CF): Gợi ý dựa trên sự tương đồng giữa
+                  các người dùng.
+              o   Content-Based (CB): Gợi ý dựa trên sự tương đồng giữa đặc trưng
+                  sản phẩm và sở thích cá nhân.
+              o   Popularity Score: Xếp hạng theo độ phổ biến chung (lượt mua,
+                  đánh giá).
+       3. Kết hợp Hybrid: Ba điểm số trên được kết hợp theo trọng số thành một
+          điểm gợi ý duy nhất
+       Giai đoạn 3: Lưu trữ và cập nhật
+       Hệ thống lưu kết quả vào bảng recommendations, đồng thời cập nhật Cache để
+hiển thị ngay tại trang "Dành cho bạn". Các thông tin về thời gian xử lý và số lượng
+dữ liệu được ghi lại trong log.
+       Giai đoạn 4: Đánh giá và tối ưu
+       Quản trị viên kiểm tra kết quả cuối cùng. Nếu các gợi ý chưa đủ độ chính xác,
+Admin sẽ điều chỉnh trọng số và thực hiện huấn luyện lại để tối ưu kết quả.
+                                        57
+
+
+3.4. Thiết kế cơ sở dữ liệu
+
+
+
+
+                      Hình 3. 20: Sơ đồ thiết kế cơ sở dữ liệu
+   1. users: Lưu trữ thông tin tài khoản người dùng, nhân viên và quản trị viên của
+      hệ thống.
+                                        58
+
+
+2. product_simple: Chứa thông tin cơ bản về các tựa game
+3. steam_accounts: Quản lý kho tài khoản Steam để bán trực tiếp cho người
+   dùng.
+4. steam_account_games: Bảng trung gian liên kết tài khoản Steam với nhiều
+   tựa game có sẵn trong đó.
+5. orders: Ghi nhận thông tin tổng quan đơn hàng
+6. order_items: Chi tiết từng sản phẩm trong đơn, bao gồm tài khoản Steam đã
+   giao và giá lúc mua.
+7. transactions: Lưu trữ lịch sử nạp tiền, thanh toán đơn hàng và biến động số
+   dư của người dùng.
+8. promotions: Quản lý các chương trình khuyến mãi.
+9. promotion_product: Bảng trung gian xác định những game cụ thể nào được
+   áp dụng trong chương trình khuyến mãi.
+10. coupons: Quản lý các mã giảm giá mà người dùng có thể nhập khi thanh toán
+   đơn hàng.
+11. reviews: Lưu trữ các đánh giá, số sao và bình luận của người mua sau khi giao
+   dịch thành công.
+12. product_discussions: Nơi người dùng hỏi đáp, thả tim và thảo luận với nhau
+   trên trang chi tiết sản phẩm.
+13. community_posts: Các bài viết chia sẻ, review hoặc tìm bạn bè chơi game của
+   người dùng trên diễn đàn.
+14. community_post_comments: Lưu trữ các câu trả lời bình luận của người
+   dùng trong các bài viết cộng đồng.
+15. community_post_likes: Ghi nhận lượt thích của người dùng đối với các bài
+   viết cộng đồng.
+16. friendships: Quản lý trạng thái kết bạn giữa những người dùng với nhau.
+17. messages: Lưu trữ lịch sử nhắn tin trò chuyện cá nhân trực tiếp giữa hai người
+   bạn.
+18. support_tickets: Nơi quản trị viên tiếp nhận và xử lý các phiếu yêu cầu hỗ trợ
+   từ người dùng.
+                                            59
+
+
+      19. news: Lưu trữ các bài báo, tin tức và cập nhật game để hiển thị trên phần tin
+         tức của trang web.
+
+
+                     CHƯƠNG 4: PHÁT TRIỂN SẢN PHẨM
+
+4.1. Xây dựng ứng dụng
+
+         Quá trình xây dựng phần mềm website thương mại điện tử chuyên phân phối
+tài khoản trò chơi được tiến hành có hệ thống. Dưới đây là bức tranh tổng quan về các
+công cụ và nền tảng cốt lõi được ứng dụng để tạo thành sản phẩm hoàn chỉnh.
+
+4.1.1. Môi trường Phát triển
+
+         Giai đoạn viết mã nguồn được thực hiện trên môi trường phát triển cực kỳ tối
+ưu:
+            Visual Studio Code (VS Code): Trình soạn thảo mã nguồn chính của dự
+             án, hỗ trợ các tiện ích mở rộng và Laravel Blade Snippets (hỗ trợ viết giao
+             diện Blade nhanh chóng). Terminal tích hợp cho phép thực thi trực tiếp các
+             lệnh Artisan, Composer và quản lý phiên bản Git ngay trong cùng giao diện
+             làm việc.
+            XAMPP (Máy chủ cục bộ): Cung cấp bộ Apache – MySQL – PHP, tạo môi
+             trường máy chủ ảo trên máy tính cá nhân để chạy ứng dụng Laravel mà
+             không cần triển khai lên Internet. Toàn bộ quá trình phát triển, kiểm thử
+             chức năng và truy vấn cơ sở dữ liệu của hệ thống đều được thực hiện trên
+             XAMPP trước khi đưa sản phẩm lên môi trường thực tế.
+
+4.1.2. Nền tảng Kiến trúc (MVC & Laravel Framework)
+
+         Để xây dựng một bộ khung phần mềm chịu tải tốt và dễ bảo trì, dự án áp dụng
+tư duy cấu trúc cấp cao:
+            Mô hình MVC (Model - View - Controller): Tách biệt ba tầng xử lý giúp
+             mã nguồn dễ mở rộng và bảo trì. Model định nghĩa các thực thể dữ liệu như
+             sản phẩm game, tài khoản Steam, đơn hàng và tương tác trực tiếp với cơ sở
+             dữ liệu MySQL. View xây dựng giao diện người dùng – từ trang chủ, danh
+             mục game đến giỏ hàng và trang quản trị. Controller đón nhận yêu cầu từ
+                                         60
+
+
+          người dùng, gọi đến Model để truy xuất hoặc cập nhật dữ liệu, rồi trả kết
+          quả về View hiển thị.
+         Laravel Framework: Dự án được xây dựng trên Laravel – framework PHP
+          hiện đại, cung cấp sẵn các cơ chế bảo mật như chống CSRF, mã hóa mật
+          khẩu và xác thực phân quyền Admin/Khách hàng. Đặc biệt, Eloquent ORM
+          cho phép ánh xạ trực tiếp các bảng dữ liệu (games, users, orders, wallets…)
+          thành đối tượng PHP, giúp thao tác dữ liệu nhanh gọn mà không cần viết
+          câu truy vấn SQL thủ công.
+
+4.1.3. Cơ sở Dữ liệu & Lưu trữ Đám mây (MySQL & Cloudinary)
+
+      Dữ liệu của website phân chia rõ ràng giữa văn bản cấu trúc và các tệp tin đa
+phương tiện cồng kềnh:
+         Hệ quản trị CSDL MySQL: Được tích hợp sẵn trong XAMPP, MySQL lưu
+          trữ và quản lý toàn bộ dữ liệu quan hệ của hệ thống bao gồm tài khoản
+          người dùng, sản phẩm game, tài khoản Steam, đơn hàng, lịch sử giao dịch
+          ví và bài viết cộng đồng. Công cụ phpMyAdmin hỗ trợ quản trị trực quan:
+          tạo bảng, thiết lập khóa ngoại liên kết giữa các bảng (ví dụ: đơn hàng –
+          người dùng, game – thể loại) và kiểm tra dữ liệu nhanh chóng trong quá
+          trình phát triển.
+         Lưu trữ đám mây Cloudinary: Hệ thống chứa lượng lớn hình ảnh bìa
+          game, avatar người dùng và ảnh bài viết. Thay vì lưu trực tiếp trên server
+          cục bộ gây tốn dung lượng ổ cứng, dự án tích hợp Cloudinary API để đẩy
+          toàn bộ hình ảnh lên kho lưu trữ đám mây. Server chỉ lưu lại đường dẫn
+          URL tĩnh, còn khi người dùng truy cập trang, mạng phân phối nội dung
+          (CDN) của Cloudinary sẽ trả ảnh từ máy chủ gần nhất, đảm bảo tốc độ tải
+          trang nhanh.
+
+4.1.4. Lõi Trí tuệ - Hệ thống Gợi ý (AI Recommendation System)
+
+      Hệ thống gợi ý sản phẩm Lai (Hybrid AI Recommendation), nơi tự động hóa
+khả năng cá nhân hoá trải nghiệm cho từng game thủ:
+         Phân tích hành vi thời gian thực (Real-time): Khi người dùng duyệt và
+          nhấp xem các tựa game, hệ thống ghi nhận hành vi tương tác và tính toán
+                                        61
+
+
+         trọng số cho từng thể loại. Dựa trên đó, trang chủ cập nhật ngay danh sách
+         đề xuất phù hợp với sở thích hiện tại của người dùng.
+        Xử lý theo lịch sử (Batch Processing): Hệ thống định kỳ chạy tiến trình
+         phân tích dữ liệu tích lũy. Thuật toán Lọc nội dung (CBF) đối chiếu thẻ từ
+         khóa các game đã tương tác, kết hợp Lọc cộng tác (CF) sử dụng Cosine
+         Similarity để tìm người dùng có sở thích tương đồng – từ đó tạo sẵn danh
+         sách "Game dành cho bạn" cho mỗi tài khoản.
+        Cơ chế dự phòng (Popularity Fallback): Với người dùng mới đăng ký
+         chưa có lịch sử tương tác, hệ thống tự động chuyển sang hiển thị bảng xếp
+         hạng game phổ biến nhất, đảm bảo trang chủ luôn có nội dung đề xuất hữu
+         ích.
+
+4.2. Tích hợp hệ thống AI gợi ý sản phẩm vào ứng dụng
+
+
+
+
+           Hình 3. 21:Sơ đồ mô hình hệ thống gợi ý cho người dùng mới
+                                         62
+
+
+
+
+            Hình 3. 22:Sơ đồ mô hình hệ thống gợi ý cho người dùng cũ
+4.2.1. Thu thập và chuẩn bị dữ liệu
+
+      Để hệ thống gợi ý sản phẩm hoạt động hiệu quả, việc thu thập dữ liệu hành vi
+người dùng là bước nền tảng quan trọng nhất. Trong hệ thống này, dữ liệu được thu
+thập theo hai luồng chính tùy thuộc vào trạng thái của người dùng.
+      Đối với người dùng mới (chưa có lịch sử tương tác), hệ thống ghi nhận mọi
+hành vi Click/Xem sản phẩm thông qua API POST /api/recommendations/interaction.
+Hệ thống tiến hành phân tích danh mục quan tâm theo thời gian thực trong khung 2
+giờ gần nhất bằng cách thống kê tổng điểm tương tác và số lượt xem theo từng danh
+mục, từ đó xây dựng hồ sơ sở thích ban đầu cho người dùng. Song song đó, trong khi
+chưa tích lũy đủ dữ liệu cá nhân hóa, hệ thống sử dụng cơ chế Popular Fallback: gợi ý
+các game phổ biến nhất được xác định dựa trên bảng xếp hạng toàn hệ thống,
+                                          63
+
+
+      Đối với người dùng cũ (đã có lịch sử tương tác), hệ thống chuyển sang thuật
+toán Hybrid Recommendation, kết hợp đồng thời phân tích lịch sử tương tác của cộng
+đồng người dùng (Collaborative Filtering) với phân tích thuộc tính nội dung sản phẩm
+(Content-Based Filtering). Thuật toán này tổng hợp dữ liệu từ bốn bảng cơ sở dữ liệu
+chính: user_product_interactions (lưu hành vi xem, thêm giỏ hàng, wishlist), orders
+(lưu lịch sử mua hàng), reviews (lưu đánh giá sản phẩm) và product_simple (lưu thông
+tin thuộc tính game). Quá trình phân tích được thực hiện theo nhiều tầng thời gian:
+hành vi 2 giờ gần nhất (realtime), 6 giờ gần nhất (recent hot), 24 giờ gần nhất (recent
+views), 30 ngày gần nhất (historical) và dữ liệu huấn luyện dài hạn (pre-calculated),
+nhằm cân bằng giữa sở thích tức thời và xu hướng lâu dài của người dùng. [3]
+4.2.1.1. Phân loại nguồn dữ liệu thực tế
+      Dữ liệu thu thập trong hệ thống được phân loại thành ba nhóm nguồn chính,
+mỗi nhóm phản ánh một khía cạnh khác nhau trong hành vi và sở thích người dùng.
+      Nhóm thứ nhất là dữ liệu tường minh bao gồm các phản hồi trực tiếp mà người
+dùng chủ động cung cấp. Cụ thể, đó là điểm đánh giá sản phẩm từ 1 đến 5 sao và nội
+dung bình luận kèm theo. Đây là nguồn dữ liệu có độ tin cậy cao vì thể hiện rõ ràng
+mức độ hài lòng của người dùng đối với sản phẩm.
+      Nhóm thứ hai là dữ liệu tiềm ẩn được hệ thống ghi nhận tự động từ hành vi
+tương tác mà người dùng không chủ đích cung cấp. Nhóm này bao gồm: lịch sử mua
+hàng, lượt xem trang chi tiết game, hành vi thêm vào giỏ hàng. Mặc dù dữ liệu tiềm
+ẩn không phản ánh trực tiếp mức độ yêu thích, nhưng với khối lượng lớn và tính liên
+tục, chúng cung cấp tín hiệu quan trọng về xu hướng quan tâm của người dùng.
+      Nhóm thứ ba là dữ liệu thuộc tính sản phẩm (Content Features), phục vụ cho
+thuật toán Content-Based Filtering. Các thuộc tính được sử dụng gồm: thể loại
+game,loại game online hay offline, danh sách tags lưu dưới dạng JSON array và giá
+bán. Những thuộc tính này cho phép hệ thống đo lường độ tương đồng giữa các sản
+phẩm mà không phụ thuộc vào dữ liệu hành vi người dùng.
+      Mỗi loại tương tác được gán một trọng số khác nhau khi đưa vào ma trận tương
+tác, phản ánh mức độ quan tâm tăng dần: hành vi xem (view) có trọng số 1, thêm giỏ
+hàng có trọng số 2, viết đánh giá có trọng số bằng chính giá trị rating từ 1-5, và mua
+hàng có trọng số cao nhất là 5.
+                                          64
+
+
+4.2.1.2. Kịch bản giả lập dữ liệu huấn luyện
+      Do hệ thống mới được triển khai, lượng dữ liệu tương tác thực tế từ người dùng
+còn hạn chế. Để đảm bảo thuật toán gợi ý có đủ dữ liệu huấn luyện và kiểm thử, một
+số kịch bản giả lập dữ liệu được thiết kế như sau:
+      -   Kịch bản giả lập lượt xem: Tạo các bản ghi trong bảng
+          user_product_interactions với interaction_type là view, phân bổ (khoảng
+          20% game nhận 80% lượt xem). Cách phân bổ này mô phỏng sát hành vi
+          duyệt web thực tế, khi một số ít game phổ biến thu hút phần lớn sự chú ý
+          của cộng đồng.
+      -   Kịch bản giả lập đơn hàng: Tạo các bản ghi trong bảng orders với status
+          là “hoàn thành”, đảm bảo mỗi người dùng có từ 2 đến 10 đơn hàng. Các đơn
+          được thiết kế sao cho người dùng có xu hướng mua game cùng category
+          hoặc có tags chung, nhằm tạo ra các vai trò rõ ràng cho thuật toán
+          Collaborative Filtering có thể phát hiện nhóm người dùng tương đồng.
+      -   Kịch bản giả lập đánh giá: Tạo các bản ghi trong bảng reviews với rating
+          phân bố chuẩn (trung bình khoảng 3.5-4.0 sao). Phân bố chuẩn đảm bảo
+          dữ liệu đánh giá phản ánh tự nhiên, tránh trường hợp tất cả đánh giá đều
+          quá cao hoặc quá thấp.
+      -   Kịch bản cho người dùng mới: Tạo một nhóm người dùng mới hoàn toàn
+          không có bất kỳ tương tác nào trong hệ thống. Nhóm này phục vụ kiểm thử
+          luồng Popular Fallback, đảm bảo rằng người dùng mới vẫn nhận được gợi ý
+          hợp lý (các game phổ biến nhất) thay vì danh sách trống.
+4.2.1.3. Tiền xử lý và Chuẩn hóa
+      Trước khi đưa vào thuật toán gợi ý, dữ liệu thô cần trải qua một pipeline tiền
+xử lý và chuẩn hóa gồm nhiều bước:
+      -   Xây dựng ma trận tương tác: Hàm tổng hợp điểm tương tác từ ba nguồn
+          dữ liệu. Đầu tiên, từ bảng orders: mỗi đơn hàng hoàn thành đóng góp 5
+          điểm. Tiếp theo, từ bảng reviews: mỗi đánh giá đóng góp số điểm bằng
+          chính giá trị rating (1-5). Cuối cùng, từ bảng user_product_interactions:
+          tổng giá trị hành vi được cộng dồn theo cặp user-product. Kết quả là một
+          ma trận User-Product với key dạng user_id_product_id và giá trị score tích
+                                         65
+
+
+          lũy, phản ánh tổng mức độ quan tâm của từng người dùng đối với từng sản
+          phẩm.
+      -   Chuẩn hóa điểm số: Sau khi tính toán hybrid score cho danh sách gợi ý
+          của mỗi người dùng, hệ thống chuẩn hóa điểm về phạm vi [0, 1] bằng công
+          thức normalized_score = score / max_score, trong đó max_score là điểm cao
+          nhất trong danh sách gợi ý của người dùng đó. Phương pháp này giữ nguyên
+          tỷ lệ tương đối giữa các sản phẩm, đảm bảo sản phẩm có điểm cao nhất luôn
+          nhận giá trị 1.0.
+      -   Chuẩn hóa giá: Khi so sánh giá giữa hai sản phẩm, hệ thống sử dụng
+          ngưỡng chênh lệch ±20%: nếu chênh lệch giá nằm trong phạm vi này, hai
+          sản phẩm được coi là có mức giá tương đương và nhận thêm 2 điểm tương
+          đồng.
+      -   Xử lý Tags: Trường tags trong bảng product_simple lưu dưới dạng JSON
+          array. Hệ thống sẽ tính số lượng tag trùng nhau giữa hai sản phẩm. Mỗi tag
+          trùng đóng góp 3 điểm vào tổng điểm tương đồng, cho phép hệ thống nhận
+          diện mối quan hệ ngữ nghĩa giữa các game chia sẻ chung đặc điểm.
+
+4.2.2. Xây dựng mô hình gợi ý
+
+      Hệ thống gợi ý của dự án không phụ thuộc vào một thuật toán đơn lẻ mà ứng
+dụng kiến trúc mô hình Lai (Hybrid Model) nhằm tối ưu hóa độ chính xác và cá nhân
+hóa trải nghiệm. Mô hình này là sự kết hợp chặt chẽ giữa lọc nội dung (Content-
+Based), lọc cộng tác (Collaborative), phân tích hành vi thời gian thực (Real-time), và
+gợi ý phổ biến (Popularity). Sự giao thoa này giúp khắc phục hoàn toàn nhược điểm
+"khởi động lạnh" của các mô hình truyền thống, đồng thời mang lại khả năng gợi ý
+linh hoạt, đáp ứng đúng từng ngữ cảnh tương tác của khách hàng.
+      a) Triển khai thuật toán Lọc nội dung (Content-Based Filtering)
+      Hệ thống triển khai Content-Based Filtering qua hai luồng riêng biệt: luồng
+Product-to-Product (tìm sản phẩm tương tự cho từng game ) và luồng User-to-Product
+(gợi ý game cho người dùng dựa trên lịch sử mua hàng). Cả hai luồng đều dựa trên
+bốn thuộc tính nội dung của sản phẩm: category, tags, type và price.[16]
+                                         66
+
+
+      Bước1: Trích xuất đặc trưng sản phẩm: Mỗi sản phẩm trong bảng
+product_simple được biểu diễn qua bốn thuộc tính nội dung: thể loại game (category),
+danh sách nhãn (tags, lưu dưới dạng JSON array), loại game (type: online hoặc offline)
+và giá bán (price). Hàm extractPrice() hiển thị đúng giá hiện tại khi có cả giá gốc và
+giá khuyến mãi, loại bỏ dấu chấm phân cách hàng nghìn và chuyển dấu phẩy thành
+dấu chấm thập phân để thu được giá trị float.
+      Bước 2: Xây dựng hồ sơ người dùng: Hàm nhận đầu vào là danh sách mua
+hàng các ID sản phẩm từ đơn hàng đã hoàn thành của người dùng. Từ danh sách này,
+hệ thống truy vấn bảng product_simple và trích xuất hai tập hợp: (1) danh sách các
+category duy nhất và (2) danh sách tất cả tags duy nhất gộp từ toàn bộ game đã mua.
+Hai mảng này tạo thành "hồ sơ sở thích" của người dùng phản ánh thể loại và đặc
+điểm game mà họ quan tâm.
+      Bước 3: Tính điểm tương đồng: Hệ thống tính điểm tương đồng theo hai
+luồng với bảng trọng số khác nhau.
+      -   Luồng Product-to-Product: So sánh từng cặp sản phẩm dựa trên bốn tiêu
+          chí và cộng dồn điểm: cùng category cộng 5 điểm, cùng type cộng 2 điểm,
+          mỗi tag trùng nhau cộng 3 điểm (dùng array_intersect để đếm tag chung),
+          chênh lệch giá nằm trong phạm vi ±20% cộng 2 điểm. Luồng này chạy trong
+          quá trình huấn luyện batch duyệt toàn bộ danh sách sản phẩm và tính điểm
+          tương đồng cho mọi cặp.
+      -   Luồng User-to-Product: So sánh từng sản phẩm chưa mua với hồ sơ sở thích
+          của người dùng (xây dựng ở Bước 2). Trọng số: category của sản phẩm trùng
+          với danh sách category đã mua cộng 3 điểm, mỗi tag trùng với tập tags đã
+          mua cộng 2 điểm. Ngoài ra, hệ thống cộng thêm điểm phổ biến dựa trên
+          lượt xem sản phẩm theo công thức min(2, view_count / 1000), tối đa 2 điểm
+          bonus game có lượt xem cao được ưu tiên nhẹ. Trước khi chấm điểm, hệ
+          thống lọc sơ bộ bằng truy vấn SQL: chỉ lấy các sản phẩm có category nằm
+          trong danh sách category đã mua hoặc chứa ít nhất một tag trùng giúp giảm
+          đáng kể số lượng sản phẩm cần so sánh.
+      Bước 4: Sắp xếp, chuẩn hóa và lưu kết quả:
+                                         67
+
+
+      - Luồng Product-to-Product: Điểm tương đồng được sắp xếp giảm dần, sau
+          đó lấy top 10 sản phẩm tương tự nhất cho mỗi game. Trước khi lưu vào cơ
+          sở dữ liệu, điểm được chuẩn hóa về khoảng [0, 1] bằng công thức min(1,
+          score / 10). Kết quả được ghi vào bảng product_recommendations theo
+          batch 500 bản ghi, mỗi bản ghi gồm: product_id, similar_product_id,
+          similarity_score, và rank (thứ hạng từ 1 đến 10).
+      -   Luồng User-to-Product: Điểm Content-Based được kết hợp với điểm
+          Collaborative Filtering theo quy tắc merge: nếu một sản phẩm xuất hiện
+          trong cả hai nguồn gợi ý, điểm cuối cùng là trung bình cộng,nếu sản phẩm
+          chỉ xuất hiện trong kết quả Content-Based, điểm được nhân hệ số 0.8 để
+          giảm trọng số. Danh sách kết hợp được sắp xếp giảm dần, lấy top 20 sản
+          phẩm, sau đó chuẩn hóa toàn bộ bằng cách chia mỗi điểm cho điểm cao
+          nhất (score / maxScore) để đưa về phạm vi [0, 1] nhưng vẫn giữ tỷ lệ tương
+          đối giữa các sản phẩm. Kết quả được ghi vào bảng user_recommendations
+          theo batch 500 bản ghi.
+      b) Triển khai Thuật toán Lọc Cộng Tác (Collaborative Filtering)
+      Hệ thống sử dụng phương pháp lọc cộng tác dựa trên người dùng (User-Based
+CF) để tìm những người có sở thích tương đồng và gợi ý các game mà họ đã tương tác
+nhưng người dùng mục tiêu chưa biết đến [17]. Thuật toán thực thi qua bốn bước:
+      Bước 1: Xây dựng ma trận tương tác:Tổng hợp điểm tương tác từ ba nguồn
+dữ liệu, cộng dồn vào mảng key-value với key dạng userId_productId. Mỗi đơn hàng
+hoàn thành cộng 5 điểm; mỗi đánh giá cộng số điểm bằng giá trị rating (1-5); các tương
+tác hành vi cộng dồn theo tổng hành vi trong đó xem = 1, thêm giỏ hàng = 2, đánh giá
+= (1-5), mua hàng = 5. Kết quả là mỗi người dùng có một vector gồm các cặp
+(product_id, score) phản ánh tổng mức độ quan tâm đối với từng game.
+      Bước 2: Tính độ tương đồng Cosine giữa người dùng: So sánh vector tương
+tác của người dùng mục tiêu với từng người dùng khác. Thuật toán chỉ xét các sản
+phẩm mà cả hai đều có tương tác, tính tích vô hướng (dot product) trên phần giao, sau
+đó chia cho tích độ dài (magnitude) của hai vector đầy đủ. Giá trị trả về nằm trong
+khoảng [0, 1]: 0 nghĩa là không có sản phẩm chung, 1 nghĩa là sở thích hoàn toàn
+trùng khớp.
+                                                 68
+
+
+
+
+       Bước 3: Chọn nhóm "hàng xóm" (K-Nearest Neighbors): Lọc kết quả
+cosine theo ngưỡng > 0.1 để loại bỏ những người dùng quá khác biệt, sắp xếp giảm
+dần và giữ lại top 10 người dùng có độ tương đồng cao nhất. Nhóm 10 người này là
+"hàng xóm" đáng tin cậy nhất, được sử dụng làm nguồn dự đoán ở bước tiếp theo.
+       Bước 4: Dự đoán điểm và trích xuất gợi ý: Duyệt qua danh sách game của
+nhóm hàng xóm, bỏ qua những game mà người dùng mục tiêu đã sở hữu. Với mỗi
+game còn lại, điểm dự đoán được tính bằng trung bình có trọng số:
+                                                 ( ∑ ( similarit y i × scor ei ) )
+                            predicte d score =
+                                                       ( ∑ similarit y i )
+trong đó similarity I là điểm cosine của hàng xóm thứ i, score i là điểm tương tác của
+hàng xóm đó với game. Phép chia cho tổng similarity đảm bảo kết quả phản ánh mức
+độ yêu thích trung bình hàng xóm có cosine cao hơn sẽ ảnh hưởng lớn hơn đến điểm
+dự đoán.
+       c) Triển khai Kỹ thuật Phân tích Hành vi Thời gian thực (Real-time
+           Behavior Weighting)
+       Kết quả CF và CBF được tính sẵn qua huấn luyện batch nên không phản ánh
+hành vi mới nhất. Bổ sung pipeline thời gian thực chạy mỗi khi người dùng yêu cầu
+gợi ý (cache 30 giây) [18], gồm bốn bước:
+       Bước 1: Thu thập và phân tầng tín hiệu hành vi: Khi người dùng xem sản
+phẩm, ghi sự kiện vào bảng user_product_interactions (view = 1, cart_add = 2). Khi
+pipeline gợi ý chạy, hệ thống truy vấn bảng này theo hai khung thời gian: tín hiệu
+nóng trong 2 giờ gần nhất để bắt ý định tức thời, và tín hiệu lịch sử trong 30 ngày để
+giữ sở thích dài hạn khi người dùng không hoạt động gần đây. Song song đó, hệ thống
+xác định game hot (sản phẩm được xem lặp lại ít nhất 2 lần): trong 6 giờ gần nhất
+(recent hot, tối đa 5 game) hoặc trong 30 ngày (historical hot, tối đa 8 game).
+       Bước 2: Xây dựng bản đồ danh mục ưu tiên: Hệ thống nâng góc nhìn lên
+cấp danh mục thay vì chỉ phân tích từng game. Ba nguồn tín hiệu được tổng hợp thành
+bản đồ categoryScores: (1) Realtime thống kê category từ tương tác 2 giờ gần nhất,
+điểm cơ sở 150 giảm 15 mỗi bậc, cộng thêm điểm lượt xem lặp (tối đa 50) và điểm
+thưởng hành vi (tối đa 30); (2) lịch sử tương tự trong 30 ngày, điểm cơ sở 120, nếu
+                                            69
+
+
+trùng realtime thì cộng thêm 20%, nếu chỉ có historical thì nhân hệ số 0.8; (3) lịch sử
+đơn hàng hoàn thành, điểm cơ sở 100 cộng lượt mua × 5, nếu trùng realtime thì cộng
+thêm 30%. Bản đồ này quyết định danh mục nào được ưu tiên cao nhất khi chấm điểm
+ở bước sau.
+       Bước 3: Chấm điểm ưu tiên theo tầng: Hệ thống gộp sản phẩm từ nhiều
+nguồn, mỗi nguồn có mức điểm gốc khác nhau phản ánh độ ưu tiên giảm dần: game
+hot gần đây (gốc 250), game hot lịch sử (gốc 200), game tương tự với game hot (gốc
+180), game thuộc danh mục hot lấy từ 2 đến 8 game mỗi danh mục giảm dần theo hạng
+(gốc 160), game vừa xem trong 24 giờ (gốc 80), game thuộc danh mục đã mua (gốc 70),
+game tương tự game đã mua (gốc 60), game tương tự game đã xem (gốc 50), gợi ý từ
+kết quả huấn luyện batch CF+CBF trong bảng user_recommendations (gốc 40), và
+popular fallback khi chưa đủ gợi ý (gốc 20). Ở mỗi tầng, sản phẩm thuộc danh mục ưu
+tiên được cộng thêm category boost với hệ số từ 0.2 đến 0.4 tùy tầng.
+       Bước 4: Sắp xếp tổng hợp và trả kết quả: Toàn bộ sản phẩm từ tất cả các
+tầng được gộp vào một mảng, sắp xếp giảm dần theo base_score, cắt lấy top (mặc định
+10). Kết quả được cache 30 giây đủ ngắn để phản hồi gần thời gian thực nhưng tránh
+tính toán lại cho mỗi request. Khi có tương tác mới, tự động xóa cache để lần gọi tiếp
+theo tính toán lại trên dữ liệu mới nhất.
+       d) Triển khai Thuật toán Gợi ý Phổ biến (Popularity Fallback)
+       Khi người dùng mới chưa có lịch sử tương tác, các thuật toán CF và CBF không
+có dữ liệu đầu vào để tính toán. Thuật toán Popularity đóng vai trò lớp phòng thủ cuối
+cùng, đảm bảo danh sách gợi ý không bao giờ trống.[19]
+       Bước 1: Xếp hạng sản phẩm phổ biến:Thực hiện một truy vấn LEFT JOIN
+giữa bảng product_simple và bảng orders, tính hai chỉ số cho mỗi sản phẩm: số đơn
+hàng hoàn thành và tổng lượt xem. Kết quả được sắp xếp theo order_count giảm dần,
+nếu bằng nhau thì theo view_count giảm dần, và lấy top 20 sản phẩm. Đây là phép
+sắp xếp SQL thuần túy theo hai cột, không sử dụng công thức chấm điểm có trọng số.
+       Bước 2: Lưu cache và phục vụ: Danh sách 20 ID sản phẩm phổ biến nhất
+được lưu vào Cache với thời gian sống 1 ngày. Khi pipeline gợi ý trong chạy đến bước
+cuối và phát hiện số lượng gợi ý chưa đủ, hệ thống đọc danh sách này từ cache, loại
+bỏ các game đã nằm trong danh sách gợi ý hoặc đã mua, gán base_score = 20 (thấp
+                                          70
+
+
+nhất trong hệ thống), và bổ sung vào kết quả. Nhờ đọc từ cache thay vì truy vấn SQL,
+bước này có chi phí tính toán rất thấp.
+       e) Triển khai Thuật toán Lai (Hybrid Recommendation)
+       Hệ thống kết hợp cả bốn phân hệ (CF, CBF, Real-time, Popularity) thành một
+mô hình lai hoạt động qua hai pha: pha huấn luyện batch và pha phục vụ thời gian
+thực.[19]
+       Pha huấn luyện batch: Hàm train() chạy định kỳ hoặc thủ công, thực hiện
+tuần tự bốn bước: (1) xây dựng ma trận tương tác từ orders, reviews và
+user_product_interactions; (2) chạy CF cho từng người dùng tìm hàng xóm, dự đoán
+điểm, rồi merge với kết quả CBF theo quy tắc: nếu sản phẩm xuất hiện trong cả CF và
+CBF thì lấy trung bình (cfScore + cbfScore) / 2, nếu chỉ có CBF thì nhân 0.8 sau đó sắp
+xếp lấy top 20, chuẩn hóa score / maxScore, lưu vào bảng user_recommendations theo
+batch 500; (3) chạy CBF product-to-product cho toàn bộ sản phẩm, lưu vào bảng
+product_recommendations; (4) tính top 20 game phổ biến, lưu vào cache 1 ngày. Sau
+khi hoàn tất, hệ thống xóa toàn bộ cache cũ để đảm bảo dữ liệu mới được sử dụng.
+       Pha phục vụ thời gian thực: Khi người dùng cần gợi ý, hàm chạy pipeline 11
+bước (đã mô tả chi tiết ở mục 7) kết hợp: phân tích hành vi realtime (2 giờ, 6 giờ, 24
+giờ, 30 ngày), truy vấn kết quả batch từ bảng user_recommendations và
+product_recommendations, bổ sung dựa trên bản đồ danh mục ưu tiên, và popular
+fallback ở bước cuối. Mỗi nguồn có base_score khác nhau (từ 250 cho game hot đến 20
+cho popular) tạo thành thứ tự ưu tiên tự nhiên. Hệ thống không có bước "chuyển
+mạch" riêng biệt cho người dùng mới thay vào đó, nếu người dùng chưa có tương tác
+thì các bước đầu tự nhiên không tạo ra kết quả, và popular fallback sẽ lấp đầy danh
+sách gợi ý. Kết quả cuối cùng được sắp xếp giảm dần theo base_score, cắt lấy top (mặc
+định 10).
+
+4.3. Kết quả triển khai
+       Sau quá trình nghiên cứu và phát triển mã nguồn, hệ thống "Website GameTech
+đa dịch vụ" đã được triển khai hoàn thiện với đầy đủ các tính năng theo mục tiêu đề ra.
+Sản phẩm không chỉ thực hiện tốt các nghiệp vụ thương mại như phân phối tài khoản
+game tự động và tích hợp thanh toán VNPAY, mà còn kiến tạo thành công không gian
+cộng đồng tương tác và tin tức công nghệ chuyên sâu. Đặc biệt, lõi trí tuệ nhân tạo (AI
+                                          71
+
+
+Recommendation System) đã hoạt động ổn định, giúp cá nhân hóa trải nghiệm người
+dùng dựa trên hành vi tương tác thời gian thực.
+
+
+Giao diện trang chủ:
+                                      72
+
+
+
+
+                        Hình 3. 23: Giao diện trang chủ
+
+
+Giao diện đăng ký, đăng nhập:
+                                        73
+
+
+                          Hình 3. 24: Giao diện đăng ký
+      Người dùng thao tác điền các thông tin như tài khoản, email, mật khẩu (8 ký
+tự) và nhập lại mật khẩu để tạo tài khoản mới. Khách hàng cũng có thể chọn đăng ký
+bằng tài khoản Google của mình.
+
+
+
+
+                         Hình 3. 25: Giao diện đăng nhập
+      Sau khi tạo tài khoản thành công, các lần đăng nhập kế tiếp người dùng chỉ
+cần nhập email và mật khẩu đã tạo để đăng nhập vào hệ thống. Khách hàng cũng có
+thể đăng nhập bằng tài khoản Google đã đăng ký.
+
+
+
+
+Giao diện trang khám phá:
+                                         74
+
+
+
+
+                       Hình 3. 26: Giao diện trang khám phá
+      Với giao diện hiển thị các tựa game theo các ô giúp người dùng nắm bắt được
+các thông tin cơ bản của sản phẩm như tên game, thể loại, giá tiền. Cùng với bộ lọc đã
+được thiết kế giúp khách hàng lựa chọn các thể loại mong muốn đồng thời là khoảng
+giá phù hợp với túi tiền của mình và sắp xếp danh sách theo nhiều lựa chọn khác nhau.
+
+Giao diện trang Game Offline, Game Online:
+
+
+
+
+                      Hình 3. 27: Giao diện trang Game Offline
+                                         75
+
+
+
+
+                     Hình 3. 28: Giao diện trang Game Online
+Giao diện trang dành cho bạn:
+
+
+
+
+                     Hình 3. 29: Giao diện trang dành cho bạn
+      Trang gợi ý cá nhân hoá cho từng khách hàng dựa trên các thuật toán gợi ý (AI)
+nhằm gửi tới những sản phẩm tốt nhất phù hợp với từng người dùng khác nhau
+                                          76
+
+
+Giao diện trang ưu đãi:
+
+
+
+
+                          Hình 3. 30: Giao diện trang ưu đãi
+Giao diện trang tin tức
+
+
+
+
+                          Hình 3. 31: Giao diện trang tin tức
+                                      77
+
+
+Giao diện trang cộng đồng:
+
+
+
+
+                     Hình 3. 32: Giao diện trang cộng đồng
+Giao diện trang hỗ trợ :
+                                     78
+
+
+
+
+                      Hình 3. 33: Giao diện trang hỗ trợ
+Giao diện trang cá nhân và bạn bè:
+
+
+
+
+                     Hình 3. 34: giao diện trang cá nhân
+                                      79
+
+
+
+
+                         Hình 3. 35: Giao diện bạn bè
+
+
+Giao diện đơn hàng tài khoản offline, online:
+                                         80
+
+
+
+
+                    Hình 3. 36: Giao diện trang tài khoản offline
+      Trang quản lý đơn hàng được chia thành tài khoản offline và tài khoản online
+giúp người dùng dễ quản lý các tài khoản game. Với tài khoản offline khi người dùng
+xem thông tin đăng nhập thì hệ thống sẽ hiển thị tài khoản, mật khẩu Steam giúp người
+dùng truy cập ứng dụng Steam sau đó nhấp vào lấy mã để điền vào Steam để hoàn thành
+đăng nhập vào Steam. Với tài khoản online ( như hình bên dưới), khi người dùng xem
+thông tin đăng nhập, hệ thống sẽ hiển thị tài khoản, mật khẩu Steam đồng thời là tài
+khoản email và mật khẩu email để khách hàng có thể thay đổi thông tin và lấy mã Steam
+trong tài khoản email này.
+                                       81
+
+
+
+
+                   Hình 3. 37: Giao diện trang tài khoản online
+Giao diện trang ví tiền:
+
+
+
+
+                       Hình 3. 38: Giao diện trang ví tiền
+                                     82
+
+
+Giao diện trang chi tiết sản phẩm:
+                                        83
+
+
+
+
+                   Hình 3. 39: Giao diện trang chi tiết sản phẩm
+      Trong phần giao diện chi tiết sản phẩm, người dùng xem được thông tin mô tả
+chi tiết của sản phẩm đó, thảo luận trao đổi về sản phẩm cũng như đánh giá game sau
+khi mua và trải nghiệm. Phần dưới cùng là những sản phẩm tương tự được hệ thống
+đánh giá và gợi ý dựa trên sản phẩm đang xem.
+
+Giao diện tin nhắn và chatbot AI:
+
+
+
+
+                          Hình 3. 40: Giao diện tin nhắn
+                                             84
+
+
+
+
+                            Hình 3. 41: Giao diện chatbot AI
+Giao diện giỏ hàng:
+
+
+
+
+                             Hình 3. 42: Giao diện giỏ hàng
+       Người dùng sau khi thêm các sản phẩm vào giỏ hàng sẽ được hiển thị bên trái giao
+diện giỏ hàng, bên phải sẽ là hoá đơn gồm giá tiền khi chưa thêm mã ưu đãi, mã ưu đãi và
+tổng giá tiền. Phía trên có các mã ưu đãi khách hàng có thể nhấp vào để hiển thị điều kiện để
+sử dụng được mã giảm giá đó.
+                                         85
+
+
+Giao diện bảng điều khiển quản trị viên:
+
+
+
+
+                     Hình 3. 43: Giao diện quản lý người dùng
+      Trong trang quản lý người dùng giúp quản trị viên có thể quản lý được thông
+tin người dùng với các trường như tên, email, vai trò, số dư tài khoản, số đơn hàng đã
+mua và thời gian tạo tài khoản. Quản trị viên có thể phân quyền cho người dùng làm
+biên tập viên hay quản trị viên, đồng thời có thể thay đổi số dư của khách hàng nếu
+có lỗi xảy ra. Quản trị viên cũng có quyền hạn xoá các người dùng vi phạm các quy
+tắc hay tiêu chuẩn của website.
+                                        86
+
+
+Giao diện quản lý sản phẩm :
+
+
+
+
+                      Hình 3. 44: Giao diện quản lý sản phẩm
+      Trong trang quản lý sản phẩm, quản trị viên có thể kiểm tra các trường như
+tên, danh mục, giá tiền, lượt xem và số tài khoản còn khả dụng. Quản trị viên có thể
+thêm mới các sản phẩm, chỉnh sửa các thông số của sản phẩm và xoá các sản phẩm
+không còn được kinh doanh.
+                                          87
+
+
+Giao diện quản lý tin tức:
+
+
+
+
+                        Hình 3. 45: Giao diện quản lý tin tức
+       Trang quản lý tin tức được quản trị viên phân quyền hạn cho biên tập viên,
+các biên tập viên có vai trò thêm các bài tin tức mới để hiển thị lên website cho khách
+hàng đọc. Các biên tập viên có thể chỉnh sửa thông tin tin tức hay xoá các bài đã quá
+lâu. Quản trị viên xem các trường tiêu đề, danh mục, tác giả, lượt xem và ngày tạo tin
+tức.
+                                             88
+
+
+
+
+Giao diện quản lý cộng đồng:
+
+
+
+
+                        Hình 3. 46: Giao diện quản lý cộng đồng
+       Trang quản lý cộng đồng, quản trị viên có thể xem các trường thông tin như người
+đăng, nội dung, media, tương tác, trạng thái và ngày tạo. Quản trị viên có thể quản lý các
+bài viết hay các bình luận sẽ bị ẩn hoặc xoá nếu vi phạm tiêu chuẩn cộng đồng hay quy tắc
+của website.
+                                        89
+
+
+
+
+Giao diện quản lý ưu đãi , mã ưu đãi:
+
+
+
+
+                      Hình 3. 47: Giao diện quản lý ưu đãi
+
+
+
+
+                    Hình 3. 48: Giao diện quản lý mã ưu đãi
+Giao diện quản lý yêu cầu hỗ trợ:
+
+
+
+
+                  Hình 3. 49: Giao diện quản lý yêu cầu hỗ trợ
+                                     90
+
+
+
+
+Giao diện quản lý đánh giá :
+
+
+
+
+                    Hình 3. 50: Giao diện quản lý đánh giá
+Giao diện quản lý đơn hàng:
+                                      91
+
+
+                    Hình 3. 51: Giao diện quản lý đơn hàng
+Giao diện quản lý tài khoản game:
+
+
+
+
+                 Hình 3. 52: Giao diện quản lý tài khoản game
+Giao diện quản lý giao dịch
+                                      92
+
+
+
+
+                    Hình 3. 53: Giao diện quản lý giao dịch
+Giao diện quản lý và huấn luyện hệ thống gợi ý:
+                                           93
+
+
+
+
+               Hình 3. 54: Giao diện quản lý và huấn luyện hệ thống gợi ý
+         Trang quản lý và huấn luyện hệ thống gợi ý giúp quản trị viên theo dõi các
+trường như thời gian huấn luyện, số người dùng, sản phẩm, và điểm gợi ý được đánh
+giá trong từng lần huấn luyện. Quản trị viên có thể theo dõi các chỉ số cần thiết để huấn
+luyện như tổng số người dùng, tổng số sản phẩm, tổng số đơn hàng thành công, tổng số
+đánh giá. Quản trị viên xem lịch sử huấn luyện giúp đánh giá hệ thống sau từng lần
+huấn luyện với từng chỉ số khác nhau giúp kiểm soát và đưa ra các nâng cấp cho hệ
+thống.
+                                          94
+
+
+                      KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+      Sau một thời gian dài nghiên cứu, tìm hiểu các công nghệ nền tảng và nỗ lực
+tiến hành phát triển mã nguồn, đồ án "Xây dựng Website GameTech đa dịch vụ" đã
+hoàn thành đúng theo tiến độ đề ra. Quá trình làm việc không chỉ giúp củng cố kiến
+thức nền tảng đã học ở ghế nhà trường mà còn mở ra nhiều bài học quý giá về cách
+thiết kế một hệ thống phần mềm có tính ứng dụng thực tiễn cao, đáp ứng được nhu
+cầu cá nhân hóa khắt khe của ngành E-commerce hiện đại.
+
+1. Kết luận
+
+      Sau quá trình nghiên cứu lý thuyết, vận dụng công nghệ và lập trình thực tiễn,
+đồ án đã hoàn thiện xuất sắc khối lượng công việc và đạt được những kết quả nổi bật
+trên hai phương diện cấu trúc hệ thống và thuật toán máy học:
+      Về mặt nền tảng và kiến trúc: Đồ án đã chứng minh khả năng làm chủ cấu trúc
+phần mềm hiện đại, tạo ra một ứng dụng đảm bảo khắt khe các tiêu chí rõ ràng, vững
+chắc và bảo mật:
+         Kiến trúc MVC với Framework Laravel 9: Hệ thống được thiết kế phân tầng
+          tuyệt đối giữa Dữ liệu (Model) - Giao diện (View) - Xử lý logic (Controller).
+          Cùng với Eloquent ORM tối ưu truy vấn MySQL, mã nguồn của dự án trở
+          nên gọn nhẹ và cực kỳ linh hoạt cho việc mở rộng tính năng.
+         Hoàn thiện quy trình mua bán thực tiễn: Xây dựng thành thạo các luồng
+          thanh toán tích hợp VNPay và cơ chế đối soát gửi email mật khẩu game tự
+          động bằng cơ chế xếp hàng Queue Background.
+      Về mặt Trí tuệ nhân tạo - Gợi ý tự động: Ứng dụng máy học vào Web E-
+commerce là thách thức lớn nhất của đề tài, nhưng đã được xử lý triệt để:
+         Xây dựng thuật toán lai (Hybrid Model): Đồ án không phụ thuộc vào
+          phương thức cá nhân hoá đơn lẻ nào. Việc kết hợp chặt chẽ lọc nội dung
+          (CBF), lọc cộng tác (CF), Fallback Popularity và xử lý hành vi thời gian thực
+          (Real-time) đã tạo ra một hệ thống bù trừ khuyết điểm cho nhau tuyệt mỹ,
+          xử lý hoàn toàn vấn đề cho người dùng mới.
+         Mô phỏng dữ liệu huấn luyện chuyên sâu: Ứng dụng xuất sắc Data Seeder
+          để sinh ra tập dữ liệu 10.000 khách ảo và hóa đơn mua hàng có quy luật
+                                           95
+
+
+          "nhân cách", cung cấp khoảng không lý tưởng để đào tạo ma trận Cosine
+          Similarity đi đến độ chín của dự báo.
+
+2. Hướng phát triển trong tương lai
+
+      Mặc dù giải quyết được bài toán trung tâm của đồ án, bất kỳ phần mềm nào
+cũng có giới hạn nhất định về tính thương mại quy mô lớn. Để phát triển dự án từ cấp
+độ sinh viên lên thành một hệ thống doanh nghiệp, các hướng nâng cấp ưu tiên tập
+trung vào ba yếu tố sau:
+      Nâng cấp lõi phân tích bằng Deep Learning:
+         Mô hình toán học Cosine Similarity hiện tại của đồ án đạt độ chính xác cao
+          nhưng tốn RAM khi tính toán ma trận với hàng triệu người. Trong tương
+          lai, việc thay thế bằng mạng nơ-ron học sâu (Neural Collaborative Filtering
+          - NCF) sẽ giúp AI học được cả những sở thích ẩn sâu, phi tuyến tính của
+          khách hàng.
+         Nâng cấp khả năng thu lượm dữ liệu của Content-Based bằng tích hợp xử
+          lý ngữ nghĩa NLP (Natural Language Processing). Hệ thống sẽ đọc và hiểu
+          mọi lời bình luận của khách (khen điểm nào, chê ra sao) để gán Tag động
+          cho sản phẩm.
+      Tối ưu hóa kiến trúc hệ thống phân tán:
+         Hiện tại, luồng truy vấn lịch sử 2 tiếng (Real-time tracking) chạy chung một
+          đường ống cơ sở dữ liệu. Cần nghiên cứu tích hợp hệ thống Message Queue
+          (RabbitMQ / Kafka): mọi lượt nhấp chuột sẽ bắn thẳng ra hàng đợi tách rời
+          để phân tích, tránh gây ách tắc phản hồi trang web trong những dịp lễ giảm
+          giá lượng người truy cập tăng đột biến.
+         Cải tiến chức năng thanh tìm kiếm truyền thống của SQL lên công
+          cụ Elasticsearch, giúp xuất kết quả trò chơi cho người dùng chỉ sau một
+          phím gõ dưới tốc độ mili-giây.
+      Mở rộng đa nền tảng và xây dựng hệ sinh thái:
+         Khéo léo tái sử dụng toàn bộ cấu trúc cơ sở dữ liệu sẵn có để đóng thành
+          cổng giao tiếp API (RESTful hoặc GraphQL). Từ đó, phát triển thêm các ứng
+          dụng Mobile App (iOS/Android) hoạt động chuyên biệt.
+                                              96
+
+
+                              DANH MỤC THAM KHẢO
+[1]Newzoo,"Globalgamesmarkettohit$189billionin2025asgrowthshiftstoconsole,"Newzoo,
+[Online].Available:https://newzoo.com/resources/blog/global-games-market-to-hit-189-
+billion-in-2025.[Accessed:14-Apr-2026].
+[2]Steam,"Steam,TheUltimateOnlineGamePlatform,"Steam,[Online].Available:https://
+store.steampowered.com/about/en.[Accessed:14-Apr-2026].
+[3]G.AdomaviciusandA.Tuzhilin,"TowardtheNextGenerationofRecommenderSystems:ASurv
+eyoftheState-of-the-
+ArtandPossibleExtensions,"IEEETransactionsonKnowledgeandDataEngineering,vol.17,no.6,p
+p.734-749,2005.[Online].Available:https://homepages.dcc.ufmg.br/~nivio/cursos/ri13/
+sources/recommender-systems-survey-2005.pdf.[Accessed:14-Apr-2026].
+[4]PHPDevelopmentTeam,"PHP8.0ReleaseAnnouncement,"PHP,[Online].Available:https://
+www.php.net/releases/8.0/en.[Accessed:14-Apr-2026].
+[5]Laravel,"Laravel9.xDocumentation,"Laravel,[Online].Available:https://laravel.com/docs/
+9.x.[Accessed:14-Apr-2026].
+[6]Laravel,"EloquentORM,"Laravel9.xDocumentation,[Online].Available:https://
+laravel.com/docs/9.x/eloquent.[Accessed:14-Apr-2026].
+[7]Laravel,"Validation,"Laravel9.xDocumentation,[Online].Available:https://laravel.com/
+docs/9.x/validation.[Accessed:14-Apr-2026].
+[8]Laravel,"BladeTemplates,"Laravel9.xDocumentation,[Online].Available:https://
+laravel.com/docs/9.x/blade.[Accessed:14-Apr-2026].
+[9]ApacheFriends,"AbouttheXAMPPProject,"ApacheFriends,[Online].Available:https://
+www.apachefriends.org/about.[Accessed:14-Apr-2026].
+[10]MySQL,"FOREIGNKEYConstraints,"MySQL8.0ReferenceManual,
+[Online].Available:https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html.
+[Accessed:14-Apr-2026].
+[11]Cloudinary,"UploadAPIReference,"CloudinaryDocumentation,
+[Online].Available:https://cloudinary.com/documentation/image_upload_api_reference.
+[Accessed:14-Apr-2026].
+[12]R.T.Fielding,"ArchitecturalStylesandtheDesignofNetwork-
+basedSoftwareArchitectures,"Doctoraldissertation,UniversityofCalifornia,Irvine,2000.
+[Online].Available:https://roy.gbiv.com/pubs/dissertation/fielding_dissertation.pdf.
+[Accessed:14-Apr-2026].
+                                              97
+
+
+[13]Microsoft,"VisualStudioCodeDocumentation,"VisualStudioCode,
+[Online].Available:https://code.visualstudio.com/docs.[Accessed:14-Apr-2026].
+[14]M.Fowler,"CatalogofPatternsofEnterpriseApplicationArchitecture,"MartinFowler.com,
+[Online].Available:https://martinfowler.com/eaaCatalog.[Accessed:14-Apr-2026].
+[15]M.Fowler,"LayeringPrinciples,"MartinFowler.com,[Online].Available:https://
+martinfowler.com/bliki/LayeringPrinciples.html.[Accessed:14-Apr-2026].
+[16]M.J.PazzaniandD.Billsus,"Content-
+BasedRecommendationSystems,"inTheAdaptiveWeb,Berlin,Germany:Springer,2007,pp.325-
+341.[Online].Available:https://cs.fit.edu/~pkc/apweb/related/pazzani07aw.pdf.[Accessed:14-
+Apr-2026].
+[17]M.D.Schafer,D.Frankowski,J.Herlocker,andS.Sen,"CollaborativeFilteringRecommenderSy
+stems,"inTheAdaptiveWeb,Berlin,Germany:Springer,2007,pp.291-324.
+[Online].Available:https://www.cs.uni.edu/~schafer/publications/
+CF_AdaptiveWeb_2006.pdf.[Accessed:14-Apr-2026].
+[18]B.Hidasi,A.Karatzoglou,L.Baltrunas,andD.Tikk,"Session-
+basedRecommendationswithRecurrentNeuralNetworks,"arXivpreprintarXiv:1511.06939,2015
+.[Online].Available:https://arxiv.org/abs/1511.06939.[Accessed:14-Apr-2026].
+[19] M. Vahidi Farashah, A. Etebarian, R. Azmi, and R. Ebrahimzadeh Dastjerdi, "A hybrid
+recommender system based-on link prediction for movie baskets analysis," Journal of Big
+Data,        vol.        8,        art.        no.        32,         2021.          [Online].
+Available: https://link.springer.com/article/10.1186/s40537-021-00422-0.      [Accessed:   14-
+Apr-2026].
+[20]Laravel,"Hashing,"Laravel9.xDocumentation,[Online].Available:https://laravel.com/
+docs/9.x/hashing.[Accessed:14-Apr-2026].
+[21]Laravel,"Encryption,"Laravel9.xDocumentation,[Online].Available:https://laravel.com/
+docs/9.x/encryption.[Accessed:14-Apr-2026].
+

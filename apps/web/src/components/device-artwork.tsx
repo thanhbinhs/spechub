@@ -4,99 +4,118 @@ import { useState } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import { clsx } from "clsx";
+import { renderableImageUrl } from "@/lib/media-url";
 
 type DeviceArtworkProps = {
   brand?: string;
   name?: string;
   category?: string;
+  imageUrl?: string | null;
   accent?: string | null;
   compact?: boolean;
   hero?: boolean;
+  priority?: boolean;
   className?: string;
 };
-
-type DeviceVisual = {
-  match: string[];
-  image: string;
-  label: string;
-  tone: string;
-};
-
-const DEVICE_VISUALS: DeviceVisual[] = [
-  {
-    match: ["iphone 16"],
-    image: "https://pngimg.com/uploads/iphone16/iphone16_PNG27.png",
-    label: "Apple iPhone 16 series",
-    tone: "#b85b8d",
-  },
-  {
-    match: ["galaxy s25"],
-    image:
-      "https://lmt-web.mstatic.lv/eshop/28961/1-samsung-galaxy-s25-ultra-s938-titanium-black.png",
-    label: "Samsung Galaxy S25 Ultra",
-    tone: "#5f5548",
-  },
-  {
-    match: ["pixel 9"],
-    image:
-      "https://lmt-web.mstatic.lv/eshop/29283/7-google-pixel-9-pro-xl-obsidian.png",
-    label: "Google Pixel 9 Pro",
-    tone: "#4b5563",
-  },
-  {
-    match: ["xiaomi 14"],
-    image:
-      "https://mistore.se/cdn/shop/files/N1-Black-Front-R4-3wallpaper__e.png?v=1742564711",
-    label: "Xiaomi 14 Ultra",
-    tone: "#14532d",
-  },
-];
 
 export function DeviceArtwork({
   brand,
   name,
   category,
+  imageUrl,
   accent,
   compact,
   hero,
+  priority,
   className,
 }: DeviceArtworkProps) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const visual = pickDeviceVisual(name, brand);
+  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
   const initial = brand?.slice(0, 1).toUpperCase() ?? "S";
   const safeAccent =
-    accent && /^#[0-9a-fA-F]{6}$/.test(accent)
-      ? accent
-      : (visual?.tone ?? "#f43f5e");
-  const imageSrc = visual?.image ?? "";
-  const showImage = Boolean(imageSrc && !imageFailed);
+    accent && /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : "#2563eb";
+  const imageSrc = renderableImageUrl(imageUrl) ?? "";
+  const showImage = Boolean(imageSrc && failedImageSrc !== imageSrc);
+  const isLandscapeImage =
+    imageAspectRatio !== null && imageAspectRatio >= 1.35;
+  const imageSizes = hero
+    ? "(min-width: 1024px) 520px, 100vw"
+    : compact
+      ? "(min-width: 1024px) 360px, 50vw"
+      : "320px";
 
   return (
     <div
       className={clsx(
-        "device-artwork group relative isolate overflow-hidden rounded-lg border border-slate-200/80 bg-surface-muted shadow-md",
-        hero ? "min-h-[420px]" : compact ? "h-28" : "h-56",
+        "device-artwork group relative isolate min-w-0 overflow-hidden rounded-xl border border-slate-200/90 bg-surface-muted shadow-sm",
+        hero ? "min-h-[360px]" : compact ? "h-36" : "h-60",
         className,
       )}
       style={{ "--device-accent": safeAccent } as CSSProperties}
     >
+      <div
+        aria-hidden="true"
+        className="absolute -right-[18%] -top-[32%] h-[78%] w-[78%] rounded-full opacity-[0.09] blur-3xl"
+        style={{ backgroundColor: safeAccent }}
+      />
+      <div
+        aria-hidden="true"
+        className={clsx(
+          "absolute inset-2 rounded-[10px] border border-white/90 bg-white/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]",
+          hero && "inset-3 rounded-xl",
+        )}
+      />
+      <div
+        aria-hidden="true"
+        className={clsx(
+          "absolute bottom-[12%] left-1/2 h-5 w-[52%] -translate-x-1/2 rounded-[50%] bg-slate-950/10 blur-xl transition duration-300 group-hover:w-[58%]",
+          hero && "bottom-[14%] h-8 w-[58%]",
+        )}
+      />
+
+      {showImage && isLandscapeImage ? (
+        <div
+          aria-hidden="true"
+          className={clsx(
+            "absolute inset-2 overflow-hidden rounded-[10px]",
+            hero && "inset-3 rounded-xl",
+          )}
+        >
+          <Image
+            src={imageSrc}
+            alt=""
+            fill
+            sizes={imageSizes}
+            className="scale-110 object-cover opacity-[0.22] blur-2xl saturate-75"
+          />
+          <span className="absolute inset-0 bg-white/45 backdrop-saturate-75" />
+          <span className="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-slate-100/35" />
+        </div>
+      ) : null}
+
       {showImage ? (
         <Image
           src={imageSrc}
-          alt={visual?.label ?? `Hình ảnh sản phẩm ${brand ?? "thiết bị"}`}
+          alt={`Hình ảnh ${name ?? brand ?? "thiết bị"}`}
           fill
-          priority={hero}
-          sizes={
-            hero
-              ? "(min-width: 1024px) 520px, 100vw"
-              : compact
-                ? "112px"
-                : "320px"
-          }
-          onError={() => setImageFailed(true)}
+          priority={Boolean(hero || priority)}
+          sizes={imageSizes}
+          onLoad={({ currentTarget }) => {
+            const ratio =
+              currentTarget.naturalWidth / currentTarget.naturalHeight;
+            setImageAspectRatio(Number.isFinite(ratio) ? ratio : null);
+          }}
+          onError={() => setFailedImageSrc(imageSrc)}
           className={clsx(
-            "z-10 object-contain drop-shadow-lg transition duration-200 ease-out group-hover:scale-[1.025]",
-            hero ? "p-8 sm:p-10" : compact ? "p-3" : "p-6",
+            "z-10 object-contain transition duration-300 ease-out",
+            isLandscapeImage
+              ? "drop-shadow-[0_12px_18px_rgba(15,23,42,0.1)] group-hover:scale-[1.02]"
+              : "drop-shadow-[0_16px_20px_rgba(15,23,42,0.16)] group-hover:scale-[1.035]",
+            hero
+              ? "p-4 pb-8 sm:p-6 sm:pb-10"
+              : compact
+                ? "p-2.5 sm:p-3"
+                : "p-3.5 pb-5 sm:p-4 sm:pb-6",
           )}
         />
       ) : (
@@ -108,15 +127,30 @@ export function DeviceArtwork({
         />
       )}
 
-      <div className="pointer-events-none absolute inset-x-5 top-4 z-20 flex items-center justify-between gap-3">
-        <span className="rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur">
-          {brand ?? visual?.label ?? "SpecHub"}
+      <div
+        className={clsx(
+          "pointer-events-none absolute inset-x-3 top-3 z-20 flex items-center justify-between gap-3",
+          hero && "inset-x-5 top-5",
+        )}
+      >
+        <span className="rounded-full border border-white/90 bg-white/[0.88] px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur-md">
+          {brand ?? "SpecHub"}
         </span>
-        <span
-          className="h-2.5 w-2.5 rounded-full border border-white shadow-sm"
-          style={{ backgroundColor: safeAccent }}
-        />
+        <span className="flex items-center gap-2 rounded-full border border-white/90 bg-white/80 px-2 py-1 shadow-sm backdrop-blur-md">
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: safeAccent }}
+          />
+        </span>
       </div>
+
+      {hero ? (
+        <div className="pointer-events-none absolute inset-x-5 bottom-5 z-20 flex items-center justify-between gap-3">
+          <span className="rounded-full border border-white/90 bg-white/[0.88] px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm backdrop-blur-md">
+            {category ?? "Thiết bị"}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -197,6 +231,86 @@ function FallbackDevice({
     );
   }
 
+  if (categoryKey.includes("television") || categoryKey.includes("tv")) {
+    return (
+      <div
+        className={clsx(
+          "absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2",
+          hero ? "w-80" : compact ? "w-28" : "w-52",
+        )}
+      >
+        <div
+          className={clsx(
+            "rounded-lg border-[6px] border-slate-950 bg-slate-950 shadow-2xl",
+            hero ? "h-48" : compact ? "h-16 border-[4px]" : "h-32",
+          )}
+        >
+          <div className="device-screen grid h-full place-items-center rounded-sm text-lg font-semibold text-slate-950">
+            {initial}
+          </div>
+        </div>
+        <div className="mx-auto h-4 w-2 rounded-b bg-slate-950" />
+        <div className="mx-auto h-1.5 w-20 rounded-full bg-slate-950" />
+      </div>
+    );
+  }
+
+  if (categoryKey.includes("gaming")) {
+    return (
+      <div
+        className={clsx(
+          "absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-[32px] border-[7px] border-slate-950 bg-slate-950 shadow-2xl",
+          hero
+            ? "h-40 w-80"
+            : compact
+              ? "h-14 w-28 rounded-[18px] border-[4px]"
+              : "h-28 w-52",
+        )}
+      >
+        <div className="device-screen absolute inset-y-2 left-[20%] right-[20%] grid place-items-center rounded-md text-lg font-semibold text-slate-950">
+          {initial}
+        </div>
+        <div className="absolute left-[7%] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-4 border-white/80" />
+        <div className="absolute right-[7%] top-1/2 grid -translate-y-1/2 grid-cols-2 gap-1">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <span
+              key={index}
+              className="h-2.5 w-2.5 rounded-full bg-white/80"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (categoryKey.includes("e-reader")) {
+    return (
+      <div
+        className={clsx(
+          "absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-[20px] border-[7px] border-slate-950 bg-slate-950 shadow-2xl",
+          hero
+            ? "h-72 w-52"
+            : compact
+              ? "h-20 w-14 rounded-[12px] border-[4px]"
+              : "h-44 w-32",
+        )}
+      >
+        <div className="absolute inset-2 rounded-lg bg-[#f3f0e7] p-3">
+          <div className="mb-3 h-2 w-2/3 rounded-full bg-slate-700/80" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-1 rounded-full bg-slate-500/40"
+                style={{ width: index === 4 ? "62%" : "100%" }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (categoryKey.includes("tablet")) {
     return (
       <div
@@ -229,12 +343,5 @@ function FallbackDevice({
         {initial}
       </div>
     </div>
-  );
-}
-
-function pickDeviceVisual(name?: string, brand?: string) {
-  const value = `${name ?? ""} ${brand ?? ""}`.toLowerCase();
-  return DEVICE_VISUALS.find((visual) =>
-    visual.match.some((item) => value.includes(item)),
   );
 }

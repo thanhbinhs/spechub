@@ -9,12 +9,7 @@ export function Surface({
   className?: string;
 }) {
   return (
-    <section
-      className={clsx(
-        "rounded-xl border border-slate-200/80 bg-surface shadow-sm",
-        className,
-      )}
-    >
+    <section className={clsx("app-panel overflow-hidden", className)}>
       {children}
     </section>
   );
@@ -30,14 +25,12 @@ export function SurfaceHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-slate-200/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-      <div className="min-w-0">
+    <div className="flex flex-col gap-2 border-b border-slate-200/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <h2 className="text-base font-semibold tracking-tight text-slate-950">
           {title}
         </h2>
-        {meta ? (
-          <p className="mt-1 text-sm leading-5 text-slate-500">{meta}</p>
-        ) : null}
+        {meta ? <span className="text-xs text-slate-500">{meta}</span> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>

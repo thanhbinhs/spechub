@@ -1,0 +1,695 @@
+{
+  "devices": [
+    {
+      "slug": "iphone-16-pro",
+      "sourcePage": "https://www.apple.com/iphone-16-pro/"
+    },
+    {
+      "slug": "galaxy-s25-ultra",
+      "sourcePage": "https://news.samsung.com/medialibrary/global/photo/59237",
+      "imageUrl": "https://d2g44tvvp35wo2.cloudfront.net/photo/global/2025/01/22/%E1%84%80%E1%85%A2%E1%86%AF%E1%84%85%E1%85%A5%E1%86%A8%E1%84%89%E1%85%B5_S25_%E1%84%8B%E1%85%AE%E1%86%AF%E1%84%90%E1%85%B3%E1%84%85%E1%85%A1_%E1%84%90%E1%85%B5%E1%84%90%E1%85%A1%E1%84%82%E1%85%B2%E1%86%B7_%E1%84%89%E1%85%B5%E1%86%AF%E1%84%87%E1%85%A5%E1%84%87%E1%85%B3%E1%86%AF%E1%84%85%E1%85%AE.jpg"
+    },
+    {
+      "slug": "pixel-9-pro",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/google-pixel-9-pro-xl/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/P9P9PThumbnail_16x9_Opt2_2.width-1300.jpg"
+    },
+    {
+      "slug": "xiaomi-14-ultra",
+      "sourcePage": "https://www.mi.com/global/product/xiaomi-14-ultra/",
+      "imageUrl": "https://i02.appmifile.com/mi-com-product/fly-birds/new-xiaomi-14-ultra/PC/pc-14ultra-white-bg.jpg"
+    },
+    {
+      "slug": "ipad-pro-13-m4",
+      "sourcePage": "https://www.apple.com/newsroom/2024/05/apple-unveils-stunning-new-ipad-pro-with-m4-chip-and-apple-pencil-pro/",
+      "imageUrl": "https://www.apple.com/newsroom/images/2024/05/apple-unveils-stunning-new-ipad-pro-with-m4-chip-and-apple-pencil-pro/article/Apple-iPad-Pro-space-black-2-up-240507_big.jpg.large.jpg"
+    },
+    {
+      "slug": "macbook-pro-14-m4-pro",
+      "sourcePage": "https://www.apple.com/uk/newsroom/2024/10/new-macbook-pro-features-m4-family-of-chips-and-apple-intelligence/",
+      "preferredImageTerms": ["macbook pro", "hero", "front"]
+    },
+    {
+      "slug": "galaxy-watch7-44mm",
+      "sourcePage": "https://www.samsung.com/us/watches/galaxy-watch7/",
+      "preferredImageTerms": ["front", "green", "product"]
+    },
+    {
+      "slug": "airpods-pro-2-usbc",
+      "sourcePage": "https://support.apple.com/en-us/111834",
+      "imageUrl": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/airpods-pro-2.png"
+    },
+    {
+      "slug": "iphone-16",
+      "sourcePage": "https://www.apple.com/iphone-16/"
+    },
+    {
+      "slug": "galaxy-z-fold6",
+      "sourcePage": "https://www.samsung.com/us/smartphones/galaxy-z-fold6/",
+      "imageUrl": "https://image-us.samsung.com/us/smartphones/galaxy-z-fold6/images/galaxy-z-fold6-features-kv.jpg"
+    },
+    {
+      "slug": "pixel-9a",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/google-pixel-9a/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/9a_all.width-1600.format-webp.webp"
+    },
+    {
+      "slug": "xiaomi-15",
+      "sourcePage": "https://www.mi.com/global/product/xiaomi-15/",
+      "imageUrl": "https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-15/pc/2fb551f068f8de5461069dab5cf84556.jpg"
+    },
+    {
+      "slug": "sony-xperia-1-vi",
+      "sourcePage": "https://www.sony.jp/CorporateCruise/Press/202405/24-0515/",
+      "imageUrl": "https://www.sony.jp/CorporateCruise/Press/202405/24-0515/images/img_001.jpg"
+    },
+    {
+      "slug": "oneplus-13",
+      "sourcePage": "https://www.oneplus.com/us/press/press-release/oneplus-launches-new-smartphone-flagship-series-in-north-america-oneplus-13-and-oneplus-13r",
+      "imageUrl": "https://oasis.opstatics.com/content/dam/oasis/page/2025/global/new/13/na-13-news-1.png"
+    },
+    {
+      "slug": "oppo-find-x8-pro",
+      "sourcePage": "https://www.oppo.com/en/smartphones/series-find-x/find-x8-pro/"
+    },
+    {
+      "slug": "vivo-x200-pro",
+      "sourcePage": "https://www.vivo.com/en/products/picture/x200-pro",
+      "imageUrl": "https://asia-exstatic-vivofs.vivo.com/PSee2l50xoirPK7y/Picture_library/1731290430756/zip/img/wap1.jpg"
+    },
+    {
+      "slug": "nothing-phone-2",
+      "sourcePage": "https://nothing.tech/products/phone-2"
+    },
+    {
+      "slug": "huawei-pura-70-ultra",
+      "sourcePage": "https://consumer.huawei.com/mu/support/phones/pura70-ultra/",
+      "imageUrl": "https://consumer.huawei.com/dam/content/dam/huawei-cbg-site/common/mkt/pdp/admin-image/phones/pura70-ultra/list-green.png"
+    },
+    {
+      "slug": "galaxy-tab-s10-ultra",
+      "sourcePage": "https://www.samsung.com/us/tablets/galaxy-tab-s10/",
+      "preferredImageTerms": ["tab s10 ultra", "front", "back", "product"]
+    },
+    {
+      "slug": "ipad-mini-a17-pro",
+      "sourcePage": "https://www.apple.com/newsroom/2024/10/apple-introduces-powerful-new-ipad-mini-built-for-apple-intelligence/"
+    },
+    {
+      "slug": "oneplus-pad-2",
+      "sourcePage": "https://www.oneplus.com/us/oneplus-pad-2"
+    },
+    {
+      "slug": "surface-pro-11",
+      "sourcePage": "https://www.microsoft.com/en-us/surface/devices/surface-pro-11th-edition",
+      "preferredImageTerms": ["surface pro", "front", "kickstand"]
+    },
+    {
+      "slug": "macbook-air-13-m4",
+      "sourcePage": "https://www.apple.com/newsroom/2025/03/apple-introduces-the-new-macbook-air-with-the-m4-chip-and-a-sky-blue-color/"
+    },
+    {
+      "slug": "dell-xps-13-9345",
+      "sourcePage": "https://www.dell.com/en-us/shop/dell-laptops-and-2-in-1-pcs/xps-13-laptop/spd/xps-13-9345-laptop"
+    },
+    {
+      "slug": "asus-rog-zephyrus-g14-2024",
+      "sourcePage": "https://rog.asus.com/laptops/rog-zephyrus/rog-zephyrus-g14-2024/",
+      "imageUrl": "https://dlcdnwebimgs.asus.com/files/media/F78BEA60-7937-4C78-A45A-F1AE66AADC68/v1/images/large/1x/display_laptop.png"
+    },
+    {
+      "slug": "thinkpad-x1-carbon-gen-13",
+      "sourcePage": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_X1_Carbon_Gen_13_Aura_Edition",
+      "imageUrl": "https://media.lenovonews.fiestic.com/2024/09/08034808/02_THI1-e1725548010191-1024x771.png"
+    },
+    {
+      "slug": "surface-laptop-7-13",
+      "sourcePage": "https://www.microsoft.com/en-us/surface/devices/surface-laptop-7th-edition",
+      "preferredImageTerms": ["surface laptop", "front", "platinum"]
+    },
+    {
+      "slug": "apple-watch-series-10-46mm",
+      "sourcePage": "https://www.apple.com/newsroom/2024/09/introducing-apple-watch-series-10/"
+    },
+    {
+      "slug": "garmin-fenix-8-amoled-47mm",
+      "sourcePage": "https://www.garmin.com/en-US/p/1228171/"
+    },
+    {
+      "slug": "pixel-watch-3-45mm",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/google-pixel-watch-3/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/LineUp.width-1600.format-webp.webp"
+    },
+    {
+      "slug": "galaxy-buds3-pro",
+      "sourcePage": "https://www.samsung.com/us/mobile-audio/galaxy-buds3-pro/",
+      "imageUrl": "https://image-us.samsung.com/us/galaxy-buds3-pro/images/galaxy-buds3-pro-new-design-colorchip-silver01-pc.jpg"
+    },
+    {
+      "slug": "sony-wf-1000xm5",
+      "sourcePage": "https://www.sony.jp/headphone/products/msa/WF-1000XM5/",
+      "imageUrl": "https://www.sony.jp/products/picture/WF-1000XM5.jpg"
+    },
+    {
+      "slug": "bose-quietcomfort-ultra-earbuds",
+      "sourcePage": "https://www.bose.com/p/earbuds/bose-quietcomfort-ultra-earbuds/QCUE-HEADPHONEIN.html"
+    },
+    {
+      "slug": "lg-oled-evo-g4-65",
+      "sourcePage": "https://www.lg.com/us/tvs/lg-oled65g4sub-oled-4k-tv"
+    },
+    {
+      "slug": "sony-bravia-9-65",
+      "sourcePage": "https://www.sony.co.uk/presscentre/sony-announces-arrival-of-65-inch-bravia-9-in-europe",
+      "imageUrl": "https://cdn.uc.assets.prezly.com/07683443-ef09-44dc-bcf0-7d6e9a7c4bc0/-/format/auto/insituUP65_006_KV.jpg"
+    },
+    {
+      "slug": "nintendo-switch-oled",
+      "sourcePage": "https://www.nintendo.com/us/gaming-systems/switch/oled-model/",
+      "imageUrl": "https://assets.nintendo.com/image/upload/ar_16:9,b_auto:border,c_lpad/b_white/f_auto/q_auto/dpr_1.5/ncom/en_US/switch/site-design-update/oled-model-photo-01"
+    },
+    {
+      "slug": "steam-deck-oled",
+      "sourcePage": "https://www.steamdeck.com/en/oled",
+      "imageUrl": "https://cdn.fastly.steamstatic.com/steamdeck/images/oled/oled_hands.png"
+    },
+    {
+      "slug": "kindle-paperwhite-12th-gen",
+      "sourcePage": "https://www.aboutamazon.com/news/devices/new-kindle-color-scribe-paperwhite-entry",
+      "preferredImageTerms": ["paperwhite", "device", "front"]
+    },
+    {
+      "slug": "iphone-16-plus",
+      "sourcePage": "https://www.apple.com/iphone-16/",
+      "preferredImageTerms": ["iphone 16 plus", "teal", "front", "back"]
+    },
+    {
+      "slug": "iphone-16-pro-max",
+      "sourcePage": "https://www.apple.com/iphone-16-pro/",
+      "preferredImageTerms": ["iphone 16 pro max", "desert titanium", "front"]
+    },
+    {
+      "slug": "iphone-15",
+      "sourcePage": "https://www.apple.com/newsroom/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/",
+      "preferredImageTerms": ["iphone 15", "pink", "front", "back"]
+    },
+    {
+      "slug": "iphone-se-3",
+      "sourcePage": "https://www.apple.com/newsroom/2022/03/apple-announces-the-new-iphone-se-a-powerful-smartphone-in-an-iconic-design/",
+      "preferredImageTerms": ["iphone se", "product red", "front", "back"]
+    },
+    {
+      "slug": "iphone-14",
+      "sourcePage": "https://www.apple.com/newsroom/2023/03/hello-yellow-apple-introduces-new-iphone-14-and-iphone-14-plus/",
+      "imageUrl": "https://www.apple.com/newsroom/images/product/iphone/standard/Apple-iPhone-14-iPhone-14-Plus-yellow-2up-230307_inline.jpg.large.jpg"
+    },
+    {
+      "slug": "galaxy-s25",
+      "sourcePage": "https://www.samsung.com/us/smartphones/galaxy-s25/",
+      "preferredImageTerms": ["galaxy s25", "navy", "front", "back"]
+    },
+    {
+      "slug": "galaxy-s25-plus",
+      "sourcePage": "https://www.samsung.com/us/smartphones/galaxy-s25/",
+      "imageUrl": "https://image-us.samsung.com/us/smartphones/galaxy-s25/images/galaxy-s25-features-design-spec.jpg"
+    },
+    {
+      "slug": "galaxy-s24-fe",
+      "sourcePage": "https://news.samsung.com/global/galaxy-s24-series-expands-with-s24-fe-a-premium-experience-that-makes-full-galaxy-ai-capabilities-attainable-for-more-users",
+      "imageUrl": "https://img.global.news.samsung.com/global/wp-content/uploads/2024/09/Samsung-Mobile-S24-FE-Galaxy-AI-October-3_main7.jpg"
+    },
+    {
+      "slug": "galaxy-z-flip6",
+      "sourcePage": "https://www.samsung.com/us/smartphones/galaxy-z-flip6/",
+      "preferredImageTerms": ["galaxy z flip6", "blue", "open", "front"]
+    },
+    {
+      "slug": "galaxy-a55-5g",
+      "sourcePage": "https://news.samsung.com/global/samsung-galaxy-a55-5g-and-galaxy-a35-5g-awesome-innovations-and-security-engineered-for-everyone",
+      "imageUrl": "https://img.global.news.samsung.com/global/wp-content/uploads/2024/03/Galaxy-A55-5G-and-A35-5G_dl1.jpg"
+    },
+    {
+      "slug": "galaxy-a35-5g",
+      "sourcePage": "https://www.samsung.com/uk/smartphones/galaxy-a/galaxy-a35-5g-awesome-lilac-256gb-sm-a356blvgeub/",
+      "preferredImageTerms": ["galaxy a35", "awesome lilac", "front", "back"]
+    },
+    {
+      "slug": "pixel-9",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/google-pixel-9-pro-xl/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/image_P9_2024Q2_Peony_LT_T-Shot_.width-1600.format-webp_3HEgAV8.webp"
+    },
+    {
+      "slug": "pixel-9-pro-fold",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/pixel-9-pro-fold-redesign/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/P9PFold_YT_Thumbnail_v3.width-1600.format-webp.webp"
+    },
+    {
+      "slug": "pixel-8a",
+      "sourcePage": "https://blog.google/products-and-platforms/devices/pixel/pixel-8a-launch/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/GooglePixel8a.width-1300.jpg"
+    },
+    {
+      "slug": "xiaomi-14t-pro",
+      "sourcePage": "https://www.mi.com/global/product/xiaomi-14t-pro/",
+      "imageUrl": "https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-14t-pro/PC/new_slide1_bg1.jpg"
+    },
+    {
+      "slug": "redmi-note-14-pro-plus",
+      "sourcePage": "https://www.mi.com/global/product/redmi-note-14-pro-plus-5g/",
+      "imageUrl": "https://i02.appmifile.com/mi-com-product/fly-birds/redmi-note-14-pro-plus-5g/pc/4f2f8d10b0cb9905b7dl.jpg"
+    },
+    {
+      "slug": "poco-f6-pro",
+      "sourcePage": "https://www.po.co/global/product/poco-f6-pro/",
+      "imageUrl": "https://i02.appmifile.com/mi-com-product/fly-birds/poco-f6-pro/PC/f63963c40f1916d4291b9451b97f0027.jpg"
+    },
+    {
+      "slug": "xiaomi-mix-flip",
+      "sourcePage": "https://www.mi.com/global/product/xiaomi-mix-flip/",
+      "preferredImageTerms": ["xiaomi mix flip", "purple", "open", "front"]
+    },
+    {
+      "slug": "oneplus-12",
+      "sourcePage": "https://www.oneplus.com/us/12",
+      "preferredImageTerms": ["oneplus 12", "flowy emerald", "front", "back"]
+    },
+    {
+      "slug": "oneplus-nord-4",
+      "sourcePage": "https://www.oneplus.com/global/nord-4",
+      "preferredImageTerms": ["oneplus nord 4", "mercurial silver", "front"]
+    },
+    {
+      "slug": "oneplus-open",
+      "sourcePage": "https://www.oneplus.com/us/open",
+      "preferredImageTerms": ["oneplus open", "emerald dusk", "open", "front"]
+    },
+    {
+      "slug": "oppo-reno13-pro",
+      "sourcePage": "https://www.oppo.com/en/smartphones/series-reno/reno13-pro/",
+      "preferredImageTerms": ["reno13 pro", "plume purple", "front", "back"]
+    },
+    {
+      "slug": "oppo-find-n3-flip",
+      "sourcePage": "https://www.oppo.com/en/smartphones/series-find-n/find-n3-flip/",
+      "preferredImageTerms": ["find n3 flip", "cream gold", "open", "front"]
+    },
+    {
+      "slug": "vivo-x100-ultra",
+      "sourcePage": "https://www.vivo.com.cn/vivo/param/x100ultra",
+      "preferredImageTerms": ["x100 ultra", "titanium", "front", "back"]
+    },
+    {
+      "slug": "vivo-v40",
+      "sourcePage": "https://www.vivo.com/en/products/v40",
+      "imageUrl": "https://asia-exstatic-vivofs.vivo.com/PSee2l50xoirPK7y/product/1737103160562/zip/img/vivo-v40-with-exclusive-colors.jpg"
+    },
+    {
+      "slug": "sony-xperia-5-v",
+      "sourcePage": "https://www.sony.jp/CorporateCruise/Press/202309/23-0920/",
+      "imageUrl": "https://www.sony.jp/CorporateCruise/Press/202309/23-0920/images/pic_01.jpg"
+    },
+    {
+      "slug": "nothing-phone-2a",
+      "sourcePage": "https://intl.nothing.tech/products/phone-2a",
+      "imageUrl": "https://cdn.shopify.com/s/files/1/0585/2479/5086/files/0000s_0017_Phone-2a-milk.png?v=1753757253"
+    },
+    {
+      "slug": "nothing-phone-3a-pro",
+      "sourcePage": "https://nothing.tech/products/phone-3a-pro",
+      "preferredImageTerms": ["phone 3a pro", "grey", "front", "back"]
+    },
+    {
+      "slug": "huawei-mate-70-pro",
+      "sourcePage": "https://consumer.huawei.com/cn/support/phones/mate70-pro/",
+      "imageUrl": "https://consumer.huawei.com/content/dam/huawei-cbg-site/cn/mkt/pdp/phones/mate70-pro/list/green.png"
+    },
+    {
+      "slug": "huawei-pura-70-pro",
+      "sourcePage": "https://consumer.huawei.com/en/support/phones/pura70-pro/",
+      "imageUrl": "https://consumer.huawei.com/content/dam/huawei-cbg-site/common/mkt/pdp/admin-image/phones/pura70-pro/list-white.png"
+    },
+    {
+      "slug": "macbook-air-15-m4",
+      "sourcePage": "https://www.apple.com/newsroom/2025/03/apple-introduces-the-new-macbook-air-with-the-m4-chip-and-a-sky-blue-color/",
+      "preferredImageTerms": [
+        "15-inch macbook air",
+        "sky blue",
+        "front",
+        "hero"
+      ]
+    },
+    {
+      "slug": "macbook-pro-16-m4-max",
+      "sourcePage": "https://www.apple.com/newsroom/2024/10/new-macbook-pro-features-m4-family-of-chips-and-apple-intelligence/",
+      "imageUrl": "https://www.apple.com/newsroom/images/2024/10/new-macbook-pro/article/Apple-MacBook-Pro-M4-lineup_big.jpg.large.jpg"
+    },
+    {
+      "slug": "dell-xps-14-9440",
+      "sourcePage": "https://www.dell.com/en-us/shop/dell-laptops-and-2-in-1-pcs/xps-14-laptop/spd/xps-14-9440-laptop",
+      "preferredImageTerms": ["xps 14", "graphite", "front", "product"]
+    },
+    {
+      "slug": "alienware-m16-r2",
+      "sourcePage": "https://www.dell.com/en-us/shop/dell-laptops/alienware-m16-r2-gaming-laptop/spd/alienware-m16-r2-laptop",
+      "preferredImageTerms": ["alienware m16 r2", "front", "product"]
+    },
+    {
+      "slug": "asus-zenbook-s-14-ux5406",
+      "sourcePage": "https://www.asus.com/laptops/for-home/zenbook/asus-zenbook-s-14-ux5406/",
+      "preferredImageTerms": ["zenbook s 14", "zumaia gray", "front", "product"]
+    },
+    {
+      "slug": "asus-rog-strix-scar-16-2025",
+      "sourcePage": "https://rog.asus.com/laptops/rog-strix/rog-strix-scar-16-2025/",
+      "imageUrl": "https://dlcdnwebimgs.asus.com/files/media/9f23870f-d33f-4a7c-99d9-06f53bd0aee8/v1/images/Strix_Scar16_KV_16x9.webp"
+    },
+    {
+      "slug": "lenovo-yoga-slim-7x",
+      "sourcePage": "https://www.lenovo.com/us/en/p/laptops/yoga/yoga-slim-series/yoga-slim-7x-gen-9-14-inch-snapdragon/len101y0049",
+      "preferredImageTerms": ["yoga slim 7x", "cosmic blue", "front", "product"]
+    },
+    {
+      "slug": "lenovo-legion-pro-7i-gen-10",
+      "sourcePage": "https://www.lenovo.com/us/en/p/laptops/legion-laptops/legion-pro-series/legion-pro-7i-gen-10-16-inch-intel/len101g0039",
+      "preferredImageTerms": ["legion pro 7i", "front", "product"]
+    },
+    {
+      "slug": "surface-laptop-7-15",
+      "sourcePage": "https://www.microsoft.com/en-us/surface/devices/surface-laptop-7th-edition",
+      "preferredImageTerms": ["15-inch surface laptop", "platinum", "front"]
+    },
+    {
+      "slug": "acer-swift-14-ai-sf14-51",
+      "sourcePage": "https://news.acer.com/acer-debuts-new-swift-copilot-pcs-powered-by-intel-core-ultra-processors-series-2",
+      "imageUrl": "https://cdn.uc.assets.prezly.com/4b12c96f-6bb0-4c19-b94d-62056ebb5940/-/format/auto/Acer-Swift-14-AI-sf14-51%28T%29-01.jpg"
+    },
+    {
+      "slug": "hp-spectre-x360-14-2024",
+      "sourcePage": "https://www.hp.com/us-en/newsroom/press-kits/2024/hpatces.html",
+      "imageUrl": "https://www.hp.com/content/dam/sites/garage-press/press/press-kits/2024/ces-2024/HP%20Spectre%20x360%2014%20inch%202-in-1%20Laptop%20PC_Front_WhiteBG.jpg"
+    },
+    {
+      "slug": "msi-stealth-a16-ai-plus",
+      "sourcePage": "https://www.msi.com/news/detail/MSI-Unveils-Next-Gen-AI--Gaming-and-Business---Productivity-Laptops-with-Latest-Processors-at-COMPUTEX-2024-143709",
+      "preferredImageTerms": ["stealth a16 ai", "front", "product"]
+    },
+    {
+      "slug": "razer-blade-14-2024",
+      "sourcePage": "https://www.razer.com/gaming-laptops/razer-blade-14",
+      "imageUrl": "https://medias-p1.phoenix.razer.com/sys-master-phoenix-images-container/hbe/h38/9917794451486/blade-14-p11-black-2-500x500.png"
+    },
+    {
+      "slug": "samsung-galaxy-book4-ultra",
+      "sourcePage": "https://www.samsung.com/us/computing/galaxy-books/galaxy-book4-ultra/",
+      "preferredImageTerms": ["galaxy book4 ultra", "front", "product"]
+    },
+    {
+      "slug": "framework-laptop-13-amd-2025",
+      "sourcePage": "https://frame.work/blog/introducing-the-framework-laptop-13-powered-by-amd-ryzen-ai-300-series",
+      "imageUrl": "https://images.frame.work/frameworkmarketplace/Z7yhRJ7c43Q3gJds_Hero.png?fm=png&w=1600"
+    },
+    {
+      "slug": "ipad-air-13-m2",
+      "sourcePage": "https://www.apple.com/newsroom/2024/05/apple-unveils-the-redesigned-11-inch-and-all-new-13-inch-ipad-air-with-m2/",
+      "preferredImageTerms": ["13-inch ipad air", "blue", "front", "back"]
+    },
+    {
+      "slug": "galaxy-tab-s9-fe",
+      "sourcePage": "https://www.samsung.com/us/tablets/galaxy-tab-s9-fe/",
+      "preferredImageTerms": ["galaxy tab s9 fe", "mint", "front", "back"]
+    },
+    {
+      "slug": "xiaomi-pad-7-pro",
+      "sourcePage": "https://www.mi.com/global/product/xiaomi-pad-7-pro/",
+      "preferredImageTerms": ["xiaomi pad 7 pro", "gray", "front", "back"]
+    },
+    {
+      "slug": "oneplus-pad",
+      "sourcePage": "https://www.oneplus.com/us/oneplus-pad",
+      "preferredImageTerms": ["oneplus pad", "halo green", "front", "back"]
+    },
+    {
+      "slug": "lenovo-tab-extreme",
+      "sourcePage": "https://www.lenovo.com/us/en/p/tablets/android-tablets/lenovo-tab-series/lenovo-tab-extreme/len103l0015",
+      "preferredImageTerms": [
+        "lenovo tab extreme",
+        "storm gray",
+        "front",
+        "product"
+      ]
+    }
+  ],
+  "hardware": [
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-8-elite",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/8-series/snapdragon-8-elite-mobile-platform",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/8-elite-social-chip"
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-8-gen-3",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/8-series/snapdragon-8-gen-3-mobile-platform",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/8-gen-3-social-image"
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-8-gen-2",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/8-series/snapdragon-8-gen-2-mobile-platform",
+      "preferredImageTerms": ["snapdragon", "8 gen 2", "chip", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-8-plus-gen-1",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/8-series/snapdragon-8-plus-gen-1-mobile-platform",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/snapdragon-8-plus-gen-1-key-visual"
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-x-elite-x1e-80-100",
+      "sourcePage": "https://www.qualcomm.com/laptops/products/snapdragon-x-elite",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/snapdragon-x-elite-social-image"
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-x-plus-x1p-64-100",
+      "sourcePage": "https://www.qualcomm.com/laptops/products/snapdragon-x-plus",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/snapdragon-x-plus-social-badge"
+    },
+    {
+      "kind": "chipset",
+      "slug": "qualcomm-s5-audio-soc",
+      "sourcePage": "https://www.qualcomm.com/audio/products/qualcomm-s5-series/qualcomm-s5-sound-platform",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/s5-sound-platform"
+    },
+    {
+      "kind": "chipset",
+      "slug": "qualcomm-sw5100",
+      "sourcePage": "https://www.qualcomm.com/wearables/products/snapdragon-w5-plus-gen-1-wearable-platform",
+      "imageUrl": "https://s7d1.scene7.com/is/image/dmqualcommprod/snapdragon_w5-plus_gen-1_social-image-1"
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-9400",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-9400",
+      "imageUrl": "https://www.mediatek.com/hubfs/MediaTek%20Assets/Images/ChipSets/9400_chipset_l3.png"
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-9300-plus",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-9300-plus",
+      "imageUrl": "https://www.mediatek.com/hubfs/MediaTek%20Assets/Images/ChipSets/Dimensity_9300%2B%20chipset.png"
+    },
+    {
+      "kind": "chipset",
+      "slug": "exynos-w1000",
+      "sourcePage": "https://semiconductor.samsung.com/processor/wearable-processor/exynos-w1000/",
+      "imageUrl": "https://image.semiconductor.samsung.com/image/samsung/p6/semiconductor/processor/wearable-processor/ogimage-w1000-article.png"
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-m4",
+      "sourcePage": "https://www.apple.com/newsroom/2024/05/apple-introduces-m4-chip/",
+      "imageUrl": "https://www.apple.com/newsroom/images/2024/05/apple-introduces-m4-chip/article/Apple-M4-chip-badge-240507_big.jpg.large.jpg"
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-m4-pro",
+      "sourcePage": "https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/",
+      "imageUrl": "https://www.apple.com/newsroom/images/2024/10/apple-introduces-m4-pro-and-m4-max/article/Apple-M4-chip-series-hero_big.jpg.large.jpg"
+    },
+    {
+      "kind": "chipset",
+      "slug": "intel-core-ultra-7-258v",
+      "sourcePage": "https://newsroom.intel.com/client-computing/core-ultra-200v-series-mobile",
+      "imageUrl": "https://newsroom.intel.com/wp-content/uploads/2024/11/newsroom-intel-core-ultra-200v-series-2-scaled.jpg"
+    },
+    {
+      "kind": "chipset",
+      "slug": "nvidia-tegra-x1-switch",
+      "sourcePage": "https://developer.nvidia.com/embedded/jetson-nano",
+      "imageUrl": "https://d29g4g2dyqv443.cloudfront.net/sites/default/files/akamai/embedded/images/jetson-developer-kit-850x480.jpg"
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-a15-bionic",
+      "sourcePage": "https://www.apple.com/newsroom/2021/09/apple-unveils-iphone-13-pro-and-iphone-13-pro-max-more-pro-than-ever-before/",
+      "preferredImageTerms": ["a15 bionic", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-a16-bionic",
+      "sourcePage": "https://www.apple.com/newsroom/2022/09/apple-debuts-iphone-14-pro-and-iphone-14-pro-max/",
+      "preferredImageTerms": ["a16 bionic", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-a18",
+      "sourcePage": "https://www.apple.com/newsroom/2024/09/apple-introduces-iphone-16-and-iphone-16-plus/",
+      "preferredImageTerms": ["a18", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-a18-pro",
+      "sourcePage": "https://www.apple.com/newsroom/2024/09/apple-debuts-iphone-16-pro-and-iphone-16-pro-max/",
+      "preferredImageTerms": ["a18 pro", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-m2",
+      "sourcePage": "https://www.apple.com/newsroom/2022/06/apple-unveils-m2-with-breakthrough-performance-and-capabilities/",
+      "preferredImageTerms": ["m2 chip", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "apple-m4-max",
+      "sourcePage": "https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/",
+      "preferredImageTerms": ["m4 max", "chip", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-8s-gen-3",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/8-series/snapdragon-8s-gen-3-mobile-platform",
+      "preferredImageTerms": ["snapdragon 8s gen 3", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-7-plus-gen-3",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/7-series/snapdragon-7-plus-gen-3-mobile-platform",
+      "preferredImageTerms": ["snapdragon 7 plus gen 3", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-7-gen-3",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/7-series/snapdragon-7-gen-3-mobile-platform",
+      "preferredImageTerms": ["snapdragon 7 gen 3", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "snapdragon-7s-gen-3",
+      "sourcePage": "https://www.qualcomm.com/smartphones/products/7-series/snapdragon-7s-gen-3-mobile-platform",
+      "preferredImageTerms": ["snapdragon 7s gen 3", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "exynos-2400e",
+      "sourcePage": "https://semiconductor.samsung.com/processor/mobile-processor/exynos-2400/",
+      "preferredImageTerms": ["exynos 2400", "processor", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "exynos-1480",
+      "sourcePage": "https://semiconductor.samsung.com/processor/mobile-processor/exynos-1480/",
+      "preferredImageTerms": ["exynos 1480", "processor", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "exynos-1380",
+      "sourcePage": "https://semiconductor.samsung.com/processor/mobile-processor/exynos-1380/",
+      "imageUrl": "https://image.semiconductor.samsung.com/image/samsung/p6/semiconductor/processor/mobile-processor/exynos-1380/img_intelligent-pc.jpg?$ORIGIN_JPG$",
+      "preferredImageTerms": ["exynos 1380", "processor", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "google-tensor-g3",
+      "sourcePage": "https://blog.google/products/pixel/google-tensor-g3-pixel-8/",
+      "preferredImageTerms": ["tensor g3", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "google-tensor-g4",
+      "sourcePage": "https://blog.google/intl/en-au/products/devices-services/the-new-pixel-9-phones-bring-you-the-best-of-google-ai/",
+      "imageUrl": "https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/image2_xjzRnGW.gif",
+      "imagePage": 50,
+      "preferredImageTerms": ["tensor g4", "chip", "processor"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-8350",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-8350",
+      "preferredImageTerms": ["dimensity 8350", "chipset"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-9200",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-9200",
+      "preferredImageTerms": ["dimensity 9200", "chipset", "chip"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-7300",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-7300",
+      "preferredImageTerms": ["dimensity 7300", "chipset"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "mediatek-dimensity-9000",
+      "sourcePage": "https://www.mediatek.com/products/smartphones/mediatek-dimensity-9000",
+      "preferredImageTerms": ["dimensity 9000", "chipset"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "kirin-9010",
+      "sourcePage": "https://www.duchuymobile.com/huawei-pura-70-ultra",
+      "imageUrl": "https://www.duchuymobile.com/images/companies/1/1-tin-moi/2023/phi/thang-4/41/chip-huawei-pura-70-ultra.jpg",
+      "preferredImageTerms": ["kirin 9010", "chip", "processor"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "kirin-9020",
+      "sourcePage": "https://consumer.huawei.com/cn/phones/mate70-pro/",
+      "preferredImageTerms": ["kirin 9020", "chip", "processor"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "intel-core-ultra-7-155h",
+      "sourcePage": "https://www.intel.com/content/www/us/en/products/sku/236847/intel-core-ultra-7-processor-155h-24m-cache-up-to-4-80-ghz/specifications.html",
+      "preferredImageTerms": ["core ultra 7", "processor", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "intel-core-ultra-9-185h",
+      "sourcePage": "https://www.intel.com/content/www/us/en/products/sku/236849/intel-core-ultra-9-processor-185h-24m-cache-up-to-5-10-ghz/specifications.html",
+      "preferredImageTerms": ["core ultra 9", "processor", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "intel-core-ultra-9-285hx",
+      "sourcePage": "https://www.intel.com/content/www/us/en/products/sku/242293/intel-core-ultra-9-processor-285hx-36m-cache-up-to-5-50-ghz/specifications.html",
+      "preferredImageTerms": ["core ultra 9", "processor", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "amd-ryzen-7-8845hs",
+      "sourcePage": "https://www.amd.com/en/products/processors/laptop/ryzen/8000-series/amd-ryzen-7-8845hs.html",
+      "imageUrl": "https://www.amd.com/content/dam/amd/en/images/logos/products/2632442-ryzen-teaser.jpg",
+      "preferredImageTerms": ["ryzen 7", "processor", "badge"]
+    },
+    {
+      "kind": "chipset",
+      "slug": "amd-ryzen-ai-9-hx-370",
+      "sourcePage": "https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-9-hx-370.html",
+      "preferredImageTerms": ["ryzen ai 9", "hx 370", "processor", "badge"]
+    }
+  ]
+}

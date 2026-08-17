@@ -1,0 +1,170 @@
+{
+  "input": "/Users/macm1/Project/spechub/.codex-work/report-final/input/final-original.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 10
+  },
+  "direct_run_formatting_runs": 400,
+  "direct_paragraph_formatting_paragraphs": 1316,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 21,
+      "text": "T\u00d3M T\u1eaeT\ti",
+      "style": "Normal"
+    },
+    {
+      "para_index": 22,
+      "text": "L\u1edcI CAM \u0110OAN\tii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 23,
+      "text": "L\u1edcI C\u1ea2M \u01a0N\tiii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 24,
+      "text": "DANH M\u1ee4C H\u00ccNH \u1ea2NH\tvi",
+      "style": "Normal"
+    },
+    {
+      "para_index": 25,
+      "text": "DANH M\u1ee4C B\u1ea2NG BI\u1ec2U\tviii",
+      "style": "Normal"
+    },
+    {
+      "para_index": 26,
+      "text": "DANH M\u1ee4C T\u1eea VI\u1ebeT T\u1eaeT\tx",
+      "style": "Normal"
+    },
+    {
+      "para_index": 27,
+      "text": "M\u1ede \u0110\u1ea6U\t1",
+      "style": "Normal"
+    },
+    {
+      "para_index": 34,
+      "text": "CH\u01af\u01a0NG 1. T\u1ed4NG QUAN V\u1ec0 \u0110\u1ec0 T\u00c0I\t3",
+      "style": "Normal"
+    },
+    {
+      "para_index": 43,
+      "text": "CH\u01af\u01a0NG 2. C\u01a0 S\u1ede L\u00dd THUY\u1ebeT V\u00c0 C\u00d4NG NGH\u1ec6\t9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 56,
+      "text": "CH\u01af\u01a0NG 3. PH\u00c2N T\u00cdCH V\u00c0 THI\u1ebeT K\u1ebe H\u1ec6 TH\u1ed0NG\t18",
+      "style": "Normal"
+    },
+    {
+      "para_index": 65,
+      "text": "CH\u01af\u01a0NG 4. PH\u00c1T TRI\u1ec2N V\u00c0 K\u1ebeT QU\u1ea2\t42",
+      "style": "Normal"
+    },
+    {
+      "para_index": 74,
+      "text": "K\u1ebeT LU\u1eacN V\u00c0 H\u01af\u1edaNG PH\u00c1T TRI\u1ec2N\t58",
+      "style": "Normal"
+    },
+    {
+      "para_index": 75,
+      "text": "T\u00c0I LI\u1ec6U THAM KH\u1ea2O\t59",
+      "style": "Normal"
+    },
+    {
+      "para_index": 76,
+      "text": "PH\u1ee4 L\u1ee4C A. DANH M\u1ee4C API\t60",
+      "style": "Normal"
+    },
+    {
+      "para_index": 77,
+      "text": "PH\u1ee4 L\u1ee4C B. DANH M\u1ee4C M\u00d4 H\u00ccNH D\u1eee LI\u1ec6U\t62",
+      "style": "Normal"
+    },
+    {
+      "para_index": 78,
+      "text": "PH\u1ee4 L\u1ee4C C. H\u01af\u1edaNG D\u1eaaN V\u1eacN H\u00c0NH V\u00c0 KI\u1ec2M TH\u1eec\t67",
+      "style": "Normal"
+    },
+    {
+      "para_index": 79,
+      "text": "PH\u1ee4 L\u1ee4C D. H\u01af\u1edaNG D\u1eaaN S\u1eec D\u1ee4NG T\u00d3M T\u1eaeT\t69",
+      "style": "Normal"
+    },
+    {
+      "para_index": 210,
+      "text": "Kh\u1ea3o s\u00e1t hi\u1ec7n tr\u1ea1ng",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 246,
+      "text": "C\u00f4ng ngh\u1ec7 s\u1eed d\u1ee5ng ph\u00e1t tri\u1ec3n Web",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 2056,
+      "text": "Thi\u1ebft k\u1ebf c\u01a1 s\u1edf d\u1eef li\u1ec7u",
+      "style": "List Paragraph"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 4,
+        "text": "\u0110\u1ed3 \u00e1n t\u1eadp trung v\u00e0o vi\u1ec7c x\u00e2y d\u1ef1ng m\u1ed9t n\u1ec1n t\u1ea3ng tra c\u1ee9u v\u00e0 nghi\u00ean c\u1ee9u th\u00f4ng tin thi\u1ebft b\u1ecb c\u00f4ng ngh\u1ec7. H\u1ec7 th\u1ed1ng \u0111\u01b0\u1ee3c ph\u00e1t tr",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "text": "C\u00e1c ch\u1ee9c n\u0103ng ch\u00ednh c\u1ee7a h\u1ec7 th\u1ed1ng bao g\u1ed3m qu\u1ea3n l\u00fd danh m\u1ee5c thi\u1ebft b\u1ecb v\u00e0 linh ki\u1ec7n ph\u1ea7n c\u1ee9ng, t\u00ecm ki\u1ebfm v\u00e0 l\u1ecdc s\u1ea3n ph\u1ea9m, xem",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "text": "V\u1ec1 m\u1eb7t c\u00f4ng ngh\u1ec7, h\u1ec7 th\u1ed1ng \u0111\u01b0\u1ee3c t\u1ed5 ch\u1ee9c theo m\u00f4 h\u00ecnh monorepo, s\u1eed d\u1ee5ng Next.js v\u00e0 React \u0111\u1ec3 ph\u00e1t tri\u1ec3n giao di\u1ec7n, NestJS ",
+        "style": "Normal"
+      },
+      {
+        "para_index": 7,
+        "text": "K\u1ebft qu\u1ea3 tri\u1ec3n khai cho th\u1ea5y SpecHub \u0111\u00e3 x\u00e2y d\u1ef1ng \u0111\u01b0\u1ee3c n\u1ec1n t\u1ea3ng c\u01a1 b\u1ea3n cho vi\u1ec7c qu\u1ea3n l\u00fd v\u00e0 khai th\u00e1c d\u1eef li\u1ec7u thi\u1ebft b\u1ecb theo",
+        "style": "Normal"
+      },
+      {
+        "para_index": 12,
+        "text": "H\u00e0 N\u1ed9i, th\u00e1ng 8 n\u0103m 2026\nNh\u00f3m ph\u00e1t tri\u1ec3n Spechub",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 5,
+        "run_text": "Retrieval-Augmented Generation (RAG)",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "monorepo",
+        "style": "Normal"
+      },
+      {
+        "para_index": 10,
+        "run_text": "Nh\u00f3m th\u1ef1c hi\u1ec7n xin cam \u0111oan b\u00e1o c\u00e1o \u0111\u1ed3 \u00e1n t\u1ed1t nghi\u1ec7p n\u00e0y l\u00e0 k\u1ebft qu\u1ea3 c\u1ee7a qu\u00e1 tr\u00ecn",
+        "style": "Normal"
+      },
+      {
+        "para_index": 11,
+        "run_text": "C\u00e1c ki\u1ebfn th\u1ee9c, t\u00e0i li\u1ec7u v\u00e0 c\u00f4ng ngh\u1ec7 \u0111\u01b0\u1ee3c tham kh\u1ea3o \u0111\u1ec1u \u0111\u01b0\u1ee3c ghi r\u00f5 trong ph\u1ea7n T",
+        "style": "Normal"
+      },
+      {
+        "para_index": 12,
+        "run_text": "H\u00e0 N\u1ed9i, th\u00e1ng 8 n\u0103m 2026",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

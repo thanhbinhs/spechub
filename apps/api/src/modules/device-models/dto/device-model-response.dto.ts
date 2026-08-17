@@ -1,39 +1,42 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class DeviceModelResponseDto {
   @ApiProperty()
-  id!: string
+  id!: string;
 
   @ApiProperty()
-  product_family_id!: string
+  product_family_id!: string;
 
   @ApiProperty()
-  name!: string
+  name!: string;
 
   @ApiProperty()
-  slug!: string
+  slug!: string;
 
   @ApiPropertyOptional()
-  internal_codename?: string | null
+  internal_codename?: string | null;
 
   @ApiPropertyOptional()
-  announcement_date?: Date | null
+  announcement_date?: Date | null;
 
   @ApiPropertyOptional()
-  release_date?: Date | null
+  release_date?: Date | null;
 
   @ApiPropertyOptional()
-  generation_label?: string | null
+  generation_label?: string | null;
 
   @ApiPropertyOptional()
-  description?: string | null
+  summary?: string | null;
 
   @ApiPropertyOptional()
-  cover_image_url?: string | null
+  description?: string | null;
+
+  @ApiPropertyOptional()
+  cover_image_url?: string | null;
 
   @ApiProperty()
-  created_at!: Date
+  created_at!: Date;
 
   @ApiProperty()
-  updated_at!: Date
+  updated_at!: Date;
 }

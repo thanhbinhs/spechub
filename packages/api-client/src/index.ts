@@ -81,6 +81,7 @@ export type DeviceModelSummary = {
   name: string;
   slug: string;
   internal_codename?: string | null;
+  summary?: string | null;
   description?: string | null;
   cover_image_url?: string | null;
   announcement_date?: string | null;
@@ -88,6 +89,8 @@ export type DeviceModelSummary = {
   end_of_sale_date?: string | null;
   end_of_support_date?: string | null;
   generation_label?: string | null;
+  created_at?: string;
+  updated_at?: string;
   product_family?: ProductFamily & {
     brand_org?: Organization;
     device_category?: DeviceCategory;
@@ -105,9 +108,34 @@ export type Chipset = {
   slug: string;
   chip_kind?: string;
   model_code?: string | null;
+  description?: string | null;
+  announcement_date?: string | null;
+  release_date?: string | null;
   integrated_5g?: boolean | null;
   max_ram_gb?: number | null;
+  max_display_resolution?: string | null;
+  max_camera_mp?: number | null;
   manufacturer?: Organization;
+  process_node?: {
+    id: string;
+    name: string;
+    slug: string;
+    marketing_name?: string | null;
+    node_nm?: string | number | null;
+    release_year?: number | null;
+  } | null;
+  chipset_cpu_links?: Array<{ is_primary: boolean; cpu: Cpu }>;
+  chipset_gpu_links?: Array<{ is_primary: boolean; gpu: Gpu }>;
+  chipset_npu_links?: Array<{ is_primary: boolean; npu: Npu }>;
+  chipset_modem_links?: Array<{
+    is_primary: boolean;
+    is_integrated: boolean;
+    modem: Modem;
+  }>;
+  chipset_benchmarks?: VariantPerformanceResult[];
+  _count?: {
+    variant_chipsets?: number;
+  };
 };
 
 export type DisplayUnit = {
@@ -145,6 +173,19 @@ export type Cpu = {
   thread_count?: number | null;
   big_little?: boolean | null;
   isa_name?: string | null;
+  microarchitecture?: string | null;
+  core_type?: string | null;
+  max_frequency_mhz?: number | null;
+  min_frequency_mhz?: number | null;
+  l1_instruction_cache?: string | null;
+  l1_data_cache?: string | null;
+  l2_cache?: string | null;
+  l3_cache?: string | null;
+  supports_64bit?: boolean | null;
+  simd_extension?: string | null;
+  virtualization?: boolean | null;
+  out_of_order?: boolean | null;
+  smt?: boolean | null;
   description?: string | null;
   manufacturer?: Organization;
   architecture?: { id: string; name: string; slug: string } | null;
@@ -170,9 +211,6 @@ export type HardwareModuleKind =
   | "memory-standard"
   | "storage-standard"
   | "operating-system"
-  | "wireless-standard"
-  | "port-standard"
-  | "sensor"
   | "camera"
   | "display"
   | "battery";
@@ -185,16 +223,74 @@ export type AdminHardwareModuleKind =
   | "modem"
   | "memory-standard"
   | "storage-standard"
-  | "wireless-standard"
-  | "port-standard"
-  | "operating-system"
-  | "sensor";
+  | "operating-system";
+
+export type ChipsetCpuComponentInput = {
+  name: string;
+  slug: string;
+  description?: string;
+  core_count?: number;
+  isa_name?: string;
+  microarchitecture?: string;
+  max_frequency_mhz?: number;
+  supports_64bit?: boolean;
+  clusters?: Array<{
+    cluster_name?: string;
+    core_microarchitecture: string;
+    core_count: number;
+    clock_ghz?: number;
+    cluster_order?: number;
+  }>;
+};
+
+export type ChipsetGpuComponentInput = {
+  name: string;
+  slug: string;
+  description?: string;
+  gpu_generation?: string;
+  clock_mhz?: number;
+  api_support?: string;
+  opengl_version?: string;
+  opencl_version?: string;
+  vulkan_version?: string;
+  ray_tracing_support?: boolean;
+};
+
+export type ChipsetNpuComponentInput = {
+  name: string;
+  slug: string;
+  description?: string;
+  dedicated_npu?: boolean;
+  tops?: number;
+  ai_engine_version?: string;
+  dsp_name?: string;
+  tensor_accelerator?: string;
+  supports_int8?: boolean;
+  supports_fp16?: boolean;
+  quantization?: string;
+};
+
+export type ChipsetBenchmarkResultInput = {
+  benchmark_id: string;
+  score: number;
+  subscore_name?: string;
+  source_id?: string;
+  tested_at?: string;
+  test_environment_note?: string;
+  ambient_temp_c?: number;
+  os_version?: string;
+  app_version?: string;
+  power_mode?: string;
+  is_thermal_throttled?: boolean;
+};
 
 export type CreateHardwareModuleInput = {
   kind: AdminHardwareModuleKind;
   name: string;
   slug: string;
-  description?: string;
+  description: string;
+  image_url?: string | null;
+  image_source_url?: string | null;
   organization_id?: string;
   category?: string;
   model_code?: string;
@@ -206,42 +302,109 @@ export type CreateHardwareModuleInput = {
   max_camera_mp?: number;
   announcement_date?: string;
   release_date?: string;
+  cpu_id?: string | null;
+  gpu_id?: string | null;
+  npu_id?: string | null;
+  modem_id?: string | null;
+  modem_is_integrated?: boolean;
+  cpu?: ChipsetCpuComponentInput;
+  gpu?: ChipsetGpuComponentInput;
+  npu?: ChipsetNpuComponentInput;
+  benchmark_results?: ChipsetBenchmarkResultInput[];
+  clusters?: ChipsetCpuComponentInput["clusters"];
   core_count?: number;
   thread_count?: number;
   big_little?: boolean;
   isa_name?: string;
+  microarchitecture?: string;
+  core_type?: string;
+  max_frequency_mhz?: number;
+  min_frequency_mhz?: number;
+  l1_instruction_cache?: string;
+  l1_data_cache?: string;
+  l2_cache?: string;
+  l3_cache?: string;
+  simd_extension?: string;
+  virtualization?: boolean;
+  out_of_order?: boolean;
+  smt?: boolean;
   shader_units?: number;
   compute_units?: number;
   clock_mhz?: number;
   fp32_gflops?: number;
   ray_tracing_support?: boolean;
   api_support?: string;
+  gpu_generation?: string;
+  opengl_version?: string;
+  opencl_version?: string;
+  vulkan_version?: string;
+  directx_feature_level?: string;
+  metal_support?: boolean;
+  cuda_support?: boolean;
+  video_decode_codecs?: string;
+  video_encode_codecs?: string;
   tops?: number;
+  tops_int8?: number;
   tops_int4?: number;
   tops_fp16?: number;
+  dedicated_npu?: boolean;
+  dsp_name?: string;
+  ai_engine_version?: string;
+  tensor_accelerator?: string;
+  supports_int8?: boolean;
+  supports_fp16?: boolean;
+  supports_fp32?: boolean;
+  quantization?: string;
   max_downlink_mbps?: number;
   max_uplink_mbps?: number;
   supports_mmwave?: boolean;
   supports_satellite?: boolean;
   supported_5g_modes?: string;
+  lte_category?: string;
+  supports_5g_nr?: boolean;
+  carrier_aggregation?: boolean;
+  volte?: boolean;
+  vonr?: boolean;
+  dual_sim_capability?: string;
+  supported_technologies?: string;
   generation?: string;
   max_data_rate_mtps?: number;
   typical_data_rate_mtps?: number;
+  jedec_standard?: string;
+  prefetch?: string;
+  ecc?: boolean;
+  dual_channel?: boolean;
   voltage?: number;
   bandwidth_gbps?: number;
   channel_width_bits?: number;
+  maximum_capacity_gb?: number;
   is_mobile?: boolean;
   release_year?: number;
+  interface?: string;
+  half_duplex?: boolean;
+  full_duplex?: boolean;
+  command_queue?: boolean;
+  boot_partition?: boolean;
+  rpmb?: boolean;
+  trim?: boolean;
+  secure_erase?: boolean;
+  hs200?: boolean;
+  hs400?: boolean;
+  /** @deprecated Storage performance belongs in the benchmark module. */
   sequential_read_mbps?: number;
+  /** @deprecated Storage performance belongs in the benchmark module. */
   sequential_write_mbps?: number;
+  /** @deprecated Storage performance belongs in the benchmark module. */
   random_read_iops?: number;
+  /** @deprecated Storage performance belongs in the benchmark module. */
   random_write_iops?: number;
-  max_speed_mbps?: number;
-  data_speed_gbps?: number;
-  power_delivery_w?: number;
-  alt_modes?: string;
   kernel_type?: string;
+  kernel_name?: string;
+  license_name?: string;
   is_open_source?: boolean;
+  initial_release_date?: string;
+  os_type?: string;
+  supported_architectures?: string;
 };
 
 export type CreatedHardwareModule = {
@@ -250,6 +413,41 @@ export type CreatedHardwareModule = {
   name: string;
   slug: string;
   description: string | null;
+  image_url?: string | null;
+  image_source_url?: string | null;
+};
+
+export type UpdateHardwareModuleInput = Partial<
+  Omit<CreateHardwareModuleInput, "kind">
+>;
+
+export type AdminHardwareModuleRecord = Omit<
+  CreateHardwareModuleInput,
+  "kind" | "organization_id" | "category" | "description"
+> & {
+  id: string;
+  description?: string | null;
+  manufacturer_org_id?: string | null;
+  organization_id?: string | null;
+  vendor_org_id?: string | null;
+  chip_kind?: string | null;
+  memory_type?: string | null;
+  storage_type?: string | null;
+  os_family?: string | null;
+  manufacturer?: Organization | null;
+  organization?: Organization | null;
+  vendor?: Organization | null;
+  chipset_cpu_links?: Array<{ is_primary: boolean; cpu: Cpu }>;
+  chipset_gpu_links?: Array<{ is_primary: boolean; gpu: Gpu }>;
+  chipset_npu_links?: Array<{ is_primary: boolean; npu: Npu }>;
+  chipset_modem_links?: Array<{
+    is_primary: boolean;
+    is_integrated: boolean;
+    modem: Modem;
+  }>;
+  chipset_benchmarks?: VariantPerformanceResult[];
+  cpu_clusters?: Cpu["cpu_clusters"];
+  _count?: Record<string, number>;
 };
 
 export type HardwareDeviceUsage = {
@@ -267,6 +465,7 @@ export type HardwareDeviceUsage = {
     id: string;
     name: string;
     slug: string;
+    cover_image_url?: string | null;
     generation_label?: string | null;
     release_date?: string | null;
     product_family?: {
@@ -309,11 +508,26 @@ export type HardwareModuleDetail = {
   name: string;
   slug: string;
   description?: string | null;
+  image_url?: string | null;
+  image_source_url?: string | null;
+  image_is_module?: boolean;
+  image_device?: {
+    name: string;
+    slug: string;
+  } | null;
   organization?: Pick<
     Organization,
-    "id" | "name" | "slug" | "short_name"
+    "id" | "name" | "slug" | "short_name" | "logo_url"
   > | null;
   specs: Record<string, unknown>;
+  field_coverage: Record<
+    string,
+    {
+      status: "populated" | "derived" | "not_disclosed" | "not_applicable";
+      source_url?: string | null;
+      notes?: string | null;
+    }
+  >;
   devices: HardwareDeviceUsage[];
   research: {
     variant_count: number;
@@ -338,10 +552,12 @@ export type HardwareResearchFocus =
 
 export type HardwareEvidenceStatus =
   | "measured"
+  | "modeled"
   | "partial"
   | "insufficient_data";
 
 export type HardwareEvidenceQuality = "strong" | "moderate" | "limited";
+export type HardwareScoreBasis = "benchmark" | "configuration_model" | "none";
 
 export type HardwareResearchResponse = {
   data: {
@@ -362,6 +578,7 @@ export type HardwareResearchResponse = {
       linked_device_count: number;
       benchmarked_device_count: number;
       comparable_device_count: number;
+      modeled_device_count: number;
       benchmark_result_count: number;
       comparable_metric_count: number;
     };
@@ -369,6 +586,14 @@ export type HardwareResearchResponse = {
       rank: number | null;
       status: HardwareEvidenceStatus;
       effectiveness_score: number | null;
+      score_basis: HardwareScoreBasis;
+      score_label: string;
+      score_details: {
+        source: string;
+        version: string;
+        rationale: string | null;
+        factors: unknown;
+      } | null;
       evidence_quality: HardwareEvidenceQuality;
       device: {
         variant_id: string;
@@ -392,6 +617,7 @@ export type HardwareResearchResponse = {
       metrics: {
         benchmark_count: number;
         comparable_metric_count: number;
+        configuration_score_available: boolean;
         throttled_result_count: number;
         undocumented_condition_count: number;
       };
@@ -439,7 +665,7 @@ export type HardwareResearchResponse = {
     disclaimer: string;
   };
   meta: {
-    source: "structured_benchmarks";
+    source: "hybrid_module_scores";
     scoring_version: string;
     generated_by: "rule_engine" | "hybrid";
     rag_provider: string;
@@ -457,6 +683,16 @@ export type Gpu = {
   fp32_gflops?: string | number | null;
   ray_tracing_support?: boolean | null;
   api_support?: string | null;
+  gpu_generation?: string | null;
+  opengl_version?: string | null;
+  opencl_version?: string | null;
+  vulkan_version?: string | null;
+  directx_feature_level?: string | null;
+  metal_support?: boolean | null;
+  cuda_support?: boolean | null;
+  video_decode_codecs?: string | null;
+  video_encode_codecs?: string | null;
+  max_display_resolution?: string | null;
   manufacturer?: Organization;
   architecture?: { id: string; name: string; slug: string } | null;
 };
@@ -466,8 +702,17 @@ export type Npu = {
   name: string;
   slug: string;
   tops?: string | number | null;
+  tops_int8?: string | number | null;
   tops_int4?: string | number | null;
   tops_fp16?: string | number | null;
+  dedicated_npu?: boolean;
+  dsp_name?: string | null;
+  ai_engine_version?: string | null;
+  tensor_accelerator?: string | null;
+  supports_int8?: boolean | null;
+  supports_fp16?: boolean | null;
+  supports_fp32?: boolean | null;
+  quantization?: string | null;
   manufacturer?: Organization;
   architecture?: { id: string; name: string; slug: string } | null;
 };
@@ -481,11 +726,19 @@ export type Modem = {
   supports_mmwave?: boolean | null;
   supports_satellite?: boolean | null;
   supported_5g_modes?: string | null;
+  lte_category?: string | null;
+  supports_5g_nr?: boolean | null;
+  carrier_aggregation?: boolean | null;
+  volte?: boolean | null;
+  vonr?: boolean | null;
+  dual_sim_capability?: string | null;
+  supported_technologies?: string | null;
   manufacturer?: Organization;
 };
 
 export type MemoryConfig = {
   capacity_gb: number;
+  /** @deprecated Device-level speed is retained only for historical records. */
   speed_mhz?: number | null;
   bandwidth_gbps?: string | number | null;
   channel_count?: number | null;
@@ -499,8 +752,13 @@ export type MemoryConfig = {
     generation?: string | null;
     max_data_rate_mtps?: number | null;
     typical_data_rate_mtps?: number | null;
+    jedec_standard?: string | null;
+    prefetch?: string | null;
+    ecc?: boolean | null;
+    dual_channel?: boolean | null;
     bandwidth_gbps?: string | number | null;
     channel_width_bits?: number | null;
+    maximum_capacity_gb?: number | null;
   };
 };
 
@@ -515,8 +773,17 @@ export type StorageConfig = {
     slug: string;
     storage_type?: string | null;
     generation?: string | null;
-    sequential_read_mbps?: number | null;
-    sequential_write_mbps?: number | null;
+    jedec_standard?: string | null;
+    interface?: string | null;
+    half_duplex?: boolean | null;
+    full_duplex?: boolean | null;
+    command_queue?: boolean | null;
+    boot_partition?: boolean | null;
+    rpmb?: boolean | null;
+    trim?: boolean | null;
+    secure_erase?: boolean | null;
+    hs200?: boolean | null;
+    hs400?: boolean | null;
   };
 };
 
@@ -547,6 +814,127 @@ export type OperatingSystemModule = {
   } | null;
 };
 
+export type OperatingSystemVersionRecord = {
+  id: string;
+  version_name: string;
+  codename?: string | null;
+  release_date?: string | null;
+  api_level?: number | null;
+  operating_system: {
+    id: string;
+    name: string;
+    slug: string;
+    os_family: string;
+  };
+};
+
+export type OperatingSystemRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  os_family: string;
+};
+
+export type OsUiLayerRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  vendor?: Organization | null;
+  base_os?: OperatingSystemRecord | null;
+};
+
+export type CreateOperatingSystemVersionInput = {
+  operating_system_id?: string;
+  operating_system?: {
+    name: string;
+    slug: string;
+    os_family: string;
+    vendor_org_id?: string;
+    description?: string;
+  };
+  version_name: string;
+  codename?: string;
+  release_date?: string;
+  end_of_support_date?: string;
+  api_level?: number;
+  kernel_version?: string;
+  notes?: string;
+};
+
+export type CreateOsUiLayerVersionInput = {
+  ui_layer_id?: string;
+  ui_layer?: {
+    name: string;
+    slug: string;
+    vendor_org_id?: string;
+    base_os_id?: string;
+    description?: string;
+  };
+  version_name: string;
+  base_os_version_id?: string;
+  release_date?: string;
+  notes?: string;
+};
+
+export type OsUiLayerVersionRecord = {
+  id: string;
+  version_name: string;
+  release_date?: string | null;
+  ui_layer: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  base_os_version?: {
+    id: string;
+    version_name: string;
+    operating_system: { id: string; name: string; slug: string };
+  } | null;
+};
+
+export type VariantScorecardMetric = {
+  key: string;
+  label: string;
+  value: number;
+  unit?: string;
+  score: number;
+  weight: number;
+  source:
+    | "benchmark"
+    | "specification"
+    | "feature"
+    | "derived"
+    | "reference"
+    | "manual";
+  sourceLabel: string;
+};
+
+export type VariantScorecardModule = {
+  id: string;
+  module_key: string;
+  module_name: string;
+  score: string | number;
+  weight_percent: string | number;
+  coverage_percent: string | number;
+  rationale?: string | null;
+  raw_metrics?: VariantScorecardMetric[] | null;
+};
+
+export type VariantScorecard = {
+  id: string;
+  category_slug: string;
+  score_version: string;
+  overall_score: string | number;
+  coverage_percent: string | number;
+  score_source: "benchmark_mixed" | "specification_model" | string;
+  raw_metric_count: number;
+  rationale?: string | null;
+  factors?: unknown;
+  calculated_at: string;
+  module_scores: VariantScorecardModule[];
+};
+
 export type DeviceVariantSummary = {
   id: string;
   device_model_id?: string;
@@ -561,6 +949,18 @@ export type DeviceVariantSummary = {
   is_default?: boolean;
   currency?: Currency | null;
   release_status?: ReleaseStatus;
+  device_variant_benchmarks?: VariantPerformanceResult[];
+  variant_module_scores?: Array<{
+    module_kind: HardwareModuleKind;
+    module_id: string;
+    score: string | number;
+    score_source?: string;
+    score_version?: string;
+    rationale?: string | null;
+    factors?: unknown;
+  }>;
+  variant_score_metric_inputs?: VariantScoreMetricInput[];
+  variant_scorecards?: VariantScorecard[];
   device_model?: DeviceModelSummary;
 };
 
@@ -569,7 +969,6 @@ export type DeviceVariantDetail = DeviceVariantSummary & {
   variant_physical_specs?: Record<string, unknown> | null;
   variant_io_specs?: Record<string, unknown> | null;
   variant_thermal_specs?: Record<string, unknown> | null;
-  device_variant_benchmarks?: VariantPerformanceResult[];
   variant_chipsets?: Array<{
     chip_role: string;
     is_primary: boolean;
@@ -595,44 +994,10 @@ export type DeviceVariantDetail = DeviceVariantSummary & {
   }>;
   variant_memory_configs?: MemoryConfig[];
   variant_storage_configs?: StorageConfig[];
-  variant_ports?: Array<{
-    port_count: number;
-    notes?: string | null;
-    port_standard: {
-      id: string;
-      name: string;
-      slug: string;
-      port_type: string;
-      data_speed_gbps?: string | number | null;
-      power_delivery_w?: number | null;
-      alt_modes?: string | null;
-    };
-  }>;
-  variant_wireless_support?: Array<{
-    notes?: string | null;
-    wireless_standard: {
-      id: string;
-      name: string;
-      slug: string;
-      wireless_type: string;
-      max_speed_mbps?: number | null;
-    };
-  }>;
   variant_wifi_bands?: Array<{
     wifi_band: { id: string; name: string; frequency_range?: string | null };
   }>;
   variant_operating_systems?: OperatingSystemModule[];
-  variant_hardware_sensors?: Array<{
-    notes?: string | null;
-    hardware_sensor: {
-      id: string;
-      name: string;
-      slug: string;
-      sensor_category: string;
-      description?: string | null;
-      manufacturer?: Organization | null;
-    };
-  }>;
   variant_cellular_band_support?: Array<{
     cellular_band: {
       id: string;
@@ -700,6 +1065,40 @@ export type VariantPerformanceResult = {
 
 export type DeviceModelDetail = Omit<DeviceModelSummary, "device_variants"> & {
   device_variants?: DeviceVariantDetail[];
+  media?: DeviceMediaAsset[];
+  aliases?: Array<{
+    id: string;
+    alias: string;
+    alias_type: string;
+    normalized_alias: string;
+    region_code?: string | null;
+  }>;
+  editorial_sections?: Array<{
+    id: string;
+    section_key: string;
+    title: string;
+    body_markdown: string;
+    display_order: number;
+    is_published: boolean;
+    updated_at?: string;
+  }>;
+};
+
+export type DeviceMediaAsset = {
+  id: string;
+  asset_type: "image" | "video";
+  url: string;
+  role: string;
+  display_order: number;
+  is_primary: boolean;
+  mime_type?: string | null;
+  alt_text?: string | null;
+  caption?: string | null;
+  width_px?: number | null;
+  height_px?: number | null;
+  duration_ms?: string | null;
+  file_size_bytes?: string | null;
+  original_filename?: string | null;
 };
 
 export type AuthUser = {
@@ -741,6 +1140,94 @@ export type AdminUserList = {
   };
 };
 
+export type AdminDashboardOverview = {
+  generated_at: string;
+  kpis: {
+    device_models: number;
+    device_variants: number;
+    benchmark_coverage_percent: number;
+    published_wiki: number;
+    active_users: number | null;
+  };
+  score_health: {
+    total_variants: number;
+    fully_scored: number;
+    partial_scored: number;
+    missing_scorecards: number;
+    average_coverage: number;
+    average_score: number;
+  };
+  catalog_by_category: Array<{
+    slug: string;
+    label: string;
+    count: number;
+    percent: number;
+  }>;
+  content_statuses: Array<{
+    status: string;
+    label: string;
+    count: number;
+  }>;
+  module_coverage: Array<{
+    key: string;
+    label: string;
+    coverage: number;
+    average_score: number;
+    device_count: number;
+  }>;
+  monthly_activity: Array<{
+    month: string;
+    device_models: number;
+    wiki_articles: number;
+    users: number;
+  }>;
+  engagement: {
+    searches_30d: number;
+    affiliate_clicks_30d: number;
+    wiki_views: number;
+    active_subscriptions: number;
+  };
+  inventory: {
+    hardware_modules: number;
+    hardware_by_kind: Array<{
+      key: string;
+      label: string;
+      count: number;
+    }>;
+    benchmark_results: number;
+    active_partners: number;
+    ai_chunks: number;
+    indexed_device_models: number;
+    indexed_knowledge_records: number;
+  };
+  attention_items: Array<{
+    id: string;
+    tone: "danger" | "warning" | "info" | "success";
+    label: string;
+    detail: string;
+    count: number;
+    tab:
+      | "device-management"
+      | "users"
+      | "hardware"
+      | "affiliates"
+      | "subscriptions";
+  }>;
+  recent_activity: Array<{
+    id: string;
+    type: "device" | "wiki" | "score";
+    label: string;
+    detail: string;
+    occurred_at: string;
+    tab:
+      | "device-management"
+      | "users"
+      | "hardware"
+      | "affiliates"
+      | "subscriptions";
+  }>;
+};
+
 export type AiCitation = {
   entity_type: string;
   entity_id: string;
@@ -761,6 +1248,135 @@ export type AiContextChunk = {
   excerpt?: string;
 };
 
+export type AiConversationMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export type DeviceRecommendationUseCase =
+  | "gaming"
+  | "photography"
+  | "productivity"
+  | "travel"
+  | "long_term"
+  | "value";
+
+export type DeviceRecommendationPriority =
+  | "performance"
+  | "battery"
+  | "camera"
+  | "display"
+  | "price"
+  | "portability"
+  | "software"
+  | "storage";
+
+export type DeviceRecommendationMustHave =
+  | "5g"
+  | "oled"
+  | "high_refresh"
+  | "wireless_charging"
+  | "ois"
+  | "expandable_storage"
+  | "lightweight";
+
+export type DeviceRecommendationOperatingSystem =
+  | "any"
+  | "android"
+  | "ios"
+  | "windows"
+  | "macos"
+  | "linux";
+
+export type DeviceRecommendationInput = {
+  category_slug: string;
+  budget_max?: number;
+  currency_code?: string;
+  operating_system?: DeviceRecommendationOperatingSystem;
+  use_cases: DeviceRecommendationUseCase[];
+  priorities?: DeviceRecommendationPriority[];
+  must_haves?: DeviceRecommendationMustHave[];
+  min_storage_gb?: 128 | 256 | 512 | 1024 | 2048;
+  limit?: number;
+};
+
+export type DeviceRecommendation = {
+  rank: number;
+  match_score: number;
+  confidence_label: "high" | "medium" | "low";
+  evidence_coverage: number;
+  model: {
+    id: string;
+    name: string;
+    slug: string;
+    summary: string;
+    cover_image_url?: string | null;
+    release_date?: string | null;
+    product_family: ProductFamily & {
+      brand_org: Organization;
+      device_category: DeviceCategory;
+    };
+    release_status: ReleaseStatus;
+  };
+  variant: {
+    id: string;
+    variant_name: string;
+    market_name?: string | null;
+    color_name?: string | null;
+    color_hex?: string | null;
+    launch_price?: number | null;
+    currency?: Currency | null;
+    storage_gb?: number | null;
+    operating_system?: {
+      name: string;
+      slug: string;
+      family: string;
+      version_name: string;
+    } | null;
+  };
+  reasons: string[];
+  trade_offs: string[];
+  matched_requirements: string[];
+  score_breakdown: Array<{
+    key: DeviceRecommendationPriority;
+    label: string;
+    score: number;
+    weight: number;
+    source: "scorecard" | "specification" | "missing";
+    evidence: string;
+  }>;
+};
+
+export type DeviceRecommendationResponse = {
+  data: {
+    preferences: {
+      category_slug: string;
+      budget_max: number | null;
+      currency_code: string;
+      operating_system: DeviceRecommendationOperatingSystem;
+      use_cases: DeviceRecommendationUseCase[];
+      priorities: DeviceRecommendationPriority[];
+      must_haves: DeviceRecommendationMustHave[];
+      min_storage_gb: number | null;
+    };
+    recommendations: DeviceRecommendation[];
+  };
+  meta: {
+    candidate_count: number;
+    eligible_count: number;
+    returned_count: number;
+    excluded_count: number;
+    generated_at: string;
+    scoring_version: string;
+  };
+};
+
+export type AiAskInput = {
+  question: string;
+  top_k?: number;
+  history?: AiConversationMessage[];
+};
+
 export type AiAskResponse = {
   data: {
     question: string;
@@ -769,11 +1385,24 @@ export type AiAskResponse = {
     contexts: AiContextChunk[];
     cached: boolean;
     model_name: string;
+    follow_up_questions: string[];
+    warnings: string[];
   };
   meta: {
     source: string;
     top_k?: number;
     embedding_model?: string;
+    rag_provider?: string;
+    intent?:
+      | "compare"
+      | "ranking"
+      | "recommendation"
+      | "lookup"
+      | "conversation";
+    confidence?: number;
+    confidence_label?: "high" | "medium" | "low";
+    contextual_follow_up?: boolean;
+    answer_version?: string;
   };
 };
 
@@ -784,6 +1413,12 @@ export type AiSearchResponse = {
     top_k: number;
     source: string;
     embedding_model: string;
+    intent?:
+      | "compare"
+      | "ranking"
+      | "recommendation"
+      | "lookup"
+      | "conversation";
   };
 };
 
@@ -792,6 +1427,8 @@ export type AiEmbeddingStats = {
     total_chunks: number;
     indexed_device_models: number;
     device_models: number;
+    indexed_knowledge_records: number;
+    knowledge_sources: number;
     indexes: Array<{
       model_name: string;
       entity_type: string;
@@ -799,9 +1436,63 @@ export type AiEmbeddingStats = {
     }>;
   };
   meta: {
+    rag_provider: string;
+    rag_model: string;
+    provider_status: {
+      status: "ready" | "unreachable" | "model_missing" | "configured";
+      reachable: boolean | null;
+      modelAvailable: boolean | null;
+    };
+    embedding_provider: string;
     embedding_model: string;
   };
 };
+
+export type AiStreamEvent =
+  | {
+      type: "status";
+      stage:
+        | "cache"
+        | "retrieving"
+        | "grounding"
+        | "generating"
+        | "verifying"
+        | "complete";
+      message: string;
+    }
+  | {
+      type: "context";
+      citations: AiCitation[];
+      contexts: AiContextChunk[];
+      grounded_draft: string;
+      meta: {
+        source: string;
+        intent:
+          | "compare"
+          | "ranking"
+          | "recommendation"
+          | "lookup"
+          | "conversation";
+        top_k: number;
+        contextual_follow_up?: boolean;
+      };
+    }
+  | {
+      type: "delta";
+      text: string;
+    }
+  | {
+      type: "reset";
+      reason: "repair" | "fallback";
+    }
+  | {
+      type: "result";
+      response: AiAskResponse;
+    }
+  | {
+      type: "error";
+      message: string;
+    };
 
 export type ListParams = Record<
   string,
@@ -817,7 +1508,7 @@ export type CreateOrganizationInput = {
   founded_year?: number;
   website_url?: string;
   logo_url?: string;
-  description?: string;
+  description: string;
   is_active?: boolean;
 };
 
@@ -840,7 +1531,7 @@ export type CreateProductFamilyInput = {
   device_category_id: string;
   name: string;
   slug: string;
-  description?: string;
+  description: string;
   cover_image_url?: string;
   first_release_year?: number;
   last_release_year?: number;
@@ -860,8 +1551,21 @@ export type CreateDeviceModelInput = {
   end_of_sale_date?: string;
   end_of_support_date?: string;
   generation_label?: string;
-  description?: string;
+  summary: string;
+  description: string;
   cover_image_url?: string;
+  aliases?: Array<{
+    alias: string;
+    alias_type?: string;
+    region_code?: string;
+  }>;
+  editorial_sections?: Array<{
+    section_key: string;
+    title: string;
+    body_markdown: string;
+    display_order?: number;
+    is_published?: boolean;
+  }>;
 };
 
 export type UpdateDeviceModelInput = Partial<CreateDeviceModelInput>;
@@ -919,6 +1623,143 @@ export type VariantPerformanceResultInput = {
   is_thermal_throttled?: boolean;
 };
 
+export type VariantHardwareLinkInput = {
+  module_id: string;
+  role?: string;
+  is_primary?: boolean;
+};
+
+export type VariantMemoryConfigInput = {
+  memory_standard_id: string;
+  capacity_gb: number;
+  /** @deprecated Use the data rate declared by the memory standard. */
+  speed_mhz?: number;
+  bandwidth_gbps?: number;
+  channel_count?: number;
+  is_primary?: boolean;
+  notes?: string;
+};
+
+export type VariantStorageConfigInput = {
+  storage_standard_id: string;
+  total_capacity_gb: number;
+  module_count?: number;
+  is_expandable?: boolean;
+  expansion_max_gb?: number;
+};
+
+export type VariantDisplayLinkInput = {
+  display_unit_id: string;
+  role?: string;
+  display_order?: number;
+};
+
+export type VariantBatteryLinkInput = {
+  battery_unit_id: string;
+  role?: string;
+  is_primary?: boolean;
+};
+
+export type VariantCameraSystemInput = {
+  position: "front" | "rear";
+  system_name?: string;
+  notes?: string;
+  modules: Array<{
+    camera_module_id: string;
+    role: string;
+    module_order?: number;
+    is_primary?: boolean;
+    usage_type?: string;
+    notes?: string;
+  }>;
+};
+
+export type VariantHardwareComponentsInput = {
+  chipsets?: VariantHardwareLinkInput[];
+  cpus?: VariantHardwareLinkInput[];
+  gpus?: VariantHardwareLinkInput[];
+  npus?: VariantHardwareLinkInput[];
+  modems?: VariantHardwareLinkInput[];
+  memory?: VariantMemoryConfigInput[];
+  storage?: VariantStorageConfigInput[];
+  displays?: VariantDisplayLinkInput[];
+  batteries?: VariantBatteryLinkInput[];
+  cameras?: VariantCameraSystemInput[];
+};
+
+export type VariantInlineDisplayInput = {
+  technology: string;
+  size_inch?: number;
+  aspect_ratio?: string;
+  resolution_width?: number;
+  resolution_height?: number;
+  pixel_density_ppi?: number;
+  refresh_rate_hz?: number;
+  refresh_rate_min_hz?: number;
+  ltpo_version?: string;
+  touch_sampling_hz?: number;
+  brightness_typical_nits?: number;
+  brightness_hbm_nits?: number;
+  brightness_peak_nits?: number;
+  color_gamut?: string;
+  hdr_formats?: string;
+  protection_glass?: string;
+  has_always_on?: boolean;
+  has_dc_dimming?: boolean;
+  pwm_frequency_hz?: number;
+};
+
+export type VariantInlineCameraInput = {
+  role: "main" | "ultrawide" | "telephoto" | "selfie";
+  effective_megapixel?: number;
+  aperture?: string;
+  focal_length_mm_eq?: number;
+  optical_zoom?: number;
+  field_of_view_deg?: number;
+  has_ois?: boolean;
+  has_eis?: boolean;
+  has_af?: boolean;
+  video_capabilities?: string;
+};
+
+export type VariantInlineBatteryInput = {
+  capacity_mah: number;
+  energy_wh?: number;
+  wired_charging_w?: number;
+  wired_charging_protocol?: string;
+  wireless_charging_w?: number;
+  wireless_charging_protocol?: string;
+  removable?: boolean;
+};
+
+export type VariantInlineHardwareModulesInput = {
+  display?: VariantInlineDisplayInput;
+  cameras?: VariantInlineCameraInput[];
+  battery?: VariantInlineBatteryInput;
+};
+
+export type VariantModuleScoreInput = {
+  module_kind:
+    | "chipset"
+    | "cpu"
+    | "gpu"
+    | "npu"
+    | "modem"
+    | "memory-standard"
+    | "storage-standard";
+  module_id: string;
+  score: number;
+  rationale?: string;
+};
+
+export type VariantScoreMetricInput = {
+  metric_key: string;
+  raw_value: string | number;
+  unit?: string | null;
+  normalized_score?: string | number | null;
+  source_label?: string | null;
+};
+
 export type CreateDeviceVariantInput = {
   device_model_id: string;
   variant_name: string;
@@ -936,10 +1777,271 @@ export type CreateDeviceVariantInput = {
   physical_specs?: VariantPhysicalSpecsInput;
   io_specs?: VariantIoSpecsInput;
   thermal_specs?: VariantThermalSpecsInput;
+  software_profile?: {
+    launch_os_version_id?: string;
+    current_os_version_id?: string;
+    highest_official_version_id?: string;
+    ui_layer_version_id?: string;
+    security_patch_date?: string;
+    promised_major_updates?: number;
+    promised_security_years?: number;
+    bootloader_status?: "locked" | "unlockable" | "unlocked";
+    root_status?: "unknown" | "rootable" | "rooted";
+    notes?: string;
+  };
+  connectivity_support?: Array<{
+    connectivity_feature_id: string;
+    version?: string;
+    is_supported?: boolean;
+    notes?: string;
+  }>;
+  hardware_components?: VariantHardwareComponentsInput;
+  inline_modules?: VariantInlineHardwareModulesInput;
+  /** @deprecated Device scores are calculated automatically from composed data. */
+  module_scores?: VariantModuleScoreInput[];
+  /** @deprecated Device score metrics are derived automatically. */
+  score_metric_inputs?: Array<{
+    metric_key: string;
+    raw_value: number;
+    unit?: string;
+    normalized_score?: number;
+    source_label?: string;
+  }>;
   performance_results?: VariantPerformanceResultInput[];
 };
 
+export type CreateDeviceBundleInput = {
+  model: CreateDeviceModelInput;
+  variant: Omit<CreateDeviceVariantInput, "device_model_id">;
+};
+
+export type CreatedDeviceBundle = {
+  model: Pick<
+    DeviceModelDetail,
+    "id" | "name" | "slug" | "summary" | "description"
+  >;
+  variant: DeviceVariantDetail;
+};
+
 export type UpdateDeviceVariantInput = Partial<CreateDeviceVariantInput>;
+
+export type CatalogDraft = {
+  id: string;
+  draft_type: "device" | "hardware-module" | "scoring-profile";
+  entity_table?: string | null;
+  entity_id?: string | null;
+  owner_user_id: string;
+  title: string;
+  step_key: string;
+  status: string;
+  revision: number;
+  payload: Record<string, unknown>;
+  validation_errors?: Array<{
+    path: string;
+    severity: "error" | "warning";
+    message: string;
+  }> | null;
+  last_autosaved_at?: string | null;
+  published_at?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CatalogDraftInput = {
+  draft_type: CatalogDraft["draft_type"];
+  title: string;
+  entity_table?: string;
+  entity_id?: string;
+  step_key?: string;
+  payload: Record<string, unknown>;
+};
+
+export type QuickIntakeInput = {
+  entity_type: "device" | "hardware-module";
+  hardware_kind?:
+    | "chipset"
+    | "cpu"
+    | "gpu"
+    | "npu"
+    | "modem"
+    | "memory-standard"
+    | "storage-standard"
+    | "operating-system";
+  input_type: "url" | "text" | "csv";
+  value: string;
+  source_label?: string;
+};
+
+export type QuickIntakeField = {
+  value: string;
+  confidence: number;
+  source_excerpt: string;
+};
+
+export type QuickIntakePreviewItem = {
+  index: number;
+  title: string;
+  draft_type: "device" | "hardware-module";
+  payload: Record<string, unknown>;
+  fields: Record<string, QuickIntakeField>;
+  duplicates: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    match: "name" | "slug" | "partial";
+  }>;
+  warnings: string[];
+};
+
+export type QuickIntakePreview = {
+  data: QuickIntakePreviewItem[];
+  meta: {
+    source: {
+      input_type: QuickIntakeInput["input_type"];
+      label: string;
+      url?: string;
+      retrieved_at: string;
+    };
+    count: number;
+  };
+};
+
+export type CatalogEvidenceSourceType =
+  | "official"
+  | "certification"
+  | "lab"
+  | "benchmark"
+  | "retail"
+  | "editorial";
+
+export type CatalogEvidenceClaimKind =
+  | "declared"
+  | "measured"
+  | "benchmark"
+  | "commercial"
+  | "editorial";
+
+export type CatalogEvidenceClaimStatus =
+  | "candidate"
+  | "accepted"
+  | "conflict"
+  | "rejected"
+  | "stale";
+
+export type CatalogEvidenceClaimTarget = {
+  catalog_draft_id?: string;
+  entity_table?: string;
+  entity_id?: string;
+};
+
+export type CatalogEvidenceClaimInput = CatalogEvidenceClaimTarget & {
+  field_path: string;
+  value: unknown;
+  display_value?: string;
+  source_type: CatalogEvidenceSourceType;
+  source_label: string;
+  source_url: string;
+  source_title?: string;
+  evidence_excerpt?: string;
+  claim_kind: CatalogEvidenceClaimKind;
+  scope_region?: string;
+  scope_sku?: string;
+  methodology?: string;
+  tested_at?: string;
+  confidence?: number;
+};
+
+export type CatalogEvidenceClaim = CatalogEvidenceClaimTarget & {
+  id: string;
+  field_path: string;
+  value_json: unknown;
+  display_value?: string | null;
+  claim_kind: CatalogEvidenceClaimKind;
+  scope_region?: string | null;
+  scope_sku?: string | null;
+  methodology?: string | null;
+  tested_at?: string | null;
+  retrieved_at: string;
+  evidence_excerpt?: string | null;
+  confidence?: number | string | null;
+  status: CatalogEvidenceClaimStatus;
+  resolution_note?: string | null;
+  reviewed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  source: {
+    id: string;
+    name: string;
+    slug: string;
+    source_type: CatalogEvidenceSourceType;
+    trust_level: number;
+    base_url?: string | null;
+  };
+  citation?: {
+    id: string;
+    url?: string | null;
+    title?: string | null;
+    published_at?: string | null;
+    retrieved_at?: string | null;
+    excerpt?: string | null;
+  } | null;
+};
+
+export type CatalogEvidenceCoverage = {
+  target: CatalogEvidenceClaimTarget;
+  summary: {
+    fields: number;
+    claims: number;
+    accepted: number;
+    candidates: number;
+    conflicts: number;
+    stale: number;
+    rejected: number;
+  };
+  fields: Array<{
+    field_path: string;
+    status: CatalogEvidenceClaimStatus;
+    display_value?: string | null;
+    source: string;
+    confidence?: number | string | null;
+    claim_count: number;
+  }>;
+};
+
+export type ScoringProfileAdminInput = {
+  name: string;
+  modules: Array<{
+    key: string;
+    label: string;
+    description?: string;
+    weight: number;
+    metrics: Array<{
+      key: string;
+      label: string;
+      weight: number;
+      min: number;
+      max: number;
+      direction?: "higher" | "lower";
+      scale?: "linear" | "log";
+      unit?: string;
+    }>;
+  }>;
+};
+
+export type MediaUploadInput = {
+  filename: string;
+  mime_type: string;
+  asset_type: "image" | "video";
+  file_size_bytes: number;
+  entity_table: string;
+  entity_id: string;
+  role: string;
+  alt_text?: string;
+  width_px?: number;
+  height_px?: number;
+  duration_ms?: number;
+  is_primary?: boolean;
+};
 
 export type DataSource = {
   id: string;
@@ -1076,6 +2178,9 @@ export type WikiArticle = {
   article_type: "guide" | "introduction" | "review" | "comparison" | "tutorial";
   tags: string[];
   cover_image_url?: string | null;
+  cover_image_alt?: string | null;
+  cover_image_caption?: string | null;
+  cover_image_credit?: string | null;
   summary?: string | null;
   body_markdown?: string | null;
   status: WikiArticleStatus;
@@ -1100,6 +2205,11 @@ export type WikiArticle = {
     revisions?: number;
   };
 };
+
+export type WikiArticleSummary = Omit<
+  WikiArticle,
+  "body_markdown" | "citations" | "current_revision_id"
+>;
 
 export type WikiRevision = {
   id: string;
@@ -1130,7 +2240,10 @@ export type CreateWikiArticleInput = {
   slug: string;
   article_type?: WikiArticle["article_type"];
   tags?: string[];
-  cover_image_url?: string;
+  cover_image_url?: string | null;
+  cover_image_alt?: string | null;
+  cover_image_caption?: string | null;
+  cover_image_credit?: string | null;
   summary?: string;
   body_markdown?: string;
   status?: WikiArticleStatus;
@@ -1173,6 +2286,56 @@ export type CreateApiKeyInput = {
   expires_at?: string;
 };
 
+export type B2bEntityType = "device_model" | "device_variant";
+
+export type B2bCatalogRecordReference = {
+  entity_type: B2bEntityType;
+  id: string;
+};
+
+export type B2bCatalogChange = B2bCatalogRecordReference & {
+  operation: "upsert" | "delete";
+  changed_at: string;
+};
+
+export type B2bCatalogChanges = {
+  data: B2bCatalogChange[];
+  meta: {
+    contract_version: string;
+    snapshot_at: string;
+    has_more: boolean;
+    next_cursor: string;
+  };
+};
+
+export type B2bCatalogInfo = {
+  contract_version: string;
+  resources: Array<{
+    entity_type: B2bEntityType;
+    list_path: string;
+    detail_path: string;
+  }>;
+  synchronization: {
+    changes_path: string;
+    resolve_path: string;
+    cursor: string;
+    deletion: string;
+  };
+  limits: {
+    changes_page_size: number;
+    resolve_batch_size: number;
+  };
+};
+
+export type B2bResolvedCatalogRecord = B2bCatalogRecordReference & {
+  record: DeviceModelSummary | DeviceVariantSummary;
+};
+
+export type B2bResolveCatalogRecordsResult = {
+  data: B2bResolvedCatalogRecord[];
+  missing: B2bCatalogRecordReference[];
+};
+
 export type WishlistItem = {
   id: string;
   wishlist_id: string;
@@ -1206,14 +2369,37 @@ export type AddWishlistItemInput = {
   notes?: string;
 };
 
+export type SyncResearchWorkspaceInput = {
+  mode: "merge" | "replace";
+  saved_items?: Array<{
+    device_variant_id: string;
+    notes?: string;
+  }>;
+  compare_variant_ids?: string[];
+};
+
+export type ResearchWorkspaceSyncResponse = {
+  data: {
+    saved_items: WishlistItem[];
+    compare_items: WishlistItem[];
+    synced_at: string;
+  };
+  meta: {
+    mode: "merge" | "replace";
+  };
+};
+
 export type AffiliatePartner = {
   id: string;
   name: string;
   slug: string;
   base_url: string;
   logo_url?: string | null;
+  description?: string | null;
   commission_rate: string | number;
+  is_trusted: boolean;
   is_active: boolean;
+  display_order: number;
   created_at?: string;
 };
 
@@ -1224,13 +2410,32 @@ export type AffiliateLink = {
   region_code: string;
   product_url: string;
   current_price?: string | number | null;
+  original_price?: string | number | null;
+  discount_percent?: string | number | null;
   currency_code: string;
   in_stock: boolean;
+  product_title?: string | null;
+  image_url?: string | null;
+  availability_label?: string | null;
+  last_sync_source?:
+    | "partner_api"
+    | "json_ld"
+    | "open_graph"
+    | "embedded_data"
+    | null;
+  sync_status: "pending" | "synced" | "error" | "unavailable";
+  sync_error?: string | null;
   last_checked_at: string;
   created_at: string;
+  updated_at?: string;
   partner?: AffiliatePartner;
   device_variant?: DeviceVariantSummary;
-  sync_source?: "partner_api" | "json_ld";
+  sync_source?:
+    | "partner_api"
+    | "json_ld"
+    | "open_graph"
+    | "embedded_data"
+    | "unavailable";
 };
 
 export type CreateAffiliatePartnerInput = {
@@ -1238,8 +2443,11 @@ export type CreateAffiliatePartnerInput = {
   slug: string;
   base_url: string;
   logo_url?: string;
+  description?: string;
   commission_rate: number;
+  is_trusted?: boolean;
   is_active?: boolean;
+  display_order?: number;
 };
 
 export type UpdateAffiliatePartnerInput = Partial<CreateAffiliatePartnerInput>;
@@ -1247,14 +2455,82 @@ export type UpdateAffiliatePartnerInput = Partial<CreateAffiliatePartnerInput>;
 export type CreateAffiliateLinkInput = {
   partner_id: string;
   device_variant_id: string;
-  region_code: string;
+  region_code?: string;
   product_url: string;
   current_price?: number;
-  currency_code: string;
+  currency_code?: string;
   in_stock?: boolean;
 };
 
 export type UpdateAffiliateLinkInput = Partial<CreateAffiliateLinkInput>;
+
+export type AffiliateOfferPreview = {
+  partner: AffiliatePartner;
+  offer: {
+    price: number;
+    originalPrice?: number;
+    discountPercent?: number;
+    currency: string;
+    inStock: boolean;
+    availabilityLabel?: string;
+    productTitle?: string;
+    imageUrl?: string;
+    productUrl?: string;
+    source: "partner_api" | "json_ld" | "open_graph" | "embedded_data";
+  };
+};
+
+export type AffiliatePricePoint = {
+  price: number;
+  recorded_at: string;
+};
+
+export type AffiliatePriceOfferInsight = {
+  link_id: string;
+  device_variant_id: string;
+  partner: AffiliatePartner;
+  product_url: string;
+  current_price: number | null;
+  currency_code: string;
+  in_stock: boolean;
+  last_checked_at: string;
+  lowest_price: number | null;
+  highest_price: number | null;
+  average_price: number | null;
+  change_amount: number | null;
+  change_percent: number | null;
+  history: AffiliatePricePoint[];
+};
+
+export type AffiliatePriceVariantInsight = {
+  id: string;
+  name: string;
+  offers: AffiliatePriceOfferInsight[];
+  summary: {
+    currency_code: string;
+    current_best_price: number | null;
+    current_highest_price: number | null;
+    historical_low: number | null;
+    historical_average: number | null;
+    price_spread: number | null;
+    price_spread_percent: number | null;
+    best_link_id: string | null;
+    strongest_drop_percent: number | null;
+    sample_count: number;
+    signal:
+      | "limited_data"
+      | "historical_low"
+      | "good_buy"
+      | "price_drop"
+      | "stable";
+  };
+};
+
+export type AffiliatePriceInsights = {
+  generated_at: string;
+  days: number;
+  variants: AffiliatePriceVariantInsight[];
+};
 
 export type TrackAffiliateClickInput = {
   session_id?: string;
@@ -1423,6 +2699,17 @@ export class SpecHubApiClient {
     return this.unwrapData(response);
   }
 
+  async getAdminDashboardOverview(
+    accessToken: string,
+  ): Promise<AdminDashboardOverview> {
+    const response = await this.get<EntityResult<AdminDashboardOverview>>(
+      "/admin/dashboard/overview",
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
   updateUserRole(id: string, role: string, accessToken: string) {
     return this.patch<AdminUser>(
       `/users/${id}/role`,
@@ -1441,6 +2728,10 @@ export class SpecHubApiClient {
 
   listOrganizations(params?: ListParams) {
     return this.get<PaginatedResult<Organization>>("/organizations", params);
+  }
+
+  getOrganizationById(id: string) {
+    return this.get<EntityResult<Organization>>(`/organizations/${id}/by-id`);
   }
 
   createOrganization(payload: CreateOrganizationInput, accessToken: string) {
@@ -1520,6 +2811,12 @@ export class SpecHubApiClient {
     );
   }
 
+  getProductFamilyById(id: string) {
+    return this.get<EntityResult<ProductFamily>>(
+      `/product-families/${id}/by-id`,
+    );
+  }
+
   createProductFamily(payload: CreateProductFamilyInput, accessToken: string) {
     return this.post<EntityResult<ProductFamily>>(
       "/product-families",
@@ -1563,6 +2860,12 @@ export class SpecHubApiClient {
 
   getDeviceModel(slug: string) {
     return this.get<EntityResult<DeviceModelDetail>>(`/device-models/${slug}`);
+  }
+
+  getDeviceModelById(id: string) {
+    return this.get<EntityResult<DeviceModelDetail>>(
+      `/device-models/${id}/by-id`,
+    );
   }
 
   createDeviceModel(payload: CreateDeviceModelInput, accessToken: string) {
@@ -1613,6 +2916,343 @@ export class SpecHubApiClient {
     return Array.isArray(response) ? response : response.data;
   }
 
+  async listHardwareBenchmarks(
+    targetType: "chipset" | "cpu" | "gpu" | "npu",
+    accessToken: string,
+  ): Promise<BenchmarkDefinition[]> {
+    const response = await this.get<
+      EntityResult<BenchmarkDefinition[]> | BenchmarkDefinition[]
+    >(
+      `/admin/hardware/benchmarks/${targetType}`,
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return Array.isArray(response) ? response : response.data;
+  }
+
+  async listScoringProfiles<TProfile>(): Promise<TProfile[]> {
+    const response = await this.get<EntityResult<TProfile[]> | TProfile[]>(
+      "/device-variants/scoring-profiles",
+    );
+    return Array.isArray(response) ? response : response.data;
+  }
+
+  smartSearchCatalog(query: string, accessToken: string) {
+    return this.get<{
+      data: DeviceModelDetail[];
+      meta: {
+        query: string;
+        count: number;
+        searchable_fields: string[];
+      };
+    }>(
+      "/admin/catalog-studio/search",
+      { q: query },
+      this.withAuth(accessToken),
+    );
+  }
+
+  getChipsetBundle<TBundle = unknown>(id: string, accessToken: string) {
+    return this.get<EntityResult<TBundle>>(
+      `/admin/catalog-studio/chipsets/${id}/bundle`,
+      undefined,
+      this.withAuth(accessToken),
+    );
+  }
+
+  async listCatalogDrafts(accessToken: string) {
+    const response = await this.get<
+      EntityResult<CatalogDraft[]> | CatalogDraft[]
+    >("/admin/catalog-studio/drafts", undefined, this.withAuth(accessToken));
+    return this.unwrapData(response);
+  }
+
+  async getCatalogDraft(id: string, accessToken: string) {
+    const response = await this.get<EntityResult<CatalogDraft> | CatalogDraft>(
+      `/admin/catalog-studio/drafts/${id}`,
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async createCatalogDraft(payload: CatalogDraftInput, accessToken: string) {
+    const response = await this.post<EntityResult<CatalogDraft> | CatalogDraft>(
+      "/admin/catalog-studio/drafts",
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  previewQuickIntake(payload: QuickIntakeInput, accessToken: string) {
+    return this.post<QuickIntakePreview>(
+      "/admin/catalog-studio/quick-intake/preview",
+      payload,
+      this.withAuth(accessToken),
+    );
+  }
+
+  async createQuickIntakeDrafts(
+    items: Array<
+      Pick<QuickIntakePreviewItem, "draft_type" | "title" | "payload">
+    >,
+    accessToken: string,
+  ) {
+    const response = await this.post<
+      EntityResult<CatalogDraft[]> | { data: CatalogDraft[] }
+    >(
+      "/admin/catalog-studio/quick-intake/drafts",
+      { items },
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async listCatalogEvidenceClaims(
+    target: CatalogEvidenceClaimTarget & {
+      status?: CatalogEvidenceClaimStatus;
+    },
+    accessToken: string,
+  ) {
+    const response = await this.get<
+      EntityResult<CatalogEvidenceClaim[]> | { data: CatalogEvidenceClaim[] }
+    >(
+      "/admin/catalog-studio/evidence/claims",
+      target,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async getCatalogEvidenceCoverage(
+    target: CatalogEvidenceClaimTarget,
+    accessToken: string,
+  ) {
+    const response = await this.get<
+      EntityResult<CatalogEvidenceCoverage> | { data: CatalogEvidenceCoverage }
+    >(
+      "/admin/catalog-studio/evidence/coverage",
+      target,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async createCatalogEvidenceClaim(
+    payload: CatalogEvidenceClaimInput,
+    accessToken: string,
+  ) {
+    const response = await this.post<
+      EntityResult<CatalogEvidenceClaim> | CatalogEvidenceClaim
+    >(
+      "/admin/catalog-studio/evidence/claims",
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async resolveCatalogEvidenceClaim(
+    id: string,
+    payload: {
+      status: "accepted" | "rejected" | "stale";
+      resolution_note?: string;
+    },
+    accessToken: string,
+  ) {
+    const response = await this.patch<
+      EntityResult<CatalogEvidenceClaim> | CatalogEvidenceClaim
+    >(
+      `/admin/catalog-studio/evidence/claims/${id}`,
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async updateCatalogDraft(
+    id: string,
+    payload: {
+      expected_revision: number;
+      payload: Record<string, unknown>;
+      title?: string;
+      step_key?: string;
+      change_summary?: string;
+    },
+    accessToken: string,
+  ) {
+    const response = await this.patch<
+      EntityResult<CatalogDraft> | CatalogDraft
+    >(
+      `/admin/catalog-studio/drafts/${id}`,
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async listCatalogDraftHistory(id: string, accessToken: string) {
+    type DraftHistoryItem = {
+      id: string;
+      revision: number;
+      change_summary?: string | null;
+      created_at: string;
+      actor?: Pick<AuthUser, "id" | "email" | "username" | "display_name">;
+    };
+    const response = await this.get<
+      EntityResult<DraftHistoryItem[]> | DraftHistoryItem[]
+    >(
+      `/admin/catalog-studio/drafts/${id}/history`,
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async restoreCatalogDraft(
+    id: string,
+    expectedRevision: number,
+    restoreRevision: number,
+    accessToken: string,
+  ) {
+    const response = await this.post<EntityResult<CatalogDraft> | CatalogDraft>(
+      `/admin/catalog-studio/drafts/${id}/restore`,
+      {
+        expected_revision: expectedRevision,
+        restore_revision: restoreRevision,
+      },
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  validateCatalogDraft(id: string, accessToken: string) {
+    return this.post<
+      EntityResult<{
+        draft_id: string;
+        revision: number;
+        valid: boolean;
+        issues: Array<{
+          path: string;
+          severity: "error" | "warning";
+          message: string;
+        }>;
+      }>
+    >(
+      `/admin/catalog-studio/drafts/${id}/validate`,
+      {},
+      this.withAuth(accessToken),
+    );
+  }
+
+  async completeCatalogDraft(
+    id: string,
+    entityTable:
+      | "device_models"
+      | "chipsets"
+      | "cpus"
+      | "gpus"
+      | "npus"
+      | "modems"
+      | "memory_standards"
+      | "storage_standards"
+      | "operating_systems",
+    entityId: string,
+    accessToken: string,
+  ) {
+    const response = await this.post<EntityResult<CatalogDraft> | CatalogDraft>(
+      `/admin/catalog-studio/drafts/${id}/complete`,
+      { entity_table: entityTable, entity_id: entityId },
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async listCatalogEntityHistory(
+    entityTable: string,
+    entityId: string,
+    accessToken: string,
+  ) {
+    type EntityHistoryItem = {
+      id: string;
+      version: number;
+      action: string;
+      change_set?: Record<string, unknown> | null;
+      created_at: string;
+    };
+    const response = await this.get<
+      EntityResult<EntityHistoryItem[]> | EntityHistoryItem[]
+    >(
+      `/admin/catalog-studio/history/${entityTable}/${entityId}`,
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async listAdminScoringProfiles<TProfile = unknown>(accessToken: string) {
+    const response = await this.get<EntityResult<TProfile[]> | TProfile[]>(
+      "/admin/catalog-studio/scoring-profiles",
+      undefined,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async createAdminScoringProfile<TProfile = unknown>(
+    categoryId: string,
+    payload: ScoringProfileAdminInput,
+    accessToken: string,
+  ) {
+    const response = await this.post<EntityResult<TProfile> | TProfile>(
+      `/admin/catalog-studio/scoring-profiles/categories/${categoryId}`,
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async publishAdminScoringProfile<TProfile = unknown>(
+    id: string,
+    accessToken: string,
+  ) {
+    const response = await this.post<EntityResult<TProfile> | TProfile>(
+      `/admin/catalog-studio/scoring-profiles/${id}/publish`,
+      {},
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  createMediaUpload(payload: MediaUploadInput, accessToken: string) {
+    return this.post<
+      EntityResult<{
+        id: string;
+        object_key: string;
+        upload_url: string;
+        public_url?: string | null;
+        expires_in_seconds: number;
+      }>
+    >(
+      "/admin/catalog-studio/media/uploads",
+      payload,
+      this.withAuth(accessToken),
+    );
+  }
+
+  completeMediaUpload(
+    id: string,
+    checksumSha256: string | undefined,
+    accessToken: string,
+  ) {
+    return this.post<EntityResult<Record<string, unknown>>>(
+      `/admin/catalog-studio/media/uploads/${id}/complete`,
+      { checksum_sha256: checksumSha256 },
+      this.withAuth(accessToken),
+    );
+  }
+
   getDeviceVariant(id: string) {
     return this.get<EntityResult<DeviceVariantDetail>>(
       `/device-variants/${id}/by-id`,
@@ -1622,6 +3262,14 @@ export class SpecHubApiClient {
   createDeviceVariant(payload: CreateDeviceVariantInput, accessToken: string) {
     return this.post<EntityResult<DeviceVariantDetail>>(
       "/device-variants",
+      payload,
+      this.withAuth(accessToken),
+    );
+  }
+
+  createDeviceBundle(payload: CreateDeviceBundleInput, accessToken: string) {
+    return this.post<EntityResult<CreatedDeviceBundle>>(
+      "/device-variants/with-device-model",
       payload,
       this.withAuth(accessToken),
     );
@@ -1659,6 +3307,30 @@ export class SpecHubApiClient {
     return this.get<PaginatedResult<Chipset>>("/chipsets", params);
   }
 
+  listDisplayUnits(params?: ListParams) {
+    return this.get<PaginatedResult<DisplayUnit>>("/display-units", params);
+  }
+
+  listBatteryUnits(params?: ListParams) {
+    return this.get<PaginatedResult<BatteryUnit>>("/battery-units", params);
+  }
+
+  listCameraModules(params?: ListParams): Promise<
+    PaginatedResult<{
+      id: string;
+      name?: string | null;
+      slug?: string | null;
+      effective_megapixel?: string | number | null;
+      aperture?: string | null;
+      focal_length_mm_eq?: string | number | null;
+      has_ois?: boolean | null;
+      has_eis?: boolean | null;
+      camera_role?: { id: string; code: string; name: string };
+    }>
+  > {
+    return this.get("/camera-modules", params);
+  }
+
   listHardwareCpus(params?: ListParams) {
     return this.get<PaginatedResult<Cpu & HardwareUsage>>(
       "/hardware/cpus",
@@ -1690,6 +3362,72 @@ export class SpecHubApiClient {
     const response = await this.post<EntityResult<CreatedHardwareModule>>(
       "/admin/hardware/modules",
       payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async listAdminHardwareModules(
+    kind: AdminHardwareModuleKind,
+    params?: ListParams,
+  ): Promise<PaginatedResult<AdminHardwareModuleRecord>> {
+    switch (kind) {
+      case "chipset":
+        return this.listChipsets(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "cpu":
+        return this.listHardwareCpus(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "gpu":
+        return this.listHardwareGpus(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "npu":
+        return this.listHardwareNpus(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "modem":
+        return this.listHardwareModems(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "memory-standard":
+        return this.listMemoryStandards(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "storage-standard":
+        return this.listStorageStandards(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+      case "operating-system":
+        return this.listOperatingSystems(params) as unknown as Promise<
+          PaginatedResult<AdminHardwareModuleRecord>
+        >;
+    }
+  }
+
+  async updateHardwareModule(
+    kind: AdminHardwareModuleKind,
+    id: string,
+    payload: UpdateHardwareModuleInput,
+    accessToken: string,
+  ): Promise<CreatedHardwareModule> {
+    const response = await this.patch<EntityResult<CreatedHardwareModule>>(
+      `/admin/hardware/modules/${kind}/${id}`,
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async deleteHardwareModule(
+    kind: AdminHardwareModuleKind,
+    id: string,
+    accessToken: string,
+  ): Promise<CreatedHardwareModule> {
+    const response = await this.del<EntityResult<CreatedHardwareModule>>(
+      `/admin/hardware/modules/${kind}/${id}`,
       this.withAuth(accessToken),
     );
     return this.unwrapData(response);
@@ -1729,47 +3467,159 @@ export class SpecHubApiClient {
   }
 
   listOperatingSystems(params?: ListParams) {
-    return this.get<
-      PaginatedResult<OperatingSystemModule["os_version"]["operating_system"]>
-    >("/hardware/operating-systems", params);
+    return this.get<PaginatedResult<OperatingSystemRecord>>(
+      "/hardware/operating-systems",
+      params,
+    );
   }
 
-  listWirelessStandards(params?: ListParams) {
-    return this.get<
-      PaginatedResult<
-        NonNullable<
-          DeviceVariantDetail["variant_wireless_support"]
-        >[number]["wireless_standard"]
-      >
-    >("/hardware/wireless-standards", params);
+  listOperatingSystemVersions(params?: ListParams) {
+    return this.get<PaginatedResult<OperatingSystemVersionRecord>>(
+      "/hardware/operating-system-versions",
+      params,
+    );
   }
 
-  listPortStandards(params?: ListParams) {
-    return this.get<
-      PaginatedResult<
-        NonNullable<
-          DeviceVariantDetail["variant_ports"]
-        >[number]["port_standard"]
-      >
-    >("/hardware/port-standards", params);
+  listOsUiLayers(params?: ListParams) {
+    return this.get<PaginatedResult<OsUiLayerRecord>>(
+      "/hardware/os-ui-layers",
+      params,
+    );
   }
 
-  listHardwareSensors(params?: ListParams) {
-    return this.get<
-      PaginatedResult<
-        NonNullable<
-          DeviceVariantDetail["variant_hardware_sensors"]
-        >[number]["hardware_sensor"]
-      >
-    >("/hardware/sensors", params);
+  listOsUiLayerVersions(params?: ListParams) {
+    return this.get<PaginatedResult<OsUiLayerVersionRecord>>(
+      "/hardware/os-ui-layer-versions",
+      params,
+    );
+  }
+
+  async createOperatingSystemVersion(
+    payload: CreateOperatingSystemVersionInput,
+    accessToken: string,
+  ): Promise<OperatingSystemVersionRecord> {
+    const response = await this.post<
+      EntityResult<OperatingSystemVersionRecord>
+    >(
+      "/admin/hardware/operating-system-versions",
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
+  }
+
+  async createOsUiLayerVersion(
+    payload: CreateOsUiLayerVersionInput,
+    accessToken: string,
+  ): Promise<OsUiLayerVersionRecord> {
+    const response = await this.post<EntityResult<OsUiLayerVersionRecord>>(
+      "/admin/hardware/os-ui-layer-versions",
+      payload,
+      this.withAuth(accessToken),
+    );
+    return this.unwrapData(response);
   }
 
   search(params?: ListParams) {
     return this.get<PaginatedResult<DeviceModelSummary>>("/search", params);
   }
 
-  askAi(payload: { question: string; top_k?: number }) {
+  askAi(payload: AiAskInput) {
     return this.post<AiAskResponse>("/ai/ask", payload);
+  }
+
+  recommendDevices(payload: DeviceRecommendationInput) {
+    return this.post<DeviceRecommendationResponse>(
+      "/ai/recommendations",
+      payload,
+    );
+  }
+
+  async streamAi(
+    payload: AiAskInput,
+    onEvent: (event: AiStreamEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<AiAskResponse> {
+    let response: Response;
+    const url = `${this.baseUrl}/ai/ask/stream`;
+
+    try {
+      response = await this.fetcher(url, {
+        method: "POST",
+        signal,
+        headers: {
+          Accept: "application/x-ndjson",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      const cause = error instanceof Error ? error.message : "Unknown error";
+      throw new SpecHubApiError("Không thể kết nối tới luồng AI SpecHub.", 0, {
+        url,
+        cause,
+      });
+    }
+
+    if (!response.ok || !response.body) {
+      const text = await response.text();
+      let errorPayload: unknown = text;
+      try {
+        errorPayload = text ? JSON.parse(text) : null;
+      } catch {
+        // Retain the provider text for diagnostics.
+      }
+      throw new SpecHubApiError(
+        `SpecHub AI stream failed with ${response.status}`,
+        response.status,
+        errorPayload,
+      );
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let result: AiAskResponse | null = null;
+    const consumeLine = (line: string) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      let event: AiStreamEvent;
+      try {
+        event = JSON.parse(trimmed) as AiStreamEvent;
+      } catch {
+        throw new SpecHubApiError(
+          "Luồng AI trả về một sự kiện không hợp lệ.",
+          response.status,
+          { line: trimmed.slice(0, 300) },
+        );
+      }
+      onEvent(event);
+      if (event.type === "result") result = event.response;
+      if (event.type === "error") {
+        throw new SpecHubApiError(event.message, response.status, event);
+      }
+    };
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split(/\r?\n/);
+      buffer = lines.pop() ?? "";
+      lines.forEach(consumeLine);
+    }
+    buffer += decoder.decode();
+    if (buffer.trim()) consumeLine(buffer);
+
+    if (!result) {
+      throw new SpecHubApiError(
+        "Luồng AI đã kết thúc trước khi có câu trả lời hoàn chỉnh.",
+        response.status,
+        null,
+      );
+    }
+    return result;
   }
 
   searchAi(params: { q: string; top_k?: number }) {
@@ -1791,6 +3641,14 @@ export class SpecHubApiClient {
   indexRawPages(accessToken: string) {
     return this.post<Record<string, unknown>>(
       "/ai/embeddings/index-raw-pages",
+      {},
+      this.withAuth(accessToken),
+    );
+  }
+
+  indexAiKnowledgeBase(accessToken: string) {
+    return this.post<Record<string, unknown>>(
+      "/ai/embeddings/index-knowledge-base",
       {},
       this.withAuth(accessToken),
     );
@@ -1916,7 +3774,10 @@ export class SpecHubApiClient {
   }
 
   listWikiArticles(params?: ListParams) {
-    return this.get<PaginatedResult<WikiArticle>>("/wiki/articles", params);
+    return this.get<PaginatedResult<WikiArticleSummary>>(
+      "/wiki/articles",
+      params,
+    );
   }
 
   getWikiArticle(slug: string, languageCode?: string) {
@@ -2023,6 +3884,65 @@ export class SpecHubApiClient {
     );
   }
 
+  getB2bCatalogInfo(apiKey: string) {
+    return this.get<EntityResult<B2bCatalogInfo>>(
+      "/b2b",
+      undefined,
+      this.withApiKey(apiKey),
+    );
+  }
+
+  listB2bCatalogChanges(apiKey: string, params?: ListParams) {
+    return this.get<B2bCatalogChanges>(
+      "/b2b/catalog/changes",
+      params,
+      this.withApiKey(apiKey),
+    );
+  }
+
+  resolveB2bCatalogRecords(
+    apiKey: string,
+    records: B2bCatalogRecordReference[],
+  ) {
+    return this.post<B2bResolveCatalogRecordsResult>(
+      "/b2b/catalog/records",
+      { records },
+      this.withApiKey(apiKey),
+    );
+  }
+
+  listB2bDeviceModels(apiKey: string, params?: ListParams) {
+    return this.get<PaginatedResult<DeviceModelSummary>>(
+      "/b2b/device-models",
+      params,
+      this.withApiKey(apiKey),
+    );
+  }
+
+  getB2bDeviceModel(apiKey: string, slug: string) {
+    return this.get<EntityResult<DeviceModelSummary>>(
+      `/b2b/device-models/${slug}`,
+      undefined,
+      this.withApiKey(apiKey),
+    );
+  }
+
+  listB2bDeviceVariants(apiKey: string, params?: ListParams) {
+    return this.get<PaginatedResult<DeviceVariantSummary>>(
+      "/b2b/device-variants",
+      params,
+      this.withApiKey(apiKey),
+    );
+  }
+
+  getB2bDeviceVariant(apiKey: string, id: string) {
+    return this.get<EntityResult<DeviceVariantSummary>>(
+      `/b2b/device-variants/${id}`,
+      undefined,
+      this.withApiKey(apiKey),
+    );
+  }
+
   listWishlists(accessToken: string) {
     return this.get<EntityResult<Wishlist[]>>(
       "/wishlists",
@@ -2078,6 +3998,17 @@ export class SpecHubApiClient {
     );
   }
 
+  syncResearchWorkspace(
+    payload: SyncResearchWorkspaceInput,
+    accessToken: string,
+  ) {
+    return this.post<ResearchWorkspaceSyncResponse>(
+      "/wishlists/workspace/sync",
+      payload,
+      this.withAuth(accessToken),
+    );
+  }
+
   deleteWishlistItem(wishlistId: string, itemId: string, accessToken: string) {
     return this.del<EntityResult<{ id: string; deleted: boolean }>>(
       `/wishlists/${wishlistId}/items/${itemId}`,
@@ -2116,10 +4047,33 @@ export class SpecHubApiClient {
     return this.get<EntityResult<AffiliateLink[]>>("/affiliate/links", params);
   }
 
+  getAffiliatePriceInsights(params: {
+    device_model_slug?: string;
+    device_variant_id?: string;
+    region_code?: string;
+    days?: number;
+  }) {
+    return this.get<EntityResult<AffiliatePriceInsights>>(
+      "/affiliate/price-insights",
+      params,
+    );
+  }
+
   syncAffiliateLink(id: string, accessToken: string) {
-    return this.post<AffiliateLink>(
+    return this.post<EntityResult<AffiliateLink>>(
       `/affiliate/links/${id}/sync`,
       {},
+      this.withAuth(accessToken),
+    );
+  }
+
+  inspectAffiliateOffer(
+    payload: { partner_id: string; product_url: string },
+    accessToken: string,
+  ) {
+    return this.post<EntityResult<AffiliateOfferPreview>>(
+      "/affiliate/links/inspect",
+      payload,
       this.withAuth(accessToken),
     );
   }
@@ -2146,6 +4100,13 @@ export class SpecHubApiClient {
     return this.patch<EntityResult<AffiliateLink>>(
       `/affiliate/links/${id}`,
       payload,
+      this.withAuth(accessToken),
+    );
+  }
+
+  deleteAffiliateLink(id: string, accessToken: string) {
+    return this.del<EntityResult<{ id: string; deleted: true }>>(
+      `/affiliate/links/${id}`,
       this.withAuth(accessToken),
     );
   }
@@ -2446,7 +4407,7 @@ export class SpecHubApiClient {
       const cause = error instanceof Error ? error.message : "Unknown error";
 
       throw new SpecHubApiError(
-        "Unable to connect to the SpecHub API. Check that the API service is running and the configured base URL is reachable.",
+        "Không thể kết nối tới API SpecHub. Hãy kiểm tra dịch vụ API và địa chỉ kết nối đã cấu hình.",
         0,
         { url, cause },
       );
@@ -2490,6 +4451,14 @@ export class SpecHubApiClient {
     return {
       headers: {
         Authorization: `Bearer ${accessToken}`,
+      },
+    };
+  }
+
+  private withApiKey(apiKey: string): RequestInit {
+    return {
+      headers: {
+        "X-API-Key": apiKey,
       },
     };
   }

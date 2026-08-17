@@ -54,9 +54,103 @@ const CHIPSET_SELECT = {
       release_year: true,
     },
   },
+  chipset_cpu_links: {
+    select: {
+      is_primary: true,
+      cpu: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          core_count: true,
+          max_frequency_mhz: true,
+        },
+      },
+    },
+  },
+  chipset_gpu_links: {
+    select: {
+      is_primary: true,
+      gpu: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          gpu_generation: true,
+          clock_mhz: true,
+        },
+      },
+    },
+  },
+  chipset_npu_links: {
+    select: {
+      is_primary: true,
+      npu: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          dedicated_npu: true,
+          tops: true,
+        },
+      },
+    },
+  },
+  chipset_modem_links: {
+    select: {
+      is_primary: true,
+      is_integrated: true,
+      modem: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          supports_5g_nr: true,
+          lte_category: true,
+        },
+      },
+    },
+  },
+  chipset_benchmarks: {
+    select: {
+      id: true,
+      score: true,
+      subscore_name: true,
+      tested_at: true,
+      source_id: true,
+      benchmark: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          benchmark_type: true,
+          version: true,
+          higher_is_better: true,
+          unit: { select: { name: true, symbol: true } },
+        },
+      },
+      benchmark_run: {
+        select: {
+          id: true,
+          test_environment_note: true,
+          ambient_temp_c: true,
+          os_version: true,
+          app_version: true,
+          power_mode: true,
+          is_thermal_throttled: true,
+        },
+      },
+    },
+    orderBy: [{ benchmark: { name: "asc" as const } }],
+  },
   _count: {
     select: {
       variant_chipsets: true,
+      chipset_cpu_links: true,
+      chipset_gpu_links: true,
+      chipset_npu_links: true,
+      chipset_modem_links: true,
+      chipset_benchmarks: true,
     },
   },
 } satisfies Prisma.chipsetsSelect;

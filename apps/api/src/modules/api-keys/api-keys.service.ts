@@ -63,6 +63,14 @@ export type AuthenticatedApiKey = Pick<
   "id" | "user_id" | "scopes" | "rate_limit_per_minute" | "monthly_quota"
 >;
 
+export type AuthorizedApiKey = AuthenticatedApiKey & {
+  rate_limit_remaining: number;
+  rate_limit_reset_at: Date;
+  monthly_quota_remaining?: number;
+};
+
+type ApiKeyUsageWindow = Omit<AuthorizedApiKey, keyof AuthenticatedApiKey>;
+
 @Injectable()
 export class ApiKeysService {
   constructor(private readonly prisma: PrismaService) {}
@@ -122,7 +130,7 @@ export class ApiKeysService {
   async authorize(
     rawKey: string,
     requiredScope: ApiKeyScope,
-  ): Promise<AuthenticatedApiKey> {
+  ): Promise<AuthorizedApiKey> {
     if (!rawKey.startsWith("sph_b2b_") || rawKey.length < 40) {
       throw new UnauthorizedException("Invalid API key");
     }
@@ -156,8 +164,8 @@ export class ApiKeysService {
       rate_limit_per_minute: key.rate_limit_per_minute,
       monthly_quota: key.monthly_quota,
     };
-    await this.recordUsage(authenticated);
-    return authenticated;
+    const usage = await this.recordUsage(authenticated);
+    return { ...authenticated, ...usage };
   }
 
   private async issueKey(
@@ -226,13 +234,15 @@ export class ApiKeysService {
     }
   }
 
-  private async recordUsage(key: AuthenticatedApiKey) {
+  private async recordUsage(
+    key: AuthenticatedApiKey,
+  ): Promise<ApiKeyUsageWindow> {
     const now = new Date();
     const minuteStart = new Date(now);
     minuteStart.setUTCSeconds(0, 0);
     const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
-    const limitViolation = await this.prisma.$transaction(async (tx) => {
+    const usageWindow = await this.prisma.$transaction(async (tx) => {
       const usage = await tx.api_key_usage.upsert({
         where: {
           api_key_id_bucket_start: {
@@ -251,30 +261,61 @@ export class ApiKeysService {
         select: { request_count: true },
       });
 
-      if (usage.request_count > key.rate_limit_per_minute) return "rate";
+      if (usage.request_count > key.rate_limit_per_minute) {
+        return { limitViolation: "rate" as const, requestCount: usage.request_count };
+      }
       if (key.monthly_quota) {
         const monthlyUsage = await tx.api_key_usage.aggregate({
           where: { api_key_id: key.id, bucket_start: { gte: monthStart } },
           _sum: { request_count: true },
         });
-        if ((monthlyUsage._sum.request_count ?? 0) > key.monthly_quota) {
-          return "quota";
+        const monthlyRequestCount = monthlyUsage._sum.request_count ?? 0;
+        if (monthlyRequestCount > key.monthly_quota) {
+          return {
+            limitViolation: "quota" as const,
+            requestCount: usage.request_count,
+            monthlyRequestCount,
+          };
         }
+
+        await tx.api_keys.update({
+          where: { id: key.id },
+          data: { last_used_at: now },
+        });
+        return {
+          limitViolation: null,
+          requestCount: usage.request_count,
+          monthlyRequestCount,
+        };
       }
 
       await tx.api_keys.update({
         where: { id: key.id },
         data: { last_used_at: now },
       });
-      return null;
+      return { limitViolation: null, requestCount: usage.request_count };
     });
 
-    if (limitViolation === "rate") {
+    if (usageWindow.limitViolation === "rate") {
       throw new HttpException("API key rate limit exceeded", HttpStatus.TOO_MANY_REQUESTS);
     }
-    if (limitViolation === "quota") {
+    if (usageWindow.limitViolation === "quota") {
       throw new HttpException("API key monthly quota exceeded", HttpStatus.TOO_MANY_REQUESTS);
     }
+
+    return {
+      rate_limit_remaining: Math.max(
+        0,
+        key.rate_limit_per_minute - usageWindow.requestCount,
+      ),
+      rate_limit_reset_at: new Date(minuteStart.getTime() + 60_000),
+      ...(key.monthly_quota && usageWindow.monthlyRequestCount !== undefined && {
+        monthly_quota_remaining: Math.max(
+          0,
+          key.monthly_quota - usageWindow.monthlyRequestCount,
+        ),
+      }),
+    };
   }
 
   private hasApiAccess(features: unknown) {

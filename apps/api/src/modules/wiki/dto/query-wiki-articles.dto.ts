@@ -49,8 +49,10 @@ export class QueryWikiArticlesDto extends PaginationQueryDto {
   @MaxLength(40)
   tag?: string;
 
-  @ApiPropertyOptional({ enum: ["newest", "updated", "popular", "oldest"] })
+  @ApiPropertyOptional({
+    enum: ["newest", "updated", "popular", "oldest", "shortest", "az"],
+  })
   @IsOptional()
-  @IsIn(["newest", "updated", "popular", "oldest"])
-  sort?: "newest" | "updated" | "popular" | "oldest";
+  @IsIn(["newest", "updated", "popular", "oldest", "shortest", "az"])
+  sort?: "newest" | "updated" | "popular" | "oldest" | "shortest" | "az";
 }

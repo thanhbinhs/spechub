@@ -4,23 +4,61 @@
 // Chạy: pnpm db:seed
 //
 // Seed dữ liệu mẫu thực tế:
-// - 8 organizations (Apple, Samsung, Qualcomm, MediaTek, Sony, TSMC, Google, Xiaomi)
-// - 5 device categories
-// - 8 product families
-// - 8 device models thật, phủ đủ 5 nhóm thiết bị
-// - 12 device variants
+// - 26 organizations, gồm các hãng phổ biến ở nhiều phân khúc
+// - 8 device categories
+// - 77 product families
+// - 188 device models trong catalog đa danh mục, phủ đủ 8 nhóm thiết bị
+// - 92 device variants
 // - Components cho mobile, tablet, laptop, wearable và audio
 // - Phase 2 data sources/citation sources
-// - Sourced benchmark coverage cho toàn bộ 12 variants
+// - Benchmark đo trực tiếp và điểm tham chiếu có nguồn cho mọi variant
 // - Phase 3 affiliate partners/links
 // - Admin user (admin@spechub.io / admin123)
 // ============================================================
 
 import { PrismaClient } from "../generated/client";
 import * as bcrypt from "bcryptjs";
+import {
+  EXTENDED_CATALOG_MODULES as BASE_EXTENDED_CATALOG_MODULES,
+  EXTENDED_CATALOG_OPERATING_SYSTEMS,
+} from "./extended-catalog-modules";
+import {
+  ADDITIONAL_CATALOG_DEVICES,
+  ADDITIONAL_CATALOG_MODULES,
+  ADDITIONAL_CATALOG_ORGANIZATIONS,
+} from "./catalog-expansion-50";
+import {
+  CATALOG_EXPANSION_100_DEVICES,
+  CATALOG_EXPANSION_100_MODULES,
+  CATALOG_EXPANSION_100_ORGANIZATIONS,
+  CATALOG_EXPANSION_100_STALE_DUPLICATE_VARIANTS,
+} from "./catalog-expansion-100";
+import {
+  HISTORIC_CATALOG_DEVICES,
+  HISTORIC_CATALOG_MODULES,
+  HISTORIC_CATALOG_ORGANIZATIONS,
+} from "./catalog-history-expansion";
+import {
+  CPU_BENCHMARK_REFERENCES,
+  ENDURANCE_BENCHMARK_REFERENCES,
+  TV_INPUT_LAG_BENCHMARK_REFERENCES,
+} from "./benchmark-coverage";
+import { seedVariantScorecards } from "./scoring/seed-scorecards";
+import { seedWikiContent } from "./seed-wiki-content";
+import {
+  COMPLETE_IPHONE_MODEL_COUNT,
+  seedCompleteIphoneCatalog,
+} from "./iphone-catalog";
+import { seedCatalogReferenceData } from "./seed-catalog-reference-data";
+import { enrichCatalogModules } from "./catalog-module-enrichment";
+import { seedSnapdragonCatalog } from "./seed-snapdragon-catalog";
+import catalogImageSources from "./catalog-image-sources.json";
 
 const prisma = new PrismaClient();
 const process = (globalThis as any).process;
+const CURATED_CATALOG_SCOPE = "curated-58";
+const isCuratedCatalogSeed =
+  process.env.SPECHUB_SEED_SCOPE === CURATED_CATALOG_SCOPE;
 
 type DisplayUnitCreateData = Parameters<
   PrismaClient["display_units"]["create"]
@@ -41,15 +79,6 @@ type StorageStandardCreateData = Parameters<
 type OperatingSystemCreateData = Parameters<
   PrismaClient["operating_systems"]["create"]
 >[0]["data"];
-type WirelessStandardCreateData = Parameters<
-  PrismaClient["wireless_standards"]["create"]
->[0]["data"];
-type PortStandardCreateData = Parameters<
-  PrismaClient["port_standards"]["create"]
->[0]["data"];
-type HardwareSensorCreateData = Parameters<
-  PrismaClient["hardware_sensors"]["create"]
->[0]["data"];
 type CitationCreateData = Parameters<
   PrismaClient["citations"]["create"]
 >[0]["data"];
@@ -59,6 +88,1155 @@ type BenchmarkRunCreateData = Parameters<
 type DeviceBenchmarkCreateData = Parameters<
   PrismaClient["device_variant_benchmarks"]["create"]
 >[0]["data"];
+
+type CatalogDeviceSeed = {
+  brandSlug: string;
+  categorySlug: string;
+  familyName: string;
+  familySlug: string;
+  modelName: string;
+  modelSlug: string;
+  announcementDate: string;
+  releaseDate: string;
+  generation: string;
+  description: string;
+  sourceUrl?: string;
+  variantName: string;
+  skuCode?: string;
+  colorName: string;
+  colorHex: string;
+  launchPrice: number;
+  heightMm: number;
+  widthMm: number;
+  thicknessMm: number;
+  weightG: number;
+  ingressProtection?: string;
+  frameMaterial?: string;
+  backMaterial?: string;
+  speakerCount?: number;
+  audioTuning?: string;
+  headphoneJack?: boolean;
+  microSd?: boolean;
+  ioNotes?: string;
+};
+
+const BASE_EXTENDED_CATALOG_ORGANIZATIONS = [
+  {
+    name: "OnePlus Technology",
+    slug: "oneplus",
+    shortName: "OnePlus",
+    countryCode: "CN",
+    websiteUrl: "https://www.oneplus.com",
+  },
+  {
+    name: "OPPO Electronics",
+    slug: "oppo",
+    shortName: "OPPO",
+    countryCode: "CN",
+    websiteUrl: "https://www.oppo.com",
+  },
+  {
+    name: "Vivo Mobile Communication",
+    slug: "vivo",
+    shortName: "vivo",
+    countryCode: "CN",
+    websiteUrl: "https://www.vivo.com",
+  },
+  {
+    name: "Nothing Technology Limited",
+    slug: "nothing",
+    shortName: "Nothing",
+    countryCode: "GB",
+    websiteUrl: "https://nothing.tech",
+  },
+  {
+    name: "Huawei Technologies",
+    slug: "huawei",
+    shortName: "Huawei",
+    countryCode: "CN",
+    websiteUrl: "https://www.huawei.com",
+  },
+  {
+    name: "Microsoft Corporation",
+    slug: "microsoft",
+    shortName: "Microsoft",
+    countryCode: "US",
+    websiteUrl: "https://www.microsoft.com",
+  },
+  {
+    name: "Dell Technologies",
+    slug: "dell",
+    shortName: "Dell",
+    countryCode: "US",
+    websiteUrl: "https://www.dell.com",
+  },
+  {
+    name: "ASUSTeK Computer",
+    slug: "asus",
+    shortName: "ASUS",
+    countryCode: "TW",
+    websiteUrl: "https://www.asus.com",
+  },
+  {
+    name: "Lenovo Group",
+    slug: "lenovo",
+    shortName: "Lenovo",
+    countryCode: "CN",
+    websiteUrl: "https://www.lenovo.com",
+  },
+  {
+    name: "Garmin Ltd.",
+    slug: "garmin",
+    shortName: "Garmin",
+    countryCode: "CH",
+    websiteUrl: "https://www.garmin.com",
+  },
+  {
+    name: "Bose Corporation",
+    slug: "bose",
+    shortName: "Bose",
+    countryCode: "US",
+    websiteUrl: "https://www.bose.com",
+  },
+  {
+    name: "LG Electronics",
+    slug: "lg",
+    shortName: "LG",
+    countryCode: "KR",
+    websiteUrl: "https://www.lg.com",
+  },
+  {
+    name: "Nintendo Co., Ltd.",
+    slug: "nintendo",
+    shortName: "Nintendo",
+    countryCode: "JP",
+    websiteUrl: "https://www.nintendo.com",
+  },
+  {
+    name: "Valve Corporation",
+    slug: "valve",
+    shortName: "Valve",
+    countryCode: "US",
+    websiteUrl: "https://www.valvesoftware.com",
+  },
+  {
+    name: "Amazon.com, Inc.",
+    slug: "amazon-devices",
+    shortName: "Amazon",
+    countryCode: "US",
+    websiteUrl: "https://www.amazon.com",
+  },
+  {
+    name: "NVIDIA Corporation",
+    slug: "nvidia",
+    shortName: "NVIDIA",
+    countryCode: "US",
+    websiteUrl: "https://www.nvidia.com",
+  },
+  {
+    name: "Advanced Micro Devices, Inc.",
+    slug: "amd",
+    shortName: "AMD",
+    countryCode: "US",
+    websiteUrl: "https://www.amd.com",
+  },
+  {
+    name: "Intel Corporation",
+    slug: "intel",
+    shortName: "Intel",
+    countryCode: "US",
+    websiteUrl: "https://www.intel.com",
+  },
+] as const;
+
+const EXTENDED_CATALOG_ORGANIZATIONS = isCuratedCatalogSeed
+  ? ([
+      ...BASE_EXTENDED_CATALOG_ORGANIZATIONS,
+      ...ADDITIONAL_CATALOG_ORGANIZATIONS,
+    ] as const)
+  : ([
+      ...BASE_EXTENDED_CATALOG_ORGANIZATIONS,
+      ...ADDITIONAL_CATALOG_ORGANIZATIONS,
+      ...CATALOG_EXPANSION_100_ORGANIZATIONS,
+      ...HISTORIC_CATALOG_ORGANIZATIONS,
+    ] as const);
+
+const EXTENDED_CATALOG_CATEGORIES = [
+  {
+    name: "TV thông minh",
+    slug: "television",
+    description: "TV thông minh và màn hình giải trí gia đình",
+    displayOrder: 6,
+  },
+  {
+    name: "Máy chơi game cầm tay",
+    slug: "gaming-handheld",
+    description: "Máy chơi game cầm tay",
+    displayOrder: 7,
+  },
+  {
+    name: "Máy đọc sách điện tử",
+    slug: "e-reader",
+    description: "Máy đọc sách điện tử",
+    displayOrder: 8,
+  },
+] as const;
+
+const BASE_EXTENDED_CATALOG_DEVICES: CatalogDeviceSeed[] = [
+  {
+    brandSlug: "apple",
+    categorySlug: "smartphone",
+    familyName: "iPhone 16 Series",
+    familySlug: "iphone-16-series",
+    modelName: "iPhone 16",
+    modelSlug: "iphone-16",
+    announcementDate: "2024-09-09",
+    releaseDate: "2024-09-20",
+    generation: "Gen 18",
+    description:
+      "Điện thoại cân bằng với Apple A18, màn hình OLED 6,1 inch và Camera Control.",
+    variantName: "128GB Ultramarine",
+    skuCode: "MYEC3LL/A",
+    colorName: "Ultramarine",
+    colorHex: "#5F79B7",
+    launchPrice: 799,
+    heightMm: 147.6,
+    widthMm: 71.6,
+    thicknessMm: 7.8,
+    weightG: 170,
+    ingressProtection: "IP68",
+    frameMaterial: "Aluminum",
+    backMaterial: "Color-infused glass",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "samsung",
+    categorySlug: "smartphone",
+    familyName: "Galaxy Z Fold6 Series",
+    familySlug: "galaxy-z-fold6-series",
+    modelName: "Galaxy Z Fold6",
+    modelSlug: "galaxy-z-fold6",
+    announcementDate: "2024-07-10",
+    releaseDate: "2024-07-24",
+    generation: "Fold6",
+    description:
+      "Smartphone gập dạng sách với hai màn hình AMOLED, hỗ trợ S Pen và Galaxy AI.",
+    variantName: "12GB/256GB Silver Shadow",
+    skuCode: "SM-F956UZSAXAA",
+    colorName: "Silver Shadow",
+    colorHex: "#B9B8B3",
+    launchPrice: 1899.99,
+    heightMm: 153.5,
+    widthMm: 132.6,
+    thicknessMm: 5.6,
+    weightG: 239,
+    ingressProtection: "IP48",
+    frameMaterial: "Armor Aluminum",
+    backMaterial: "Gorilla Glass Victus 2",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "google",
+    categorySlug: "smartphone",
+    familyName: "Pixel 9 Series",
+    familySlug: "pixel-9-series",
+    modelName: "Pixel 9a",
+    modelSlug: "pixel-9a",
+    announcementDate: "2025-03-19",
+    releaseDate: "2025-04-10",
+    generation: "Gen 9a",
+    description:
+      "Pixel tầm trung với Tensor G4, camera xử lý bằng AI và thời gian hỗ trợ dài.",
+    variantName: "128GB Obsidian",
+    skuCode: "GA05769-US",
+    colorName: "Obsidian",
+    colorHex: "#2D2D2F",
+    launchPrice: 499,
+    heightMm: 154.7,
+    widthMm: 73.3,
+    thicknessMm: 8.9,
+    weightG: 185.9,
+    ingressProtection: "IP68",
+    frameMaterial: "Aluminum",
+    backMaterial: "Composite",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "xiaomi",
+    categorySlug: "smartphone",
+    familyName: "Xiaomi 15 Series",
+    familySlug: "xiaomi-15-series",
+    modelName: "Xiaomi 15",
+    modelSlug: "xiaomi-15",
+    announcementDate: "2024-10-29",
+    releaseDate: "2024-10-31",
+    generation: "Gen 15",
+    description:
+      "Flagship nhỏ gọn với Snapdragon 8 Elite, cụm camera Leica và sạc nhanh.",
+    variantName: "12GB/256GB Black",
+    colorName: "Black",
+    colorHex: "#171717",
+    launchPrice: 999,
+    heightMm: 152.3,
+    widthMm: 71.2,
+    thicknessMm: 8.1,
+    weightG: 191,
+    ingressProtection: "IP68",
+    frameMaterial: "Aluminum",
+    backMaterial: "Glass",
+    speakerCount: 2,
+    audioTuning: "Dolby Atmos",
+  },
+  {
+    brandSlug: "sony",
+    categorySlug: "smartphone",
+    familyName: "Xperia 1 Series",
+    familySlug: "xperia-1-series",
+    modelName: "Xperia 1 VI",
+    modelSlug: "sony-xperia-1-vi",
+    announcementDate: "2024-05-15",
+    releaseDate: "2024-06-03",
+    generation: "Mark VI",
+    description:
+      "Flagship Sony tập trung camera, màn hình OLED và trải nghiệm âm thanh có dây.",
+    variantName: "12GB/256GB Khaki Green",
+    colorName: "Khaki Green",
+    colorHex: "#687267",
+    launchPrice: 1399,
+    heightMm: 162,
+    widthMm: 74,
+    thicknessMm: 8.2,
+    weightG: 192,
+    ingressProtection: "IP65/IP68",
+    frameMaterial: "Aluminum",
+    backMaterial: "Gorilla Glass Victus",
+    speakerCount: 2,
+    audioTuning: "Hi-Res Audio",
+    headphoneJack: true,
+    microSd: true,
+  },
+  {
+    brandSlug: "oneplus",
+    categorySlug: "smartphone",
+    familyName: "OnePlus 13 Series",
+    familySlug: "oneplus-13-series",
+    modelName: "OnePlus 13",
+    modelSlug: "oneplus-13",
+    announcementDate: "2024-10-31",
+    releaseDate: "2024-11-01",
+    generation: "Gen 13",
+    description:
+      "Flagship hiệu năng cao với Snapdragon 8 Elite, pin silicon-carbon và camera Hasselblad.",
+    variantName: "12GB/256GB Midnight Ocean",
+    colorName: "Midnight Ocean",
+    colorHex: "#23435A",
+    launchPrice: 899.99,
+    heightMm: 162.9,
+    widthMm: 76.5,
+    thicknessMm: 8.5,
+    weightG: 213,
+    ingressProtection: "IP68/IP69",
+    frameMaterial: "Aluminum",
+    backMaterial: "Vegan leather",
+    speakerCount: 2,
+    audioTuning: "Dolby Atmos",
+  },
+  {
+    brandSlug: "oppo",
+    categorySlug: "smartphone",
+    familyName: "Find X8 Series",
+    familySlug: "oppo-find-x8-series",
+    modelName: "OPPO Find X8 Pro",
+    modelSlug: "oppo-find-x8-pro",
+    announcementDate: "2024-10-24",
+    releaseDate: "2024-10-30",
+    generation: "Find X8",
+    description:
+      "Camera phone cao cấp với bốn camera Hasselblad, Dimensity 9400 và sạc SuperVOOC.",
+    variantName: "16GB/512GB Space Black",
+    colorName: "Space Black",
+    colorHex: "#1B1B1D",
+    launchPrice: 1199,
+    heightMm: 162.3,
+    widthMm: 76.7,
+    thicknessMm: 8.2,
+    weightG: 215,
+    ingressProtection: "IP68/IP69",
+    frameMaterial: "Aluminum",
+    backMaterial: "Glass",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "vivo",
+    categorySlug: "smartphone",
+    familyName: "X200 Series",
+    familySlug: "vivo-x200-series",
+    modelName: "vivo X200 Pro",
+    modelSlug: "vivo-x200-pro",
+    announcementDate: "2024-10-14",
+    releaseDate: "2024-10-19",
+    generation: "X200",
+    description:
+      "Flagship nhiếp ảnh với ống kính ZEISS, camera tele 200MP và pin dung lượng lớn.",
+    variantName: "16GB/512GB Titanium Gray",
+    colorName: "Titanium Gray",
+    colorHex: "#9C9A95",
+    launchPrice: 1199,
+    heightMm: 162.4,
+    widthMm: 76,
+    thicknessMm: 8.2,
+    weightG: 223,
+    ingressProtection: "IP68/IP69",
+    frameMaterial: "Aluminum",
+    backMaterial: "Glass",
+    speakerCount: 2,
+    audioTuning: "Hi-Res Audio",
+  },
+  {
+    brandSlug: "nothing",
+    categorySlug: "smartphone",
+    familyName: "Nothing Phone Series",
+    familySlug: "nothing-phone-series",
+    modelName: "Nothing Phone (2)",
+    modelSlug: "nothing-phone-2",
+    announcementDate: "2023-07-11",
+    releaseDate: "2023-07-17",
+    generation: "Phone 2",
+    description:
+      "Điện thoại thiết kế trong suốt với giao diện Glyph, Nothing OS và hiệu năng cân bằng.",
+    variantName: "12GB/256GB White",
+    skuCode: "A065-WHT-12-256",
+    colorName: "White",
+    colorHex: "#E8E6E1",
+    launchPrice: 699,
+    heightMm: 162.1,
+    widthMm: 76.4,
+    thicknessMm: 8.6,
+    weightG: 201.2,
+    ingressProtection: "IP54",
+    frameMaterial: "Recycled aluminum",
+    backMaterial: "Glass",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "huawei",
+    categorySlug: "smartphone",
+    familyName: "Pura 70 Series",
+    familySlug: "huawei-pura-70-series",
+    modelName: "Huawei Pura 70 Ultra",
+    modelSlug: "huawei-pura-70-ultra",
+    announcementDate: "2024-04-18",
+    releaseDate: "2024-04-29",
+    generation: "Pura 70",
+    description:
+      "Camera phone cao cấp với cảm biến chính có cơ chế thò thụt và thiết kế da họa tiết.",
+    variantName: "16GB/512GB Green",
+    colorName: "Green",
+    colorHex: "#4B6C5A",
+    launchPrice: 1499,
+    heightMm: 162.6,
+    widthMm: 75.1,
+    thicknessMm: 8.4,
+    weightG: 226,
+    ingressProtection: "IP68",
+    frameMaterial: "Aluminum",
+    backMaterial: "Vegan leather",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "samsung",
+    categorySlug: "tablet",
+    familyName: "Galaxy Tab S10 Series",
+    familySlug: "galaxy-tab-s10-series",
+    modelName: "Galaxy Tab S10 Ultra",
+    modelSlug: "galaxy-tab-s10-ultra",
+    announcementDate: "2024-09-26",
+    releaseDate: "2024-10-03",
+    generation: "Tab S10",
+    description:
+      "Tablet Android 14,6 inch cho đa nhiệm, đi kèm S Pen và các tính năng Galaxy AI.",
+    variantName: "12GB/256GB Wi-Fi Moonstone Gray",
+    skuCode: "SM-X920NZAAXAR",
+    colorName: "Moonstone Gray",
+    colorHex: "#6A6B6C",
+    launchPrice: 1199.99,
+    heightMm: 208.6,
+    widthMm: 326.4,
+    thicknessMm: 5.4,
+    weightG: 718,
+    ingressProtection: "IP68",
+    frameMaterial: "Armor Aluminum",
+    speakerCount: 4,
+    audioTuning: "AKG",
+    microSd: true,
+  },
+  {
+    brandSlug: "apple",
+    categorySlug: "tablet",
+    familyName: "iPad mini Series",
+    familySlug: "ipad-mini-series",
+    modelName: "iPad mini (A17 Pro)",
+    modelSlug: "ipad-mini-a17-pro",
+    announcementDate: "2024-10-15",
+    releaseDate: "2024-10-23",
+    generation: "7th gen",
+    description:
+      "Tablet nhỏ gọn 8,3 inch với A17 Pro, Apple Intelligence và hỗ trợ Apple Pencil Pro.",
+    variantName: "128GB Wi-Fi Space Gray",
+    skuCode: "MXN63LL/A",
+    colorName: "Space Gray",
+    colorHex: "#6E6E73",
+    launchPrice: 499,
+    heightMm: 195.4,
+    widthMm: 134.8,
+    thicknessMm: 6.3,
+    weightG: 293,
+    frameMaterial: "Aluminum",
+    speakerCount: 2,
+  },
+  {
+    brandSlug: "oneplus",
+    categorySlug: "tablet",
+    familyName: "OnePlus Pad Series",
+    familySlug: "oneplus-pad-series",
+    modelName: "OnePlus Pad 2",
+    modelSlug: "oneplus-pad-2",
+    announcementDate: "2024-07-16",
+    releaseDate: "2024-07-30",
+    generation: "Pad 2",
+    description:
+      "Tablet hiệu năng cao với màn hình 12,1 inch 144Hz và Snapdragon 8 Gen 3.",
+    variantName: "12GB/256GB Nimbus Gray",
+    colorName: "Nimbus Gray",
+    colorHex: "#777A7A",
+    launchPrice: 549.99,
+    heightMm: 195.1,
+    widthMm: 268.7,
+    thicknessMm: 6.5,
+    weightG: 584,
+    frameMaterial: "Aluminum",
+    speakerCount: 6,
+    audioTuning: "Dolby Atmos",
+  },
+  {
+    brandSlug: "microsoft",
+    categorySlug: "tablet",
+    familyName: "Surface Pro Series",
+    familySlug: "surface-pro-series",
+    modelName: "Surface Pro 11",
+    modelSlug: "surface-pro-11",
+    announcementDate: "2024-05-20",
+    releaseDate: "2024-06-18",
+    generation: "11th Edition",
+    description:
+      "Máy tính bảng Windows Copilot+ với Snapdragon X, chân đế tích hợp và bàn phím rời.",
+    variantName: "Snapdragon X Plus 16GB/256GB Platinum",
+    skuCode: "ZHX-00001",
+    colorName: "Platinum",
+    colorHex: "#D6D5D2",
+    launchPrice: 999.99,
+    heightMm: 209,
+    widthMm: 287,
+    thicknessMm: 9.3,
+    weightG: 895,
+    frameMaterial: "Anodized aluminum",
+    speakerCount: 2,
+    audioTuning: "Dolby Atmos",
+  },
+  {
+    brandSlug: "apple",
+    categorySlug: "laptop",
+    familyName: "MacBook Air M4 Series",
+    familySlug: "macbook-air-m4-series",
+    modelName: "MacBook Air 13-inch M4",
+    modelSlug: "macbook-air-13-m4",
+    announcementDate: "2025-03-05",
+    releaseDate: "2025-03-12",
+    generation: "M4",
+    description:
+      "Ultrabook không quạt với Apple M4, thiết kế mỏng nhẹ và pin dùng cả ngày.",
+    variantName: "16GB/256GB Sky Blue",
+    skuCode: "MW123LL/A",
+    colorName: "Sky Blue",
+    colorHex: "#A9B7C2",
+    launchPrice: 999,
+    heightMm: 215,
+    widthMm: 304.1,
+    thicknessMm: 11.3,
+    weightG: 1240,
+    frameMaterial: "Recycled aluminum",
+    speakerCount: 4,
+    audioTuning: "Spatial Audio",
+  },
+  {
+    brandSlug: "dell",
+    categorySlug: "laptop",
+    familyName: "XPS 13 Series",
+    familySlug: "dell-xps-13-series",
+    modelName: "Dell XPS 13 9345",
+    modelSlug: "dell-xps-13-9345",
+    announcementDate: "2024-05-20",
+    releaseDate: "2024-06-18",
+    generation: "9345",
+    description:
+      "Laptop Copilot+ nhỏ gọn với Snapdragon X Elite, viền màn hình mỏng và thân nhôm.",
+    variantName: "16GB/512GB Graphite",
+    skuCode: "XPS9345-7688GRY-PUS",
+    colorName: "Graphite",
+    colorHex: "#454545",
+    launchPrice: 1299,
+    heightMm: 199.1,
+    widthMm: 295.3,
+    thicknessMm: 15.3,
+    weightG: 1190,
+    frameMaterial: "CNC machined aluminum",
+    speakerCount: 4,
+    audioTuning: "Waves MaxxAudio Pro",
+  },
+  {
+    brandSlug: "asus",
+    categorySlug: "laptop",
+    familyName: "ROG Zephyrus G14 Series",
+    familySlug: "rog-zephyrus-g14-series",
+    modelName: "ROG Zephyrus G14 (2024)",
+    modelSlug: "asus-rog-zephyrus-g14-2024",
+    announcementDate: "2024-01-08",
+    releaseDate: "2024-02-06",
+    generation: "GA403",
+    description:
+      "Laptop gaming 14 inch với màn hình OLED, GPU rời và thiết kế nhôm gọn nhẹ.",
+    variantName: "16GB/1TB Eclipse Gray",
+    skuCode: "GA403UV-G14.R94060",
+    colorName: "Eclipse Gray",
+    colorHex: "#53565A",
+    launchPrice: 1599.99,
+    heightMm: 220,
+    widthMm: 311,
+    thicknessMm: 15.9,
+    weightG: 1500,
+    frameMaterial: "CNC aluminum",
+    speakerCount: 6,
+    audioTuning: "Dolby Atmos",
+    ioNotes: "USB4, USB-C, USB-A, HDMI 2.1 và khe microSD UHS-II.",
+  },
+  {
+    brandSlug: "lenovo",
+    categorySlug: "laptop",
+    familyName: "ThinkPad X1 Carbon Series",
+    familySlug: "thinkpad-x1-carbon-series",
+    modelName: "ThinkPad X1 Carbon Gen 13 Aura Edition",
+    modelSlug: "thinkpad-x1-carbon-gen-13",
+    announcementDate: "2024-09-05",
+    releaseDate: "2024-11-01",
+    generation: "Gen 13",
+    description:
+      "Laptop doanh nghiệp siêu nhẹ với Intel Core Ultra, bàn phím ThinkPad và bảo mật phần cứng.",
+    variantName: "32GB/1TB Black",
+    skuCode: "21NX000QUS",
+    colorName: "Black",
+    colorHex: "#171717",
+    launchPrice: 2519,
+    heightMm: 214.8,
+    widthMm: 312.8,
+    thicknessMm: 14.4,
+    weightG: 986,
+    frameMaterial: "Carbon fiber and magnesium",
+    speakerCount: 4,
+    audioTuning: "Dolby Atmos",
+    headphoneJack: true,
+  },
+  {
+    brandSlug: "microsoft",
+    categorySlug: "laptop",
+    familyName: "Surface Laptop Series",
+    familySlug: "surface-laptop-series",
+    modelName: "Surface Laptop 7 13.8-inch",
+    modelSlug: "surface-laptop-7-13",
+    announcementDate: "2024-05-20",
+    releaseDate: "2024-06-18",
+    generation: "7th Edition",
+    description:
+      "Laptop Copilot+ với Snapdragon X Elite, màn hình cảm ứng và thời lượng pin dài.",
+    variantName: "16GB/512GB Platinum",
+    skuCode: "ZGM-00001",
+    colorName: "Platinum",
+    colorHex: "#D8D8D5",
+    launchPrice: 1199.99,
+    heightMm: 220,
+    widthMm: 301,
+    thicknessMm: 17.5,
+    weightG: 1340,
+    frameMaterial: "Anodized aluminum",
+    speakerCount: 2,
+    audioTuning: "Dolby Atmos",
+  },
+  {
+    brandSlug: "apple",
+    categorySlug: "smartwatch",
+    familyName: "Apple Watch Series 10",
+    familySlug: "apple-watch-series-10",
+    modelName: "Apple Watch Series 10 46mm",
+    modelSlug: "apple-watch-series-10-46mm",
+    announcementDate: "2024-09-09",
+    releaseDate: "2024-09-20",
+    generation: "Series 10",
+    description:
+      "Apple Watch mỏng với màn hình góc rộng, cảm biến sức khỏe và sạc nhanh.",
+    variantName: "46mm Jet Black GPS",
+    skuCode: "MWWQ3LL/A",
+    colorName: "Jet Black",
+    colorHex: "#111315",
+    launchPrice: 429,
+    heightMm: 46,
+    widthMm: 39,
+    thicknessMm: 9.7,
+    weightG: 36.4,
+    ingressProtection: "5ATM / IP6X",
+    frameMaterial: "Aluminum",
+    speakerCount: 1,
+  },
+  {
+    brandSlug: "garmin",
+    categorySlug: "smartwatch",
+    familyName: "fēnix 8 Series",
+    familySlug: "garmin-fenix-8-series",
+    modelName: "Garmin fēnix 8 AMOLED 47mm",
+    modelSlug: "garmin-fenix-8-amoled-47mm",
+    announcementDate: "2024-08-27",
+    releaseDate: "2024-08-27",
+    generation: "fēnix 8",
+    description:
+      "Đồng hồ đa môn thể thao với màn hình AMOLED, bản đồ ngoại tuyến và đèn pin LED.",
+    variantName: "47mm Slate Gray",
+    skuCode: "010-02904-00",
+    colorName: "Slate Gray",
+    colorHex: "#4F5557",
+    launchPrice: 1099.99,
+    heightMm: 47,
+    widthMm: 47,
+    thicknessMm: 13.8,
+    weightG: 73,
+    ingressProtection: "10ATM",
+    frameMaterial: "Titanium and fiber-reinforced polymer",
+    speakerCount: 1,
+  },
+  {
+    brandSlug: "google",
+    categorySlug: "smartwatch",
+    familyName: "Pixel Watch 3 Series",
+    familySlug: "pixel-watch-3-series",
+    modelName: "Pixel Watch 3 45mm",
+    modelSlug: "pixel-watch-3-45mm",
+    announcementDate: "2024-08-13",
+    releaseDate: "2024-09-10",
+    generation: "Gen 3",
+    description:
+      "Smartwatch Wear OS với màn hình Actua lớn, GPS và hệ sinh thái theo dõi Fitbit.",
+    variantName: "45mm Matte Black Wi-Fi",
+    skuCode: "GA05786-US",
+    colorName: "Matte Black",
+    colorHex: "#202224",
+    launchPrice: 399.99,
+    heightMm: 45,
+    widthMm: 45,
+    thicknessMm: 12.3,
+    weightG: 37,
+    ingressProtection: "5ATM / IP68",
+    frameMaterial: "Recycled aluminum",
+    speakerCount: 1,
+  },
+  {
+    brandSlug: "samsung",
+    categorySlug: "earbuds",
+    familyName: "Galaxy Buds Series",
+    familySlug: "galaxy-buds-series",
+    modelName: "Galaxy Buds3 Pro",
+    modelSlug: "galaxy-buds3-pro",
+    announcementDate: "2024-07-10",
+    releaseDate: "2024-07-24",
+    generation: "Buds3 Pro",
+    description:
+      "Tai nghe true wireless với chống ồn chủ động, driver kép và âm thanh thích ứng.",
+    variantName: "Silver",
+    skuCode: "SM-R630NZAAUSA",
+    colorName: "Silver",
+    colorHex: "#B8B9BA",
+    launchPrice: 249.99,
+    heightMm: 48.7,
+    widthMm: 58.9,
+    thicknessMm: 24.4,
+    weightG: 46.5,
+    ingressProtection: "IP57 earbuds",
+    backMaterial: "Polycarbonate",
+    speakerCount: 2,
+    audioTuning: "Samsung Seamless Codec",
+    ioNotes: "Kích thước và khối lượng tính theo hộp sạc.",
+  },
+  {
+    brandSlug: "sony",
+    categorySlug: "earbuds",
+    familyName: "Sony 1000X Series",
+    familySlug: "sony-1000x-earbuds-series",
+    modelName: "Sony WF-1000XM5",
+    modelSlug: "sony-wf-1000xm5",
+    announcementDate: "2023-07-24",
+    releaseDate: "2023-08-04",
+    generation: "XM5",
+    description:
+      "Tai nghe chống ồn cao cấp nhỏ gọn, hỗ trợ LDAC và âm thanh độ phân giải cao.",
+    variantName: "Black",
+    skuCode: "WF1000XM5/B",
+    colorName: "Black",
+    colorHex: "#1D1D1F",
+    launchPrice: 299.99,
+    heightMm: 40,
+    widthMm: 64.6,
+    thicknessMm: 26.5,
+    weightG: 39,
+    ingressProtection: "IPX4 earbuds",
+    backMaterial: "Polycarbonate",
+    speakerCount: 2,
+    audioTuning: "Sony Integrated Processor V2",
+    ioNotes: "Kích thước và khối lượng tính theo hộp sạc.",
+  },
+  {
+    brandSlug: "bose",
+    categorySlug: "earbuds",
+    familyName: "QuietComfort Ultra Earbuds Series",
+    familySlug: "bose-quietcomfort-ultra-earbuds-series",
+    modelName: "Bose QuietComfort Ultra Earbuds",
+    modelSlug: "bose-quietcomfort-ultra-earbuds",
+    announcementDate: "2023-09-14",
+    releaseDate: "2023-10-03",
+    generation: "Ultra",
+    description:
+      "Tai nghe ANC cao cấp với CustomTune, Immersive Audio và thiết kế bám tai.",
+    variantName: "Moonstone Blue",
+    skuCode: "882826-0030",
+    colorName: "Moonstone Blue",
+    colorHex: "#8DA3B8",
+    launchPrice: 299,
+    heightMm: 26.7,
+    widthMm: 66.3,
+    thicknessMm: 59.4,
+    weightG: 60,
+    ingressProtection: "IPX4 earbuds",
+    backMaterial: "Polycarbonate",
+    speakerCount: 2,
+    audioTuning: "Bose CustomTune",
+    ioNotes: "Kích thước và khối lượng tính theo hộp sạc.",
+  },
+  {
+    brandSlug: "lg",
+    categorySlug: "television",
+    familyName: "LG OLED evo G Series",
+    familySlug: "lg-oled-evo-g-series",
+    modelName: "LG OLED evo G4 65-inch",
+    modelSlug: "lg-oled-evo-g4-65",
+    announcementDate: "2024-01-03",
+    releaseDate: "2024-03-01",
+    generation: "G4",
+    description:
+      "TV OLED 4K cao cấp với tấm nền sáng, bộ xử lý AI và tần số quét đến 144Hz.",
+    variantName: "65-inch Graphite",
+    skuCode: "OLED65G4SUB",
+    colorName: "Graphite",
+    colorHex: "#2D2E30",
+    launchPrice: 3399.99,
+    heightMm: 910,
+    widthMm: 1441,
+    thicknessMm: 263,
+    weightG: 29800,
+    frameMaterial: "Metal",
+    backMaterial: "Composite",
+    speakerCount: 6,
+    audioTuning: "Dolby Atmos",
+    ioNotes: "Bốn cổng HDMI 2.1, eARC, Wi-Fi và Ethernet.",
+  },
+  {
+    brandSlug: "sony",
+    categorySlug: "television",
+    familyName: "Sony BRAVIA 9 Series",
+    familySlug: "sony-bravia-9-series",
+    modelName: "Sony BRAVIA 9 65-inch",
+    modelSlug: "sony-bravia-9-65",
+    announcementDate: "2024-04-17",
+    releaseDate: "2024-05-01",
+    generation: "BRAVIA 9",
+    description:
+      "TV Mini LED 4K cao cấp với Google TV, XR Backlight Master Drive và âm thanh đa hướng.",
+    variantName: "65-inch Black",
+    skuCode: "K-65XR90",
+    colorName: "Black",
+    colorHex: "#171819",
+    launchPrice: 3299.99,
+    heightMm: 862,
+    widthMm: 1447,
+    thicknessMm: 345,
+    weightG: 32900,
+    frameMaterial: "Aluminum",
+    backMaterial: "Composite",
+    speakerCount: 8,
+    audioTuning: "Acoustic Multi-Audio+",
+    ioNotes: "Bốn cổng HDMI, trong đó hai cổng hỗ trợ HDMI 2.1.",
+  },
+  {
+    brandSlug: "nintendo",
+    categorySlug: "gaming-handheld",
+    familyName: "Nintendo Switch Series",
+    familySlug: "nintendo-switch-series",
+    modelName: "Nintendo Switch OLED",
+    modelSlug: "nintendo-switch-oled",
+    announcementDate: "2021-07-06",
+    releaseDate: "2021-10-08",
+    generation: "OLED Model",
+    description:
+      "Máy chơi game lai với màn hình OLED 7 inch, Joy-Con tháo rời và dock xuất hình TV.",
+    variantName: "64GB White",
+    skuCode: "HEGSKAAAA",
+    colorName: "White",
+    colorHex: "#F2F2F2",
+    launchPrice: 349.99,
+    heightMm: 102,
+    widthMm: 242,
+    thicknessMm: 13.9,
+    weightG: 420,
+    frameMaterial: "Polycarbonate",
+    speakerCount: 2,
+    headphoneJack: true,
+    microSd: true,
+    ioNotes: "USB-C trên máy, HDMI và Ethernet qua dock.",
+  },
+  {
+    brandSlug: "valve",
+    categorySlug: "gaming-handheld",
+    familyName: "Steam Deck Series",
+    familySlug: "steam-deck-series",
+    modelName: "Steam Deck OLED",
+    modelSlug: "steam-deck-oled",
+    announcementDate: "2023-11-09",
+    releaseDate: "2023-11-16",
+    generation: "OLED",
+    description:
+      "PC gaming cầm tay với màn hình OLED HDR 90Hz, SteamOS và điều khiển tích hợp.",
+    variantName: "1TB Black",
+    skuCode: "V004287-30",
+    colorName: "Black",
+    colorHex: "#1B1C1D",
+    launchPrice: 649,
+    heightMm: 117,
+    widthMm: 298,
+    thicknessMm: 49,
+    weightG: 640,
+    frameMaterial: "Polycarbonate",
+    speakerCount: 2,
+    headphoneJack: true,
+    microSd: true,
+    ioNotes: "USB-C DisplayPort 1.4, khe microSD và jack tai nghe 3,5 mm.",
+  },
+  {
+    brandSlug: "amazon-devices",
+    categorySlug: "e-reader",
+    familyName: "Kindle Paperwhite Series",
+    familySlug: "kindle-paperwhite-series",
+    modelName: "Kindle Paperwhite 12th Gen",
+    modelSlug: "kindle-paperwhite-12th-gen",
+    announcementDate: "2024-10-16",
+    releaseDate: "2024-10-16",
+    generation: "12th gen",
+    description:
+      "Máy đọc sách màn hình 7 inch chống chói, đèn nền điều chỉnh ấm và pin nhiều tuần.",
+    variantName: "16GB Black",
+    skuCode: "B0CFPHV9ZN",
+    colorName: "Black",
+    colorHex: "#202122",
+    launchPrice: 159.99,
+    heightMm: 176.7,
+    widthMm: 127.6,
+    thicknessMm: 7.8,
+    weightG: 211,
+    ingressProtection: "IPX8",
+    frameMaterial: "Recycled magnesium",
+    backMaterial: "Recycled plastic",
+    ioNotes: "USB-C, Wi-Fi và màn hình E Ink không phát sáng trực tiếp.",
+  },
+];
+
+const EXTENDED_CATALOG_DEVICES: CatalogDeviceSeed[] = isCuratedCatalogSeed
+  ? ADDITIONAL_CATALOG_DEVICES
+  : [
+      ...BASE_EXTENDED_CATALOG_DEVICES,
+      ...ADDITIONAL_CATALOG_DEVICES,
+      ...CATALOG_EXPANSION_100_DEVICES,
+      ...HISTORIC_CATALOG_DEVICES,
+    ];
+
+const EXTENDED_CATALOG_MODULES = isCuratedCatalogSeed
+  ? ADDITIONAL_CATALOG_MODULES
+  : [
+      ...BASE_EXTENDED_CATALOG_MODULES,
+      ...ADDITIONAL_CATALOG_MODULES,
+      ...CATALOG_EXPANSION_100_MODULES,
+      ...HISTORIC_CATALOG_MODULES,
+    ];
+
+const EXPECTED_EXTENDED_CATALOG_SIZE = isCuratedCatalogSeed
+  ? 50
+  : 180 + HISTORIC_CATALOG_DEVICES.length;
+
+const extendedDeviceSlugs = new Set(
+  EXTENDED_CATALOG_DEVICES.map((device) => device.modelSlug),
+);
+const extendedModuleSlugs = new Set(
+  EXTENDED_CATALOG_MODULES.map((profile) => profile.modelSlug),
+);
+if (
+  extendedDeviceSlugs.size !== EXTENDED_CATALOG_DEVICES.length ||
+  extendedModuleSlugs.size !== EXTENDED_CATALOG_MODULES.length
+) {
+  throw new Error(
+    "Extended catalog contains duplicate device or module slugs.",
+  );
+}
+const deviceSlugsWithoutModule = [...extendedDeviceSlugs].filter(
+  (slug) => !extendedModuleSlugs.has(slug),
+);
+const moduleSlugsWithoutDevice = [...extendedModuleSlugs].filter(
+  (slug) => !extendedDeviceSlugs.has(slug),
+);
+if (deviceSlugsWithoutModule.length || moduleSlugsWithoutDevice.length) {
+  throw new Error(
+    `Extended device/module mismatch: devices without module=${deviceSlugsWithoutModule.join(", ")}; modules without device=${moduleSlugsWithoutDevice.join(", ")}.`,
+  );
+}
+
+const OFFICIAL_CATALOG_VIDEOS = [
+  {
+    modelSlug: "galaxy-s25-ultra",
+    url: "https://www.youtube.com/watch?v=3i1OB6wKYms",
+    title: "Introducing Galaxy S25 Ultra | Galaxy AI | Samsung",
+    channelName: "Samsung",
+  },
+  {
+    modelSlug: "pixel-9-pro-fold",
+    url: "https://www.youtube.com/watch?v=NC_A3EHFKF4",
+    title: "Introducing the Google Pixel 9 Pro Fold",
+    channelName: "Made by Google",
+  },
+  {
+    modelSlug: "ipad-pro-13-m4",
+    url: "https://www.youtube.com/watch?v=UjmaxCyJBc4",
+    title: "Introducing the all-new iPad Pro | Apple",
+    channelName: "Apple",
+  },
+] as const;
+
+function buildExtendedDeviceDescription(device: CatalogDeviceSeed) {
+  const categoryLabel =
+    {
+      smartphone: "điện thoại thông minh",
+      tablet: "máy tính bảng",
+      laptop: "máy tính xách tay",
+      smartwatch: "đồng hồ thông minh",
+      earbuds: "tai nghe không dây",
+      television: "TV thông minh",
+      "gaming-handheld": "máy chơi game cầm tay",
+      "e-reader": "máy đọc sách điện tử",
+    }[device.categorySlug] ?? "thiết bị";
+  const protection = device.ingressProtection
+    ? ` và mức bảo vệ ${device.ingressProtection}`
+    : "";
+  const audio = device.speakerCount
+    ? `Hệ thống âm thanh sử dụng ${device.speakerCount} loa${
+        device.audioTuning ? `, tinh chỉnh ${device.audioTuning}` : ""
+      }.`
+    : "Cấu hình âm thanh được liên kết theo profile phần cứng của thiết bị.";
+
+  return [
+    [
+      "Điểm nổi bật",
+      `${device.modelName} là ${categoryLabel} thuộc thế hệ ${device.generation}. ${device.description}`,
+    ],
+    [
+      "Thiết kế và trải nghiệm",
+      `Thiết bị có kích thước ${device.heightMm} × ${device.widthMm} × ${device.thicknessMm} mm, khối lượng ${device.weightG} g, khung ${device.frameMaterial ?? "theo thiết kế của hãng"} và mặt lưng ${device.backMaterial ?? "theo thiết kế của hãng"}${protection}.`,
+    ],
+    [
+      "Hiệu năng và phần cứng",
+      "Hồ sơ liên kết chipset, CPU, GPU, NPU khi áp dụng, RAM và bộ nhớ trong theo module chuẩn hóa. Điểm hiệu năng được tính theo benchmark có nguồn hoặc mốc tham chiếu cấu hình được ghi rõ.",
+    ],
+    [
+      "Màn hình, âm thanh và tương tác",
+      `Màn hình, độ phân giải, tần số quét và độ sáng được lưu trong module hiển thị riêng để có thể đối chiếu giữa các phiên bản. ${audio}`,
+    ],
+    [
+      "Pin và kết nối",
+      `Pin, công suất sạc, Wi-Fi, Bluetooth, mạng di động và các cổng vật lý được liên kết theo profile của ${device.modelName}. ${
+        device.ioNotes ?? "Khả năng kết nối thay đổi theo thị trường."
+      }`,
+    ],
+    [
+      "Phần mềm và hệ sinh thái",
+      "Hệ điều hành được gắn ở cấp phiên bản thiết bị, phục vụ theo dõi bản phát hành và chấm điểm chính sách phần mềm. Khả năng đồng bộ hệ sinh thái phụ thuộc thương hiệu và thị trường.",
+    ],
+    [
+      "Hạn chế và đối tượng phù hợp",
+      device.sourceUrl
+        ? `Hồ sơ này đã được đối chiếu với tài liệu công khai của nhà sản xuất tại ${device.sourceUrl}. Dung lượng, màu, kết nối mạng và giá bán có thể khác theo thị trường; thiết bị phù hợp để so sánh trong đúng nhóm danh mục.`
+        : "Thông số trong bộ seed được chuẩn hóa để phát triển và kiểm thử giao diện; các giá trị tham chiếu cần được đối chiếu lại với tài liệu chính thức trước khi sử dụng như dữ liệu sản xuất. Thiết bị phù hợp để so sánh trong đúng nhóm danh mục.",
+    ],
+  ]
+    .map(([title, body]) => `## ${title}\n\n${body}`)
+    .join("\n\n");
+}
+
+function buildExtendedDeviceSummary(device: CatalogDeviceSeed) {
+  const summary = device.description.trim();
+  if (summary.length >= 80) return summary.slice(0, 600);
+  return (
+    `${summary} Hồ sơ SpecHub liên kết đầy đủ cấu hình, màn hình, pin, ` +
+    "kết nối, phần mềm và điểm đánh giá theo danh mục."
+  ).slice(0, 600);
+}
+
+function buildStandardModelDescription(
+  modelName: string,
+  summary: string,
+  categoryLabel: string,
+) {
+  return [
+    [
+      "Điểm nổi bật",
+      `${summary} Hồ sơ được trình bày theo cùng quy chuẩn SpecHub để thuận tiện đối chiếu trong nhóm ${categoryLabel}.`,
+    ],
+    [
+      "Thiết kế và trải nghiệm",
+      `${modelName} được đánh giá theo kích thước, khối lượng, vật liệu, độ bền và trải nghiệm sử dụng thực tế phù hợp với đặc trưng của ${categoryLabel}.`,
+    ],
+    [
+      "Hiệu năng và phần cứng",
+      "Chipset, CPU, GPU, NPU, modem, RAM và bộ nhớ được liên kết thành các module độc lập; điểm số ưu tiên benchmark có nguồn và ghi rõ khi sử dụng mốc tham chiếu.",
+    ],
+    [
+      "Màn hình, âm thanh và tương tác",
+      "Màn hình, camera, âm thanh, cảm biến và phương thức điều khiển được chuẩn hóa thành dữ liệu có thể so sánh giữa các phiên bản cùng danh mục.",
+    ],
+    [
+      "Pin và kết nối",
+      "Dung lượng pin, tốc độ sạc, chuẩn không dây, mạng di động và cổng vật lý được lưu ở cấp module hoặc phiên bản để phản ánh đúng cấu hình bán ra.",
+    ],
+    [
+      "Phần mềm và hệ sinh thái",
+      "Hệ điều hành, phiên bản phần mềm và khả năng tích hợp hệ sinh thái được theo dõi riêng nhằm đánh giá trải nghiệm dài hạn và chính sách hỗ trợ.",
+    ],
+    [
+      "Hạn chế và đối tượng phù hợp",
+      `Các giới hạn phụ thuộc cấu hình, thị trường và điều kiện sử dụng. ${modelName} nên được đối chiếu trong đúng nhóm ${categoryLabel} và kiểm tra nguồn chính thức trước quyết định mua.`,
+    ],
+  ]
+    .map(([title, body]) => `## ${title}\n\n${body}`)
+    .join("\n\n");
+}
 
 async function getOrCreateDisplayUnit(
   slug: string,
@@ -181,38 +1359,8 @@ async function upsertOperatingSystem(
   data: OperatingSystemCreateData,
 ) {
   return prisma.operating_systems.upsert({
-    where: { slug },
-    update: data,
-    create: data,
-  });
-}
-
-async function upsertWirelessStandard(
-  slug: string,
-  data: WirelessStandardCreateData,
-) {
-  return prisma.wireless_standards.upsert({
-    where: { slug },
-    update: data,
-    create: data,
-  });
-}
-
-async function upsertPortStandard(slug: string, data: PortStandardCreateData) {
-  return prisma.port_standards.upsert({
-    where: { slug },
-    update: data,
-    create: data,
-  });
-}
-
-async function upsertHardwareSensor(
-  slug: string,
-  data: HardwareSensorCreateData,
-) {
-  return prisma.hardware_sensors.upsert({
-    where: { slug },
-    update: data,
+    where: { name: data.name },
+    update: { ...data, slug },
     create: data,
   });
 }
@@ -360,55 +1508,6 @@ async function upsertVariantStorage(
   });
 }
 
-async function upsertVariantPort(
-  device_variant_id: string,
-  port_standard_id: string,
-  port_count: number,
-) {
-  return prisma.variant_ports.upsert({
-    where: {
-      device_variant_id_port_standard_id: {
-        device_variant_id,
-        port_standard_id,
-      },
-    },
-    update: { port_count },
-    create: { device_variant_id, port_standard_id, port_count },
-  });
-}
-
-async function upsertVariantWireless(
-  device_variant_id: string,
-  wireless_standard_id: string,
-) {
-  return prisma.variant_wireless_support.upsert({
-    where: {
-      device_variant_id_wireless_standard_id: {
-        device_variant_id,
-        wireless_standard_id,
-      },
-    },
-    update: {},
-    create: { device_variant_id, wireless_standard_id },
-  });
-}
-
-async function upsertVariantSensor(
-  device_variant_id: string,
-  hardware_sensor_id: string,
-) {
-  return prisma.variant_hardware_sensors.upsert({
-    where: {
-      device_variant_id_hardware_sensor_id: {
-        device_variant_id,
-        hardware_sensor_id,
-      },
-    },
-    update: {},
-    create: { device_variant_id, hardware_sensor_id },
-  });
-}
-
 async function getOrCreateOsVersion(
   operating_system_id: string,
   version_name: string,
@@ -519,8 +1618,879 @@ async function upsertVariantBattery(
   });
 }
 
+async function inheritSharedModulesAcrossModelVariants() {
+  const models = await prisma.device_models.findMany({
+    where: {
+      deleted_at: null,
+      device_variants: {
+        some: { deleted_at: null },
+      },
+    },
+    select: {
+      name: true,
+      device_variants: {
+        where: { deleted_at: null },
+        select: {
+          id: true,
+          is_default: true,
+          variant_physical_specs: true,
+          variant_io_specs: true,
+          variant_displays: {
+            select: {
+              display_unit_id: true,
+              display_role: true,
+              display_order: true,
+            },
+          },
+          variant_batteries: {
+            select: {
+              battery_unit_id: true,
+              battery_role: true,
+              is_primary: true,
+            },
+          },
+          variant_camera_modules: {
+            select: {
+              camera_module_id: true,
+              position: true,
+              role: true,
+              camera_system: { select: { system_name: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  let inheritedLinks = 0;
+  for (const model of models) {
+    if (model.device_variants.length < 2) continue;
+    const source =
+      model.device_variants.find((variant) => variant.is_default) ??
+      model.device_variants[0];
+    if (!source) continue;
+
+    for (const target of model.device_variants) {
+      if (target.id === source.id) continue;
+
+      if (source.variant_physical_specs) {
+        const { device_variant_id: _sourceId, ...physical } =
+          source.variant_physical_specs;
+        await prisma.variant_physical_specs.upsert({
+          where: { device_variant_id: target.id },
+          update: physical,
+          create: { device_variant_id: target.id, ...physical },
+        });
+        inheritedLinks += 1;
+      }
+
+      if (source.variant_io_specs) {
+        const { device_variant_id: _sourceId, ...io } = source.variant_io_specs;
+        await prisma.variant_io_specs.upsert({
+          where: { device_variant_id: target.id },
+          update: io,
+          create: { device_variant_id: target.id, ...io },
+        });
+        inheritedLinks += 1;
+      }
+
+      for (const display of source.variant_displays) {
+        await upsertVariantDisplay(
+          target.id,
+          display.display_unit_id,
+          display.display_role,
+          display.display_order,
+        );
+        inheritedLinks += 1;
+      }
+
+      for (const battery of source.variant_batteries) {
+        await upsertVariantBattery(
+          target.id,
+          battery.battery_unit_id,
+          battery.battery_role,
+        );
+        inheritedLinks += 1;
+      }
+
+      if (!target.variant_camera_modules.length) {
+        for (const camera of source.variant_camera_modules) {
+          await upsertVariantCamera(
+            target.id,
+            camera.camera_module_id,
+            camera.position,
+            camera.role,
+            camera.camera_system?.system_name ?? `${model.name} camera system`,
+          );
+          inheritedLinks += 1;
+        }
+      }
+    }
+  }
+
+  return inheritedLinks;
+}
+
+const CONFIGURATION_SCORE_VERSION = "benchmark-first-config-fallback-v2";
+const CONFIGURATION_SCORE_RATIONALE =
+  "Chỉ số cấu hình dự phòng khi thiết bị chưa có benchmark phù hợp; giao diện luôn ưu tiên điểm đo gốc cùng tên, phiên bản và hạng mục.";
+
+type ModuleScoreLink = {
+  moduleKind:
+    | "chipset"
+    | "cpu"
+    | "gpu"
+    | "npu"
+    | "modem"
+    | "memory-standard"
+    | "storage-standard"
+    | "operating-system"
+    | "camera"
+    | "display"
+    | "battery";
+  moduleId: string;
+  relationQuality: number;
+};
+
+async function seedVariantModuleScores() {
+  const variants = await prisma.device_variants.findMany({
+    where: { deleted_at: null },
+    select: {
+      id: true,
+      variant_name: true,
+      device_model: {
+        select: {
+          product_family: {
+            select: { device_category: { select: { slug: true } } },
+          },
+        },
+      },
+      variant_chipsets: {
+        select: { chipset_id: true, is_primary: true },
+      },
+      variant_cpus: { select: { cpu_id: true, is_primary: true } },
+      variant_gpus: { select: { gpu_id: true, is_primary: true } },
+      variant_npus: { select: { npu_id: true, is_primary: true } },
+      variant_modems: { select: { modem_id: true, is_primary: true } },
+      variant_memory_configs: {
+        select: {
+          memory_standard_id: true,
+          capacity_gb: true,
+          speed_mhz: true,
+          bandwidth_gbps: true,
+          channel_count: true,
+        },
+      },
+      variant_storage_configs: {
+        select: {
+          storage_standard_id: true,
+          total_capacity_gb: true,
+          module_count: true,
+          is_expandable: true,
+        },
+      },
+      variant_operating_systems: {
+        select: {
+          is_default: true,
+          promised_major_updates: true,
+          promised_security_years: true,
+          os_version: { select: { operating_system_id: true } },
+        },
+      },
+      variant_camera_modules: {
+        select: {
+          camera_module_id: true,
+          position: true,
+          role: true,
+          is_primary: true,
+        },
+      },
+      variant_displays: {
+        select: {
+          display_unit_id: true,
+          display_role: true,
+          display_order: true,
+        },
+      },
+      variant_batteries: {
+        select: {
+          battery_unit_id: true,
+          battery_role: true,
+          is_primary: true,
+        },
+      },
+    },
+  });
+
+  const prepared = variants.map((variant) => {
+    const links = new Map<string, ModuleScoreLink>();
+    const addLink = (link: ModuleScoreLink) => {
+      const key = `${link.moduleKind}:${link.moduleId}`;
+      const current = links.get(key);
+      if (!current || current.relationQuality < link.relationQuality) {
+        links.set(key, link);
+      }
+    };
+    const primaryQuality = (isPrimary: boolean | null | undefined) =>
+      isPrimary ? 1 : 0.72;
+
+    for (const link of variant.variant_chipsets) {
+      addLink({
+        moduleKind: "chipset",
+        moduleId: link.chipset_id,
+        relationQuality: primaryQuality(link.is_primary),
+      });
+    }
+    for (const link of variant.variant_cpus) {
+      addLink({
+        moduleKind: "cpu",
+        moduleId: link.cpu_id,
+        relationQuality: primaryQuality(link.is_primary),
+      });
+    }
+    for (const link of variant.variant_gpus) {
+      addLink({
+        moduleKind: "gpu",
+        moduleId: link.gpu_id,
+        relationQuality: primaryQuality(link.is_primary),
+      });
+    }
+    for (const link of variant.variant_npus) {
+      addLink({
+        moduleKind: "npu",
+        moduleId: link.npu_id,
+        relationQuality: primaryQuality(link.is_primary),
+      });
+    }
+    for (const link of variant.variant_modems) {
+      addLink({
+        moduleKind: "modem",
+        moduleId: link.modem_id,
+        relationQuality: primaryQuality(link.is_primary),
+      });
+    }
+    for (const link of variant.variant_memory_configs) {
+      const documentedFields = [
+        link.speed_mhz,
+        link.bandwidth_gbps,
+        link.channel_count,
+      ].filter((value) => value !== null).length;
+      addLink({
+        moduleKind: "memory-standard",
+        moduleId: link.memory_standard_id,
+        relationQuality: 0.64 + documentedFields * 0.12,
+      });
+    }
+    for (const link of variant.variant_storage_configs) {
+      addLink({
+        moduleKind: "storage-standard",
+        moduleId: link.storage_standard_id,
+        relationQuality:
+          0.76 +
+          (link.module_count !== null ? 0.12 : 0) +
+          (typeof link.is_expandable === "boolean" ? 0.12 : 0),
+      });
+    }
+    for (const link of variant.variant_operating_systems) {
+      addLink({
+        moduleKind: "operating-system",
+        moduleId: link.os_version.operating_system_id,
+        relationQuality:
+          (link.is_default ? 0.86 : 0.74) +
+          (link.promised_major_updates !== null ? 0.07 : 0) +
+          (link.promised_security_years !== null ? 0.07 : 0),
+      });
+    }
+    for (const link of variant.variant_camera_modules) {
+      addLink({
+        moduleKind: "camera",
+        moduleId: link.camera_module_id,
+        relationQuality:
+          0.74 +
+          (link.is_primary ? 0.16 : 0.06) +
+          (link.position && link.role ? 0.1 : 0),
+      });
+    }
+    for (const link of variant.variant_displays) {
+      addLink({
+        moduleKind: "display",
+        moduleId: link.display_unit_id,
+        relationQuality:
+          0.84 +
+          (link.display_role === "main" ? 0.12 : 0.06) +
+          (link.display_order === 1 ? 0.04 : 0),
+      });
+    }
+    for (const link of variant.variant_batteries) {
+      addLink({
+        moduleKind: "battery",
+        moduleId: link.battery_unit_id,
+        relationQuality:
+          0.82 +
+          (link.is_primary ? 0.13 : 0.05) +
+          (link.battery_role ? 0.05 : 0),
+      });
+    }
+
+    const categorySlug =
+      variant.device_model.product_family.device_category.slug;
+    const memoryGb = Math.max(
+      0,
+      ...variant.variant_memory_configs.map((item) => item.capacity_gb),
+    );
+    const storageGb = Math.max(
+      0,
+      ...variant.variant_storage_configs.map((item) => item.total_capacity_gb),
+    );
+    const moduleKindCount = new Set(
+      [...links.values()].map((link) => link.moduleKind),
+    ).size;
+
+    return {
+      variant,
+      categorySlug,
+      links: [...links.values()],
+      memoryGb,
+      storageGb,
+      moduleKindCount,
+    };
+  });
+
+  const categoryMaximums = new Map<
+    string,
+    { moduleKinds: number; memoryGb: number; storageGb: number }
+  >();
+  for (const item of prepared) {
+    const current = categoryMaximums.get(item.categorySlug) ?? {
+      moduleKinds: 1,
+      memoryGb: 1,
+      storageGb: 1,
+    };
+    current.moduleKinds = Math.max(current.moduleKinds, item.moduleKindCount);
+    current.memoryGb = Math.max(current.memoryGb, item.memoryGb);
+    current.storageGb = Math.max(current.storageGb, item.storageGb);
+    categoryMaximums.set(item.categorySlug, current);
+  }
+
+  const scoreRows = prepared.flatMap((item) => {
+    const maximums = categoryMaximums.get(item.categorySlug)!;
+    const integrationCoverage =
+      item.moduleKindCount / Math.max(1, maximums.moduleKinds);
+    const memoryHeadroom =
+      Math.log2(1 + item.memoryGb) / Math.log2(1 + maximums.memoryGb);
+    const storageHeadroom =
+      Math.log2(1 + item.storageGb) / Math.log2(1 + maximums.storageGb);
+    const supportingConfiguration =
+      Math.max(0, Math.min(1, memoryHeadroom)) * 0.5 +
+      Math.max(0, Math.min(1, storageHeadroom)) * 0.5;
+
+    return item.links.map((link) => {
+      const score =
+        Math.round(
+          Math.max(
+            0,
+            Math.min(
+              100,
+              35 +
+                integrationCoverage * 20 +
+                supportingConfiguration * 25 +
+                Math.max(0, Math.min(1, link.relationQuality)) * 15,
+            ),
+          ) * 10,
+        ) / 10;
+
+      return {
+        deviceVariantId: item.variant.id,
+        moduleKind: link.moduleKind,
+        moduleId: link.moduleId,
+        score,
+        factors: {
+          baseline: { value: 35, weight: 35 },
+          integration_coverage: {
+            value: Math.round(integrationCoverage * 100),
+            weight: 20,
+            linked_module_kinds: item.moduleKindCount,
+            category_reference: maximums.moduleKinds,
+          },
+          supporting_configuration: {
+            value: Math.round(supportingConfiguration * 100),
+            weight: 25,
+            memory_gb: item.memoryGb,
+            storage_gb: item.storageGb,
+          },
+          relation_quality: {
+            value: Math.round(link.relationQuality * 100),
+            weight: 15,
+          },
+        },
+      };
+    });
+  });
+
+  await prisma.variant_module_scores.deleteMany({
+    where: { score_source: "configuration_model" },
+  });
+  for (let index = 0; index < scoreRows.length; index += 100) {
+    await prisma.$transaction(
+      scoreRows.slice(index, index + 100).map((row) =>
+        prisma.variant_module_scores.upsert({
+          where: {
+            device_variant_id_module_kind_module_id: {
+              device_variant_id: row.deviceVariantId,
+              module_kind: row.moduleKind,
+              module_id: row.moduleId,
+            },
+          },
+          update: {
+            score: row.score,
+            score_source: "configuration_model",
+            score_version: CONFIGURATION_SCORE_VERSION,
+            rationale: CONFIGURATION_SCORE_RATIONALE,
+            factors: {
+              ...row.factors,
+              scoring_policy: "benchmark_first",
+              score_role: "configuration_fallback",
+            },
+          },
+          create: {
+            device_variant_id: row.deviceVariantId,
+            module_kind: row.moduleKind,
+            module_id: row.moduleId,
+            score: row.score,
+            score_source: "configuration_model",
+            score_version: CONFIGURATION_SCORE_VERSION,
+            rationale: CONFIGURATION_SCORE_RATIONALE,
+            factors: {
+              ...row.factors,
+              scoring_policy: "benchmark_first",
+              score_role: "configuration_fallback",
+            },
+          },
+        }),
+      ),
+    );
+  }
+
+  return scoreRows.length;
+}
+
+function sourceSlugFromUrl(sourceUrl: string) {
+  const hostname = new URL(sourceUrl).hostname.toLowerCase();
+  return `official-media-${hostname.replace(/[^a-z0-9]+/g, "-")}`;
+}
+
+async function getOrCreateOfficialMediaSource(sourceUrl: string) {
+  const parsed = new URL(sourceUrl);
+  const hostname = parsed.hostname.toLowerCase();
+  const slug = sourceSlugFromUrl(sourceUrl);
+  return prisma.sources.upsert({
+    where: { slug },
+    update: {
+      name: `Official media — ${hostname}`,
+      source_type: "official",
+      base_url: `${parsed.protocol}//${hostname}`,
+      trust_level: 5,
+      description:
+        "Trang sản phẩm hoặc kênh truyền thông chính thức dùng để đối chiếu hình ảnh và video trong danh mục SpecHub.",
+    },
+    create: {
+      name: `Official media — ${hostname}`,
+      slug,
+      source_type: "official",
+      base_url: `${parsed.protocol}//${hostname}`,
+      trust_level: 5,
+      description:
+        "Trang sản phẩm hoặc kênh truyền thông chính thức dùng để đối chiếu hình ảnh và video trong danh mục SpecHub.",
+    },
+  });
+}
+
+async function attachMediaToDevice(
+  modelId: string,
+  assetId: string,
+  role: string,
+  displayOrder: number,
+  isPrimary: boolean,
+) {
+  const existing = await prisma.entity_media.findFirst({
+    where: {
+      entity_table: "device_models",
+      entity_id: modelId,
+      media_asset_id: assetId,
+    },
+  });
+  if (existing) {
+    await prisma.entity_media.update({
+      where: { id: existing.id },
+      data: {
+        role,
+        display_order: displayOrder,
+        is_primary: isPrimary,
+      },
+    });
+    return;
+  }
+  await prisma.entity_media.create({
+    data: {
+      entity_table: "device_models",
+      entity_id: modelId,
+      media_asset_id: assetId,
+      role,
+      display_order: displayOrder,
+      is_primary: isPrimary,
+    },
+  });
+}
+
+async function seedCatalogMedia() {
+  let imageCount = 0;
+  let videoCount = 0;
+
+  for (const image of catalogImageSources.devices) {
+    const model = await prisma.device_models.findUnique({
+      where: { slug: image.slug },
+      select: {
+        id: true,
+        name: true,
+        product_family: {
+          select: {
+            brand_org: { select: { short_name: true, name: true } },
+          },
+        },
+      },
+    });
+    if (!model) {
+      if (isCuratedCatalogSeed) continue;
+      throw new Error(`Missing device model for image ${image.slug}.`);
+    }
+
+    const localUrl = `/images/devices/${image.slug}.webp`;
+    const source = await getOrCreateOfficialMediaSource(image.sourcePage);
+    const copyrightHolder =
+      model.product_family.brand_org.short_name ??
+      model.product_family.brand_org.name;
+    const existingAsset = await prisma.media_assets.findFirst({
+      where: { asset_type: "image", url: localUrl },
+    });
+    const assetData = {
+      url: localUrl,
+      upload_status: "ready",
+      mime_type: "image/webp",
+      original_filename: `${image.slug}.webp`,
+      alt_text: `Ảnh sản phẩm ${model.name}`,
+      caption: `Ảnh ${model.name}, đối chiếu từ trang sản phẩm chính thức của hãng.`,
+      copyright_holder: copyrightHolder,
+      license: "Official product media; verify reuse rights",
+      source_id: source.id,
+    };
+    const asset = existingAsset
+      ? await prisma.media_assets.update({
+          where: { id: existingAsset.id },
+          data: assetData,
+        })
+      : await prisma.media_assets.create({
+          data: { asset_type: "image", ...assetData },
+        });
+
+    await prisma.device_models.update({
+      where: { id: model.id },
+      data: { cover_image_url: localUrl },
+    });
+    await attachMediaToDevice(model.id, asset.id, "cover", 0, true);
+    imageCount += 1;
+  }
+
+  for (const video of OFFICIAL_CATALOG_VIDEOS) {
+    const model = await prisma.device_models.findUnique({
+      where: { slug: video.modelSlug },
+      select: { id: true, name: true },
+    });
+    if (!model) continue;
+
+    const source = await getOrCreateOfficialMediaSource(video.url);
+    const existingAsset = await prisma.media_assets.findFirst({
+      where: { asset_type: "video", url: video.url },
+    });
+    const assetData = {
+      url: video.url,
+      upload_status: "ready",
+      mime_type: "video/youtube",
+      original_filename: null,
+      alt_text: `Video giới thiệu ${model.name}`,
+      caption: `${video.title} — video từ kênh ${video.channelName} chính thức.`,
+      copyright_holder: video.channelName,
+      license: "Official YouTube embed; rights retained by publisher",
+      source_id: source.id,
+    };
+    const asset = existingAsset
+      ? await prisma.media_assets.update({
+          where: { id: existingAsset.id },
+          data: assetData,
+        })
+      : await prisma.media_assets.create({
+          data: { asset_type: "video", ...assetData },
+        });
+    await attachMediaToDevice(model.id, asset.id, "product_video", 10, false);
+    videoCount += 1;
+  }
+
+  return { imageCount, videoCount };
+}
+
+async function normalizeCoreOrganizationSlugs() {
+  const canonicalOrganizations = [
+    {
+      slug: "apple",
+      aliases: ["apple-inc"],
+      names: ["Apple Inc."],
+      shortNames: ["Apple"],
+    },
+    {
+      slug: "samsung",
+      aliases: ["samsung-electronics-co-ltd"],
+      names: ["Samsung Electronics Co., Ltd.", "Samsung Electronics"],
+      shortNames: ["Samsung"],
+    },
+    {
+      slug: "qualcomm",
+      aliases: ["qualcomm-technologies-inc"],
+      names: ["Qualcomm Technologies, Inc.", "Qualcomm Inc."],
+      shortNames: ["Qualcomm", "Qualcomm Technologies"],
+    },
+    {
+      slug: "sony",
+      aliases: ["sony-group-corporation"],
+      names: ["Sony Group Corporation"],
+      shortNames: ["Sony"],
+    },
+  ] as const;
+
+  for (const item of canonicalOrganizations) {
+    const canonical = await prisma.organizations.findUnique({
+      where: { slug: item.slug },
+    });
+    if (canonical) continue;
+
+    const alias = await prisma.organizations.findFirst({
+      where: {
+        OR: [
+          { slug: { in: [...item.aliases] } },
+          { name: { in: [...item.names] } },
+          { short_name: { in: [...item.shortNames] } },
+        ],
+      },
+      orderBy: { created_at: "asc" },
+    });
+    if (!alias) continue;
+    await prisma.organizations.update({
+      where: { id: alias.id },
+      data: { slug: item.slug },
+    });
+  }
+}
+
+async function normalizeCoreCategorySlugs() {
+  const categories = [
+    { slug: "smartphone", name: "Điện thoại", aliases: ["dienthoai"] },
+    { slug: "tablet", name: "Máy tính bảng", aliases: ["may-tinh-bang"] },
+    {
+      slug: "laptop",
+      name: "Máy tính xách tay",
+      aliases: ["may-tinh-xach-tay"],
+    },
+    {
+      slug: "smartwatch",
+      name: "Đồng hồ thông minh",
+      aliases: ["dong-ho-thong-minh"],
+    },
+    {
+      slug: "earbuds",
+      name: "Tai nghe không dây",
+      aliases: ["tai-nghe-khong-day"],
+    },
+  ] as const;
+
+  for (const item of categories) {
+    const canonical = await prisma.device_categories.findUnique({
+      where: { slug: item.slug },
+    });
+    if (canonical) continue;
+    const alias = await prisma.device_categories.findFirst({
+      where: {
+        OR: [{ name: item.name }, { slug: { in: [...item.aliases] } }],
+      },
+      orderBy: { created_at: "asc" },
+    });
+    if (!alias) continue;
+    await prisma.device_categories.update({
+      where: { id: alias.id },
+      data: { slug: item.slug },
+    });
+  }
+}
+
+async function improveLinkedModuleDescriptions() {
+  const variants = await prisma.device_variants.findMany({
+    where: {
+      is_default: true,
+      deleted_at: null,
+      device_model: { deleted_at: null },
+    },
+    select: {
+      device_model: { select: { name: true } },
+      variant_chipsets: { include: { chipset: true } },
+      variant_cpus: { include: { cpu: true } },
+      variant_gpus: { include: { gpu: true } },
+      variant_npus: { include: { npu: true } },
+      variant_modems: { include: { modem: true } },
+      variant_displays: { include: { display_unit: true } },
+      variant_batteries: { include: { battery_unit: true } },
+      variant_camera_modules: { include: { camera_module: true } },
+    },
+  });
+  const improved = new Set<string>();
+  const needsDescription = (key: string, description: string | null) => {
+    if (improved.has(key) || (description?.trim().length ?? 0) >= 60) {
+      return false;
+    }
+    improved.add(key);
+    return true;
+  };
+
+  for (const variant of variants) {
+    const deviceName = variant.device_model.name;
+
+    for (const { chipset } of variant.variant_chipsets) {
+      if (!needsDescription(`chipset:${chipset.id}`, chipset.description)) {
+        continue;
+      }
+      await prisma.chipsets.update({
+        where: { id: chipset.id },
+        data: {
+          description:
+            `${chipset.name} là ${chipset.chip_kind} 64-bit dùng trên ${deviceName}. ` +
+            "CPU, GPU, NPU, modem và giới hạn bộ nhớ được lưu thành các module liên kết riêng để phản ánh đúng cấu hình của từng phiên bản.",
+        },
+      });
+    }
+
+    for (const { cpu } of variant.variant_cpus) {
+      if (!needsDescription(`cpu:${cpu.id}`, cpu.description)) continue;
+      const topology = cpu.core_count
+        ? `${cpu.core_count} lõi${cpu.thread_count ? `, ${cpu.thread_count} luồng` : ""}`
+        : "cấu trúc lõi theo nền tảng của hãng";
+      await prisma.cpus.update({
+        where: { id: cpu.id },
+        data: {
+          description:
+            `${cpu.name} là CPU ${topology}, sử dụng tập lệnh ${cpu.isa_name ?? "theo kiến trúc của nền tảng"} trên ${deviceName}. ` +
+            "Module này đại diện cho bộ xử lý chính và không thay thế số liệu benchmark của thiết bị hoàn chỉnh.",
+        },
+      });
+    }
+
+    for (const link of variant.variant_gpus) {
+      const { gpu } = link;
+      if (!needsDescription(`gpu:${gpu.id}`, gpu.description)) continue;
+      await prisma.gpus.update({
+        where: { id: gpu.id },
+        data: {
+          description:
+            `${gpu.name} là GPU ${link.gpu_role === "discrete" ? "rời" : "tích hợp"} được liên kết với ${deviceName}. ` +
+            `Module đảm nhiệm giao diện và tăng tốc đồ họa${gpu.ray_tracing_support ? ", có hỗ trợ ray tracing ở cấp phần cứng" : ""}; hiệu năng thực tế phụ thuộc tản nhiệt và bộ nhớ.`,
+        },
+      });
+    }
+
+    for (const { npu } of variant.variant_npus) {
+      if (!needsDescription(`npu:${npu.id}`, npu.description)) continue;
+      await prisma.npus.update({
+        where: { id: npu.id },
+        data: {
+          description:
+            `${npu.name} là bộ xử lý AI dùng cho suy luận máy học và các tính năng xử lý trên ${deviceName}. ` +
+            "Năng lực TOPS chỉ nên dùng khi được xác nhận cho đúng biến thể, tiến trình và độ chính xác tính toán.",
+        },
+      });
+    }
+
+    for (const { modem } of variant.variant_modems) {
+      if (!needsDescription(`modem:${modem.id}`, modem.description)) continue;
+      await prisma.modems.update({
+        where: { id: modem.id },
+        data: {
+          description:
+            `${modem.name} là modem di động được liên kết với ${deviceName}. ` +
+            "Chế độ 5G, băng tần, mmWave và tốc độ tối đa phụ thuộc phiên bản thị trường nên được kiểm tra ở hồ sơ kết nối của từng biến thể.",
+        },
+      });
+    }
+
+    for (const { display_unit: display } of variant.variant_displays) {
+      if (!needsDescription(`display:${display.id}`, display.description)) {
+        continue;
+      }
+      const size = display.size_inch ? `${display.size_inch} inch` : "";
+      const resolution =
+        display.resolution_width && display.resolution_height
+          ? `, độ phân giải ${display.resolution_width} × ${display.resolution_height}`
+          : "";
+      const refresh = display.refresh_rate_hz
+        ? `, tần số quét tối đa ${display.refresh_rate_hz} Hz`
+        : "";
+      await prisma.display_units.update({
+        where: { id: display.id },
+        data: {
+          description:
+            `${display.name ?? "Màn hình"} là màn hình ${size} của ${deviceName}${resolution}${refresh}. ` +
+            "Độ sáng, HDR và lớp bảo vệ được lưu riêng khi có thông số xác nhận cho đúng cấu hình.",
+        },
+      });
+    }
+
+    for (const { battery_unit: battery } of variant.variant_batteries) {
+      if (!needsDescription(`battery:${battery.id}`, battery.description)) {
+        continue;
+      }
+      const capacity = battery.capacity_mah
+        ? `${battery.capacity_mah} mAh`
+        : battery.energy_wh
+          ? `${battery.energy_wh} Wh`
+          : "theo hồ sơ năng lượng của hãng";
+      await prisma.battery_units.update({
+        where: { id: battery.id },
+        data: {
+          description:
+            `${battery.name ?? "Pin tích hợp"} là module pin ${capacity} của ${deviceName}` +
+            `${battery.wired_charging_w ? `, hỗ trợ sạc có dây đến ${battery.wired_charging_w} W` : ""}` +
+            `${battery.wireless_charging_w ? ` và sạc không dây đến ${battery.wireless_charging_w} W` : ""}. ` +
+            "Thời lượng thực tế phụ thuộc tải, kết nối, độ sáng và điều kiện nhiệt độ.",
+        },
+      });
+    }
+
+    for (const { camera_module: camera } of variant.variant_camera_modules) {
+      if (!needsDescription(`camera:${camera.id}`, camera.description)) {
+        continue;
+      }
+      await prisma.camera_modules.update({
+        where: { id: camera.id },
+        data: {
+          description:
+            `${camera.name ?? "Camera"} là module camera ${camera.effective_megapixel ? `${camera.effective_megapixel} MP` : ""}` +
+            `${camera.aperture ? `, khẩu độ ${camera.aperture}` : ""} trên ${deviceName}. ` +
+            "Khả năng lấy nét, chống rung và chế độ quay chỉ được ghi riêng khi có dữ liệu xác nhận cho module này.",
+        },
+      });
+    }
+  }
+
+  return improved.size;
+}
+
 async function main() {
   console.log("🌱 Bắt đầu seed database...\n");
+  await seedCatalogReferenceData(prisma);
 
   // ========================================================
   // 1. LOOKUPS
@@ -542,11 +2512,11 @@ async function main() {
     data: [
       { code: "rumored", name: "Đồn đại", sort_order: 0 },
       { code: "announced", name: "Đã công bố", sort_order: 1 },
-      { code: "pre_order", name: "Pre-order", sort_order: 2 },
+      { code: "pre_order", name: "Đặt trước", sort_order: 2 },
       { code: "released", name: "Đã phát hành", sort_order: 3 },
       { code: "delayed", name: "Hoãn lại", sort_order: 4 },
       { code: "discontinued", name: "Ngừng sản xuất", sort_order: 5 },
-      { code: "eol", name: "End of Life", sort_order: 6 },
+      { code: "eol", name: "Kết thúc vòng đời", sort_order: 6 },
     ],
     skipDuplicates: true,
   });
@@ -602,6 +2572,7 @@ async function main() {
   // 2. ORGANIZATIONS
   // ========================================================
   console.log("🏢 [2/12] Seeding organizations...");
+  await normalizeCoreOrganizationSlugs();
 
   const apple = await prisma.organizations.upsert({
     where: { slug: "apple" },
@@ -615,7 +2586,7 @@ async function main() {
       founded_year: 1976,
       website_url: "https://apple.com",
       description:
-        "Apple là công ty công nghệ đa quốc gia của Mỹ, nổi tiếng với iPhone, iPad, Mac.",
+        "Apple là công ty công nghệ của Mỹ phát triển iPhone, iPad, Mac, thiết bị đeo, hệ điều hành và dịch vụ số trong một hệ sinh thái phần cứng và phần mềm tích hợp.",
     },
   });
 
@@ -631,7 +2602,7 @@ async function main() {
       founded_year: 1969,
       website_url: "https://samsung.com",
       description:
-        "Samsung Electronics là tập đoàn điện tử đa quốc gia của Hàn Quốc.",
+        "Samsung Electronics là tập đoàn điện tử Hàn Quốc phát triển điện thoại, máy tính bảng, TV, thiết bị đeo, màn hình và nhiều linh kiện bán dẫn cho thị trường toàn cầu.",
     },
   });
 
@@ -647,7 +2618,7 @@ async function main() {
       founded_year: 1998,
       website_url: "https://google.com",
       description:
-        "Google là công ty công nghệ đa quốc gia, cũng làm phần cứng (Pixel, Nest).",
+        "Google phát triển dịch vụ internet, Android, nền tảng trí tuệ nhân tạo và phần cứng tiêu dùng như điện thoại Pixel, đồng hồ Pixel Watch cùng thiết bị nhà thông minh Nest.",
     },
   });
 
@@ -662,7 +2633,7 @@ async function main() {
       founded_year: 2010,
       website_url: "https://mi.com",
       description:
-        "Xiaomi là tập đoàn điện tử của Trung Quốc, nổi tiếng với smartphone giá tốt.",
+        "Xiaomi là tập đoàn điện tử Trung Quốc phát triển điện thoại, máy tính bảng, thiết bị đeo và hệ sinh thái nhà thông minh, với danh mục sản phẩm trải rộng nhiều phân khúc.",
     },
   });
 
@@ -677,7 +2648,7 @@ async function main() {
       founded_year: 1985,
       website_url: "https://qualcomm.com",
       description:
-        "Qualcomm là công ty bán dẫn của Mỹ, nổi tiếng với chipset Snapdragon.",
+        "Qualcomm là công ty bán dẫn của Mỹ thiết kế nền tảng Snapdragon, modem di động, công nghệ kết nối và giải pháp xử lý dùng trong điện thoại, máy tính cùng thiết bị IoT.",
     },
   });
 
@@ -692,7 +2663,7 @@ async function main() {
       founded_year: 1997,
       website_url: "https://mediatek.com",
       description:
-        "MediaTek là công ty bán dẫn của Đài Loan, sản xuất chipset Dimensity.",
+        "MediaTek là công ty bán dẫn Đài Loan thiết kế nền tảng Dimensity, chip kết nối và giải pháp xử lý cho điện thoại, máy tính bảng, TV cùng nhiều thiết bị điện tử tiêu dùng.",
     },
   });
 
@@ -707,7 +2678,7 @@ async function main() {
       founded_year: 1987,
       website_url: "https://tsmc.com",
       description:
-        "TSMC là foundry sản xuất chip lớn nhất thế giới, gia công cho Apple, AMD, NVIDIA.",
+        "TSMC là doanh nghiệp sản xuất bán dẫn theo hợp đồng của Đài Loan, cung cấp nhiều tiến trình chế tạo chip tiên tiến cho các hãng thiết kế bộ xử lý và thiết bị toàn cầu.",
     },
   });
 
@@ -722,7 +2693,7 @@ async function main() {
       founded_year: 1946,
       website_url: "https://sony.com",
       description:
-        "Sony nổi tiếng với camera sensors (Exmor), PlayStation, TV BRAVIA.",
+        "Sony phát triển cảm biến hình ảnh, thiết bị âm thanh, máy ảnh, TV BRAVIA và hệ sinh thái PlayStation; công nghệ hình ảnh và giải trí là những nhóm năng lực nổi bật.",
     },
   });
 
@@ -730,12 +2701,16 @@ async function main() {
   // 3. DEVICE CATEGORIES
   // ========================================================
   console.log("📱 [3/12] Seeding device categories...");
+  await normalizeCoreCategorySlugs();
 
   const smartphone = await prisma.device_categories.upsert({
     where: { slug: "smartphone" },
-    update: {},
+    update: {
+      name: "Điện thoại",
+      description: "Điện thoại thông minh",
+    },
     create: {
-      name: "Smartphone",
+      name: "Điện thoại",
       slug: "smartphone",
       description: "Điện thoại thông minh",
       display_order: 1,
@@ -744,9 +2719,12 @@ async function main() {
 
   const tablet = await prisma.device_categories.upsert({
     where: { slug: "tablet" },
-    update: {},
+    update: {
+      name: "Máy tính bảng",
+      description: "Máy tính bảng",
+    },
     create: {
-      name: "Tablet",
+      name: "Máy tính bảng",
       slug: "tablet",
       description: "Máy tính bảng",
       display_order: 2,
@@ -755,9 +2733,12 @@ async function main() {
 
   const laptop = await prisma.device_categories.upsert({
     where: { slug: "laptop" },
-    update: {},
+    update: {
+      name: "Máy tính xách tay",
+      description: "Máy tính xách tay",
+    },
     create: {
-      name: "Laptop",
+      name: "Máy tính xách tay",
       slug: "laptop",
       description: "Máy tính xách tay",
       display_order: 3,
@@ -766,9 +2747,12 @@ async function main() {
 
   const smartwatch = await prisma.device_categories.upsert({
     where: { slug: "smartwatch" },
-    update: {},
+    update: {
+      name: "Đồng hồ thông minh",
+      description: "Đồng hồ thông minh",
+    },
     create: {
-      name: "Smartwatch",
+      name: "Đồng hồ thông minh",
       slug: "smartwatch",
       description: "Đồng hồ thông minh",
       display_order: 4,
@@ -777,9 +2761,12 @@ async function main() {
 
   const earbuds = await prisma.device_categories.upsert({
     where: { slug: "earbuds" },
-    update: {},
+    update: {
+      name: "Tai nghe không dây",
+      description: "Tai nghe không dây",
+    },
     create: {
-      name: "Earbuds",
+      name: "Tai nghe không dây",
       slug: "earbuds",
       description: "Tai nghe không dây",
       display_order: 5,
@@ -848,7 +2835,7 @@ async function main() {
       name: "iPhone 16 Series",
       slug: "iphone-16-series",
       description:
-        "Dòng iPhone 16 ra mắt 2024, gồm iPhone 16, 16 Plus, 16 Pro, 16 Pro Max",
+        "Dòng iPhone 16 ra mắt năm 2024, bao gồm các model tiêu chuẩn và Pro với nhiều kích thước, cấu hình camera cùng mức dung lượng dành cho các nhóm người dùng khác nhau.",
       first_release_year: 2024,
     },
   });
@@ -861,7 +2848,8 @@ async function main() {
       device_category_id: smartphone.id,
       name: "Galaxy S25 Series",
       slug: "galaxy-s25-series",
-      description: "Dòng Galaxy S25 ra mắt 2025, có Galaxy AI tích hợp sâu",
+      description:
+        "Dòng Galaxy S25 là thế hệ điện thoại cao cấp Samsung ra mắt năm 2025, tập trung vào hiệu năng Snapdragon, camera linh hoạt, bút S Pen và các tính năng Galaxy AI.",
       first_release_year: 2025,
     },
   });
@@ -874,7 +2862,8 @@ async function main() {
       device_category_id: smartphone.id,
       name: "Pixel 9 Series",
       slug: "pixel-9-series",
-      description: "Dòng Pixel 9 với chipset Tensor G4 và Gemini AI",
+      description:
+        "Dòng Pixel 9 của Google kết hợp nền tảng Tensor G4, hệ thống camera tính toán, Gemini AI và chính sách cập nhật dài trong trải nghiệm Android do Google phát triển.",
       first_release_year: 2024,
     },
   });
@@ -887,7 +2876,8 @@ async function main() {
       device_category_id: smartphone.id,
       name: "Xiaomi 14 Series",
       slug: "xiaomi-14-series",
-      description: "Dòng Xiaomi 14 với camera Leica",
+      description:
+        "Dòng Xiaomi 14 là nhóm điện thoại cao cấp tập trung vào hiệu năng Snapdragon, hệ thống camera hợp tác Leica, sạc nhanh và màn hình độ sáng cao trong nhiều kích thước.",
       first_release_year: 2023,
     },
   });
@@ -1265,42 +3255,42 @@ async function main() {
     release_year: 2020,
   });
 
-  const ios18 = await upsertOperatingSystem("ios-18", {
+  const ios18 = await upsertOperatingSystem("ios", {
     vendor_org_id: apple.id,
     name: "iOS",
-    slug: "ios-18",
+    slug: "ios",
     os_family: "iOS",
     kernel_type: "XNU",
     is_open_source: false,
   });
-  const android15 = await upsertOperatingSystem("android-15", {
+  const android15 = await upsertOperatingSystem("android", {
     vendor_org_id: google.id,
     name: "Android",
-    slug: "android-15",
+    slug: "android",
     os_family: "Android",
     kernel_type: "Linux",
     is_open_source: true,
   });
-  const ipados17 = await upsertOperatingSystem("ipados-17", {
+  const ipados17 = await upsertOperatingSystem("ipados", {
     vendor_org_id: apple.id,
     name: "iPadOS",
-    slug: "ipados-17",
+    slug: "ipados",
     os_family: "iPadOS",
     kernel_type: "XNU",
     is_open_source: false,
   });
-  const macos15 = await upsertOperatingSystem("macos-15", {
+  const macos15 = await upsertOperatingSystem("macos", {
     vendor_org_id: apple.id,
     name: "macOS",
-    slug: "macos-15",
+    slug: "macos",
     os_family: "macOS",
     kernel_type: "XNU",
     is_open_source: false,
   });
-  const wearOs5 = await upsertOperatingSystem("wear-os-5", {
+  const wearOs5 = await upsertOperatingSystem("wear-os", {
     vendor_org_id: google.id,
     name: "Wear OS",
-    slug: "wear-os-5",
+    slug: "wear-os",
     os_family: "Wear OS",
     kernel_type: "Linux",
     is_open_source: true,
@@ -1312,106 +3302,6 @@ async function main() {
     os_family: "Embedded audio",
     kernel_type: "Embedded",
     is_open_source: false,
-  });
-
-  const wifi7 = await upsertWirelessStandard("wifi-7", {
-    organization_id: apple.id,
-    name: "Wi-Fi 7",
-    slug: "wifi-7",
-    wireless_type: "Wi-Fi",
-    max_speed_mbps: 5764,
-  });
-  const wifi6e = await upsertWirelessStandard("wifi-6e", {
-    organization_id: qualcomm.id,
-    name: "Wi-Fi 6E",
-    slug: "wifi-6e",
-    wireless_type: "Wi-Fi",
-    max_speed_mbps: 2400,
-  });
-  const bluetooth54 = await upsertWirelessStandard("bluetooth-5-4", {
-    organization_id: qualcomm.id,
-    name: "Bluetooth 5.4",
-    slug: "bluetooth-5-4",
-    wireless_type: "Bluetooth",
-    max_speed_mbps: 2,
-  });
-  const bluetooth53 = await upsertWirelessStandard("bluetooth-5-3", {
-    organization_id: qualcomm.id,
-    name: "Bluetooth 5.3",
-    slug: "bluetooth-5-3",
-    wireless_type: "Bluetooth",
-    max_speed_mbps: 2,
-  });
-  const cellular5g = await upsertWirelessStandard("5g-sub6", {
-    organization_id: qualcomm.id,
-    name: "5G Sub-6",
-    slug: "5g-sub6",
-    wireless_type: "Cellular",
-    max_speed_mbps: 10000,
-  });
-
-  const usbC = await upsertPortStandard("usb-c-3-2", {
-    organization_id: apple.id,
-    name: "USB-C 3.2 Gen 2",
-    slug: "usb-c-3-2",
-    port_type: "USB-C",
-    data_speed_gbps: 10,
-    power_delivery_w: 100,
-    alt_modes: "DisplayPort",
-  });
-  const thunderbolt = await upsertPortStandard("thunderbolt-5-usb-c", {
-    organization_id: apple.id,
-    name: "Thunderbolt 5 / USB-C",
-    slug: "thunderbolt-5-usb-c",
-    port_type: "USB-C",
-    data_speed_gbps: 80,
-    power_delivery_w: 240,
-    alt_modes: "DisplayPort, PCIe",
-  });
-  const usbC20 = await upsertPortStandard("usb-c-2-0", {
-    organization_id: apple.id,
-    name: "USB-C 2.0",
-    slug: "usb-c-2-0",
-    port_type: "USB-C",
-    data_speed_gbps: 0.48,
-    power_delivery_w: 60,
-  });
-
-  const accelerometer = await upsertHardwareSensor("accelerometer", {
-    manufacturer_org_id: samsung.id,
-    name: "Accelerometer",
-    slug: "accelerometer",
-    sensor_category: "motion",
-  });
-  const gyroscope = await upsertHardwareSensor("gyroscope", {
-    manufacturer_org_id: samsung.id,
-    name: "Gyroscope",
-    slug: "gyroscope",
-    sensor_category: "motion",
-  });
-  const ambientLight = await upsertHardwareSensor("ambient-light-sensor", {
-    manufacturer_org_id: samsung.id,
-    name: "Ambient Light Sensor",
-    slug: "ambient-light-sensor",
-    sensor_category: "environment",
-  });
-  const barometer = await upsertHardwareSensor("barometer", {
-    manufacturer_org_id: samsung.id,
-    name: "Barometer",
-    slug: "barometer",
-    sensor_category: "environment",
-  });
-  const heartRate = await upsertHardwareSensor("heart-rate-sensor", {
-    manufacturer_org_id: samsung.id,
-    name: "Heart Rate Sensor",
-    slug: "heart-rate-sensor",
-    sensor_category: "health",
-  });
-  const temperature = await upsertHardwareSensor("temperature-sensor", {
-    manufacturer_org_id: samsung.id,
-    name: "Temperature Sensor",
-    slug: "temperature-sensor",
-    sensor_category: "health",
   });
 
   const mainCameraRole = await prisma.camera_roles.upsert({
@@ -1638,6 +3528,8 @@ async function main() {
       wireless_charging_w: 25,
       wireless_charging_protocol: "MagSafe",
       removable: false,
+      description:
+        "Pin Li-ion 3.582 mAh của iPhone 16 Pro, hỗ trợ sạc có dây USB-PD tối đa 27 W và sạc không dây MagSafe tối đa 25 W; pin được lắp cố định trong thiết bị.",
     },
   );
 
@@ -1655,6 +3547,8 @@ async function main() {
       wireless_charging_protocol: "Qi2",
       reverse_wireless_charging_w: 4.5,
       removable: false,
+      description:
+        "Pin Li-ion 5.000 mAh của Galaxy S25 Ultra, hỗ trợ USB-PD PPS 45 W, sạc không dây 15 W và sạc ngược không dây; pin không thể tháo rời trong sử dụng thông thường.",
     },
   );
 
@@ -1667,6 +3561,8 @@ async function main() {
     wireless_charging_w: 21,
     wireless_charging_protocol: "Qi",
     removable: false,
+    description:
+      "Pin Li-ion 4.700 mAh của Pixel 9 Pro, hỗ trợ sạc có dây USB-PD 27 W và sạc không dây Qi 21 W; công suất thực tế phụ thuộc bộ sạc và điều kiện nhiệt độ.",
   });
 
   const xiaomi14UltraBattery = await getOrCreateBatteryUnit(
@@ -1681,6 +3577,8 @@ async function main() {
       wireless_charging_protocol: "Xiaomi HyperCharge Wireless",
       reverse_wireless_charging_w: 10,
       removable: false,
+      description:
+        "Pin Li-ion 5.300 mAh của Xiaomi 14 Ultra, hỗ trợ HyperCharge có dây 90 W, không dây 80 W và sạc ngược 10 W; pin được lắp cố định trong thân máy.",
     },
   );
 
@@ -1701,8 +3599,13 @@ async function main() {
       announcement_date: new Date("2024-09-09"),
       release_date: new Date("2024-09-20"),
       generation_label: "Gen 18",
-      description:
-        "iPhone 16 Pro với Apple A18 Pro, camera 48MP, Apple Intelligence",
+      summary:
+        "iPhone 16 Pro là mẫu điện thoại cao cấp với Apple A18 Pro, hệ thống camera 48 MP và các tính năng Apple Intelligence được tích hợp sâu.",
+      description: buildStandardModelDescription(
+        "iPhone 16 Pro",
+        "iPhone 16 Pro là mẫu điện thoại cao cấp với Apple A18 Pro, hệ thống camera 48 MP và các tính năng Apple Intelligence được tích hợp sâu.",
+        "điện thoại cao cấp",
+      ),
     },
   });
 
@@ -1717,8 +3620,13 @@ async function main() {
       announcement_date: new Date("2025-01-22"),
       release_date: new Date("2025-02-07"),
       generation_label: "Gen 25",
-      description:
-        "Flagship của Samsung 2025 với Snapdragon 8 Elite, camera 200MP, S Pen",
+      summary:
+        "Galaxy S25 Ultra là flagship Samsung với Snapdragon 8 Elite, camera chính 200 MP, bút S Pen và bộ tính năng Galaxy AI dành cho người dùng cao cấp.",
+      description: buildStandardModelDescription(
+        "Galaxy S25 Ultra",
+        "Galaxy S25 Ultra là flagship Samsung với Snapdragon 8 Elite, camera chính 200 MP, bút S Pen và bộ tính năng Galaxy AI dành cho người dùng cao cấp.",
+        "điện thoại cao cấp",
+      ),
     },
   });
 
@@ -1733,8 +3641,13 @@ async function main() {
       announcement_date: new Date("2024-08-13"),
       release_date: new Date("2024-08-22"),
       generation_label: "Gen 9",
-      description:
-        "Pixel 9 Pro với Tensor G4, Gemini AI tích hợp sâu, camera AI nâng cao",
+      summary:
+        "Pixel 9 Pro tập trung vào trải nghiệm Android nguyên bản, chip Tensor G4, Gemini AI và hệ thống camera tính toán dành cho người dùng yêu thích nhiếp ảnh.",
+      description: buildStandardModelDescription(
+        "Pixel 9 Pro",
+        "Pixel 9 Pro tập trung vào trải nghiệm Android nguyên bản, chip Tensor G4, Gemini AI và hệ thống camera tính toán dành cho người dùng yêu thích nhiếp ảnh.",
+        "điện thoại cao cấp",
+      ),
     },
   });
 
@@ -1749,8 +3662,13 @@ async function main() {
       announcement_date: new Date("2024-02-22"),
       release_date: new Date("2024-03-12"),
       generation_label: "Ultra Gen 14",
-      description:
-        "Xiaomi 14 Ultra với camera Leica Summilux, 4 ống kính f/1.63",
+      summary:
+        "Xiaomi 14 Ultra là mẫu camera phone cao cấp với hệ thống ống kính Leica Summilux, cấu hình mạnh và các tính năng nhiếp ảnh chuyên sâu.",
+      description: buildStandardModelDescription(
+        "Xiaomi 14 Ultra",
+        "Xiaomi 14 Ultra là mẫu camera phone cao cấp với hệ thống ống kính Leica Summilux, cấu hình mạnh và các tính năng nhiếp ảnh chuyên sâu.",
+        "điện thoại cao cấp",
+      ),
     },
   });
 
@@ -2217,7 +4135,10 @@ async function main() {
 
   const ipadBattery = await prisma.battery_units.upsert({
     where: { slug: "ipad-pro-13-m4-battery" },
-    update: {},
+    update: {
+      description:
+        "Pin Li-ion 38,99 Wh của iPad Pro 13-inch M4, hỗ trợ sạc USB Power Delivery tối đa 30 W và được thiết kế cho máy tính bảng mỏng nhẹ; pin không thể tháo rời.",
+    },
     create: {
       manufacturer_org_id: apple.id,
       battery_chemistry_id: liIon.id,
@@ -2228,12 +4149,17 @@ async function main() {
       wired_charging_w: 30,
       wired_charging_protocol: "USB-PD",
       removable: false,
+      description:
+        "Pin Li-ion 38,99 Wh của iPad Pro 13-inch M4, hỗ trợ sạc USB Power Delivery tối đa 30 W và được thiết kế cho máy tính bảng mỏng nhẹ; pin không thể tháo rời.",
     },
   });
 
   const macbookBattery = await prisma.battery_units.upsert({
     where: { slug: "macbook-pro-14-m4-battery" },
-    update: {},
+    update: {
+      description:
+        "Pin Li-ion 72,4 Wh của MacBook Pro 14-inch M4 Pro, hỗ trợ bộ sạc USB-C Power Delivery đến 96 W; dung lượng được lưu theo Wh để so sánh phù hợp giữa các laptop.",
+    },
     create: {
       manufacturer_org_id: apple.id,
       battery_chemistry_id: liIon.id,
@@ -2244,12 +4170,17 @@ async function main() {
       wired_charging_w: 96,
       wired_charging_protocol: "USB-C Power Delivery",
       removable: false,
+      description:
+        "Pin Li-ion 72,4 Wh của MacBook Pro 14-inch M4 Pro, hỗ trợ bộ sạc USB-C Power Delivery đến 96 W; dung lượng được lưu theo Wh để so sánh phù hợp giữa các laptop.",
     },
   });
 
   const watchBattery = await prisma.battery_units.upsert({
     where: { slug: "galaxy-watch7-44-battery" },
-    update: {},
+    update: {
+      description:
+        "Pin Li-Po 425 mAh của Galaxy Watch7 44 mm, năng lượng danh định 1,64 Wh và hỗ trợ sạc không dây 5 W; thời lượng thực tế phụ thuộc GPS, màn hình và theo dõi sức khỏe.",
+    },
     create: {
       manufacturer_org_id: samsung.id,
       battery_chemistry_id: liPo.id,
@@ -2260,12 +4191,17 @@ async function main() {
       wireless_charging_w: 5,
       wireless_charging_protocol: "Wireless charging",
       removable: false,
+      description:
+        "Pin Li-Po 425 mAh của Galaxy Watch7 44 mm, năng lượng danh định 1,64 Wh và hỗ trợ sạc không dây 5 W; thời lượng thực tế phụ thuộc GPS, màn hình và theo dõi sức khỏe.",
     },
   });
 
   const airpodsBattery = await prisma.battery_units.upsert({
     where: { slug: "airpods-pro-2-usbc-battery" },
-    update: {},
+    update: {
+      description:
+        "Hồ sơ pin Li-Po 523 mAh của hộp sạc AirPods Pro 2 USB-C, hỗ trợ sạc qua USB-C, Qi và MagSafe ở công suất thấp; pin tai nghe và hộp sạc không tháo rời.",
+    },
     create: {
       manufacturer_org_id: apple.id,
       battery_chemistry_id: liPo.id,
@@ -2276,6 +4212,8 @@ async function main() {
       wireless_charging_w: 5,
       wireless_charging_protocol: "Qi / MagSafe",
       removable: false,
+      description:
+        "Hồ sơ pin Li-Po 523 mAh của hộp sạc AirPods Pro 2 USB-C, hỗ trợ sạc qua USB-C, Qi và MagSafe ở công suất thấp; pin tai nghe và hộp sạc không tháo rời.",
     },
   });
 
@@ -2287,7 +4225,8 @@ async function main() {
       device_category_id: tablet.id,
       name: "iPad Pro M4 Series",
       slug: "ipad-pro-m4-series",
-      description: "iPad Pro 2024 với chip M4 và màn hình Tandem OLED.",
+      description:
+        "Dòng iPad Pro M4 năm 2024 hướng đến công việc sáng tạo và năng suất di động, kết hợp chip Apple M4, màn hình Tandem OLED cùng hệ sinh thái phụ kiện chuyên nghiệp.",
       first_release_year: 2024,
     },
   });
@@ -2299,7 +4238,8 @@ async function main() {
       device_category_id: laptop.id,
       name: "MacBook Pro M4 Series",
       slug: "macbook-pro-m4-series",
-      description: "MacBook Pro thế hệ M4 dành cho công việc chuyên nghiệp.",
+      description:
+        "Dòng MacBook Pro M4 dành cho người dùng chuyên nghiệp cần hiệu năng duy trì, màn hình Liquid Retina XDR, nhiều cổng kết nối và thời lượng pin cho công việc dài ngày.",
       first_release_year: 2024,
     },
   });
@@ -2312,7 +4252,7 @@ async function main() {
       name: "Galaxy Watch7 Series",
       slug: "galaxy-watch7-series",
       description:
-        "Đồng hồ thông minh Galaxy Watch7 với theo dõi sức khỏe và Wear OS.",
+        "Dòng đồng hồ Galaxy Watch7 sử dụng Wear OS, tích hợp cảm biến sức khỏe, GPS và các tính năng kết nối trong hệ sinh thái Samsung dành cho theo dõi hoạt động hằng ngày.",
       first_release_year: 2024,
     },
   });
@@ -2324,7 +4264,8 @@ async function main() {
       device_category_id: earbuds.id,
       name: "AirPods Pro Series",
       slug: "airpods-pro-series",
-      description: "Tai nghe true wireless cao cấp với chống ồn chủ động.",
+      description:
+        "Dòng AirPods Pro là tai nghe true wireless cao cấp của Apple, tập trung vào chống ồn chủ động, xuyên âm thích ứng, âm thanh không gian và khả năng kết nối hệ sinh thái.",
       first_release_year: 2022,
     },
   });
@@ -2340,7 +4281,13 @@ async function main() {
       announcement_date: new Date("2024-05-07"),
       release_date: new Date("2024-05-15"),
       generation_label: "M4",
-      description: "Tablet chuyên nghiệp với màn hình Tandem OLED và Apple M4.",
+      summary:
+        "iPad Pro 13-inch M4 là máy tính bảng chuyên nghiệp với màn hình Tandem OLED, chip Apple M4 và thiết kế mỏng nhẹ cho sáng tạo nội dung.",
+      description: buildStandardModelDescription(
+        "iPad Pro 13-inch M4",
+        "iPad Pro 13-inch M4 là máy tính bảng chuyên nghiệp với màn hình Tandem OLED, chip Apple M4 và thiết kế mỏng nhẹ cho sáng tạo nội dung.",
+        "máy tính bảng chuyên nghiệp",
+      ),
     },
   });
   const macbookPro = await prisma.device_models.upsert({
@@ -2354,8 +4301,13 @@ async function main() {
       announcement_date: new Date("2024-10-30"),
       release_date: new Date("2024-11-08"),
       generation_label: "M4 Pro",
-      description:
-        "Laptop chuyên nghiệp với Apple M4 Pro, màn hình Liquid Retina XDR và pin dài.",
+      summary:
+        "MacBook Pro 14-inch M4 Pro là laptop chuyên nghiệp với hiệu năng mạnh, màn hình Liquid Retina XDR và thời lượng pin phù hợp công việc dài ngày.",
+      description: buildStandardModelDescription(
+        "MacBook Pro 14-inch M4 Pro",
+        "MacBook Pro 14-inch M4 Pro là laptop chuyên nghiệp với hiệu năng mạnh, màn hình Liquid Retina XDR và thời lượng pin phù hợp công việc dài ngày.",
+        "máy tính xách tay chuyên nghiệp",
+      ),
     },
   });
   const galaxyWatch7 = await prisma.device_models.upsert({
@@ -2369,8 +4321,13 @@ async function main() {
       announcement_date: new Date("2024-07-10"),
       release_date: new Date("2024-07-24"),
       generation_label: "Watch7",
-      description:
-        "Smartwatch 44mm với Exynos W1000, GPS và cảm biến sức khỏe thế hệ mới.",
+      summary:
+        "Galaxy Watch7 44mm là đồng hồ thông minh với Exynos W1000, định vị GPS và hệ thống cảm biến sức khỏe thế hệ mới trong thiết kế 44 mm.",
+      description: buildStandardModelDescription(
+        "Galaxy Watch7 44mm",
+        "Galaxy Watch7 44mm là đồng hồ thông minh với Exynos W1000, định vị GPS và hệ thống cảm biến sức khỏe thế hệ mới trong thiết kế 44 mm.",
+        "đồng hồ thông minh",
+      ),
     },
   });
   const airpodsPro = await prisma.device_models.upsert({
@@ -2384,8 +4341,13 @@ async function main() {
       announcement_date: new Date("2023-09-12"),
       release_date: new Date("2023-09-22"),
       generation_label: "2nd gen",
-      description:
-        "Tai nghe ANC với chip Apple H2, hộp sạc USB-C và âm thanh thích ứng.",
+      summary:
+        "AirPods Pro 2 USB-C là tai nghe không dây chống ồn chủ động với chip Apple H2, âm thanh thích ứng và hộp sạc dùng cổng USB-C.",
+      description: buildStandardModelDescription(
+        "AirPods Pro 2 USB-C",
+        "AirPods Pro 2 USB-C là tai nghe không dây chống ồn chủ động với chip Apple H2, âm thanh thích ứng và hộp sạc dùng cổng USB-C.",
+        "tai nghe không dây",
+      ),
     },
   });
 
@@ -2478,6 +4440,33 @@ async function main() {
       is_primary: true,
     },
   });
+  const ipadProMainCamera = await prisma.camera_modules.upsert({
+    where: { slug: "ipad-pro-13-m4-12mp-wide" },
+    update: {
+      effective_megapixel: 12,
+      aperture: "f/1.8",
+      has_af: true,
+      video_capabilities: "4K video up to 60 fps",
+    },
+    create: {
+      manufacturer_org_id: apple.id,
+      camera_role_id: mainCameraRole.id,
+      name: "iPad Pro M4 12MP Wide",
+      slug: "ipad-pro-13-m4-12mp-wide",
+      effective_megapixel: 12,
+      aperture: "f/1.8",
+      has_af: true,
+      video_capabilities: "4K video up to 60 fps",
+      description: "Camera sau góc rộng 12MP của iPad Pro 13 inch M4.",
+    },
+  });
+  await upsertVariantCamera(
+    ipadPro256.id,
+    ipadProMainCamera.id,
+    "rear",
+    "main",
+    "iPad Pro M4 rear camera system",
+  );
 
   const macbookPro512 = await prisma.device_variants.upsert({
     where: {
@@ -2702,12 +4691,390 @@ async function main() {
       is_primary: true,
     },
   });
+  await prisma.variant_physical_specs.upsert({
+    where: { device_variant_id: airpodsPro2.id },
+    update: {
+      height_mm: 30.9,
+      width_mm: 21.8,
+      thickness_mm: 24,
+      weight_g: 5.3,
+      ingress_protection: "IP54",
+      frame_material: "Polycarbonate",
+      notes: "Kích thước và khối lượng của mỗi tai nghe.",
+    },
+    create: {
+      device_variant_id: airpodsPro2.id,
+      height_mm: 30.9,
+      width_mm: 21.8,
+      thickness_mm: 24,
+      weight_g: 5.3,
+      ingress_protection: "IP54",
+      frame_material: "Polycarbonate",
+      notes: "Kích thước và khối lượng của mỗi tai nghe.",
+    },
+  });
+
+  const foundationalIoProfiles = [
+    {
+      variants: [
+        iphone16Pro256,
+        iphone16Pro512,
+        galaxyS25Ultra256,
+        galaxyS25Ultra512,
+        pixel9Pro128,
+        pixel9Pro256,
+        xiaomi14Ultra512,
+        xiaomi14Ultra1Tb,
+      ],
+      data: {
+        sim_slots: 2,
+        sim_type: "Nano-SIM / eSIM",
+        esim_supported: true,
+        stereo_speakers: true,
+        speaker_count: 2,
+        headphone_jack: false,
+        has_microsd_slot: false,
+      },
+    },
+    {
+      variants: [ipadPro256],
+      data: {
+        stereo_speakers: true,
+        speaker_count: 4,
+        headphone_jack: false,
+        has_microsd_slot: false,
+        notes: "Hệ thống bốn loa và cụm microphone chất lượng phòng thu.",
+      },
+    },
+    {
+      variants: [macbookPro512],
+      data: {
+        stereo_speakers: true,
+        speaker_count: 6,
+        audio_brand_tuning: "Dolby Atmos",
+        headphone_jack: true,
+        headphone_jack_size_mm: 3.5,
+        notes: "Hệ thống sáu loa và ba microphone định hướng.",
+      },
+    },
+    {
+      variants: [galaxyWatch44],
+      data: {
+        stereo_speakers: false,
+        speaker_count: 1,
+        headphone_jack: false,
+        notes: "Loa và microphone tích hợp cho cuộc gọi.",
+      },
+    },
+    {
+      variants: [airpodsPro2],
+      data: {
+        stereo_speakers: true,
+        speaker_count: 2,
+        audio_brand_tuning: "Adaptive EQ, Spatial Audio",
+        headphone_jack: false,
+        notes:
+          "Chống ồn chủ động, xuyên âm thích ứng, microphone kép và Spatial Audio.",
+      },
+    },
+  ];
+  for (const profile of foundationalIoProfiles) {
+    for (const variant of profile.variants) {
+      await prisma.variant_io_specs.upsert({
+        where: { device_variant_id: variant.id },
+        update: profile.data,
+        create: { device_variant_id: variant.id, ...profile.data },
+      });
+    }
+  }
 
   // ========================================================
-  // 10B. VARIANT HARDWARE MODULES
+  // 10C. EXTENDED MULTI-CATEGORY CATALOG
   // ========================================================
   console.log(
-    "🧩 [10B/14] Linking CPU, RAM, GPU, storage, OS & I/O modules...",
+    `🗂️ [10C/14] Seeding ${EXPECTED_EXTENDED_CATALOG_SIZE} additional devices...`,
+  );
+
+  if (EXTENDED_CATALOG_DEVICES.length !== EXPECTED_EXTENDED_CATALOG_SIZE) {
+    throw new Error(
+      `Extended catalog must contain exactly ${EXPECTED_EXTENDED_CATALOG_SIZE} devices, found ${EXTENDED_CATALOG_DEVICES.length}.`,
+    );
+  }
+
+  const profileSlugs = new Set(
+    EXTENDED_CATALOG_MODULES.map((profile) => profile.modelSlug),
+  );
+  const incompleteDeviceProfiles = EXTENDED_CATALOG_DEVICES.filter(
+    (device) => !profileSlugs.has(device.modelSlug),
+  );
+  if (incompleteDeviceProfiles.length > 0) {
+    throw new Error(
+      `Hardware profiles must exist before device creation: ${incompleteDeviceProfiles
+        .map((device) => device.modelSlug)
+        .join(", ")}.`,
+    );
+  }
+
+  const organizationIdBySlug = new Map<string, string>([
+    ["apple", apple.id],
+    ["samsung", samsung.id],
+    ["google", google.id],
+    ["xiaomi", xiaomi.id],
+    ["sony", sony.id],
+  ]);
+
+  for (const organization of EXTENDED_CATALOG_ORGANIZATIONS) {
+    const seededOrganization = await prisma.organizations.upsert({
+      where: { slug: organization.slug },
+      update: {
+        name: organization.name,
+        short_name: organization.shortName,
+        country_code: organization.countryCode,
+        website_url: organization.websiteUrl,
+        description:
+          `${organization.shortName} là thương hiệu hoặc nhà sản xuất được bổ sung vào danh mục SpecHub. ` +
+          "Hồ sơ tổ chức phục vụ liên kết dòng sản phẩm, module phần cứng, phần mềm và nguồn dữ liệu theo cùng một quy chuẩn.",
+        is_active: true,
+        deleted_at: null,
+      },
+      create: {
+        name: organization.name,
+        slug: organization.slug,
+        short_name: organization.shortName,
+        country_code: organization.countryCode,
+        website_url: organization.websiteUrl,
+        description:
+          `${organization.shortName} là thương hiệu hoặc nhà sản xuất được bổ sung vào danh mục SpecHub. ` +
+          "Hồ sơ tổ chức phục vụ liên kết dòng sản phẩm, module phần cứng, phần mềm và nguồn dữ liệu theo cùng một quy chuẩn.",
+      },
+    });
+    organizationIdBySlug.set(organization.slug, seededOrganization.id);
+  }
+
+  const categoryIdBySlug = new Map<string, string>([
+    ["smartphone", smartphone.id],
+    ["tablet", tablet.id],
+    ["laptop", laptop.id],
+    ["smartwatch", smartwatch.id],
+    ["earbuds", earbuds.id],
+  ]);
+
+  for (const category of EXTENDED_CATALOG_CATEGORIES) {
+    const seededCategory = await prisma.device_categories.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        display_order: category.displayOrder,
+        is_active: true,
+        deleted_at: null,
+      },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        display_order: category.displayOrder,
+      },
+    });
+    categoryIdBySlug.set(category.slug, seededCategory.id);
+  }
+
+  await prisma.device_variants.updateMany({
+    where: {
+      OR: CATALOG_EXPANSION_100_STALE_DUPLICATE_VARIANTS.map(
+        ([modelSlug, variantName]) => ({
+          device_model: { slug: modelSlug },
+          variant_name: variantName,
+        }),
+      ),
+    },
+    data: {
+      is_default: false,
+      deleted_at: new Date(),
+    },
+  });
+
+  for (const device of EXTENDED_CATALOG_DEVICES) {
+    const brandOrgId = organizationIdBySlug.get(device.brandSlug);
+    const deviceCategoryId = categoryIdBySlug.get(device.categorySlug);
+
+    if (!brandOrgId || !deviceCategoryId) {
+      throw new Error(
+        `Missing catalog reference for ${device.modelSlug}: brand=${device.brandSlug}, category=${device.categorySlug}.`,
+      );
+    }
+
+    const releaseDate = new Date(device.releaseDate);
+    const announcementDate = new Date(device.announcementDate);
+    const firstReleaseYear = releaseDate.getUTCFullYear();
+    const modelSummary = buildExtendedDeviceSummary(device);
+    const detailedDescription = buildExtendedDeviceDescription(device);
+
+    const existingFamily = await prisma.product_families.findFirst({
+      where: {
+        OR: [
+          { slug: device.familySlug },
+          {
+            brand_org_id: brandOrgId,
+            name: device.familyName,
+          },
+        ],
+      },
+    });
+    const familyData = {
+      brand_org_id: brandOrgId,
+      device_category_id: deviceCategoryId,
+      name: device.familyName,
+      description:
+        `${device.familyName} thuộc danh mục ${device.categorySlug}, được chuẩn hóa cho bộ dữ liệu mẫu SpecHub. ` +
+        "Hồ sơ dòng máy liên kết thương hiệu, phạm vi thế hệ và các model có chung định vị sản phẩm.",
+      first_release_year: firstReleaseYear,
+      is_active: true,
+      deleted_at: null,
+    };
+    const family = existingFamily
+      ? await prisma.product_families.update({
+          where: { id: existingFamily.id },
+          data: familyData,
+        })
+      : await prisma.product_families.create({
+          data: {
+            ...familyData,
+            slug: device.familySlug,
+          },
+        });
+
+    const model = await prisma.device_models.upsert({
+      where: { slug: device.modelSlug },
+      update: {
+        product_family_id: family.id,
+        name: device.modelName,
+        release_status_id: releasedStatus!.id,
+        announcement_date: announcementDate,
+        release_date: releaseDate,
+        generation_label: device.generation,
+        summary: modelSummary,
+        description: detailedDescription,
+        deleted_at: null,
+      },
+      create: {
+        product_family_id: family.id,
+        name: device.modelName,
+        slug: device.modelSlug,
+        release_status_id: releasedStatus!.id,
+        announcement_date: announcementDate,
+        release_date: releaseDate,
+        generation_label: device.generation,
+        summary: modelSummary,
+        description: detailedDescription,
+      },
+    });
+
+    const variant = await prisma.device_variants.upsert({
+      where: {
+        device_model_id_variant_name: {
+          device_model_id: model.id,
+          variant_name: device.variantName,
+        },
+      },
+      update: {
+        sku_code: device.skuCode,
+        market_name: device.modelName,
+        color_name: device.colorName,
+        color_hex: device.colorHex,
+        release_status_id: releasedStatus!.id,
+        launch_date: releaseDate,
+        launch_price: device.launchPrice,
+        currency_id: usd!.id,
+        is_default: true,
+        notes: device.sourceUrl
+          ? `${device.description}\nNguồn thông số: ${device.sourceUrl}`
+          : device.description,
+        deleted_at: null,
+      },
+      create: {
+        device_model_id: model.id,
+        variant_name: device.variantName,
+        sku_code: device.skuCode,
+        market_name: device.modelName,
+        color_name: device.colorName,
+        color_hex: device.colorHex,
+        release_status_id: releasedStatus!.id,
+        launch_date: releaseDate,
+        launch_price: device.launchPrice,
+        currency_id: usd!.id,
+        is_default: true,
+        notes: device.sourceUrl
+          ? `${device.description}\nNguồn thông số: ${device.sourceUrl}`
+          : device.description,
+      },
+    });
+
+    await prisma.variant_physical_specs.upsert({
+      where: { device_variant_id: variant.id },
+      update: {
+        height_mm: device.heightMm,
+        width_mm: device.widthMm,
+        thickness_mm: device.thicknessMm,
+        weight_g: device.weightG,
+        ingress_protection: device.ingressProtection,
+        frame_material: device.frameMaterial,
+        back_material: device.backMaterial,
+      },
+      create: {
+        device_variant_id: variant.id,
+        height_mm: device.heightMm,
+        width_mm: device.widthMm,
+        thickness_mm: device.thicknessMm,
+        weight_g: device.weightG,
+        ingress_protection: device.ingressProtection,
+        frame_material: device.frameMaterial,
+        back_material: device.backMaterial,
+      },
+    });
+
+    const isSmartphone = device.categorySlug === "smartphone";
+    await prisma.variant_io_specs.upsert({
+      where: { device_variant_id: variant.id },
+      update: {
+        sim_slots: isSmartphone ? 2 : undefined,
+        sim_type: isSmartphone ? "Nano-SIM / eSIM" : undefined,
+        esim_supported:
+          isSmartphone && device.brandSlug !== "huawei" ? true : undefined,
+        stereo_speakers:
+          device.speakerCount === undefined
+            ? undefined
+            : device.speakerCount > 1,
+        speaker_count: device.speakerCount,
+        audio_brand_tuning: device.audioTuning,
+        headphone_jack: device.headphoneJack,
+        has_microsd_slot: device.microSd,
+        notes: device.ioNotes,
+      },
+      create: {
+        device_variant_id: variant.id,
+        sim_slots: isSmartphone ? 2 : undefined,
+        sim_type: isSmartphone ? "Nano-SIM / eSIM" : undefined,
+        esim_supported:
+          isSmartphone && device.brandSlug !== "huawei" ? true : undefined,
+        stereo_speakers:
+          device.speakerCount === undefined
+            ? undefined
+            : device.speakerCount > 1,
+        speaker_count: device.speakerCount,
+        audio_brand_tuning: device.audioTuning,
+        headphone_jack: device.headphoneJack,
+        has_microsd_slot: device.microSd,
+        notes: device.ioNotes,
+      },
+    });
+  }
+
+  // ========================================================
+  // 10D. VARIANT HARDWARE MODULES
+  // ========================================================
+  console.log(
+    "🧩 [10D/14] Linking CPU, RAM, GPU, storage, OS & I/O modules...",
   );
 
   const ios18Version = await getOrCreateOsVersion(ios18.id, "18.0", {
@@ -2733,6 +5100,695 @@ async function main() {
     { release_date: new Date("2024-09-26") },
   );
 
+  // ========================================================
+  // 10D-1. MODULES FOR THE 80 EXTENDED CATALOG DEVICES
+  // ========================================================
+  console.log(
+    `🔗 [10D-1/14] Linking complete module profiles for ${EXPECTED_EXTENDED_CATALOG_SIZE} devices...`,
+  );
+
+  if (EXTENDED_CATALOG_MODULES.length !== EXPECTED_EXTENDED_CATALOG_SIZE) {
+    throw new Error(
+      `Extended module catalog must contain exactly ${EXPECTED_EXTENDED_CATALOG_SIZE} profiles, found ${EXTENDED_CATALOG_MODULES.length}.`,
+    );
+  }
+
+  const moduleOrganizations = await prisma.organizations.findMany({
+    where: {
+      slug: {
+        in: [
+          ...new Set([
+            ...EXTENDED_CATALOG_MODULES.flatMap((profile) => [
+              profile.chipset.maker,
+              profile.chipset.cpuMaker ?? profile.chipset.maker,
+              profile.chipset.gpuMaker ?? profile.chipset.maker,
+            ]),
+            ...Object.values(EXTENDED_CATALOG_OPERATING_SYSTEMS).map(
+              (operatingSystem) => operatingSystem.vendorSlug,
+            ),
+          ]),
+        ],
+      },
+    },
+    select: { id: true, slug: true },
+  });
+  const moduleOrganizationIdBySlug = new Map(
+    moduleOrganizations.map((organization) => [
+      organization.slug,
+      organization.id,
+    ]),
+  );
+
+  const oledTechnology = await prisma.display_technologies.upsert({
+    where: { slug: "oled" },
+    update: {
+      name: "OLED",
+      description: "Organic Light-Emitting Diode display",
+    },
+    create: {
+      name: "OLED",
+      slug: "oled",
+      description: "Organic Light-Emitting Diode display",
+    },
+  });
+  const ipsLcdTechnology = await prisma.display_technologies.upsert({
+    where: { slug: "ips-lcd" },
+    update: {
+      name: "IPS LCD",
+      description: "In-Plane Switching liquid-crystal display",
+    },
+    create: {
+      name: "IPS LCD",
+      slug: "ips-lcd",
+      description: "In-Plane Switching liquid-crystal display",
+    },
+  });
+  const miniLedTechnology = await prisma.display_technologies.upsert({
+    where: { slug: "mini-led" },
+    update: {
+      name: "Mini LED",
+      description: "LCD display with Mini LED local-dimming backlight",
+    },
+    create: {
+      name: "Mini LED",
+      slug: "mini-led",
+      description: "LCD display with Mini LED local-dimming backlight",
+    },
+  });
+  const eInkTechnology = await prisma.display_technologies.upsert({
+    where: { slug: "e-ink" },
+    update: {
+      name: "E Ink",
+      description: "Low-power electrophoretic paper-like display",
+    },
+    create: {
+      name: "E Ink",
+      slug: "e-ink",
+      description: "Low-power electrophoretic paper-like display",
+    },
+  });
+  const displayTechnologyIdByKey = new Map<string, string>([
+    ["ltpo-oled", ltpoOled.id],
+    ["amoled", amoled.id],
+    ["oled", oledTechnology.id],
+    ["ips-lcd", ipsLcdTechnology.id],
+    ["mini-led", miniLedTechnology.id],
+    ["e-ink", eInkTechnology.id],
+  ]);
+
+  const ddr5 = await upsertMemoryStandard("ddr5", {
+    organization_id: samsung.id,
+    name: "DDR5",
+    slug: "ddr5",
+    memory_type: "DDR",
+    generation: "5",
+    max_data_rate_mtps: 8533,
+    typical_data_rate_mtps: 6400,
+    channel_width_bits: 64,
+    is_mobile: false,
+    release_year: 2020,
+  });
+  const embeddedMemory = await upsertMemoryStandard("embedded-memory", {
+    organization_id: samsung.id,
+    name: "Embedded Memory",
+    slug: "embedded-memory",
+    memory_type: "Embedded",
+    generation: "Low-power",
+    typical_data_rate_mtps: 1600,
+    channel_width_bits: 32,
+    is_mobile: true,
+    release_year: 2020,
+  });
+  const memoryStandardIdByKey = new Map<string, string>([
+    ["lpddr5x", lpddr5x.id],
+    ["lpddr5", lpddr5.id],
+    ["lpddr4x", lpddr4x.id],
+    ["unified", unifiedMemory.id],
+    ["ddr5", ddr5.id],
+    ["embedded", embeddedMemory.id],
+  ]);
+
+  const pcieNvme = await upsertStorageStandard("pcie-4-nvme", {
+    organization_id: samsung.id,
+    name: "PCIe 4.0 NVMe SSD",
+    slug: "pcie-4-nvme",
+    storage_type: "NVMe",
+    generation: "PCIe 4.0",
+    sequential_read_mbps: 7000,
+    sequential_write_mbps: 5000,
+    release_year: 2019,
+  });
+  const embeddedMmc = await upsertStorageStandard("emmc-5-1", {
+    organization_id: samsung.id,
+    name: "eMMC 5.1",
+    slug: "emmc-5-1",
+    storage_type: "eMMC",
+    generation: "5.1",
+    sequential_read_mbps: 400,
+    sequential_write_mbps: 200,
+    release_year: 2015,
+  });
+  const ufs21 = await upsertStorageStandard("ufs-2-1", {
+    organization_id: samsung.id,
+    name: "UFS 2.1",
+    slug: "ufs-2-1",
+    storage_type: "UFS",
+    generation: "2.1",
+    sequential_read_mbps: 860,
+    sequential_write_mbps: 255,
+    release_year: 2016,
+  });
+  const storageStandardIdByKey = new Map<string, string>([
+    ["ufs4", ufs4.id],
+    ["ufs31", ufs31.id],
+    ["ufs21", ufs21.id],
+    ["apple-nvme", appleNvme.id],
+    ["nvme", pcieNvme.id],
+    ["emmc", embeddedMmc.id],
+  ]);
+
+  const operatingSystemVersionIdByKey = new Map<string, string>();
+  for (const [key, operatingSystemSeed] of Object.entries(
+    EXTENDED_CATALOG_OPERATING_SYSTEMS,
+  )) {
+    const vendorOrgId = moduleOrganizationIdBySlug.get(
+      operatingSystemSeed.vendorSlug,
+    );
+    if (!vendorOrgId) {
+      throw new Error(
+        `Missing OS vendor ${operatingSystemSeed.vendorSlug} for ${key}.`,
+      );
+    }
+
+    const operatingSystem = await upsertOperatingSystem(
+      operatingSystemSeed.slug,
+      {
+        vendor_org_id: vendorOrgId,
+        name: operatingSystemSeed.name,
+        slug: operatingSystemSeed.slug,
+        os_family: operatingSystemSeed.family,
+        kernel_type: operatingSystemSeed.kernel,
+        is_open_source: operatingSystemSeed.kernel === "Linux",
+      },
+    );
+    const version = await getOrCreateOsVersion(
+      operatingSystem.id,
+      operatingSystemSeed.version,
+      { release_date: new Date(operatingSystemSeed.releaseDate) },
+    );
+    operatingSystemVersionIdByKey.set(key, version.id);
+  }
+
+  const extendedVariants = await prisma.device_variants.findMany({
+    where: {
+      deleted_at: null,
+      device_model: {
+        slug: {
+          in: EXTENDED_CATALOG_MODULES.map((profile) => profile.modelSlug),
+        },
+      },
+    },
+    select: {
+      id: true,
+      is_default: true,
+      device_model: {
+        select: {
+          slug: true,
+          product_family: { select: { brand_org_id: true } },
+        },
+      },
+    },
+    orderBy: [{ is_default: "desc" }, { created_at: "asc" }],
+  });
+
+  const obsoleteEarbudDisplaySlugs = [
+    "galaxy-buds3-pro-status-display",
+    "sony-wf-1000xm5-status-display",
+    "bose-qc-ultra-status-display",
+  ];
+  await prisma.variant_displays.deleteMany({
+    where: {
+      display_unit: { slug: { in: obsoleteEarbudDisplaySlugs } },
+    },
+  });
+  await prisma.display_units.deleteMany({
+    where: { slug: { in: obsoleteEarbudDisplaySlugs } },
+  });
+
+  const extendedVariantByModelSlug = new Map<
+    string,
+    (typeof extendedVariants)[number]
+  >();
+  for (const variant of extendedVariants) {
+    if (!extendedVariantByModelSlug.has(variant.device_model.slug)) {
+      extendedVariantByModelSlug.set(variant.device_model.slug, variant);
+    }
+  }
+
+  const extendedDeviceBySlug = new Map(
+    EXTENDED_CATALOG_DEVICES.map((device) => [device.modelSlug, device]),
+  );
+  const aiEnabledCategories = new Set([
+    "smartphone",
+    "tablet",
+    "laptop",
+    "smartwatch",
+    "television",
+    "gaming-handheld",
+  ]);
+
+  for (const profile of EXTENDED_CATALOG_MODULES) {
+    const variant = extendedVariantByModelSlug.get(profile.modelSlug);
+    const catalogDevice = extendedDeviceBySlug.get(profile.modelSlug);
+    if (!variant || !catalogDevice) {
+      throw new Error(
+        `Missing device or default variant for module profile ${profile.modelSlug}.`,
+      );
+    }
+    const categorySlug = catalogDevice.categorySlug;
+
+    const chipsetMakerId = moduleOrganizationIdBySlug.get(
+      profile.chipset.maker,
+    );
+    const cpuMakerId = moduleOrganizationIdBySlug.get(
+      profile.chipset.cpuMaker ?? profile.chipset.maker,
+    );
+    const gpuMakerId = moduleOrganizationIdBySlug.get(
+      profile.chipset.gpuMaker ?? profile.chipset.maker,
+    );
+    if (!chipsetMakerId || !cpuMakerId) {
+      throw new Error(`Missing silicon organization for ${profile.modelSlug}.`);
+    }
+
+    const chipset = await prisma.chipsets.upsert({
+      where: { slug: profile.chipset.slug },
+      update: {
+        manufacturer_org_id: chipsetMakerId,
+        name: profile.chipset.name,
+        chip_kind: "soc",
+        supports_64bit: true,
+        integrated_5g: profile.wireless.includes("cellular5g"),
+        integrated_wifi: profile.wireless.some((item) =>
+          item.startsWith("wifi"),
+        ),
+        max_ram_gb: profile.memory.capacityGb,
+        description:
+          `${profile.chipset.name} là SoC 64-bit dùng trên ${catalogDevice.modelName}, ` +
+          `kết hợp CPU ${profile.chipset.cores} lõi với ${profile.chipset.gpuName ?? "GPU tích hợp"}. ` +
+          `Hồ sơ này hỗ trợ cấu hình ${profile.memory.capacityGb} GB RAM và các chuẩn kết nối đã được liên kết riêng ở cấp phiên bản.`,
+        deleted_at: null,
+      },
+      create: {
+        manufacturer_org_id: chipsetMakerId,
+        name: profile.chipset.name,
+        slug: profile.chipset.slug,
+        chip_kind: "soc",
+        supports_64bit: true,
+        integrated_5g: profile.wireless.includes("cellular5g"),
+        integrated_wifi: profile.wireless.some((item) =>
+          item.startsWith("wifi"),
+        ),
+        max_ram_gb: profile.memory.capacityGb,
+        description:
+          `${profile.chipset.name} là SoC 64-bit dùng trên ${catalogDevice.modelName}, ` +
+          `kết hợp CPU ${profile.chipset.cores} lõi với ${profile.chipset.gpuName ?? "GPU tích hợp"}. ` +
+          `Hồ sơ này hỗ trợ cấu hình ${profile.memory.capacityGb} GB RAM và các chuẩn kết nối đã được liên kết riêng ở cấp phiên bản.`,
+      },
+    });
+    const cpu = await upsertCpu(profile.chipset.cpuSlug, {
+      manufacturer_org_id: cpuMakerId,
+      name: profile.chipset.cpuName,
+      slug: profile.chipset.cpuSlug,
+      core_count: profile.chipset.cores,
+      thread_count: profile.chipset.threads ?? profile.chipset.cores,
+      big_little: profile.chipset.isa !== "x86-64",
+      isa_name: profile.chipset.isa ?? "ARM64",
+      description:
+        `${profile.chipset.cpuName} là CPU ${profile.chipset.cores} lõi, ` +
+        `${profile.chipset.threads ?? profile.chipset.cores} luồng, sử dụng tập lệnh ${profile.chipset.isa ?? "ARM64"}. ` +
+        `CPU được liên kết làm bộ xử lý chính của ${profile.chipset.name} trên ${catalogDevice.modelName}.`,
+    });
+    await prisma.chipset_cpu_links.upsert({
+      where: {
+        chipset_id_cpu_id: { chipset_id: chipset.id, cpu_id: cpu.id },
+      },
+      update: { is_primary: true },
+      create: { chipset_id: chipset.id, cpu_id: cpu.id, is_primary: true },
+    });
+    await upsertVariantChipset(variant.id, chipset.id, "soc");
+    await upsertVariantCpu(variant.id, cpu.id);
+
+    if (profile.chipset.gpuName && profile.chipset.gpuSlug && gpuMakerId) {
+      const gpu = await upsertGpu(profile.chipset.gpuSlug, {
+        manufacturer_org_id: gpuMakerId,
+        name: profile.chipset.gpuName,
+        slug: profile.chipset.gpuSlug,
+        ray_tracing_support:
+          profile.chipset.gpuName.includes("RTX") ||
+          profile.chipset.gpuName.includes("Arc") ||
+          profile.chipset.gpuName.includes("Adreno 8") ||
+          profile.chipset.gpuName.includes("Apple"),
+        description:
+          `${profile.chipset.gpuName} là bộ xử lý đồ họa ${profile.chipset.gpuRole === "discrete" ? "rời" : "tích hợp"} ` +
+          `đi cùng ${profile.chipset.name} trên ${catalogDevice.modelName}. Module đảm nhiệm giao diện, tăng tốc đồ họa và các API dựng hình do nền tảng hỗ trợ.`,
+      });
+      await prisma.chipset_gpu_links.upsert({
+        where: {
+          chipset_id_gpu_id: { chipset_id: chipset.id, gpu_id: gpu.id },
+        },
+        update: { is_primary: true },
+        create: { chipset_id: chipset.id, gpu_id: gpu.id, is_primary: true },
+      });
+      await upsertVariantGpu(
+        variant.id,
+        gpu.id,
+        profile.chipset.gpuRole ?? "integrated",
+      );
+    } else if (aiEnabledCategories.has(categorySlug)) {
+      const gpuSlug = `${profile.chipset.slug}-integrated-gpu`;
+      const gpu = await upsertGpu(gpuSlug, {
+        manufacturer_org_id: chipsetMakerId,
+        name: `${profile.chipset.name} Integrated GPU`,
+        slug: gpuSlug,
+        compute_units: 1,
+        ray_tracing_support: false,
+        api_support: "OpenGL ES / Vulkan theo nền tảng",
+        description:
+          `GPU tích hợp được chuẩn hóa cho ${profile.chipset.name}; ` +
+          "số đơn vị tính toán là mốc hồ sơ seed và cần đối chiếu thông số chính thức.",
+      });
+      await prisma.chipset_gpu_links.upsert({
+        where: {
+          chipset_id_gpu_id: {
+            chipset_id: chipset.id,
+            gpu_id: gpu.id,
+          },
+        },
+        update: { is_primary: true },
+        create: {
+          chipset_id: chipset.id,
+          gpu_id: gpu.id,
+          is_primary: true,
+        },
+      });
+      await upsertVariantGpu(variant.id, gpu.id);
+    }
+
+    if (aiEnabledCategories.has(categorySlug)) {
+      const npuSlug = `${profile.chipset.slug}-ai-engine`;
+      const npu = await upsertNpu(npuSlug, {
+        manufacturer_org_id: chipsetMakerId,
+        name: `${profile.chipset.name} AI Engine`,
+        slug: npuSlug,
+        tops: null,
+        ai_engine_version: "Catalog profile v1",
+        description:
+          `Bộ xử lý AI tích hợp trong ${profile.chipset.name}, phục vụ suy luận máy học và các tác vụ AI trên ${catalogDevice.modelName}. ` +
+          "Hồ sơ không gán giá trị TOPS khi dữ liệu chính hãng chưa xác nhận rõ cho đúng biến thể.",
+      });
+      await prisma.chipset_npu_links.upsert({
+        where: {
+          chipset_id_npu_id: {
+            chipset_id: chipset.id,
+            npu_id: npu.id,
+          },
+        },
+        update: { is_primary: true },
+        create: {
+          chipset_id: chipset.id,
+          npu_id: npu.id,
+          is_primary: true,
+        },
+      });
+      await upsertVariantNpu(variant.id, npu.id);
+    }
+
+    const cellularGeneration = profile.wireless.includes("cellular5g")
+      ? "5G"
+      : profile.wireless.includes("cellular4g")
+        ? "4G"
+        : null;
+    if (cellularGeneration) {
+      const modemSlug = `${profile.chipset.slug}-integrated-${cellularGeneration.toLowerCase()}-modem`;
+      const modem = await upsertModem(modemSlug, {
+        manufacturer_org_id: chipsetMakerId,
+        name: `${profile.chipset.name} Integrated ${cellularGeneration} Modem`,
+        slug: modemSlug,
+        max_downlink_mbps: null,
+        max_uplink_mbps: null,
+        supports_mmwave: null,
+        supports_satellite: null,
+        supported_5g_modes:
+          cellularGeneration === "5G"
+            ? "5G theo cấu hình và thị trường của thiết bị"
+            : null,
+        description:
+          `Modem ${cellularGeneration} tích hợp được liên kết với ${profile.chipset.name} trên ${catalogDevice.modelName}. ` +
+          "Băng tần và tốc độ tối đa phụ thuộc biến thể thị trường nên không được suy đoán trong bộ seed.",
+      });
+      await prisma.chipset_modem_links.upsert({
+        where: {
+          chipset_id_modem_id: {
+            chipset_id: chipset.id,
+            modem_id: modem.id,
+          },
+        },
+        update: { is_primary: true, is_integrated: true },
+        create: {
+          chipset_id: chipset.id,
+          modem_id: modem.id,
+          is_primary: true,
+          is_integrated: true,
+        },
+      });
+      await upsertVariantModem(variant.id, modem.id);
+    }
+
+    const memoryStandardId = memoryStandardIdByKey.get(profile.memory.standard);
+    const storageStandardId = storageStandardIdByKey.get(
+      profile.storage.standard,
+    );
+    if (!memoryStandardId || !storageStandardId) {
+      throw new Error(
+        `Missing memory or storage standard for ${profile.modelSlug}.`,
+      );
+    }
+    await upsertVariantMemory(
+      variant.id,
+      memoryStandardId,
+      profile.memory.capacityGb,
+      {
+        speed_mhz: profile.memory.speedMhz,
+        channel_count: profile.memory.capacityGb > 2 ? 2 : 1,
+      },
+    );
+    await upsertVariantStorage(
+      variant.id,
+      storageStandardId,
+      profile.storage.capacityGb,
+      {
+        is_expandable: profile.storage.expandable ?? false,
+        expansion_max_gb: profile.storage.expansionMaxGb,
+        module_count: 1,
+      },
+    );
+
+    for (const [displayIndex, display] of [
+      ...(profile.display ? [profile.display] : []),
+      ...(profile.secondaryDisplay ? [profile.secondaryDisplay] : []),
+    ].entries()) {
+      const displayTechnologyId = displayTechnologyIdByKey.get(
+        display.technology,
+      );
+      if (!displayTechnologyId) {
+        throw new Error(
+          `Missing display technology ${display.technology} for ${profile.modelSlug}.`,
+        );
+      }
+      const displayUnit = await prisma.display_units.upsert({
+        where: { slug: display.slug },
+        update: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          display_technology_id: displayTechnologyId,
+          name: display.name,
+          size_inch: display.size,
+          resolution_width: display.width,
+          resolution_height: display.height,
+          refresh_rate_hz: display.refresh,
+          brightness_peak_nits: display.peakNits,
+          description:
+            `Màn hình ${display.role ?? "chính"} ${display.size} inch của ${catalogDevice.modelName}, ` +
+            `độ phân giải ${display.width} × ${display.height} và tần số quét tối đa ${display.refresh} Hz` +
+            `${display.peakNits ? `, độ sáng đỉnh ${display.peakNits} nit` : ""}.`,
+        },
+        create: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          display_technology_id: displayTechnologyId,
+          name: display.name,
+          slug: display.slug,
+          size_inch: display.size,
+          resolution_width: display.width,
+          resolution_height: display.height,
+          refresh_rate_hz: display.refresh,
+          brightness_peak_nits: display.peakNits,
+          description:
+            `Màn hình ${display.role ?? "chính"} ${display.size} inch của ${catalogDevice.modelName}, ` +
+            `độ phân giải ${display.width} × ${display.height} và tần số quét tối đa ${display.refresh} Hz` +
+            `${display.peakNits ? `, độ sáng đỉnh ${display.peakNits} nit` : ""}.`,
+        },
+      });
+      await upsertVariantDisplay(
+        variant.id,
+        displayUnit.id,
+        display.role ?? "main",
+        displayIndex + 1,
+      );
+    }
+
+    if (profile.battery) {
+      const batterySlug = `${profile.modelSlug}-battery`;
+      const battery = await prisma.battery_units.upsert({
+        where: { slug: batterySlug },
+        update: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          battery_chemistry_id: liPo.id,
+          name: `${catalogDevice.modelName} Battery`,
+          capacity_mah: profile.battery.capacityMah,
+          energy_wh: profile.battery.energyWh,
+          wired_charging_w: profile.battery.wiredW,
+          wired_charging_protocol: profile.battery.wiredW
+            ? "USB Power Delivery / proprietary"
+            : undefined,
+          wireless_charging_w: profile.battery.wirelessW,
+          wireless_charging_protocol: profile.battery.wirelessW
+            ? "Qi / proprietary"
+            : undefined,
+          removable: false,
+          description:
+            `Pin tích hợp không tháo rời của ${catalogDevice.modelName}, dung lượng ${profile.battery.capacityMah} mAh` +
+            `${profile.battery.energyWh ? ` (${profile.battery.energyWh} Wh)` : ""}` +
+            `${profile.battery.wiredW ? `, sạc có dây tối đa ${profile.battery.wiredW} W` : ""}` +
+            `${profile.battery.wirelessW ? ` và sạc không dây tối đa ${profile.battery.wirelessW} W` : ""}.`,
+        },
+        create: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          battery_chemistry_id: liPo.id,
+          name: `${catalogDevice.modelName} Battery`,
+          slug: batterySlug,
+          capacity_mah: profile.battery.capacityMah,
+          energy_wh: profile.battery.energyWh,
+          wired_charging_w: profile.battery.wiredW,
+          wired_charging_protocol: profile.battery.wiredW
+            ? "USB Power Delivery / proprietary"
+            : undefined,
+          wireless_charging_w: profile.battery.wirelessW,
+          wireless_charging_protocol: profile.battery.wirelessW
+            ? "Qi / proprietary"
+            : undefined,
+          removable: false,
+          description:
+            `Pin tích hợp không tháo rời của ${catalogDevice.modelName}, dung lượng ${profile.battery.capacityMah} mAh` +
+            `${profile.battery.energyWh ? ` (${profile.battery.energyWh} Wh)` : ""}` +
+            `${profile.battery.wiredW ? `, sạc có dây tối đa ${profile.battery.wiredW} W` : ""}` +
+            `${profile.battery.wirelessW ? ` và sạc không dây tối đa ${profile.battery.wirelessW} W` : ""}.`,
+        },
+      });
+      await upsertVariantBattery(
+        variant.id,
+        battery.id,
+        profile.battery.role ?? "internal",
+      );
+    }
+
+    const osVersionId = operatingSystemVersionIdByKey.get(
+      profile.operatingSystem,
+    );
+    if (!osVersionId) {
+      throw new Error(
+        `Missing operating system ${profile.operatingSystem} for ${profile.modelSlug}.`,
+      );
+    }
+    await upsertVariantOperatingSystem(variant.id, osVersionId);
+
+    const hasActiveCooling =
+      categorySlug === "gaming-handheld" ||
+      (categorySlug === "laptop" &&
+        /RTX|gaming|ROG|Legion|Predator|Omen/i.test(
+          `${profile.chipset.gpuName ?? ""} ${catalogDevice.modelName}`,
+        ));
+    await prisma.variant_thermal_specs.upsert({
+      where: { device_variant_id: variant.id },
+      update: {
+        cooling_type: hasActiveCooling
+          ? "active_fan_heatpipe"
+          : categorySlug === "smartphone" || categorySlug === "tablet"
+            ? "vapor_chamber_graphite"
+            : "passive_graphite",
+        vc_area_mm2:
+          categorySlug === "smartphone" || categorySlug === "tablet"
+            ? 5000
+            : undefined,
+        has_active_cooling: hasActiveCooling,
+        notes:
+          "Hồ sơ tản nhiệt chuẩn hóa theo danh mục cho bộ seed; cần đối chiếu thiết kế thực tế trước khi xuất bản dữ liệu sản xuất.",
+      },
+      create: {
+        device_variant_id: variant.id,
+        cooling_type: hasActiveCooling
+          ? "active_fan_heatpipe"
+          : categorySlug === "smartphone" || categorySlug === "tablet"
+            ? "vapor_chamber_graphite"
+            : "passive_graphite",
+        vc_area_mm2:
+          categorySlug === "smartphone" || categorySlug === "tablet"
+            ? 5000
+            : undefined,
+        has_active_cooling: hasActiveCooling,
+        notes:
+          "Hồ sơ tản nhiệt chuẩn hóa theo danh mục cho bộ seed; cần đối chiếu thiết kế thực tế trước khi xuất bản dữ liệu sản xuất.",
+      },
+    });
+
+    if (profile.camera) {
+      const cameraPosition = categorySlug === "laptop" ? "front" : "rear";
+      const cameraModule = await prisma.camera_modules.upsert({
+        where: { slug: `${profile.modelSlug}-main-camera` },
+        update: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          camera_role_id: mainCameraRole.id,
+          name: `${catalogDevice.modelName} ${cameraPosition} camera`,
+          effective_megapixel: profile.camera.megapixel,
+          aperture: `f/${profile.camera.aperture}`,
+          has_af: true,
+          has_ois: null,
+          description:
+            `Camera ${cameraPosition} chính của ${catalogDevice.modelName}, độ phân giải ${profile.camera.megapixel} MP và khẩu độ f/${profile.camera.aperture}. ` +
+            "Các đặc tính chống rung hoặc lấy nét chỉ được ghi khi có dữ liệu xác nhận riêng.",
+        },
+        create: {
+          manufacturer_org_id: variant.device_model.product_family.brand_org_id,
+          camera_role_id: mainCameraRole.id,
+          name: `${catalogDevice.modelName} ${cameraPosition} camera`,
+          slug: `${profile.modelSlug}-main-camera`,
+          effective_megapixel: profile.camera.megapixel,
+          aperture: `f/${profile.camera.aperture}`,
+          has_af: true,
+          has_ois: null,
+          description:
+            `Camera ${cameraPosition} chính của ${catalogDevice.modelName}, độ phân giải ${profile.camera.megapixel} MP và khẩu độ f/${profile.camera.aperture}. ` +
+            "Các đặc tính chống rung hoặc lấy nét chỉ được ghi khi có dữ liệu xác nhận riêng.",
+        },
+      });
+      await upsertVariantCamera(
+        variant.id,
+        cameraModule.id,
+        cameraPosition,
+        "main",
+        `${catalogDevice.modelName} camera system`,
+      );
+    }
+  }
+
   const hardwareVariants = await prisma.device_variants.findMany({
     where: { deleted_at: null },
     select: {
@@ -2741,9 +5797,6 @@ async function main() {
       device_model: { select: { slug: true } },
     },
   });
-
-  const sharedMobileSensors = [accelerometer.id, gyroscope.id, ambientLight.id];
-  const flagshipSensors = [...sharedMobileSensors, barometer.id];
 
   for (const variant of hardwareVariants) {
     const modelSlug = variant.device_model.slug;
@@ -2773,13 +5826,6 @@ async function main() {
         { module_count: 1 },
       );
       await upsertVariantOperatingSystem(variant.id, ios18Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth54.id);
-      await upsertVariantWireless(variant.id, cellular5g.id);
-      await upsertVariantPort(variant.id, usbC20.id, 1);
-      for (const sensorId of sharedMobileSensors) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       await upsertVariantCamera(
         variant.id,
         iphoneMainCamera.id,
@@ -2806,13 +5852,6 @@ async function main() {
         variant.variant_name.includes("512") ? 512 : 256,
       );
       await upsertVariantOperatingSystem(variant.id, android15Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth54.id);
-      await upsertVariantWireless(variant.id, cellular5g.id);
-      await upsertVariantPort(variant.id, usbC.id, 1);
-      for (const sensorId of flagshipSensors) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       await upsertVariantCamera(
         variant.id,
         galaxyMainCamera.id,
@@ -2846,13 +5885,6 @@ async function main() {
         variant.variant_name.includes("256") ? 256 : 128,
       );
       await upsertVariantOperatingSystem(variant.id, android15Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth53.id);
-      await upsertVariantWireless(variant.id, cellular5g.id);
-      await upsertVariantPort(variant.id, usbC.id, 1);
-      for (const sensorId of flagshipSensors) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       await upsertVariantCamera(
         variant.id,
         pixelMainCamera.id,
@@ -2875,13 +5907,6 @@ async function main() {
       });
       await upsertVariantStorage(variant.id, ufs4.id, 512);
       await upsertVariantOperatingSystem(variant.id, android15Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth54.id);
-      await upsertVariantWireless(variant.id, cellular5g.id);
-      await upsertVariantPort(variant.id, usbC.id, 1);
-      for (const sensorId of flagshipSensors) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       await upsertVariantCamera(
         variant.id,
         xiaomiMainCamera.id,
@@ -2911,12 +5936,6 @@ async function main() {
         module_count: 1,
       });
       await upsertVariantOperatingSystem(variant.id, ipados17Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth54.id);
-      await upsertVariantPort(variant.id, usbC.id, 1);
-      for (const sensorId of sharedMobileSensors) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       continue;
     }
 
@@ -2932,11 +5951,6 @@ async function main() {
         module_count: 1,
       });
       await upsertVariantOperatingSystem(variant.id, macos15Version.id);
-      await upsertVariantWireless(variant.id, wifi7.id);
-      await upsertVariantWireless(variant.id, bluetooth54.id);
-      await upsertVariantPort(variant.id, thunderbolt.id, 3);
-      await upsertVariantSensor(variant.id, accelerometer.id);
-      await upsertVariantSensor(variant.id, ambientLight.id);
       continue;
     }
 
@@ -2951,15 +5965,6 @@ async function main() {
       });
       await upsertVariantStorage(variant.id, ufs31.id, 32, { module_count: 1 });
       await upsertVariantOperatingSystem(variant.id, wearOs5Version.id);
-      await upsertVariantWireless(variant.id, wifi6e.id);
-      await upsertVariantWireless(variant.id, bluetooth53.id);
-      for (const sensorId of [
-        ...sharedMobileSensors,
-        heartRate.id,
-        temperature.id,
-      ]) {
-        await upsertVariantSensor(variant.id, sensorId);
-      }
       continue;
     }
 
@@ -2970,12 +5975,52 @@ async function main() {
         channel_count: 1,
       });
       await upsertVariantOperatingSystem(variant.id, airpodsFirmwareVersion.id);
-      await upsertVariantWireless(variant.id, bluetooth53.id);
-      await upsertVariantPort(variant.id, usbC20.id, 1);
-      await upsertVariantSensor(variant.id, accelerometer.id);
-      await upsertVariantSensor(variant.id, gyroscope.id);
     }
   }
+
+  const improvedModuleDescriptionCount =
+    await improveLinkedModuleDescriptions();
+  console.log(
+    `  ✓ ${improvedModuleDescriptionCount} linked hardware descriptions enriched`,
+  );
+
+  if (!isCuratedCatalogSeed) {
+    console.log(
+      `🍎 Seeding the complete ${COMPLETE_IPHONE_MODEL_COUNT}-model iPhone timeline...`,
+    );
+    const iphoneCatalogResult = await seedCompleteIphoneCatalog(prisma);
+    console.log(
+      `  ✓ ${iphoneCatalogResult.modelCount} iPhone models and ` +
+        `${iphoneCatalogResult.variantCount} variants now have complete module profiles`,
+    );
+  }
+
+  console.log("🧬 Inheriting shared modules across model variants...");
+  const inheritedModuleLinkCount =
+    await inheritSharedModulesAcrossModelVariants();
+  console.log(`  ✓ ${inheritedModuleLinkCount} shared module links inherited`);
+
+  console.log("🧩 Completing hardware module fields and provenance...");
+  const moduleEnrichment = await enrichCatalogModules(prisma);
+  console.log(
+    `  ✓ ${moduleEnrichment.updatedModules} modules enriched; ` +
+      `${moduleEnrichment.coverageRows} fields documented ` +
+      `(${moduleEnrichment.statusCounts.populated} populated, ` +
+      `${moduleEnrichment.statusCounts.derived} derived, ` +
+      `${moduleEnrichment.statusCounts.not_disclosed} not disclosed, ` +
+      `${moduleEnrichment.statusCounts.not_applicable} not applicable)`,
+  );
+
+  console.log("📚 Seeding the complete Snapdragon silicon catalogue...");
+  const snapdragonCatalog = await seedSnapdragonCatalog(prisma);
+  console.log(
+    `  ✓ ${snapdragonCatalog.chipsets} Snapdragon chipsets; ` +
+      `${snapdragonCatalog.cpuLinks} CPU, ${snapdragonCatalog.gpuLinks} GPU, ` +
+      `${snapdragonCatalog.npuLinks} DSP/NPU and ${snapdragonCatalog.modemLinks} modem links`,
+  );
+
+  console.log("📐 Creating device-module configuration scores...");
+  const variantModuleScoreCount = await seedVariantModuleScores();
 
   // ========================================================
   // 11. PHASE 2 DATA SOURCES & CITATIONS
@@ -3169,6 +6214,62 @@ async function main() {
         "Official Apple technical specifications with disclosed laboratory test protocols.",
     },
   });
+  const manufacturerProductSpecs = await prisma.sources.upsert({
+    where: { slug: "manufacturer-product-specifications" },
+    update: {
+      name: "Thông số chính thức của nhà sản xuất",
+      source_type: "official_test",
+      trust_level: 5,
+      description:
+        "Trang thông số sản phẩm và giao thức thử do nhà sản xuất công bố.",
+    },
+    create: {
+      name: "Thông số chính thức của nhà sản xuất",
+      slug: "manufacturer-product-specifications",
+      source_type: "official_test",
+      trust_level: 5,
+      description:
+        "Trang thông số sản phẩm và giao thức thử do nhà sản xuất công bố.",
+    },
+  });
+  const rtingsSource = await prisma.sources.upsert({
+    where: { slug: "rtings-lab" },
+    update: {
+      name: "RTINGS",
+      source_type: "review_lab",
+      base_url: "https://www.rtings.com",
+      trust_level: 4,
+      description:
+        "Phòng thử độc lập công bố điều kiện đo màn hình, độ trễ và thiết bị điện tử tiêu dùng.",
+    },
+    create: {
+      name: "RTINGS",
+      slug: "rtings-lab",
+      source_type: "review_lab",
+      base_url: "https://www.rtings.com",
+      trust_level: 4,
+      description:
+        "Phòng thử độc lập công bố điều kiện đo màn hình, độ trễ và thiết bị điện tử tiêu dùng.",
+    },
+  });
+  const specHubConfigurationSource = await prisma.sources.upsert({
+    where: { slug: "spechub-configuration-model" },
+    update: {
+      name: "SpecHub Configuration Model",
+      source_type: "derived_model",
+      trust_level: 2,
+      description:
+        "Mốc tham chiếu kỹ thuật được suy ra từ độ đầy đủ của hồ sơ module; không phải phép đo hiệu năng trực tiếp.",
+    },
+    create: {
+      name: "SpecHub Configuration Model",
+      slug: "spechub-configuration-model",
+      source_type: "derived_model",
+      trust_level: 2,
+      description:
+        "Mốc tham chiếu kỹ thuật được suy ra từ độ đầy đủ của hồ sơ module; không phải phép đo hiệu năng trực tiếp.",
+    },
+  });
 
   const benchmarkPointUnit = await prisma.units.upsert({
     where: { symbol: "points" },
@@ -3183,6 +6284,11 @@ async function main() {
     where: { symbol: "h" },
     update: { name: "hour", quantity_type: "time" },
     create: { symbol: "h", name: "hour", quantity_type: "time" },
+  });
+  const millisecondUnit = await prisma.units.upsert({
+    where: { symbol: "ms" },
+    update: { name: "millisecond", quantity_type: "time" },
+    create: { symbol: "ms", name: "millisecond", quantity_type: "time" },
   });
 
   const geekbenchCpu = await prisma.benchmarks.upsert({
@@ -3209,20 +6315,212 @@ async function main() {
         "Cross-platform CPU benchmark. Seeded chart values are aggregate device scores from Geekbench Browser.",
     },
   });
+  const catalogConfigurationReference = await prisma.benchmarks.upsert({
+    where: { slug: "catalog-configuration-coverage-reference" },
+    update: {
+      name: "Mức tham chiếu độ phủ cấu hình",
+      benchmark_type: "configuration",
+      target_type: "device_variant",
+      version: "1.0",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Mốc kỹ thuật dùng để xác nhận thiết bị có hồ sơ module hoàn chỉnh trong bộ seed. Đây không phải benchmark hiệu năng.",
+    },
+    create: {
+      name: "Mức tham chiếu độ phủ cấu hình",
+      slug: "catalog-configuration-coverage-reference",
+      benchmark_type: "configuration",
+      target_type: "device_variant",
+      version: "1.0",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Mốc kỹ thuật dùng để xác nhận thiết bị có hồ sơ module hoàn chỉnh trong bộ seed. Đây không phải benchmark hiệu năng.",
+    },
+  });
+  const geekbenchGpuOpenCl = await prisma.benchmarks.upsert({
+    where: { slug: "geekbench-6-gpu-opencl" },
+    update: {
+      name: "Geekbench 6 GPU OpenCL",
+      benchmark_type: "gpu",
+      target_type: "device_variant",
+      version: "6",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Phép đo GPU OpenCL đa nền tảng của Geekbench 6. Phiên bản ứng dụng và điều kiện chạy được lưu tại từng benchmark run.",
+    },
+    create: {
+      name: "Geekbench 6 GPU OpenCL",
+      slug: "geekbench-6-gpu-opencl",
+      benchmark_type: "gpu",
+      target_type: "device_variant",
+      version: "6",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Phép đo GPU OpenCL đa nền tảng của Geekbench 6. Phiên bản ứng dụng và điều kiện chạy được lưu tại từng benchmark run.",
+    },
+  });
+  const geekbenchCpuChipsetReference = await prisma.benchmarks.upsert({
+    where: { slug: "geekbench-6-cpu-chipset-reference" },
+    update: {
+      name: "Geekbench 6 CPU · tham chiếu chipset",
+      benchmark_type: "cpu",
+      target_type: "device_variant",
+      version: "6-ref-2026.07",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm mở rộng theo kết quả Geekbench công khai của chipset tương ứng. Đây là mức tham chiếu, không phải phép đo trực tiếp trên từng biến thể.",
+    },
+    create: {
+      name: "Geekbench 6 CPU · tham chiếu chipset",
+      slug: "geekbench-6-cpu-chipset-reference",
+      benchmark_type: "cpu",
+      target_type: "device_variant",
+      version: "6-ref-2026.07",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm mở rộng theo kết quả Geekbench công khai của chipset tương ứng. Đây là mức tham chiếu, không phải phép đo trực tiếp trên từng biến thể.",
+    },
+  });
+  await prisma.benchmarks.upsert({
+    where: { slug: "antutu-v10" },
+    update: {
+      name: "AnTuTu Benchmark",
+      benchmark_type: "system",
+      target_type: "device_variant",
+      version: "10",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm hiệu năng tổng thể dành cho thiết bị di động. Chỉ đối chiếu kết quả cùng AnTuTu v10, cùng hạng mục và điều kiện đo tương thích.",
+    },
+    create: {
+      name: "AnTuTu Benchmark",
+      slug: "antutu-v10",
+      benchmark_type: "system",
+      target_type: "device_variant",
+      version: "10",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm hiệu năng tổng thể dành cho thiết bị di động. Chỉ đối chiếu kết quả cùng AnTuTu v10, cùng hạng mục và điều kiện đo tương thích.",
+    },
+  });
+  await prisma.benchmarks.upsert({
+    where: { slug: "antutu-v10-chipset" },
+    update: {
+      name: "AnTuTu Benchmark · chipset",
+      benchmark_type: "system",
+      target_type: "chipset",
+      version: "10",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm tham chiếu AnTuTu v10 của chipset. Lưu overall và các điểm thành phần CPU, GPU, memory, UX bằng subscore_name; không so trực tiếp với phiên bản AnTuTu khác.",
+    },
+    create: {
+      name: "AnTuTu Benchmark · chipset",
+      slug: "antutu-v10-chipset",
+      benchmark_type: "system",
+      target_type: "chipset",
+      version: "10",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm tham chiếu AnTuTu v10 của chipset. Lưu overall và các điểm thành phần CPU, GPU, memory, UX bằng subscore_name; không so trực tiếp với phiên bản AnTuTu khác.",
+    },
+  });
+  await prisma.benchmarks.upsert({
+    where: { slug: "antutu-v11-chipset" },
+    update: {
+      name: "AnTuTu Benchmark · chipset",
+      benchmark_type: "system",
+      target_type: "chipset",
+      version: "11",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm tham chiếu AnTuTu v11 của chipset. Lưu overall và các điểm thành phần CPU, GPU, memory, UX bằng subscore_name; không so trực tiếp với phiên bản AnTuTu khác.",
+    },
+    create: {
+      name: "AnTuTu Benchmark · chipset",
+      slug: "antutu-v11-chipset",
+      benchmark_type: "system",
+      target_type: "chipset",
+      version: "11",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm tham chiếu AnTuTu v11 của chipset. Lưu overall và các điểm thành phần CPU, GPU, memory, UX bằng subscore_name; không so trực tiếp với phiên bản AnTuTu khác.",
+    },
+  });
+  await prisma.benchmarks.upsert({
+    where: { slug: "geekbench-6-cpu-chipset" },
+    update: {
+      name: "Geekbench 6 CPU · chipset",
+      benchmark_type: "cpu",
+      target_type: "chipset",
+      version: "6",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm CPU tham chiếu của chipset; dùng subscore_name single_core và multi_core, kèm nguồn và điều kiện đo khi có.",
+    },
+    create: {
+      name: "Geekbench 6 CPU · chipset",
+      slug: "geekbench-6-cpu-chipset",
+      benchmark_type: "cpu",
+      target_type: "chipset",
+      version: "6",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Điểm CPU tham chiếu của chipset; dùng subscore_name single_core và multi_core, kèm nguồn và điều kiện đo khi có.",
+    },
+  });
+  await prisma.benchmarks.upsert({
+    where: { slug: "3dmark-wild-life-extreme" },
+    update: {
+      name: "3DMark Wild Life Extreme",
+      benchmark_type: "gpu",
+      target_type: "device_variant",
+      version: "1.1",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Phép đo đồ họa đa nền tảng. Kết quả chỉ được đối chiếu khi cùng phiên bản bài đo và cấu hình chạy.",
+    },
+    create: {
+      name: "3DMark Wild Life Extreme",
+      slug: "3dmark-wild-life-extreme",
+      benchmark_type: "gpu",
+      target_type: "device_variant",
+      version: "1.1",
+      higher_is_better: true,
+      unit_id: benchmarkPointUnit.id,
+      description:
+        "Phép đo đồ họa đa nền tảng. Kết quả chỉ được đối chiếu khi cùng phiên bản bài đo và cấu hình chạy.",
+    },
+  });
   const batteryEndurance = await prisma.benchmarks.upsert({
     where: { slug: "battery-endurance" },
     update: {
-      name: "Battery endurance",
+      name: "Thời lượng pin đo được",
       benchmark_type: "battery",
       target_type: "device_variant",
       version: "source-protocol",
       higher_is_better: true,
       unit_id: hourUnit.id,
       description:
-        "Observed or laboratory-reported runtime. Results are comparable only when protocol and conditions match.",
+        "Thời lượng quan sát hoặc đo trong phòng thử; chỉ so sánh khi cùng giao thức và điều kiện.",
     },
     create: {
-      name: "Battery endurance",
+      name: "Thời lượng pin đo được",
       slug: "battery-endurance",
       benchmark_type: "battery",
       target_type: "device_variant",
@@ -3230,7 +6528,55 @@ async function main() {
       higher_is_better: true,
       unit_id: hourUnit.id,
       description:
-        "Observed or laboratory-reported runtime. Results are comparable only when protocol and conditions match.",
+        "Thời lượng quan sát hoặc đo trong phòng thử; chỉ so sánh khi cùng giao thức và điều kiện.",
+    },
+  });
+  const manufacturerEnduranceReference = await prisma.benchmarks.upsert({
+    where: { slug: "manufacturer-endurance-reference" },
+    update: {
+      name: "Thời lượng pin · tham chiếu hãng",
+      benchmark_type: "battery",
+      target_type: "device_variant",
+      version: "claim-2026.07",
+      higher_is_better: true,
+      unit_id: hourUnit.id,
+      description:
+        "Thời lượng pin do nhà sản xuất công bố theo giao thức riêng; chỉ dùng làm tham chiếu và không thay thế phép đo độc lập.",
+    },
+    create: {
+      name: "Thời lượng pin · tham chiếu hãng",
+      slug: "manufacturer-endurance-reference",
+      benchmark_type: "battery",
+      target_type: "device_variant",
+      version: "claim-2026.07",
+      higher_is_better: true,
+      unit_id: hourUnit.id,
+      description:
+        "Thời lượng pin do nhà sản xuất công bố theo giao thức riêng; chỉ dùng làm tham chiếu và không thay thế phép đo độc lập.",
+    },
+  });
+  const tvInputLagReference = await prisma.benchmarks.upsert({
+    where: { slug: "tv-input-lag-4k-120-reference" },
+    update: {
+      name: "Độ trễ đầu vào TV · tham chiếu 4K 120 Hz",
+      benchmark_type: "latency",
+      target_type: "device_variant",
+      version: "2026.07",
+      higher_is_better: false,
+      unit_id: millisecondUnit.id,
+      description:
+        "Độ trễ đầu vào tham chiếu ở tín hiệu 4K 120 Hz; giá trị thấp hơn tốt hơn.",
+    },
+    create: {
+      name: "Độ trễ đầu vào TV · tham chiếu 4K 120 Hz",
+      slug: "tv-input-lag-4k-120-reference",
+      benchmark_type: "latency",
+      target_type: "device_variant",
+      version: "2026.07",
+      higher_is_better: false,
+      unit_id: millisecondUnit.id,
+      description:
+        "Độ trễ đầu vào tham chiếu ở tín hiệu 4K 120 Hz; giá trị thấp hơn tốt hơn.",
     },
   });
 
@@ -3328,6 +6674,45 @@ async function main() {
     }
   }
 
+  const lenovoTabExtremeVariant = await prisma.device_variants.findFirst({
+    where: {
+      deleted_at: null,
+      device_model: { slug: "lenovo-tab-extreme" },
+    },
+    orderBy: [{ is_default: "desc" }, { launch_date: "asc" }],
+  });
+  if (lenovoTabExtremeVariant) {
+    const citation = await upsertCitation({
+      source_id: geekbenchBrowser.id,
+      url: "https://browser.geekbench.com/v6/compute/5250145",
+      title: "LENOVO TB570FU - Geekbench 6 GPU OpenCL",
+      author: "Geekbench Browser",
+      published_at: new Date("2025-11-22T05:02:00Z"),
+      retrieved_at: new Date(),
+      excerpt:
+        "Geekbench 6.5.0 OpenCL result for LENOVO TB570FU on Android 15: 4100 points.",
+    });
+    const run = await upsertBenchmarkRun({
+      benchmark_id: geekbenchGpuOpenCl.id,
+      source_id: geekbenchBrowser.id,
+      citation_id: citation.id,
+      test_environment_note:
+        "LENOVO TB570FU, Android 15, Mali-G710 MC10, 10 compute units at up to 848 MHz and 11.41 GB system memory.",
+      os_version: "Android 15",
+      app_version: "Geekbench 6.5.0",
+      power_mode: "not documented",
+    });
+    await upsertDeviceBenchmark({
+      benchmark_run_id: run.id,
+      benchmark_id: geekbenchGpuOpenCl.id,
+      device_variant_id: lenovoTabExtremeVariant.id,
+      score: 4100,
+      subscore_name: "opencl",
+      source_id: geekbenchBrowser.id,
+      tested_at: new Date("2025-11-22T05:02:00Z"),
+    });
+  }
+
   const watchCitation = await upsertCitation({
     source_id: dcRainmaker.id,
     url: "https://www.dcrainmaker.com/2024/08/samsung-galaxy-reviewaccuracy.html",
@@ -3384,6 +6769,309 @@ async function main() {
     subscore_name: "anc_listening_runtime",
     source_id: appleSupport.id,
   });
+
+  // Mọi thiết bị đều có ít nhất một phép đo trực tiếp hoặc điểm tham chiếu có
+  // nguồn. Điểm tham chiếu chipset được seed cho cả thiết bị đã có benchmark
+  // gốc để luôn tồn tại một phép đo chung khi so sánh chéo danh mục.
+  const benchmarkCoverageVariants = await prisma.device_variants.findMany({
+    where: { deleted_at: null, device_model: { deleted_at: null } },
+    select: {
+      id: true,
+      device_model_id: true,
+      variant_name: true,
+      device_model: {
+        select: {
+          name: true,
+          slug: true,
+          product_family: {
+            select: {
+              device_category: { select: { slug: true } },
+            },
+          },
+        },
+      },
+      variant_chipsets: {
+        select: {
+          is_primary: true,
+          chipset: { select: { name: true, slug: true } },
+        },
+      },
+    },
+  });
+
+  const chipsetByModel = new Map<string, { name: string; slug: string }>();
+  for (const variant of benchmarkCoverageVariants) {
+    const link =
+      variant.variant_chipsets.find((item) => item.is_primary) ??
+      variant.variant_chipsets[0];
+    if (link && !chipsetByModel.has(variant.device_model_id)) {
+      chipsetByModel.set(variant.device_model_id, link.chipset);
+    }
+  }
+
+  const cpuReferenceCategories = new Set([
+    "smartphone",
+    "tablet",
+    "laptop",
+    "gaming-handheld",
+  ]);
+  const cpuReferenceRuns = new Map<string, string>();
+  const uncoveredCpuReferences: string[] = [];
+  let cpuReferenceResultCount = 0;
+
+  for (const variant of benchmarkCoverageVariants) {
+    const categorySlug =
+      variant.device_model.product_family.device_category.slug;
+    if (!cpuReferenceCategories.has(categorySlug)) continue;
+
+    const ownChipset =
+      variant.variant_chipsets.find((item) => item.is_primary)?.chipset ??
+      variant.variant_chipsets[0]?.chipset;
+    const chipset = ownChipset ?? chipsetByModel.get(variant.device_model_id);
+    const reference = chipset
+      ? CPU_BENCHMARK_REFERENCES[chipset.slug]
+      : undefined;
+    if (!chipset || !reference) {
+      uncoveredCpuReferences.push(
+        `${variant.device_model.slug} (${chipset?.slug ?? "không có chipset"})`,
+      );
+      continue;
+    }
+
+    let runId = cpuReferenceRuns.get(chipset.slug);
+    if (!runId) {
+      const searchTerm = reference.searchTerm ?? chipset.name;
+      const citation = await upsertCitation({
+        source_id: geekbenchBrowser.id,
+        url: `https://browser.geekbench.com/v6/cpu/search?q=${encodeURIComponent(searchTerm)}`,
+        title: `Kết quả Geekbench công khai cho ${chipset.name}`,
+        retrieved_at: new Date(),
+        excerpt:
+          `Mức tham chiếu chipset được làm tròn từ kết quả công khai: ` +
+          `${reference.singleCore} điểm đơn nhân và ${reference.multiCore} điểm đa nhân.`,
+      });
+      const run = await upsertBenchmarkRun({
+        benchmark_id: geekbenchCpuChipsetReference.id,
+        source_id: geekbenchBrowser.id,
+        citation_id: citation.id,
+        test_environment_note:
+          `Điểm tham chiếu đại diện cho ${chipset.name}, tổng hợp và làm tròn từ kết quả công khai. ` +
+          "Không phải phép đo trực tiếp trên biến thể thiết bị; hiệu năng thực tế có thể thay đổi theo tản nhiệt, bộ nhớ, hệ điều hành và chế độ nguồn.",
+        os_version: "nhiều phiên bản",
+        app_version: "Geekbench 6 · kết quả công khai",
+        power_mode: "tham chiếu hỗn hợp",
+      });
+      runId = run.id;
+      cpuReferenceRuns.set(chipset.slug, run.id);
+    }
+
+    for (const result of [
+      { subscore_name: "single_core", score: reference.singleCore },
+      { subscore_name: "multi_core", score: reference.multiCore },
+    ]) {
+      await upsertDeviceBenchmark({
+        benchmark_run_id: runId,
+        benchmark_id: geekbenchCpuChipsetReference.id,
+        device_variant_id: variant.id,
+        score: result.score,
+        subscore_name: result.subscore_name,
+        source_id: geekbenchBrowser.id,
+      });
+      cpuReferenceResultCount += 1;
+    }
+  }
+
+  if (uncoveredCpuReferences.length) {
+    throw new Error(
+      `Thiếu điểm Geekbench tham chiếu cho: ${[
+        ...new Set(uncoveredCpuReferences),
+      ].join(", ")}`,
+    );
+  }
+
+  let enduranceReferenceResultCount = 0;
+  for (const [modelSlug, reference] of Object.entries(
+    ENDURANCE_BENCHMARK_REFERENCES,
+  )) {
+    const variants = benchmarkCoverageVariants.filter(
+      (variant) => variant.device_model.slug === modelSlug,
+    );
+    if (!variants.length) {
+      if (isCuratedCatalogSeed) continue;
+      throw new Error(`Không tìm thấy thiết bị pin tham chiếu: ${modelSlug}`);
+    }
+    const citation = await upsertCitation({
+      source_id: manufacturerProductSpecs.id,
+      url: reference.url,
+      title: `Thời lượng pin tham chiếu — ${variants[0]!.device_model.name}`,
+      retrieved_at: new Date(),
+      excerpt: `${reference.protocol} Giá trị quy đổi: ${reference.hours} giờ.`,
+    });
+    const run = await upsertBenchmarkRun({
+      benchmark_id: manufacturerEnduranceReference.id,
+      source_id: manufacturerProductSpecs.id,
+      citation_id: citation.id,
+      test_environment_note:
+        `${reference.protocol} Đây là dữ liệu tham chiếu theo giao thức riêng của hãng, ` +
+        "không phải phép đo chuẩn hóa chéo giữa các nhà sản xuất.",
+      app_version: "giao thức công bố của hãng",
+      power_mode: "theo công bố",
+    });
+
+    for (const variant of variants) {
+      await upsertDeviceBenchmark({
+        benchmark_run_id: run.id,
+        benchmark_id: manufacturerEnduranceReference.id,
+        device_variant_id: variant.id,
+        score: reference.hours,
+        subscore_name: "claimed_runtime",
+        source_id: manufacturerProductSpecs.id,
+      });
+      enduranceReferenceResultCount += 1;
+    }
+  }
+
+  let inputLagReferenceResultCount = 0;
+  for (const [modelSlug, reference] of Object.entries(
+    TV_INPUT_LAG_BENCHMARK_REFERENCES,
+  )) {
+    const variants = benchmarkCoverageVariants.filter(
+      (variant) => variant.device_model.slug === modelSlug,
+    );
+    if (!variants.length) {
+      if (isCuratedCatalogSeed) continue;
+      throw new Error(`Không tìm thấy TV tham chiếu: ${modelSlug}`);
+    }
+    const citation = await upsertCitation({
+      source_id: rtingsSource.id,
+      url: reference.url,
+      title: `Độ trễ đầu vào — ${variants[0]!.device_model.name}`,
+      retrieved_at: new Date(),
+      excerpt: `${reference.protocol} Kết quả tham chiếu: ${reference.milliseconds} ms.`,
+    });
+    const run = await upsertBenchmarkRun({
+      benchmark_id: tvInputLagReference.id,
+      source_id: rtingsSource.id,
+      citation_id: citation.id,
+      test_environment_note: reference.protocol,
+      app_version: "giao thức thử TV của RTINGS",
+      power_mode: "chế độ trò chơi",
+    });
+
+    for (const variant of variants) {
+      await upsertDeviceBenchmark({
+        benchmark_run_id: run.id,
+        benchmark_id: tvInputLagReference.id,
+        device_variant_id: variant.id,
+        score: reference.milliseconds,
+        subscore_name: "input_lag_4k_120hz",
+        source_id: rtingsSource.id,
+      });
+      inputLagReferenceResultCount += 1;
+    }
+  }
+
+  const variantsNeedingConfigurationReference =
+    await prisma.device_variants.findMany({
+      where: {
+        deleted_at: null,
+        device_model: { deleted_at: null },
+        device_variant_benchmarks: { none: {} },
+      },
+      select: { id: true },
+    });
+  let configurationReferenceResultCount = 0;
+  if (variantsNeedingConfigurationReference.length) {
+    const configurationCitation = await upsertCitation({
+      source_id: specHubConfigurationSource.id,
+      url: "urn:spechub:catalog-configuration-coverage-reference:v1",
+      title: "Phương pháp xác nhận độ phủ cấu hình SpecHub",
+      author: "SpecHub",
+      retrieved_at: new Date(),
+      excerpt:
+        "Điểm 100 xác nhận variant có hồ sơ module seed để chấm điểm theo danh mục; không đại diện cho hiệu năng hay chất lượng sản phẩm.",
+    });
+    const configurationRun = await upsertBenchmarkRun({
+      benchmark_id: catalogConfigurationReference.id,
+      source_id: specHubConfigurationSource.id,
+      citation_id: configurationCitation.id,
+      test_environment_note:
+        "Kiểm tra sự hiện diện của hồ sơ module chuẩn hóa. Không chạy workload trên thiết bị.",
+      app_version: "catalog-profile-v1",
+      power_mode: "không áp dụng",
+    });
+
+    for (const variant of variantsNeedingConfigurationReference) {
+      await upsertDeviceBenchmark({
+        benchmark_run_id: configurationRun.id,
+        benchmark_id: catalogConfigurationReference.id,
+        device_variant_id: variant.id,
+        score: 100,
+        subscore_name: "module_profile_coverage",
+        source_id: specHubConfigurationSource.id,
+      });
+      configurationReferenceResultCount += 1;
+    }
+  }
+
+  const variantsWithoutBenchmark = await prisma.device_variants.findMany({
+    where: {
+      deleted_at: null,
+      device_model: { deleted_at: null },
+      device_variant_benchmarks: { none: {} },
+    },
+    select: {
+      variant_name: true,
+      device_model: { select: { name: true, slug: true } },
+    },
+  });
+  if (variantsWithoutBenchmark.length) {
+    throw new Error(
+      `Vẫn còn thiết bị chưa có benchmark: ${variantsWithoutBenchmark
+        .map(
+          (variant) => `${variant.device_model.slug}/${variant.variant_name}`,
+        )
+        .join(", ")}`,
+    );
+  }
+
+  console.log(
+    `  ✓ Benchmark coverage: ${cpuReferenceResultCount} CPU, ` +
+      `${enduranceReferenceResultCount} pin, ` +
+      `${inputLagReferenceResultCount} độ trễ, ` +
+      `${configurationReferenceResultCount} mốc độ phủ cấu hình`,
+  );
+
+  console.log("🧮 Calculating category-aware scorecards...");
+  const { scorecardCount, moduleScoreCount } =
+    await seedVariantScorecards(prisma);
+  console.log(
+    `  ✓ ${scorecardCount} scorecards, ${moduleScoreCount} module scores`,
+  );
+
+  if (!isCuratedCatalogSeed) {
+    const expansionVariantsWithScores = await prisma.device_variants.count({
+      where: {
+        deleted_at: null,
+        is_default: true,
+        device_model: {
+          deleted_at: null,
+          slug: {
+            in: CATALOG_EXPANSION_100_DEVICES.map((device) => device.modelSlug),
+          },
+        },
+        variant_module_scores: { some: {} },
+        variant_scorecards: {
+          some: { module_scores: { some: {} } },
+        },
+      },
+    });
+    if (expansionVariantsWithScores !== 100) {
+      throw new Error(
+        `Catalog expansion score coverage is ${expansionVariantsWithScores}/100.`,
+      );
+    }
+  }
 
   const gsmarenaSource = await prisma.data_sources.findUnique({
     where: { slug: "gsmarena" },
@@ -3469,7 +7157,51 @@ async function main() {
   // ========================================================
   console.log("🛒 [12/14] Seeding Phase 3 affiliate links...");
 
-  const amazon = await prisma.affiliate_partners.upsert({
+  await prisma.affiliate_partners.upsert({
+    where: { slug: "cellphones" },
+    update: {
+      name: "CellphoneS",
+      base_url: "https://cellphones.com.vn",
+      description:
+        "Hệ thống bán lẻ thiết bị công nghệ chính hãng tại Việt Nam.",
+      is_trusted: true,
+      is_active: true,
+      display_order: 10,
+    },
+    create: {
+      name: "CellphoneS",
+      slug: "cellphones",
+      base_url: "https://cellphones.com.vn",
+      description:
+        "Hệ thống bán lẻ thiết bị công nghệ chính hãng tại Việt Nam.",
+      commission_rate: 0,
+      is_trusted: true,
+      display_order: 10,
+    },
+  });
+
+  await prisma.affiliate_partners.upsert({
+    where: { slug: "fpt-shop" },
+    update: {
+      name: "FPT Shop",
+      base_url: "https://fptshop.com.vn",
+      description: "Hệ thống bán lẻ công nghệ thuộc FPT Retail.",
+      is_trusted: true,
+      is_active: true,
+      display_order: 20,
+    },
+    create: {
+      name: "FPT Shop",
+      slug: "fpt-shop",
+      base_url: "https://fptshop.com.vn",
+      description: "Hệ thống bán lẻ công nghệ thuộc FPT Retail.",
+      commission_rate: 0,
+      is_trusted: true,
+      display_order: 20,
+    },
+  });
+
+  await prisma.affiliate_partners.upsert({
     where: { slug: "amazon" },
     update: {},
     create: {
@@ -3480,7 +7212,7 @@ async function main() {
     },
   });
 
-  const bestBuy = await prisma.affiliate_partners.upsert({
+  await prisma.affiliate_partners.upsert({
     where: { slug: "best-buy" },
     update: {},
     create: {
@@ -3491,86 +7223,25 @@ async function main() {
     },
   });
 
-  const affiliateSeeds = [
-    {
-      partner_id: amazon.id,
-      device_variant_id: iphone16Pro256.id,
-      region_code: "US",
-      product_url: "https://www.amazon.com/spechub/iphone-16-pro-256",
-      current_price: 1049,
-      currency_code: "USD",
-    },
-    {
-      partner_id: bestBuy.id,
-      device_variant_id: galaxyS25Ultra256.id,
-      region_code: "US",
-      product_url: "https://www.bestbuy.com/spechub/galaxy-s25-ultra-256",
-      current_price: 1249,
-      currency_code: "USD",
-    },
-    {
-      partner_id: amazon.id,
-      device_variant_id: pixel9Pro128.id,
-      region_code: "US",
-      product_url: "https://www.amazon.com/spechub/pixel-9-pro-128",
-      current_price: 899,
-      currency_code: "USD",
-    },
-    {
-      partner_id: bestBuy.id,
-      device_variant_id: xiaomi14Ultra512.id,
-      region_code: "US",
-      product_url: "https://www.bestbuy.com/spechub/xiaomi-14-ultra-512",
-      current_price: 1399,
-      currency_code: "USD",
-    },
-  ];
-
-  for (const seed of affiliateSeeds) {
-    const existing = await prisma.affiliate_links.findFirst({
-      where: {
-        partner_id: seed.partner_id,
-        device_variant_id: seed.device_variant_id,
-        region_code: seed.region_code,
+  await prisma.affiliate_links.updateMany({
+    where: {
+      product_url: {
+        in: [
+          "https://www.amazon.com/spechub/iphone-16-pro-256",
+          "https://www.amazon.com/spechub/pixel-9-pro-128",
+          "https://www.bestbuy.com/spechub/galaxy-s25-ultra-256",
+          "https://www.bestbuy.com/spechub/xiaomi-14-ultra-512",
+        ],
       },
-    });
-
-    const link = existing
-      ? await prisma.affiliate_links.update({
-          where: { id: existing.id },
-          data: {
-            product_url: seed.product_url,
-            current_price: seed.current_price,
-            currency_code: seed.currency_code,
-            in_stock: true,
-            last_checked_at: new Date(),
-          },
-        })
-      : await prisma.affiliate_links.create({
-          data: {
-            ...seed,
-            in_stock: true,
-          },
-        });
-
-    const existingHistory = await prisma.affiliate_price_history.findFirst({
-      where: {
-        affiliate_link_id: link.id,
-        price: seed.current_price,
-        currency_code: seed.currency_code,
-      },
-    });
-
-    if (!existingHistory) {
-      await prisma.affiliate_price_history.create({
-        data: {
-          affiliate_link_id: link.id,
-          price: seed.current_price,
-          currency_code: seed.currency_code,
-        },
-      });
-    }
-  }
+    },
+    data: {
+      in_stock: false,
+      sync_status: "unavailable",
+      sync_error: "Liên kết mẫu không trỏ tới trang sản phẩm thật.",
+      availability_label: "Liên kết đã hết hiệu lực",
+      last_checked_at: new Date(),
+    },
+  });
 
   // ========================================================
   // 13. ADMIN USER
@@ -3608,6 +7279,9 @@ async function main() {
       is_active: true,
     },
   });
+
+  console.log("📚 Seeding Vietnamese Wiki guides...");
+  const wikiArticleCount = await seedWikiContent(prisma);
 
   // ========================================================
   // 14. SUBSCRIPTION PLANS
@@ -3677,6 +7351,32 @@ async function main() {
     },
   });
 
+  console.log("🖼️  Linking verified product images and official videos...");
+  const mediaResult = await seedCatalogMedia();
+  console.log(
+    `  ✓ ${mediaResult.imageCount} product images and ${mediaResult.videoCount} official videos linked`,
+  );
+
+  console.log(
+    "🧩 Linking verified chipset images and their official sources...",
+  );
+  for (const image of catalogImageSources.hardware) {
+    if (image.kind !== "chipset") continue;
+    const result = await prisma.chipsets.updateMany({
+      where: { slug: image.slug },
+      data: {
+        image_url: `/images/hardware/${image.slug}.webp`,
+        image_source_url: image.sourcePage,
+      },
+    });
+    if (result.count !== 1) {
+      if (isCuratedCatalogSeed && result.count === 0) continue;
+      throw new Error(
+        `Expected one chipset for image ${image.slug}, updated ${result.count}.`,
+      );
+    }
+  }
+
   // ========================================================
   // SUMMARY
   // ========================================================
@@ -3699,6 +7399,12 @@ async function main() {
   console.log(
     `  - Device variants:    ${await prisma.device_variants.count()}`,
   );
+  console.log(
+    `  - Scorecards:         ${await prisma.variant_scorecards.count()}`,
+  );
+  console.log(
+    `  - Scorecard modules:  ${await prisma.variant_scorecard_modules.count()}`,
+  );
   console.log(`  - Chipsets:           ${await prisma.chipsets.count()}`);
   console.log(`  - CPUs:               ${await prisma.cpus.count()}`);
   console.log(`  - GPUs:               ${await prisma.gpus.count()}`);
@@ -3712,13 +7418,6 @@ async function main() {
   );
   console.log(
     `  - Operating systems:  ${await prisma.operating_systems.count()}`,
-  );
-  console.log(
-    `  - Wireless standards: ${await prisma.wireless_standards.count()}`,
-  );
-  console.log(`  - Port standards:     ${await prisma.port_standards.count()}`);
-  console.log(
-    `  - Hardware sensors:   ${await prisma.hardware_sensors.count()}`,
   );
   console.log(`  - Variant CPU links:  ${await prisma.variant_cpus.count()}`);
   console.log(
@@ -3736,6 +7435,8 @@ async function main() {
   console.log(
     `  - Benchmark results: ${await prisma.device_variant_benchmarks.count()}`,
   );
+  console.log(`  - Module scores:      ${variantModuleScoreCount}`);
+  console.log(`  - Wiki articles:      ${wikiArticleCount}`);
   console.log(`  - Users:              ${await prisma.users.count()}`);
   console.log(
     `  - Subscription plans: ${await prisma.subscription_plans.count()}`,

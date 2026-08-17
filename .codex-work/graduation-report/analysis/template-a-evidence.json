@@ -1,0 +1,2086 @@
+{
+  "reference": "/Users/macm1/Project/spechub/.codex-work/graduation-report/templates/baocaodoantotnghiep.docx",
+  "sha256": "b06edd31ed22c0521f238882970f1d31da2e7a727cb73a796c81ec3e98640a9a",
+  "size_bytes": 21066227,
+  "page_count": 110,
+  "section_count": 6,
+  "paragraph_count": 940,
+  "table_count": 3,
+  "inline_shape_count": 65,
+  "section_geometry": [
+    {
+      "index": 1,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4917,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    },
+    {
+      "index": 2,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4917,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    },
+    {
+      "index": 3,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4917,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    },
+    {
+      "index": 4,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4917,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    },
+    {
+      "index": 5,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4917,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    },
+    {
+      "index": 6,
+      "start_type": "NEW_PAGE (2)",
+      "orientation": "PORTRAIT (0)",
+      "page_width_in": 8.2681,
+      "page_height_in": 11.6931,
+      "top_margin_in": 1.0,
+      "bottom_margin_in": 1.0,
+      "left_margin_in": 1.0,
+      "right_margin_in": 1.0,
+      "header_distance_in": 0.4924,
+      "footer_distance_in": 0.4917,
+      "different_first_page_header_footer": false
+    }
+  ],
+  "style_counts": {
+    "Normal": 704,
+    "Hình Ảnh": 66,
+    "toc 1": 60,
+    "List Paragraph": 45,
+    "Heading 3": 36,
+    "Heading 2": 19,
+    "Heading 1": 9,
+    "Caption": 1
+  },
+  "styles": {
+    "Normal": {
+      "name": "Normal",
+      "type": "PARAGRAPH (1)",
+      "base_style": null,
+      "font": {
+        "name": "Times New Roman",
+        "ascii": "Times New Roman",
+        "east_asia": "Times New Roman",
+        "size_pt": null,
+        "bold": null,
+        "italic": null,
+        "color": null
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": 0.0,
+        "line_spacing": "1.0",
+        "line_spacing_rule": "SINGLE (0)",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": null,
+        "keep_together": null,
+        "page_break_before": null
+      }
+    },
+    "Title": {
+      "name": "Title",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 28.0,
+        "bold": null,
+        "italic": null,
+        "color": null
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": 4.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": null,
+        "keep_together": null,
+        "page_break_before": null
+      }
+    },
+    "Subtitle": {
+      "name": "Subtitle",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 14.0,
+        "bold": null,
+        "italic": null,
+        "color": "595959"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": null,
+        "keep_together": null,
+        "page_break_before": null
+      }
+    },
+    "Heading 1": {
+      "name": "Heading 1",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 20.0,
+        "bold": null,
+        "italic": null,
+        "color": "0F4761"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": 18.0,
+        "space_after_pt": 4.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": true,
+        "keep_together": true,
+        "page_break_before": null
+      }
+    },
+    "Heading 2": {
+      "name": "Heading 2",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 16.0,
+        "bold": null,
+        "italic": null,
+        "color": "0F4761"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": 8.0,
+        "space_after_pt": 4.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": true,
+        "keep_together": true,
+        "page_break_before": null
+      }
+    },
+    "Heading 3": {
+      "name": "Heading 3",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 14.0,
+        "bold": null,
+        "italic": null,
+        "color": "0F4761"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": 8.0,
+        "space_after_pt": 4.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": true,
+        "keep_together": true,
+        "page_break_before": null
+      }
+    },
+    "Heading 4": {
+      "name": "Heading 4",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": null,
+        "bold": null,
+        "italic": true,
+        "color": "0F4761"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": 4.0,
+        "space_after_pt": 2.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": true,
+        "keep_together": true,
+        "page_break_before": null
+      }
+    },
+    "Caption": {
+      "name": "Caption",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": 9.0,
+        "bold": null,
+        "italic": true,
+        "color": "0E2841"
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": 10.0,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": null,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": null,
+        "keep_together": null,
+        "page_break_before": null
+      }
+    },
+    "List Paragraph": {
+      "name": "List Paragraph",
+      "type": "PARAGRAPH (1)",
+      "base_style": "Normal",
+      "font": {
+        "name": null,
+        "ascii": null,
+        "east_asia": null,
+        "size_pt": null,
+        "bold": null,
+        "italic": null,
+        "color": null
+      },
+      "paragraph": {
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "line_spacing_rule": "None",
+        "left_indent_in": 0.5,
+        "right_indent_in": null,
+        "first_line_indent_in": null,
+        "keep_with_next": null,
+        "keep_together": null,
+        "page_break_before": null
+      }
+    }
+  },
+  "headings": [
+    {
+      "index": 11,
+      "style": "Heading 1",
+      "text": "LỜI CAM ĐOAN"
+    },
+    {
+      "index": 28,
+      "style": "Heading 1",
+      "text": "LỜI CẢM ƠN"
+    },
+    {
+      "index": 94,
+      "style": "Heading 1",
+      "text": "MỞ ĐẦU"
+    },
+    {
+      "index": 100,
+      "style": "Heading 1",
+      "text": "CHƯƠNG 1: TỔNG QUAN ĐỀ TÀI"
+    },
+    {
+      "index": 101,
+      "style": "Heading 2",
+      "text": "1.1. Đặt vấn đề"
+    },
+    {
+      "index": 106,
+      "style": "Heading 2",
+      "text": "1.2. Mục tiêu nghiên cứu"
+    },
+    {
+      "index": 113,
+      "style": "Heading 2",
+      "text": "1.3. Đối tượng nghiên cứu"
+    },
+    {
+      "index": 123,
+      "style": "Heading 2",
+      "text": "1.4. Phạm vi nghiên cứu"
+    },
+    {
+      "index": 134,
+      "style": "Heading 2",
+      "text": "1.5. Định hướng giải pháp"
+    },
+    {
+      "index": 145,
+      "style": "Heading 2",
+      "text": "1.6. Khảo sát hiện trạng"
+    },
+    {
+      "index": 147,
+      "style": "Heading 3",
+      "text": "1.6.1. Đánh giá các mô hình phân phối tài khoản game hiện nay"
+    },
+    {
+      "index": 152,
+      "style": "Heading 3",
+      "text": "1.6.2. Phân tích các vai trò tham gia hệ thống"
+    },
+    {
+      "index": 157,
+      "style": "Heading 3",
+      "text": "1.6.3. Khảo sát quy trình nghiệp vụ lõi"
+    },
+    {
+      "index": 175,
+      "style": "Heading 3",
+      "text": "1.6.4. Tổng hợp các chức năng chính"
+    },
+    {
+      "index": 228,
+      "style": "Heading 1",
+      "text": "CHƯƠNG 2: CƠ SỞ LÝ THUYẾT"
+    },
+    {
+      "index": 229,
+      "style": "Heading 2",
+      "text": "2.1. Công nghệ sử dụng phát triển Web"
+    },
+    {
+      "index": 231,
+      "style": "Heading 3",
+      "text": "2.1.1. Ngôn ngữ lập trình PHP"
+    },
+    {
+      "index": 239,
+      "style": "Heading 3",
+      "text": "2.1.2. Framework Laravel"
+    },
+    {
+      "index": 250,
+      "style": "Heading 3",
+      "text": "2.1.3. Hệ quản trị Cơ sở dữ liệu và Môi trường phát triển XAMPP"
+    },
+    {
+      "index": 263,
+      "style": "Heading 3",
+      "text": "2.1.4. Nền tảng lưu trữ và quản lý đa phương tiện Cloudinary"
+    },
+    {
+      "index": 273,
+      "style": "Heading 3",
+      "text": "2.1.5. Thiết kế Kiến trúc Phương pháp tiếp cận RESTful API"
+    },
+    {
+      "index": 295,
+      "style": "Heading 2",
+      "text": "2.2. Trình biên dịch (IDE & Text Editor)"
+    },
+    {
+      "index": 297,
+      "style": "Heading 3",
+      "text": "2.2.1. Giới thiệu chung về Visual Studio Code"
+    },
+    {
+      "index": 300,
+      "style": "Heading 3",
+      "text": "2.2.2. Vai trò và Tiện ích của VS Code trong phát triển Đồ án"
+    },
+    {
+      "index": 313,
+      "style": "Heading 2",
+      "text": "2.3. Thiết kế kiến trúc phần mềm"
+    },
+    {
+      "index": 316,
+      "style": "Heading 3",
+      "text": "2.3.1. Tổng quan về mô hình kiến trúc MVC"
+    },
+    {
+      "index": 331,
+      "style": "Heading 3",
+      "text": "2.3.2. Mở rộng Hệ thống - Kiến trúc Phân tầng Dịch vụ (Service Layer)"
+    },
+    {
+      "index": 337,
+      "style": "Heading 3",
+      "text": "2.3.3. Module hỗ trợ: Middleware và Authentication"
+    },
+    {
+      "index": 340,
+      "style": "Heading 2",
+      "text": "2.4. Giới thiệu tổng quan về hệ thống gợi ý (Recommendation System)"
+    },
+    {
+      "index": 341,
+      "style": "Heading 3",
+      "text": "2.4.1. Tổng quan về hệ thống gợi ý sản phẩm"
+    },
+    {
+      "index": 355,
+      "style": "Heading 3",
+      "text": "2.4.2. Giới thiệu thuật toán Content-Based Filtering"
+    },
+    {
+      "index": 370,
+      "style": "Heading 3",
+      "text": "2.4.3. Giới thiệu thuật toán Collaborative Filtering"
+    },
+    {
+      "index": 389,
+      "style": "Heading 3",
+      "text": "2.4.4. Giới thiệu phương pháp phân tích hành vi thời gian thực (Real-time Behavior Weighting)"
+    },
+    {
+      "index": 416,
+      "style": "Heading 3",
+      "text": "2.4.5. Giới thiệu phương pháp gợi ý phổ biến (Popularity Fallback)"
+    },
+    {
+      "index": 432,
+      "style": "Heading 3",
+      "text": "2.4.6. Cơ sở hình thành mô hình lai (Hybrid)"
+    },
+    {
+      "index": 449,
+      "style": "Heading 1",
+      "text": "CHƯƠNG 3: PHÂN TÍCH THIẾT KẾ HỆ THỐNG"
+    },
+    {
+      "index": 450,
+      "style": "Heading 2",
+      "text": "3.1. Phân tích yêu cầu hệ thống"
+    },
+    {
+      "index": 451,
+      "style": "Heading 3",
+      "text": "3.1.1. Yêu cầu chức năng"
+    },
+    {
+      "index": 493,
+      "style": "Heading 3",
+      "text": "3.1.2. Yêu cầu phi chức năng"
+    },
+    {
+      "index": 512,
+      "style": "Heading 2",
+      "text": "3.2. Phân tích Use case"
+    },
+    {
+      "index": 513,
+      "style": "Heading 3",
+      "text": "3.2.1. Biểu đồ Use case tổng quát"
+    },
+    {
+      "index": 520,
+      "style": "Heading 3",
+      "text": "3.2.2. Biểu đồ phân rã Use case"
+    },
+    {
+      "index": 570,
+      "style": "Heading 2",
+      "text": "3.3. Thiết kế sơ đồ quy trình nghiệp vụ"
+    },
+    {
+      "index": 571,
+      "style": "Heading 3",
+      "text": "3.3.1. Quy trình nghiệp vụ đăng ký, đăng nhập"
+    },
+    {
+      "index": 582,
+      "style": "Heading 3",
+      "text": "3.3.2. Quy trình nghiệp vụ nạp tiền"
+    },
+    {
+      "index": 590,
+      "style": "Heading 3",
+      "text": "3.3.3. Quy trình mua và nhận tài khoản game"
+    },
+    {
+      "index": 597,
+      "style": "Heading 3",
+      "text": "3.3.4. Quy trình gửi yêu cầu hỗ trợ"
+    },
+    {
+      "index": 608,
+      "style": "Heading 3",
+      "text": "3.3.5. Quy trình chat với AI chatbot"
+    },
+    {
+      "index": 624,
+      "style": "Heading 3",
+      "text": "3.3.6. Quy trình huấn luyện AI gợi ý"
+    },
+    {
+      "index": 641,
+      "style": "Heading 2",
+      "text": "3.4. Thiết kế cơ sở dữ liệu"
+    },
+    {
+      "index": 663,
+      "style": "Heading 1",
+      "text": "CHƯƠNG 4: PHÁT TRIỂN SẢN PHẨM"
+    },
+    {
+      "index": 664,
+      "style": "Heading 2",
+      "text": "4.1. Xây dựng ứng dụng"
+    },
+    {
+      "index": 666,
+      "style": "Heading 3",
+      "text": "4.1.1. Môi trường Phát triển"
+    },
+    {
+      "index": 670,
+      "style": "Heading 3",
+      "text": "4.1.2. Nền tảng Kiến trúc (MVC & Laravel Framework)"
+    },
+    {
+      "index": 674,
+      "style": "Heading 3",
+      "text": "4.1.3. Cơ sở Dữ liệu & Lưu trữ Đám mây (MySQL & Cloudinary)"
+    },
+    {
+      "index": 678,
+      "style": "Heading 3",
+      "text": "4.1.4. Lõi Trí tuệ - Hệ thống Gợi ý (AI Recommendation System)"
+    },
+    {
+      "index": 683,
+      "style": "Heading 2",
+      "text": "4.2. Tích hợp hệ thống AI gợi ý sản phẩm vào ứng dụng"
+    },
+    {
+      "index": 688,
+      "style": "Heading 3",
+      "text": "4.2.1. Thu thập và chuẩn bị dữ liệu"
+    },
+    {
+      "index": 711,
+      "style": "Heading 3",
+      "text": "4.2.2. Xây dựng mô hình gợi ý"
+    },
+    {
+      "index": 747,
+      "style": "Heading 2",
+      "text": "4.3. Kết quả triển khai"
+    },
+    {
+      "index": 897,
+      "style": "Heading 1",
+      "text": "KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN"
+    },
+    {
+      "index": 899,
+      "style": "Heading 2",
+      "text": "1. Kết luận"
+    },
+    {
+      "index": 907,
+      "style": "Heading 2",
+      "text": "2. Hướng phát triển trong tương lai"
+    },
+    {
+      "index": 917,
+      "style": "Heading 1",
+      "text": "DANH MỤC THAM KHẢO"
+    }
+  ],
+  "samples_by_style": {
+    "Normal": [
+      {
+        "style": "Normal",
+        "text": "TÓM TẮT",
+        "alignment": "CENTER (1)",
+        "space_before_pt": null,
+        "space_after_pt": 8.0,
+        "line_spacing": "1.1583333333333334",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "TÓM TẮT",
+            "font": null,
+            "size_pt": 15.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Normal",
+        "text": "Đồ án tập trung vào việc xây dựng website GameTech đa dịch vụ giúp người dùng thuê tài khoản game, xem tin tức công nghệ, đồng thời có thể kết nối với nhau để giao lưu chơi cùng nhau, chia sẻ các bài viết về game và chatbot tương tác với ng",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": 0.5,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Đồ án tập trung vào việc xây dựng website GameTech đa dịch vụ giúp người dùng thuê tài khoản game, xem tin tức công nghệ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "- ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "lựa chọn sản phẩm cho người dùng trong bối cảnh số lượng game ngày càng lớn. Hệ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "thống được phát",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Normal",
+        "text": "Điểm nổi bật của đồ án là việc tích hợp hệ thống gợi ý sản phẩm thông minh dựa trên Trí tuệ nhân tạo (AI). Hệ thống tận dụng dữ liệu tương tác của người dùng (xem sản phẩm, thêm giỏ hàng, mua, đánh giá…) để xây dựng hồ sơ hành vi, từ đó đề ",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": 0.5,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Điểm nổi bật của đồ án",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " là việc tích hợp ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "hệ thống gợi ý sản phẩm thông minh dựa trên Trí tuệ nhân tạo (AI)",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": ". Hệ thống tận dụng dữ liệu tương tác của người dùng (xem sản phẩm, thêm giỏ hàng, mua, đánh giá…) để xây dựng hồ sơ hàn",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Normal",
+        "text": "Về mặt công nghệ, dự án sử dụng ngôn ngữ PHP với framework Laravel, kết hợp cơ sở dữ liệu quan hệ, các bảng ghi nhận tương tác và đánh giá để huấn luyện mô hình gợi ý, đồng thời tích hợp cổng thanh toán VNPAY cho chức năng nạp tiền và thanh",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": 0.5,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Về",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "mặt",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "công nghệ, dự",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ],
+    "Heading 1": [
+      {
+        "style": "Heading 1",
+        "text": "LỜI CAM ĐOAN",
+        "alignment": "CENTER (1)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "LỜI CAM ĐOAN",
+            "font": null,
+            "size_pt": 15.0,
+            "bold": true,
+            "italic": null,
+            "color": "000000"
+          }
+        ]
+      },
+      {
+        "style": "Heading 1",
+        "text": "LỜI CẢM ƠN",
+        "alignment": "CENTER (1)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "LỜI CẢM ƠN",
+            "font": null,
+            "size_pt": 15.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 1",
+        "text": "MỞ ĐẦU",
+        "alignment": "CENTER (1)",
+        "space_before_pt": 0.0,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "MỞ ĐẦU",
+            "font": null,
+            "size_pt": 15.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 1",
+        "text": "CHƯƠNG 1: TỔNG QUAN ĐỀ TÀI",
+        "alignment": "CENTER (1)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "CHƯƠNG 1: TỔNG QUAN ĐỀ TÀI",
+            "font": null,
+            "size_pt": 15.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ],
+    "toc 1": [
+      {
+        "style": "toc 1",
+        "text": "DANH MỤC HÌNH ẢNH",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "DANH MỤC HÌNH ẢNH",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "toc 1",
+        "text": "Hình 2. 1: Phương thức RESful API\t19",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": false,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": false,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": false,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "toc 1",
+        "text": "Hình 2. 2: Mô hình MVC\t23",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": []
+      },
+      {
+        "style": "toc 1",
+        "text": "Hình 2. 3: Các thành phần trong mô hình MVC\t24",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": []
+      }
+    ],
+    "Heading 2": [
+      {
+        "style": "Heading 2",
+        "text": "1.1. Đặt vấn đề ",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.1.",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "Đặt vấn đề",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 2",
+        "text": "1.2. Mục tiêu nghiên cứu",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.2.",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "Mục tiêu nghiên cứu",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 2",
+        "text": "1.3. Đối tượng nghiên cứu",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.3. Đối tượng nghiên cứu",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 2",
+        "text": "1.4. Phạm vi nghiên cứu",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.4. Phạm vi nghiên cứu",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ],
+    "List Paragraph": [
+      {
+        "style": "List Paragraph",
+        "text": "Khách hàng: Đối tượng trọng tâm trải nghiệm các dịch vụ đa diện: tìm kiếm, thêm vào giỏ hàng, nạp tiền ví điện tử và mua tựa game bản quyền. Đây cũng là nhóm người theo dõi tin tức công nghệ, tham gia thảo luận trên mạng xã hội thu nhỏ, đán",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Khách hàng: Đối tượng trọng tâm trải nghiệm các dịch vụ đa diện: tìm kiếm, thêm vào giỏ hàng, nạp tiền ví điện tử và mua",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": ".",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "List Paragraph",
+        "text": "Đối với Người mua:",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Đối với Người ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": "000000"
+          },
+          {
+            "text": "m",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": "000000"
+          },
+          {
+            "text": "ua:",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": "000000"
+          }
+        ]
+      },
+      {
+        "style": "List Paragraph",
+        "text": "JIT Compiler (Biên dịch Just-In-Time): PHP 8.0 ra mắt trình biên dịch JIT, cho phép dịch mã trực tiếp thành mã máy và lưu trên cache. Đây là yếu tố sống còn giúp hệ thống tự thực thi thuật toán AI (Hybrid Recommendation System) ngay bằng PH",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "JIT Compiler (Biên dịch Just-In-Time):",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " PHP 8.0 ra mắt trình biên dịch JIT, cho phép dịch mã trực tiếp thành mã máy và lưu trên cache. Đây là yếu tố sống còn g",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "[",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "4",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "]",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "List Paragraph",
+        "text": "Lập trình hướng đối tượng toàn diện: Hệ thống quản lý các thực thể đặc thù như User (phân quyền Admin/Buyer/Editor), kho Steam ẩn và đơn hàng thông qua tính kế thừa, đa hình và Traits. Việc tách biệt các khối nghiệp vụ giúp mã nguồn có tính",
+        "alignment": "JUSTIFY (3)",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Lập trình ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "h",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "ướng đối tượng toàn diện:",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": " Hệ thống quản lý các thực thể đặc thù như User (phân quyền Admin/Buyer/Editor), kho Steam ẩn và đơn hàng ",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "thông qua tính kế thừa, đa hình và Traits. Việc tách biệt các khối nghiệp vụ giúp mã nguồn có tính tái sử dụng cao, dễ d",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ],
+    "Heading 3": [
+      {
+        "style": "Heading 3",
+        "text": "1.6.1. Đánh giá các mô hình phân phối tài khoản game hiện nay",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.6.1. Đánh giá các mô hình phân phối tài khoản game hiện nay",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 3",
+        "text": "1.6.2. Phân tích các vai trò tham gia hệ thống",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.6.2. Phân tích các vai trò tham gia hệ thống",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 3",
+        "text": "1.6.3. Khảo sát quy trình nghiệp vụ lõi",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.6.3. Khảo sát quy trình nghiệp vụ lõi",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Heading 3",
+        "text": "1.6.4. Tổng hợp các chức năng chính",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "1.5",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "1.6.4. Tổng hợp các chức năng chính",
+            "font": null,
+            "size_pt": 13.0,
+            "bold": true,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ],
+    "Hình Ảnh": [
+      {
+        "style": "Hình Ảnh",
+        "text": "Hình 2. 1: Phương thức RESful API",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Hình 2. ",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "1",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Hình Ảnh",
+        "text": "Hình 2. 2: Mô hình MVC",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Hình 2. ",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "2",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Hình Ảnh",
+        "text": "Hình 2. 3: Các thành phần trong mô hình MVC",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Hình 2. ",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "3",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      },
+      {
+        "style": "Hình Ảnh",
+        "text": "Hình 2. 4: Content-Based Filtering",
+        "alignment": "None",
+        "space_before_pt": null,
+        "space_after_pt": null,
+        "line_spacing": "None",
+        "first_line_indent_in": null,
+        "left_indent_in": null,
+        "runs": [
+          {
+            "text": "Hình 2. ",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "4",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          },
+          {
+            "text": "",
+            "font": null,
+            "size_pt": null,
+            "bold": null,
+            "italic": null,
+            "color": null
+          }
+        ]
+      }
+    ]
+  },
+  "package_parts": [
+    {
+      "path": "[Content_Types].xml",
+      "size": 2762,
+      "sha256": "dcd48b7331005293c9239e487564dbfd0d1963b14ac7576633b7c3d236e6541e"
+    },
+    {
+      "path": "_rels/.rels",
+      "size": 590,
+      "sha256": "e19238d7a71fa7a2490776252686f70e2de6238c87cd509b5e3a3cc07c2ea4df"
+    },
+    {
+      "path": "customXml/_rels/item1.xml.rels",
+      "size": 296,
+      "sha256": "80482f86e196171d66001e0e74d1900408a3aaf2463e54005d251b5f2db9a0b0"
+    },
+    {
+      "path": "customXml/item1.xml",
+      "size": 289,
+      "sha256": "b30b8fd758aa47aada70ee7d8d8287349d6a21eb03c79bcb2e8930a1789022cc"
+    },
+    {
+      "path": "customXml/itemProps1.xml",
+      "size": 341,
+      "sha256": "a698b2dd20336e0749275b70066a4033cea500d953ef2e224156eed1f8f6d893"
+    },
+    {
+      "path": "docProps/app.xml",
+      "size": 997,
+      "sha256": "5d6f710f04d81cc9a58d1a48a4efecf7e6c3f395c3b7f90efda519a2e675011b"
+    },
+    {
+      "path": "docProps/core.xml",
+      "size": 812,
+      "sha256": "4f3f73c17db4eda3f6b7b5e729b98168f8693d4d2b80b82891dc473b83463f55"
+    },
+    {
+      "path": "word/_rels/document.xml.rels",
+      "size": 10966,
+      "sha256": "e120974ab12bdb4297df779de23762935cab21f5b61b442c9b5c17cfd80fc34e"
+    },
+    {
+      "path": "word/document.xml",
+      "size": 1473909,
+      "sha256": "8d159af296e40f9631fb0bce2ff716d2a2c71166175fc329318cf83691f181a8"
+    },
+    {
+      "path": "word/endnotes.xml",
+      "size": 3050,
+      "sha256": "df29aa060d1bff168eef435da29c14210603a19b0955aac03488f20cbdd879be"
+    },
+    {
+      "path": "word/fontTable.xml",
+      "size": 3493,
+      "sha256": "e6397c694ee006e1244ba1b5ab139061bbba02df76979d4fc4bd519a31ac04b5"
+    },
+    {
+      "path": "word/footer1.xml",
+      "size": 2766,
+      "sha256": "67b1bca00b98f3d78c9cc80ded9cb8c52e5e3221cf2a230d47f8d8c5f188bec3"
+    },
+    {
+      "path": "word/footnotes.xml",
+      "size": 3056,
+      "sha256": "648de4b2949694fd8170fd23a0390efacaa6248589674736885650ca9c962ec4"
+    },
+    {
+      "path": "word/header1.xml",
+      "size": 3042,
+      "sha256": "d68bfd0fac1851a11383f394234589eddbd0532e6d710bf3824d9b60e822be37"
+    },
+    {
+      "path": "word/header2.xml",
+      "size": 3042,
+      "sha256": "57d96cc95ae4b803f301d53dd299a03752c59739b3dfb26541a050b260beb2f6"
+    },
+    {
+      "path": "word/header3.xml",
+      "size": 3042,
+      "sha256": "a702c9af8b2c0bf0a7e5102523f8fadad6a08b99f212a5b9a19118d6a3380f72"
+    },
+    {
+      "path": "word/header4.xml",
+      "size": 3211,
+      "sha256": "8df454ddd4e571c43f2ca2c8fab711d34d16307498434d4d035a471c28bd8117"
+    },
+    {
+      "path": "word/header5.xml",
+      "size": 3345,
+      "sha256": "48a959978e26584a2df280f492d54fd2030a1cf7ffc482c5203d89d35db0e99f"
+    },
+    {
+      "path": "word/media/image1.jpeg",
+      "size": 21418,
+      "sha256": "7347a5f89e00a3dcf470267ba0b826e8e008c90a65dcdaf5701c7420fd71682f"
+    },
+    {
+      "path": "word/media/image10.png",
+      "size": 57889,
+      "sha256": "f809d148c2a54f3e91e4f839e4fe82166d21c017cd66b5211e226861be93a0f0"
+    },
+    {
+      "path": "word/media/image11.png",
+      "size": 86939,
+      "sha256": "bc6196ef27ee3b7b1a04ff4091b7f9eba5ed4bd402b5ce5011a3c5287ab0f1e2"
+    },
+    {
+      "path": "word/media/image12.png",
+      "size": 75922,
+      "sha256": "31ce6efce96605f58d9095388369d4f792b9f8c7a750af7efd67acb6fe604aa8"
+    },
+    {
+      "path": "word/media/image13.png",
+      "size": 111445,
+      "sha256": "e991243bbd60de1670ae8ffb35ea9e67c0cb559e19b61f60722450ef9b82719d"
+    },
+    {
+      "path": "word/media/image14.png",
+      "size": 114505,
+      "sha256": "66619ac6ba0a3b43b479a61bb42a5e3a37436d9daf62e0c30037ddef9f8a1ca0"
+    },
+    {
+      "path": "word/media/image15.png",
+      "size": 93894,
+      "sha256": "aaa9e06486686e023b4bf197a9c72cd01a4b44031753781382ed0a0e9b2c423b"
+    },
+    {
+      "path": "word/media/image16.png",
+      "size": 91783,
+      "sha256": "22323aff275ba0825584c647c7b8c0a3bc15f739fa94379aaf3f959f1de03bac"
+    },
+    {
+      "path": "word/media/image17.png",
+      "size": 66736,
+      "sha256": "79638f7cb272c1fee9c0291d3763f9bc597a22a6c55cdb2fb25ad2cc0c4300ba"
+    },
+    {
+      "path": "word/media/image18.png",
+      "size": 81389,
+      "sha256": "76ded4a5565ada463fb1d70e00894a88bc6dcaef0b357de87df3a056abd3edb4"
+    },
+    {
+      "path": "word/media/image19.png",
+      "size": 74253,
+      "sha256": "61a88441a552b599f331af9ba8290ae9f5bc8fcf052b2ba62b1413aa320e85aa"
+    },
+    {
+      "path": "word/media/image2.png",
+      "size": 6695,
+      "sha256": "3d4f59510d7775bdd709af515bba7782845a67616d29743cad2c8e4199d30886"
+    },
+    {
+      "path": "word/media/image20.png",
+      "size": 511561,
+      "sha256": "3fb3dbaccb1cc65015c23f78fae897592edfcc3a6ae08f8e4c203e8f1296f0a1"
+    },
+    {
+      "path": "word/media/image21.png",
+      "size": 467675,
+      "sha256": "96e4916ac02dbf1948260beabdecc8a83523c069c278309c4baf37edae78efb6"
+    },
+    {
+      "path": "word/media/image22.png",
+      "size": 562428,
+      "sha256": "1dd4ff486aabbf1019304231b32097fd6ae5b2cde59e0a3bfedec9b5ece805a3"
+    },
+    {
+      "path": "word/media/image23.png",
+      "size": 544340,
+      "sha256": "82834ff5800b89efb8f9463243542ca0243e4dfcb1c66ad60fe212d1036f2960"
+    },
+    {
+      "path": "word/media/image24.png",
+      "size": 500119,
+      "sha256": "c5697c838a527ae35ae8b895179e05689f59a1865a0a9a3661b51a9b8530322b"
+    },
+    {
+      "path": "word/media/image25.png",
+      "size": 526774,
+      "sha256": "fb0b5aa3aa8b6bfe77c986aa0fe86dfc7183ed73d6ba94969965e0c8a728b546"
+    },
+    {
+      "path": "word/media/image26.png",
+      "size": 176699,
+      "sha256": "c007b4db4920293fc39e9d11cec1a344f82cd29152d9124f8530469f0e15e7e8"
+    },
+    {
+      "path": "word/media/image27.png",
+      "size": 430436,
+      "sha256": "e5313a603c0cbddd30f59456be23eb532853871b0739728aa4b90765495ec479"
+    },
+    {
+      "path": "word/media/image28.png",
+      "size": 472529,
+      "sha256": "a0f398663bd20ef595de17dcd55f0798122d9ee1ba361dca4aa29fb4dda6a9df"
+    },
+    {
+      "path": "word/media/image29.png",
+      "size": 1275252,
+      "sha256": "667cea67571e1d38c25c32217a0db72877c76630478aaade637491bb0bef4dd0"
+    },
+    {
+      "path": "word/media/image3.png",
+      "size": 28556,
+      "sha256": "340c389c3bd6f3866968bc0c301eab88d3f78f22c56718dd5fc4ff7bc0ba327a"
+    },
+    {
+      "path": "word/media/image30.png",
+      "size": 599378,
+      "sha256": "9926bee2b42bfa157e3788b4c91617c047751042c31996c2ea7c3cf97f97e763"
+    },
+    {
+      "path": "word/media/image31.png",
+      "size": 1208763,
+      "sha256": "52004d4c2609687af5c1a17909d791b9e64cf4b058d3928914ad4006ddfd57dc"
+    },
+    {
+      "path": "word/media/image32.png",
+      "size": 1006372,
+      "sha256": "e1b5937b229f8f341cac99f8b5e56dd3fd3dea38f2881495ec72534d88054136"
+    },
+    {
+      "path": "word/media/image33.png",
+      "size": 607688,
+      "sha256": "d8383887d174e97e86372ca94c42ae95f6d5ee546b48d274e04c770dd7cd81d0"
+    },
+    {
+      "path": "word/media/image34.png",
+      "size": 594383,
+      "sha256": "d76eec6780cc45c2f33d076ddfdb4cfde87b4e190e7c9d77d407a17d07089bad"
+    },
+    {
+      "path": "word/media/image35.png",
+      "size": 614864,
+      "sha256": "8c520bc4e43657bdcffc8a177d707c382a6b94cae571332397f14572a9dd1d16"
+    },
+    {
+      "path": "word/media/image36.png",
+      "size": 672643,
+      "sha256": "77e475dd5d794bc80ead10acbd6ec97c2ac00e49fe1950c03358e2229e5ae860"
+    },
+    {
+      "path": "word/media/image37.png",
+      "size": 824893,
+      "sha256": "9ab1ab56a4ab80990efd1a6be0dae65c8d320652618284c26fb346c6e5fc12d9"
+    },
+    {
+      "path": "word/media/image38.png",
+      "size": 1537560,
+      "sha256": "12ad674f742550ea9cdaaf0103c5cbc82d94cac43283b5c5ae08e90013fe220b"
+    },
+    {
+      "path": "word/media/image39.png",
+      "size": 311239,
+      "sha256": "5aadb34ed11f4a9dcdcda4db76e36f3dbf096e17601e0b769b6bddb2485c25c4"
+    },
+    {
+      "path": "word/media/image4.jpg",
+      "size": 15189,
+      "sha256": "c2f3407143af142121598f8311f285eb215dd65b62c97011ad9bf4e551b7c9fd"
+    },
+    {
+      "path": "word/media/image40.png",
+      "size": 147318,
+      "sha256": "89f791f6c013314388e18d6931c2d8c2924d48529caffee4942ded674e182484"
+    },
+    {
+      "path": "word/media/image41.png",
+      "size": 120808,
+      "sha256": "1cfd9245a4d0fb22033b6f8f259c4ec0ea19f71322c256e77a43a75294c49fbf"
+    },
+    {
+      "path": "word/media/image42.png",
+      "size": 836609,
+      "sha256": "3cce7f508f95b7dc71ef951213de6787b026de84b4d51e3e8afcde5a9296b40c"
+    },
+    {
+      "path": "word/media/image43.png",
+      "size": 69502,
+      "sha256": "f24bc9e732a3c74cc0bc8ef3ab5bdc7c9db4e33a7ffa68a578109ed5113bf23b"
+    },
+    {
+      "path": "word/media/image44.png",
+      "size": 656064,
+      "sha256": "4d9299de7c7afa336523ac748b0cb84fc398d925b475f7f4142c139ee424da4f"
+    },
+    {
+      "path": "word/media/image45.png",
+      "size": 34754,
+      "sha256": "25113f7398d4a57ab1f3f222d35366969fb661236cc1e4c482db4ae7ad21248a"
+    },
+    {
+      "path": "word/media/image46.png",
+      "size": 289078,
+      "sha256": "ea7f181183eac73573e074e09e3589f7a7383f33eae15666413927405e8ce389"
+    },
+    {
+      "path": "word/media/image47.png",
+      "size": 40783,
+      "sha256": "cde0bd900524913acb0cdcf9b2ca95f20e03a27bcaf4dd9d7ead4a6346971906"
+    },
+    {
+      "path": "word/media/image48.png",
+      "size": 529314,
+      "sha256": "9d5f991958083e311690aeeec729168e5c92039ba0ccc52a5e30e7dddfd33d1c"
+    },
+    {
+      "path": "word/media/image49.png",
+      "size": 731068,
+      "sha256": "0ec8a97e449b4c53abd1ce152d9fd938506628f1197b2eed14365c0515d74276"
+    },
+    {
+      "path": "word/media/image5.png",
+      "size": 73319,
+      "sha256": "b1c9cdfe4a927f98b7ce933aa894268a18aebecc655a65f3ac437e728f2a1f6b"
+    },
+    {
+      "path": "word/media/image50.png",
+      "size": 749073,
+      "sha256": "e66808b7216f422d0869b14330775c50bdb2661057563e732b12f9e376df32a6"
+    },
+    {
+      "path": "word/media/image51.png",
+      "size": 63603,
+      "sha256": "c22698c9bc91852548153f41a3e8c9808bdddb90f90db9bcbfe22fc53be63dc6"
+    },
+    {
+      "path": "word/media/image52.png",
+      "size": 36844,
+      "sha256": "c4de0d6231b42b1ba2f6455046b261f878601061d3e16b772cbdc2f9f456c430"
+    },
+    {
+      "path": "word/media/image53.png",
+      "size": 41996,
+      "sha256": "0cc482732286e91a61dc4f146774a76fe04eb309324683106acd078040eb59bb"
+    },
+    {
+      "path": "word/media/image54.png",
+      "size": 135518,
+      "sha256": "c88fab5d0f98ccedeb89b5a942b2807d08f02063aa878987620727b4eca61aee"
+    },
+    {
+      "path": "word/media/image55.png",
+      "size": 127458,
+      "sha256": "82f1a18310a71d2d8d89cd3783c6c1704bd947535f04a7f51b42de85a8ce2961"
+    },
+    {
+      "path": "word/media/image56.png",
+      "size": 227874,
+      "sha256": "446e24d6c3a08f3ea4242e8c98e93f2c3510d8692fa7bc76aa808f003b5e9189"
+    },
+    {
+      "path": "word/media/image57.png",
+      "size": 122706,
+      "sha256": "593a8fd6ccd1d70489142dc16b11dd2fe16dce73fa1c6d4d77b5767ccc7a8a10"
+    },
+    {
+      "path": "word/media/image58.png",
+      "size": 189138,
+      "sha256": "b34754d09cd4395c3a05a124ed4ea82b4cb0fef6cfebdea77131db037dc8d6fc"
+    },
+    {
+      "path": "word/media/image59.png",
+      "size": 37553,
+      "sha256": "3ccc9e4dea60d7dd02ef0879b5969654bfff20f490565cc1989c83bf35943577"
+    },
+    {
+      "path": "word/media/image6.png",
+      "size": 50069,
+      "sha256": "007af56b43ac6a30341a9a5170ad77a971d1054d25760303820c192dd7f1814a"
+    },
+    {
+      "path": "word/media/image60.png",
+      "size": 38398,
+      "sha256": "2ed278f1dddbc59d02c8a247544b99b501d4d56ae791e51055dfad3a42452521"
+    },
+    {
+      "path": "word/media/image61.png",
+      "size": 61452,
+      "sha256": "bedb5fd1d4d79e1546ecd1981daad1261cbdc7a465e7cdc6fd21c889606ed606"
+    },
+    {
+      "path": "word/media/image62.png",
+      "size": 144904,
+      "sha256": "a1fcb1e872ae4c74a158cc0dc49d2988e78fc911826e78a91a35fdd44f0f16cf"
+    },
+    {
+      "path": "word/media/image63.png",
+      "size": 161450,
+      "sha256": "b7de9ce3b7511f6ea05c11ffd581da80a6ad2861d98529df8775c1d65aff1719"
+    },
+    {
+      "path": "word/media/image64.png",
+      "size": 166749,
+      "sha256": "3d7a3a671801de2e3affeb926e19eeb13f5be4b647bcef6f612da9ad3bb50eb5"
+    },
+    {
+      "path": "word/media/image65.png",
+      "size": 253630,
+      "sha256": "683257071acbcccff4caa56e5470f1e12d93003a419fa7405d9edcdd7cf68c63"
+    },
+    {
+      "path": "word/media/image66.png",
+      "size": 162875,
+      "sha256": "c331977baae3cc2df69dbcc3ad2a0934bfcef80519977cc51b01574ba43bc30a"
+    },
+    {
+      "path": "word/media/image7.jpg",
+      "size": 116702,
+      "sha256": "0ded2e014f0b9ff6a1b17e27fe4ca39975cf46671df276edfc57d250596921d9"
+    },
+    {
+      "path": "word/media/image8.png",
+      "size": 49238,
+      "sha256": "aac37ada5188173a38866cb261448b9f22ba1fe7b022476eb640ee28e7dfff0a"
+    },
+    {
+      "path": "word/media/image9.png",
+      "size": 55573,
+      "sha256": "3284f9fcafb1c7eac395a5eba2903c2cbe65f956cc1a2f4e81fd0f28fc55dc48"
+    },
+    {
+      "path": "word/numbering.xml",
+      "size": 280886,
+      "sha256": "a21f42f7bab69be27171188a90fdbadd58c7464afe094549ab7f8bc9fb51e683"
+    },
+    {
+      "path": "word/settings.xml",
+      "size": 9074,
+      "sha256": "13cfe2b8bb2f6451ee91bc1914e97b8cc973036a576066caaa1816606e2f65ad"
+    },
+    {
+      "path": "word/styles.xml",
+      "size": 50357,
+      "sha256": "59fba490fe49220f359d98250c7e5858b9cf621f0229ff9351ad199cc6aa2a52"
+    },
+    {
+      "path": "word/theme/theme1.xml",
+      "size": 8717,
+      "sha256": "e7948e69d1ab51203d82e7e57d491987a16229547a1b6bfd124133a3a895c0ac"
+    },
+    {
+      "path": "word/webSettings.xml",
+      "size": 1083,
+      "sha256": "4a225c07c64feb7f5e4ef8b4444bfe94c0f81e35cb00632fef988cf909172f82"
+    }
+  ]
+}

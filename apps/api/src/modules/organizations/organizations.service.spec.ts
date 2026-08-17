@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { OrganizationsService } from './organizations.service'
 
 describe('OrganizationsService', () => {
@@ -23,6 +23,10 @@ describe('OrganizationsService', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    product_families: {
+      count: jest.fn(),
     },
     $transaction: jest.fn((operations: Promise<unknown>[]) =>
       Promise.all(operations),
@@ -123,5 +127,35 @@ describe('OrganizationsService', () => {
         },
       }),
     )
+  })
+
+  it('prevents deleting an organization used by product families', async () => {
+    prisma.organizations.findFirst.mockResolvedValue(organization)
+    prisma.product_families.count.mockResolvedValue(2)
+
+    await expect(service.remove('org-1')).rejects.toBeInstanceOf(
+      ConflictException,
+    )
+    expect(prisma.organizations.update).not.toHaveBeenCalled()
+  })
+
+  it('soft-deletes an organization without linked product families', async () => {
+    prisma.organizations.findFirst.mockResolvedValue(organization)
+    prisma.product_families.count.mockResolvedValue(0)
+    prisma.organizations.update.mockResolvedValue({
+      ...organization,
+      is_active: false,
+    })
+
+    await service.remove('org-1')
+
+    expect(prisma.organizations.update).toHaveBeenCalledWith({
+      where: { id: 'org-1' },
+      data: {
+        deleted_at: expect.any(Date),
+        is_active: false,
+      },
+      select: expect.any(Object),
+    })
   })
 })

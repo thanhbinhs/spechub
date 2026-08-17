@@ -33,6 +33,8 @@ import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.modul
 import { WikiModule } from "./modules/wiki/wiki.module";
 import { ApiKeysModule } from "./modules/api-keys/api-keys.module";
 import { B2bModule } from "./modules/b2b/b2b.module";
+import { AdminDashboardModule } from "./modules/admin-dashboard/admin-dashboard.module";
+import { CatalogStudioModule } from "./modules/catalog-studio/catalog-studio.module";
 
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -80,6 +82,8 @@ import { RolesGuard } from "./common/guards/roles.guard";
     WikiModule,
     ApiKeysModule,
     B2bModule,
+    AdminDashboardModule,
+    CatalogStudioModule,
   ],
   controllers: [HealthController],
   providers: [

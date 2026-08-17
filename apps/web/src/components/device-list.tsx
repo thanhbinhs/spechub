@@ -1,18 +1,30 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  ArrowRight,
-  BrainCircuit,
+  BookOpen,
   Calendar,
   Cpu,
   DollarSign,
-  GitCompareArrows,
+  Gamepad2,
+  Headphones,
+  Laptop,
   Layers3,
   Smartphone,
+  Tablet,
+  Tv,
+  Watch,
 } from "lucide-react";
 import type { DeviceModelSummary } from "@spechub/api-client";
+import { CatalogScoreBadge } from "@/components/catalog-score";
 import { DeviceArtwork } from "@/components/device-artwork";
+import { CompareToggle } from "@/components/research-workspace";
 import { formatDate, formatPrice, primaryVariant } from "@/lib/format";
+import {
+  localizeDescription,
+  localizeDeviceCategory,
+  localizeReleaseStatus,
+} from "@/lib/localize";
+import { toResearchDevice } from "@/lib/research-device";
 
 export function DeviceList({ models }: { models: DeviceModelSummary[] }) {
   return (
@@ -32,31 +44,40 @@ function DeviceRow({ model }: { model: DeviceModelSummary }) {
     model.product_family?.brand_org?.short_name ??
     model.product_family?.brand_org?.name ??
     "SpecHub";
-  const category = model.product_family?.device_category?.name ?? "Thiết bị";
+  const category = localizeDeviceCategory(
+    model.product_family?.device_category,
+  );
   const variantCount =
     model._count?.device_variants ?? model.device_variants?.length ?? 0;
+  const researchDevice = toResearchDevice(model, variant);
 
   return (
     <article className="group p-4 transition hover:bg-blue-50/40 sm:p-5">
-      <div className="grid gap-4 lg:grid-cols-[150px_minmax(0,1fr)_180px] lg:items-center">
+      <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)_180px] lg:items-center">
         <div className="w-full shrink-0">
           <DeviceArtwork
             compact
             brand={brand}
             name={model.name}
             category={category}
+            imageUrl={model.cover_image_url}
             accent={variant?.color_hex}
+            className="!h-32"
           />
         </div>
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-              <Smartphone size={13} />
+              <DeviceCategoryIcon
+                category={
+                  model.product_family?.device_category?.slug ?? category
+                }
+              />
               {category}
             </span>
             {model.release_status?.name ? (
               <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-                {model.release_status.name}
+                {localizeReleaseStatus(model.release_status)}
               </span>
             ) : null}
           </div>
@@ -68,7 +89,7 @@ function DeviceRow({ model }: { model: DeviceModelSummary }) {
           </Link>
           {model.description ? (
             <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">
-              {model.description}
+              {localizeDescription(model.description)}
             </p>
           ) : null}
 
@@ -93,27 +114,33 @@ function DeviceRow({ model }: { model: DeviceModelSummary }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-          <ActionLink
-            href={`/devices/${model.slug}`}
-            icon={<ArrowRight size={15} />}
-            label="Mở"
+          <CatalogScoreBadge
+            benchmarks={variant?.device_variant_benchmarks}
+            scores={variant?.variant_module_scores}
+            scorecards={variant?.variant_scorecards}
+            categorySlug={model.product_family?.device_category?.slug}
           />
-          <ActionLink
-            href={`/ai?q=${encodeURIComponent(`Phân tích ${model.name}`)}`}
-            icon={<BrainCircuit size={15} />}
-            label="AI"
-          />
-          {variant ? (
-            <ActionLink
-              href={`/compare?ids=${variant.id}`}
-              icon={<GitCompareArrows size={15} />}
-              label="So sánh"
-            />
-          ) : null}
+          {variant ? <CompareToggle device={researchDevice} compact /> : null}
         </div>
       </div>
     </article>
   );
+}
+
+function DeviceCategoryIcon({ category }: { category: string }) {
+  const value = category.toLowerCase();
+
+  if (value.includes("laptop")) return <Laptop size={13} />;
+  if (value.includes("tablet")) return <Tablet size={13} />;
+  if (value.includes("watch")) return <Watch size={13} />;
+  if (value.includes("earbud")) return <Headphones size={13} />;
+  if (value.includes("television") || value.includes("tv")) {
+    return <Tv size={13} />;
+  }
+  if (value.includes("gaming")) return <Gamepad2 size={13} />;
+  if (value.includes("e-reader")) return <BookOpen size={13} />;
+
+  return <Smartphone size={13} />;
 }
 
 function MiniValue({
@@ -135,25 +162,5 @@ function MiniValue({
         {value}
       </span>
     </div>
-  );
-}
-
-function ActionLink({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: ReactNode;
-  label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-600 transition hover:border-blue-300 hover:text-slate-950"
-    >
-      {icon}
-      {label}
-    </Link>
   );
 }

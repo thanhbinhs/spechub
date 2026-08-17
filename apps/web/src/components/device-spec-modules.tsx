@@ -13,19 +13,29 @@ import {
   Network,
   Radio,
   Smartphone,
-  Usb,
 } from "lucide-react";
 import type {
   DeviceVariantDetail,
   HardwareModuleKind,
 } from "@spechub/api-client";
-import { specText } from "@/lib/format";
+import { configurationVersionLabel } from "@/lib/device-benchmark";
+import {
+  formatAperture,
+  formatMeasurement,
+  formatScreenSize,
+  specText,
+} from "@/lib/format";
+import { localizeModuleName, localizeRole } from "@/lib/localize";
 
 type ModuleItem = {
   name: string;
   meta?: string;
   eyebrow?: string;
   href?: string;
+  score?: {
+    value: number;
+    version: string;
+  };
 };
 
 type ModuleGroup = {
@@ -37,6 +47,7 @@ type ModuleGroup = {
 };
 
 const PRIMARY_MODULE_IDS = new Set([
+  "chipset",
   "cpu",
   "memory",
   "gpu-npu",
@@ -55,16 +66,91 @@ export function DeviceSpecModules({
 }: {
   variant?: DeviceVariantDetail;
 }) {
+  const moduleScores = new Map(
+    (variant?.variant_module_scores ?? []).map((item) => [
+      `${item.module_kind}:${item.module_id}`,
+      {
+        value: Number(item.score),
+        version: item.score_version || "v1",
+      },
+    ]),
+  );
+  const getScore = (kind: HardwareModuleKind, id?: string | null) => {
+    if (!id) return undefined;
+    const score = moduleScores.get(`${kind}:${id}`);
+    return score && Number.isFinite(score.value) ? score : undefined;
+  };
+  const normalizedCpus = variant?.variant_cpus?.length
+    ? variant.variant_cpus
+    : (variant?.variant_chipsets ?? []).flatMap(({ chip_role, chipset }) =>
+        (chipset.chipset_cpu_links ?? []).map((link) => ({
+          cpu_role: chip_role,
+          is_primary: link.is_primary,
+          cpu: link.cpu,
+        })),
+      );
+  const normalizedGpus = variant?.variant_gpus?.length
+    ? variant.variant_gpus
+    : (variant?.variant_chipsets ?? []).flatMap(({ chip_role, chipset }) =>
+        (chipset.chipset_gpu_links ?? []).map((link) => ({
+          gpu_role: chip_role,
+          is_primary: link.is_primary,
+          gpu: link.gpu,
+        })),
+      );
+  const normalizedNpus = variant?.variant_npus?.length
+    ? variant.variant_npus
+    : (variant?.variant_chipsets ?? []).flatMap(({ chip_role, chipset }) =>
+        (chipset.chipset_npu_links ?? []).map((link) => ({
+          npu_role: chip_role,
+          is_primary: link.is_primary,
+          npu: link.npu,
+        })),
+      );
+  const normalizedModems = variant?.variant_modems?.length
+    ? variant.variant_modems
+    : (variant?.variant_chipsets ?? []).flatMap(({ chip_role, chipset }) =>
+        (chipset.chipset_modem_links ?? []).map((link) => ({
+          modem_role: chip_role,
+          is_primary: link.is_primary,
+          modem: link.modem,
+        })),
+      );
   const modules: ModuleGroup[] = [
+    {
+      id: "chipset",
+      icon: <Cpu size={18} />,
+      title: "Chipset",
+      description: "Nền tảng xử lý và khả năng tích hợp hệ thống",
+      items: variant?.variant_chipsets?.length
+        ? variant.variant_chipsets.map(({ chip_role, chipset }) => ({
+            name: localizeModuleName(chipset.name),
+            eyebrow: localizeRole(chip_role, "Chipset"),
+            meta: [
+              chipset.manufacturer?.short_name ??
+                chipset.manufacturer?.name ??
+                null,
+              chipset.integrated_5g ? "Tích hợp 5G" : null,
+              chipset.max_ram_gb
+                ? `Hỗ trợ tối đa ${chipset.max_ram_gb} GB RAM`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            href: hardwareHref("chipset", chipset.slug),
+            score: getScore("chipset", chipset.id),
+          }))
+        : [],
+    },
     {
       id: "cpu",
       icon: <Cpu size={18} />,
       title: "Bộ xử lý",
       description: "CPU và cấu hình nhân xử lý",
-      items: variant?.variant_cpus?.length
-        ? variant.variant_cpus.map(({ cpu_role, cpu }) => ({
-            name: cpu.name,
-            eyebrow: cpu_role || "CPU",
+      items: normalizedCpus.length
+        ? normalizedCpus.map(({ cpu_role, cpu }) => ({
+            name: localizeModuleName(cpu.name),
+            eyebrow: localizeRole(cpu_role, "CPU"),
             meta: [
               cpu.core_count ? `${cpu.core_count} nhân` : null,
               cpu.thread_count ? `${cpu.thread_count} luồng` : null,
@@ -72,6 +158,7 @@ export function DeviceSpecModules({
               .filter(Boolean)
               .join(" · "),
             href: hardwareHref("cpu", cpu.slug),
+            score: getScore("cpu", cpu.id),
           }))
         : [],
     },
@@ -79,18 +166,23 @@ export function DeviceSpecModules({
       id: "memory",
       icon: <MemoryStick size={18} />,
       title: "RAM",
-      description: "Dung lượng, chuẩn và tốc độ bộ nhớ",
+      description: "Dung lượng và thông số của chuẩn bộ nhớ",
       items: variant?.variant_memory_configs?.length
         ? variant.variant_memory_configs.map((memory) => ({
-            name: `${memory.capacity_gb} GB ${memory.memory_standard.name}`,
+            name: `${formatMeasurement(memory.capacity_gb, "GB", 0)} ${memory.memory_standard.name}`,
             eyebrow: "Bộ nhớ hệ thống",
             meta: [
-              memory.speed_mhz ? `${memory.speed_mhz} MHz` : null,
+              memory.memory_standard.max_data_rate_mtps
+                ? `tối đa ${memory.memory_standard.max_data_rate_mtps} MT/s`
+                : memory.memory_standard.typical_data_rate_mtps
+                  ? `${memory.memory_standard.typical_data_rate_mtps} MT/s`
+                  : null,
               memory.channel_count ? `${memory.channel_count} kênh` : null,
             ]
               .filter(Boolean)
               .join(" · "),
             href: hardwareHref("memory-standard", memory.memory_standard.slug),
+            score: getScore("memory-standard", memory.memory_standard.id),
           }))
         : [],
     },
@@ -100,16 +192,18 @@ export function DeviceSpecModules({
       title: "Đồ họa & AI",
       description: "GPU và bộ tăng tốc trí tuệ nhân tạo",
       items: [
-        ...(variant?.variant_gpus ?? []).map(({ gpu }) => ({
-          name: gpu.name,
+        ...normalizedGpus.map(({ gpu }) => ({
+          name: localizeModuleName(gpu.name),
           eyebrow: "GPU",
           href: hardwareHref("gpu", gpu.slug),
+          score: getScore("gpu", gpu.id),
         })),
-        ...(variant?.variant_npus ?? []).map(({ npu }) => ({
-          name: npu.name,
+        ...normalizedNpus.map(({ npu }) => ({
+          name: localizeModuleName(npu.name),
           eyebrow: "NPU",
           meta: npu.tops ? `${npu.tops} TOPS` : undefined,
           href: hardwareHref("npu", npu.slug),
+          score: getScore("npu", npu.id),
         })),
       ],
     },
@@ -120,13 +214,14 @@ export function DeviceSpecModules({
       description: "Dung lượng và chuẩn bộ nhớ trong",
       items: variant?.variant_storage_configs?.length
         ? variant.variant_storage_configs.map((storage) => ({
-            name: `${storage.total_capacity_gb} GB ${storage.storage_standard.name}`,
+            name: `${formatMeasurement(storage.total_capacity_gb, "GB", 0)} ${storage.storage_standard.name}`,
             eyebrow: "Bộ nhớ trong",
             meta: storage.is_expandable ? "Có thể mở rộng" : undefined,
             href: hardwareHref(
               "storage-standard",
               storage.storage_standard.slug,
             ),
+            score: getScore("storage-standard", storage.storage_standard.id),
           }))
         : [],
     },
@@ -137,19 +232,18 @@ export function DeviceSpecModules({
       description: "Tấm nền, kích thước và tần số quét",
       items: variant?.variant_displays?.length
         ? variant.variant_displays.map(({ display_unit }) => ({
-            name: display_unit.name ?? "Màn hình chính",
+            name: localizeModuleName(display_unit.name, "Màn hình chính"),
             eyebrow: "Hiển thị",
             meta: [
-              display_unit.size_inch ? `${display_unit.size_inch} inch` : null,
-              display_unit.refresh_rate_hz
-                ? `${display_unit.refresh_rate_hz} Hz`
-                : null,
+              formatScreenSize(display_unit.size_inch),
+              formatMeasurement(display_unit.refresh_rate_hz, "Hz", 0),
             ]
               .filter(Boolean)
               .join(" · "),
             href: display_unit.slug
               ? hardwareHref("display", display_unit.slug)
               : undefined,
+            score: getScore("display", display_unit.id),
           }))
         : [],
     },
@@ -162,14 +256,21 @@ export function DeviceSpecModules({
         variant?.variant_camera_systems?.flatMap((system) =>
           (system.variant_camera_modules ?? []).map(
             ({ camera_module, role }) => ({
-              name: camera_module.name ?? role ?? "Camera",
-              eyebrow: role || "Camera",
+              name: localizeModuleName(
+                camera_module.name,
+                localizeRole(role, "Máy ảnh"),
+              ),
+              eyebrow: localizeRole(role, "Máy ảnh"),
               meta: [
                 camera_module.effective_megapixel
-                  ? `${camera_module.effective_megapixel} MP`
+                  ? formatMeasurement(
+                      camera_module.effective_megapixel,
+                      "MP",
+                      1,
+                    )
                   : null,
                 camera_module.aperture
-                  ? `Khẩu độ ${camera_module.aperture}`
+                  ? `Khẩu độ ${formatAperture(camera_module.aperture)}`
                   : null,
               ]
                 .filter(Boolean)
@@ -177,6 +278,7 @@ export function DeviceSpecModules({
               ...(camera_module.slug
                 ? { href: hardwareHref("camera", camera_module.slug) }
                 : {}),
+              score: getScore("camera", camera_module.id),
             }),
           ),
         ) ?? [],
@@ -188,14 +290,16 @@ export function DeviceSpecModules({
       description: "Dung lượng và công suất sạc hỗ trợ",
       items: variant?.variant_batteries?.length
         ? variant.variant_batteries.map(({ battery_unit }) => ({
-            name: `${specText(battery_unit.capacity_mah)} mAh`,
+            name:
+              formatMeasurement(battery_unit.capacity_mah, "mAh", 0) ??
+              specText(battery_unit.capacity_mah),
             eyebrow: "Pin",
             meta: [
               battery_unit.wired_charging_w
-                ? `${battery_unit.wired_charging_w}W có dây`
+                ? `${formatMeasurement(battery_unit.wired_charging_w, "W", 0)} có dây`
                 : null,
               battery_unit.wireless_charging_w
-                ? `${battery_unit.wireless_charging_w}W không dây`
+                ? `${formatMeasurement(battery_unit.wireless_charging_w, "W", 0)} không dây`
                 : null,
             ]
               .filter(Boolean)
@@ -203,6 +307,7 @@ export function DeviceSpecModules({
             href: battery_unit.slug
               ? hardwareHref("battery", battery_unit.slug)
               : undefined,
+            score: getScore("battery", battery_unit.id),
           }))
         : [],
     },
@@ -210,52 +315,21 @@ export function DeviceSpecModules({
       id: "network",
       icon: <Network size={18} />,
       title: "Kết nối mạng",
-      description: "Modem, chuẩn không dây và băng tần Wi-Fi",
+      description: "Modem và băng tần Wi-Fi",
       items: [
-        ...(variant?.variant_modems ?? []).map(({ modem }) => ({
-          name: modem.name,
+        ...normalizedModems.map(({ modem }) => ({
+          name: localizeModuleName(modem.name),
           eyebrow: "Modem",
           meta: modem.max_downlink_mbps
             ? `Tải xuống tối đa ${modem.max_downlink_mbps} Mbps`
             : undefined,
           href: hardwareHref("modem", modem.slug),
+          score: getScore("modem", modem.id),
         })),
-        ...(variant?.variant_wireless_support ?? []).map(
-          ({ wireless_standard }) => ({
-            name: wireless_standard.name,
-            eyebrow: "Chuẩn không dây",
-            href: hardwareHref("wireless-standard", wireless_standard.slug),
-          }),
-        ),
         ...(variant?.variant_wifi_bands ?? []).map(({ wifi_band }) => ({
           name: wifi_band.name,
           eyebrow: "Băng tần Wi-Fi",
         })),
-      ],
-    },
-    {
-      id: "ports-sensors",
-      icon: <Usb size={18} />,
-      title: "Cổng & cảm biến",
-      description: "Giao tiếp vật lý và cảm biến tích hợp",
-      items: [
-        ...(variant?.variant_ports ?? []).map(
-          ({ port_count, port_standard }) => ({
-            name: `${port_count > 1 ? `${port_count} × ` : ""}${port_standard.name}`,
-            eyebrow: "Cổng kết nối",
-            meta: port_standard.data_speed_gbps
-              ? `${port_standard.data_speed_gbps} Gbps`
-              : undefined,
-            href: hardwareHref("port-standard", port_standard.slug),
-          }),
-        ),
-        ...(variant?.variant_hardware_sensors ?? []).map(
-          ({ hardware_sensor }) => ({
-            name: hardware_sensor.name,
-            eyebrow: "Cảm biến",
-            href: hardwareHref("sensor", hardware_sensor.slug),
-          }),
-        ),
       ],
     },
     {
@@ -273,6 +347,10 @@ export function DeviceSpecModules({
             href: hardwareHref(
               "operating-system",
               item.os_version.operating_system.slug,
+            ),
+            score: getScore(
+              "operating-system",
+              item.os_version.operating_system.id,
             ),
           }))
         : [],
@@ -298,12 +376,6 @@ export function DeviceSpecModules({
   const supportingModules = populatedModules.filter(
     (module) => !PRIMARY_MODULE_IDS.has(module.id),
   );
-  const missingModules = modules.filter((module) => module.items.length === 0);
-  const itemCount = populatedModules.reduce(
-    (total, module) => total + module.items.length,
-    0,
-  );
-
   return (
     <section
       id="hardware-modules"
@@ -318,17 +390,10 @@ export function DeviceSpecModules({
             <h2 className="text-xl font-semibold text-slate-950">
               Mô-đun phần cứng
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Thành phần được sắp theo vai trò để dễ đọc nhanh. Chọn một linh
-              kiện để xem thông số đầy đủ và những thiết bị khác đang sử dụng.
-            </p>
           </div>
           <div className="flex flex-wrap gap-2 text-sm">
             <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">
               {variant?.variant_name ?? "Chưa có phiên bản"}
-            </span>
-            <span className="rounded-full bg-blue-600 px-3 py-1.5 font-semibold text-white">
-              {populatedModules.length} nhóm · {itemCount} thành phần
             </span>
           </div>
         </div>
@@ -350,31 +415,6 @@ export function DeviceSpecModules({
               description="Khả năng kết nối, giao tiếp phần cứng và nền tảng phần mềm."
               modules={supportingModules}
             />
-          ) : null}
-
-          {missingModules.length ? (
-            <details className="group rounded-lg border border-dashed border-slate-300 bg-slate-50/60">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-600 transition hover:text-slate-950">
-                <span className="inline-flex items-center gap-2">
-                  <CircleDashed size={16} />
-                  {missingModules.length} nhóm chưa có dữ liệu
-                </span>
-                <ChevronRight
-                  size={16}
-                  className="transition-transform group-open:rotate-90"
-                />
-              </summary>
-              <div className="flex flex-wrap gap-2 border-t border-dashed border-slate-300 px-4 py-3">
-                {missingModules.map((module) => (
-                  <span
-                    key={module.id}
-                    className="rounded-md bg-white px-2.5 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200"
-                  >
-                    {module.title}
-                  </span>
-                ))}
-              </div>
-            </details>
           ) : null}
         </div>
       ) : (
@@ -469,6 +509,22 @@ function ModuleItemRow({ item }: { item: ModuleItem }) {
           </div>
         ) : null}
       </div>
+      {item.score ? (
+        <span
+          className="shrink-0 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-right text-blue-800"
+          title={`Chỉ số cấu hình SpecHub ${configurationVersionLabel(item.score.version)}; không phải benchmark`}
+        >
+          <strong className="block text-sm leading-none">
+            {formatModuleScore(item.score.value)}
+          </strong>
+          <span className="mt-1 block text-[9px] font-medium">Cấu hình</span>
+        </span>
+      ) : (
+        <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1.5 text-right text-slate-500">
+          <strong className="block text-sm leading-none">—</strong>
+          <span className="mt-1 block text-[9px] font-medium">Chưa chấm</span>
+        </span>
+      )}
       {item.href ? (
         <ChevronRight
           size={17}
@@ -488,4 +544,10 @@ function ModuleItemRow({ item }: { item: ModuleItem }) {
   ) : (
     <div className="flex min-h-16 items-center gap-3 px-4 py-3">{content}</div>
   );
+}
+
+function formatModuleScore(score: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits: 1,
+  }).format(score);
 }

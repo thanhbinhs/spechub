@@ -1,0 +1,277 @@
+{
+  "file": "/Users/macm1/Project/spechub/.codex-work/report-final/input/final-original.docx",
+  "counts": {
+    "high": 1,
+    "medium": 6,
+    "low": 23
+  },
+  "findings": [
+    {
+      "severity": "medium",
+      "kind": "heading_skip",
+      "message": "Heading level jumped from 1 to 3",
+      "context": {
+        "part": "word/document.xml",
+        "text": "2.1.1. Ngôn ngữ lập trình TypeScript"
+      }
+    },
+    {
+      "severity": "medium",
+      "kind": "heading_skip",
+      "message": "Heading level jumped from 2 to 4",
+      "context": {
+        "part": "word/document.xml",
+        "text": "3.1.1.1. Đối với khách truy cập và người dùng"
+      }
+    },
+    {
+      "severity": "high",
+      "kind": "image_missing_alt",
+      "message": "Image missing alt text (descr/title empty)",
+      "context": {
+        "part": "word/document.xml",
+        "id": "2147174565",
+        "name": "image71.png"
+      }
+    },
+    {
+      "severity": "medium",
+      "kind": "table_no_header_row",
+      "message": "Table first row is not marked as header (w:tblHeader missing)",
+      "context": {
+        "part": "word/document.xml"
+      }
+    },
+    {
+      "severity": "medium",
+      "kind": "table_no_header_row",
+      "message": "Table first row is not marked as header (w:tblHeader missing)",
+      "context": {
+        "part": "word/document.xml"
+      }
+    },
+    {
+      "severity": "medium",
+      "kind": "table_no_header_row",
+      "message": "Table first row is not marked as header (w:tblHeader missing)",
+      "context": {
+        "part": "word/document.xml"
+      }
+    },
+    {
+      "severity": "medium",
+      "kind": "table_no_header_row",
+      "message": "Table first row is not marked as header (w:tblHeader missing)",
+      "context": {
+        "part": "word/document.xml"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.typescriptlang.org/docs/handbook/intro.html"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://react.dev/"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://nextjs.org/docs/app"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://docs.nestjs.com/"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://fastify.dev/docs/latest/"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.postgresql.org/docs/16/indexes.html"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.prisma.io/docs/orm/v6"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://redis.io/docs/latest/develop/data-types/"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.meilisearch.com/docs/"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://github.com/pgvector/pgvector"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://docs.ollama.com/capabilities/embeddings"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://docs.ollama.com/api/chat"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://arxiv.org/abs/2412.15115"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://ollama.com/library/qwen2.5"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://arxiv.org/abs/2005.11401"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://roy.gbiv.com/pubs/dissertation/top.htm"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.rfc-editor.org/rfc/rfc9110.html"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://www.rfc-editor.org/rfc/rfc7519.html"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://code.visualstudio.com/docs"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://tailwindcss.com/docs"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://tanstack.com/query/latest/docs/framework/react"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://turborepo.dev/docs"
+      }
+    },
+    {
+      "severity": "low",
+      "kind": "hyperlink_raw_url",
+      "message": "Hyperlink display text is a raw URL (often less accessible)",
+      "context": {
+        "part": "word/document.xml",
+        "text": "https://pnpm.io/"
+      }
+    }
+  ]
+}

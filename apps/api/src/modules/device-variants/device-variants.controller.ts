@@ -18,9 +18,11 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { USER_ROLES } from "../../common/constants";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { Public } from "../../common/decorators/public.decorator";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CompareDeviceVariantsDto } from "./dto/compare-device-variants.dto";
+import { CreateDeviceBundleDto } from "./dto/create-device-bundle.dto";
 import { CreateDeviceVariantDto } from "./dto/create-device-variant.dto";
 import { DeviceVariantResponseDto } from "./dto/device-variant-response.dto";
 import { QueryDeviceVariantsDto } from "./dto/query-device-variants.dto";
@@ -55,6 +57,15 @@ export class DeviceVariantsController {
   }
 
   @Public()
+  @Get("scoring-profiles")
+  @ApiOperation({
+    summary: "List category scoring profiles and their fixed weights",
+  })
+  listScoringProfiles() {
+    return this.deviceVariantsService.listScoringProfiles();
+  }
+
+  @Public()
   @Get("compare")
   @ApiOperation({ summary: "Compare 2 to 4 device variants" })
   @ApiResponse({ status: 200, type: DeviceVariantResponseDto, isArray: true })
@@ -77,6 +88,19 @@ export class DeviceVariantsController {
   @ApiOperation({ summary: "Create device variant" })
   create(@Body() dto: CreateDeviceVariantDto) {
     return this.deviceVariantsService.create(dto);
+  }
+
+  @Post("with-device-model")
+  @ApiBearerAuth()
+  @Roles(USER_ROLES.ADMIN, USER_ROLES.EDITOR)
+  @ApiOperation({
+    summary: "Create a device model and its initial variant in one transaction",
+  })
+  createWithDeviceModel(
+    @Body() dto: CreateDeviceBundleDto,
+    @CurrentUser("id") userId: string,
+  ) {
+    return this.deviceVariantsService.createWithDeviceModel(dto, userId);
   }
 
   @Patch(":id")

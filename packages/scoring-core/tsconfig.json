@@ -1,0 +1,15 @@
+{
+  "extends": "@spechub/config/typescript/base",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "incremental": false
+  },
+  "include": ["src/**/*.ts"]
+}
